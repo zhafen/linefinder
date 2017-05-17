@@ -1,8 +1,10 @@
-# run as >>> execfile('track.py')
+#!/usr/bin/env python
+'''Script for tracking particles.
 
-#import matplotlib
-#matplotlib.use('Agg')
-#import matplotlib.pyplot as plt
+@author: Daniel Angles-Alcazar, Zach Hafen
+@contact: zachary.h.hafen@gmail.com
+@status: Development
+'''
 
 import numpy as np
 import gadget as g
@@ -13,11 +15,8 @@ import sys as sys
 import gc as gc
 import h5py as h5py
 
-import daa_lib as daa
-from daa_constants import *
-
-import imp
-imp.reload(daa)
+import tracking_tools
+from tracking_constants import *
 
 time_start = time.time()
 
@@ -130,7 +129,7 @@ for ns in range( snap_end, snap_ini-1, -(1+nskip) ):
 
    time_1 = time.time()
 
-   dfid, redshift = daa.find_ids( simdir, ns, Ptype, theIDs, HostGalaxy=1, HostHalo=1 )
+   dfid, redshift = tracking_tools.find_ids( simdir, ns, Ptype, theIDs, HostGalaxy=1, HostHalo=1 )
 
 
    #ptrack['redshift'][:,j] = redshift

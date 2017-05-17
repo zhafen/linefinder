@@ -1,4 +1,11 @@
-# run as >>> execfile('accmode.py')
+#!/usr/bin/env python
+'''Script for categorizing particles into different accretion modes.
+
+@author: Daniel Angles-Alcazar, Zach Hafen
+@contact: zachary.h.hafen@gmail.com
+@status: Development
+'''
+
 
 import numpy as np
 from scipy import stats
@@ -12,11 +19,8 @@ import gc as gc
 import h5py as h5py
 from glob import glob
 
-import daa_lib as daa
-from daa_constants import *
-
-import imp
-imp.reload(daa)
+import astro_tools
+from tracking_constants import *
 
 time_start = time.time()
 
@@ -124,7 +128,7 @@ for sname in sim_list:
  R = np.sqrt((r*r).sum(axis=2))                   
 
  # --- Hubble factor at all redshift
- hubble_factor = daa.hubble_z( f['redshift'][0:nsnap], h=header['hubble'], Omega0=header['Omega0'], OmegaLambda=header['OmegaLambda'] )
+ hubble_factor = astro_tools.hubble_z( f['redshift'][0:nsnap], h=header['hubble'], Omega0=header['Omega0'], OmegaLambda=header['OmegaLambda'] )
 
  # --- physical velocity wrt galaxy center (km/s)
  # WARNING: need to update with v_phi??
@@ -251,7 +255,7 @@ for sname in sim_list:
  Mvir = np.zeros(nsnap)
  nmaxh = 1000
  for ns in range(snaplist.size):
-    halos = daa.read_AHF_halos(simdir, snaplist[ns] )
+    halos = astro_tools.read_AHF_halos(simdir, snaplist[ns] )
     ind = np.where(IsStarInside[:,ns]==1)[0]
     if ind.size <= nmaxh:
       mode, count = stats.mode( f['HaloID'][ ind, ns ] )
