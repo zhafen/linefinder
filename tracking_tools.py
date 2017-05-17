@@ -9,9 +9,21 @@
 ########################################################################
 
 def find_ids( simdir, snapnum, theTypes, theIDs, HostGalaxy=0, HostHalo=0 ):
-  '''Finds the IDs?
-  '''
+  '''Find the information for particular IDs in a given snapshot, ordered by the ID list you pass.
 
+  Args:
+    simdir (str): The targeted simulation directory.
+    snapnum (int): The snapshot to find the IDs for.
+    theTypes (list of ints): Which particle types to target.
+    theIDs (np.array): The particle IDs you want to find.
+    HostGalaxy (bool): Whether or not to include the host galaxy in the returned data. (Calculated via SKID)
+    HostHalo (bool): Whether or not to include the host halo in the returned data. (Calculated via AHF)
+
+  Returns:
+    dfid (pandas.DataFrame): Dataframe for the selected IDs, ordered by theIDs.
+        Contains standard particle information, e.g. position, metallicity, etc.
+    redshift (float): Redshift of the snapshot.
+  '''
 
    snapdir = simdir + '/snapdir_' + g.snap_ext(snapnum)
 
@@ -29,7 +41,6 @@ def find_ids( simdir, snapnum, theTypes, theIDs, HostGalaxy=0, HostHalo=0 ):
    v0_all    = np.array([])
    v1_all    = np.array([])
    v2_all    = np.array([])
-
 
    ###########################
     ### GET PARTICLE DATA ###
@@ -60,7 +71,6 @@ def find_ids( simdir, snapnum, theTypes, theIDs, HostGalaxy=0, HostHalo=0 ):
 
       thistype = np.zeros(pnum,dtype='int8'); thistype.fill(Ptype)
 
-
       id_all    = np.append( id_all, P['id'] )
       Ptype_all = np.append( Ptype_all, thistype )
       rho_all   = np.append( rho_all, rho )
@@ -85,16 +95,17 @@ def find_ids( simdir, snapnum, theTypes, theIDs, HostGalaxy=0, HostHalo=0 ):
     ### FIND theIDs ###
    #####################
 
-
    allvar = { 'id':id_all, 'Ptype':Ptype_all, 'rho':rho_all, 'T':T_all, 'z':z_all, 'm':m_all, \
               'x0':x0_all, 'x1':x1_all, 'x2':x2_all, \
               'v0':v0_all, 'v1':v1_all, 'v2':v2_all }
 
+   # Make a data frame.
    df = pd.DataFrame( data=allvar, index=id_all )      
 
+   # Make a data frame selecting only the ids.
    dfid = df.ix[theIDs].copy()                         # order in dfid is the same as order in theIDs **IF** there are no repeated indexes in df !!  (version dependent?)
 
-   if not np.array_equal( theIDs, dfid['id'].values):
+   assert np.array_equal( theIDs, dfid['id'].values):
      print 'WARNING!  issue with IDs (0)  !!!'
 
    del P, allvar, df                                  
