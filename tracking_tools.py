@@ -14,133 +14,171 @@ from readsnap import readsnap
 
 ########################################################################
 
-def find_ids( simdir, snapnum, theTypes, theIDs, HostGalaxy=0, HostHalo=0 ):
-  '''Find the information for particular IDs in a given snapshot, ordered by the ID list you pass.
+class IDFinder(object):
 
-  Args:
-    simdir (str): The targeted simulation directory.
-    snapnum (int): The snapshot to find the IDs for.
-    theTypes (list of ints): Which particle types to target.
-    theIDs (np.array): The particle IDs you want to find.
-    HostGalaxy (bool): Whether or not to include the host galaxy in the returned data. (Calculated via SKID)
-    HostHalo (bool): Whether or not to include the host halo in the returned data. (Calculated via AHF)
+  def __init__(self):
+    pass
 
-  Returns:
-    dfid (pandas.DataFrame): Dataframe for the selected IDs, ordered by theIDs.
-        Contains standard particle information, e.g. position, metallicity, etc.
-    redshift (float): Redshift of the snapshot.
-  '''
+  ########################################################################
 
-   snapdir = simdir + '/snapdir_' + g.snap_ext(snapnum)
+  def find_ids( self, sdir, snum, types, targeted_ids, host_galaxy=0, host_halo=0 ):
+    '''Find the information for particular IDs in a given snapshot, ordered by the ID list you pass.
 
-   print '\nreading... ', snapdir
+    Args:
+      sdir (str): The targeted simulation directory.
+      snum (int): The snapshot to find the IDs for.
+      types (list of ints): Which particle types to target.
+      targeted_ids (np.array): The particle IDs you want to find.
+      host_galaxy (bool): Whether or not to include the host galaxy in the returned data. (Calculated via SKID)
+      host_halo (bool): Whether or not to include the host halo in the returned data. (Calculated via AHF)
 
-   id_all    = np.array([],dtype='int64')
-   Ptype_all = np.array([],dtype='int8')
-   rho_all   = np.array([])
-   T_all     = np.array([])
-   z_all     = np.array([])
-   m_all     = np.array([])
-   x0_all    = np.array([])
-   x1_all    = np.array([])
-   x2_all    = np.array([])
-   v0_all    = np.array([])
-   v1_all    = np.array([])
-   v2_all    = np.array([])
+    Returns:
+      dfid (pandas.DataFrame): Dataframe for the selected IDs, ordered by targeted_ids.
+          Contains standard particle information, e.g. position, metallicity, etc.
+      redshift (float): Redshift of the snapshot.
+    '''
 
-   ###########################
-    ### GET PARTICLE DATA ###
-   ###########################
+    # Store the targeted ids for easy access.
+    self.sdir = sdir
+    self.snum = snum
+    self.types = types
+    self.targeted_ids = targeted_ids
 
-   time_start = time.time()
+    # Make a big list of the relevant particle data, across all the particle data types
+    self.full_snap_data = self.concatenate_particle_data()
 
-   for Ptype in theTypes:
+    # Find targeted_ids 
+    self.dfid = self.select_ids()
 
-      P = readsnap(simdir,snapnum,Ptype,cosmological=1,skip_bh=1,header_only=0)
+    # Add galaxy and halo data
+    self.add_environment_data( host_galaxy, host_halo )
+
+    return dfid, redshift
+
+  ########################################################################
+
+  def concatenate_particle_data(self):
+    '''Get all the particle data for the snapshot in one big array. (Daniel must use this format somehow...)
+
+    Returns:
+      full_snap_data (dict): A dictionary of the concatenated particle data.
+    '''
+
+    print 'Reading data...'
+
+    id_all    = []
+    p_type_all = []
+    rho_all   = []
+    T_all     = []
+    z_all     = []
+    m_all     = []
+    x0_all    = []
+    x1_all    = []
+    x2_all    = []
+    v0_all    = []
+    v1_all    = []
+    v2_all    = []
+
+    time_start = time.time()
+
+    for p_type in types:
+
+      P = readsnap( self.sdir, self.snum, p_type, cosmological=1, skip_bh=1, header_only=0)
 
       if P['k'] < 0:
          continue
       pnum = P['id'].size
 
-      print '       ...  ', pnum, '   type', Ptype , ' particles'
+      print '       ...  ', pnum, '   type', p_type , ' particles'
 
       if 'rho' in P:
           rho = P['rho']
       else:
-          rho = np.zeros(pnum)    #; rho.fill(-1)
+          rho = [0,]*pnum    #; rho.fill(-1)
 
       if 'u' in P:
           T = g.gas_temperature(P['u'],P['ne'])
       else:
-          T = np.zeros(pnum)      #; T.fill(-1)
+          T = [0,]*pnum      #; T.fill(-1)
 
-      thistype = np.zeros(pnum,dtype='int8'); thistype.fill(Ptype)
+      thistype = np.zeros(pnum,dtype='int8'); thistype.fill(p_type)
 
-      id_all    = np.append( id_all, P['id'] )
-      Ptype_all = np.append( Ptype_all, thistype )
-      rho_all   = np.append( rho_all, rho )
-      T_all     = np.append( T_all, T )
-      z_all     = np.append( z_all, P['z'][:,0] )
-      m_all    = np.append( m_all, P['m'] )
-      x0_all    = np.append( x0_all, P['p'][:,0] )
-      x1_all    = np.append( x1_all, P['p'][:,1] )
-      x2_all    = np.append( x2_all, P['p'][:,2] )
-      v0_all    = np.append( v0_all, P['v'][:,0] )
-      v1_all    = np.append( v1_all, P['v'][:,1] )
-      v2_all    = np.append( v2_all, P['v'][:,2] )
+      id_all.append( P['id'] )
+      p_type_all.append( thistype )
+      rho_all.append( rho )
+      T_all.append( T )
+      z_all.append( P['z'][:,0] )
+      m_all.append( P['m'] )
+      x0_all.append( P['p'][:,0] )
+      x1_all.append( P['p'][:,1] )
+      x2_all.append( P['p'][:,2] )
+      v0_all.append( P['v'][:,0] )
+      v1_all.append( P['v'][:,1] )
+      v2_all.append( P['v'][:,2] )
 
       redshift = P['redshift']
 
-   time_end = time.time()
+    time_end = time.time()
 
-   print 'readsnap done in ... ', time_end - time_start, ' seconds'
+    print 'readsnap done in ... ', time_end - time_start, ' seconds'
 
-   #####################
-    ### FIND theIDs ###
-   #####################
-
-   allvar = { 'id':id_all, 'Ptype':Ptype_all, 'rho':rho_all, 'T':T_all, 'z':z_all, 'm':m_all, \
+    full_snap_data = { 'id':id_all, 'p_type':p_type_all, 'rho':rho_all, 'T':T_all, 'z':z_all, 'm':m_all, \
               'x0':x0_all, 'x1':x1_all, 'x2':x2_all, \
               'v0':v0_all, 'v1':v1_all, 'v2':v2_all }
 
-   # Make a data frame.
-   df = pd.DataFrame( data=allvar, index=id_all )      
+    # Convert to numpy arrays
+    for key in full_snap_data.keys():
+      full_snap_data[key] = np.array( full_snap_data[key] )
 
-   # Make a data frame selecting only the ids.
-   dfid = df.ix[theIDs].copy()                         # order in dfid is the same as order in theIDs **IF** there are no repeated indexes in df !!  (version dependent?)
+    return full_snap_data
 
-   assert np.array_equal( theIDs, dfid['id'].values):
-     print 'WARNING!  issue with IDs (0)  !!!'
+  ########################################################################
 
-   del P, allvar, df                                  
+  def select_ids(self):
 
+    # Make a data frame.
+    df = pd.DataFrame( data=self.full_snap_data, index=self.full_snap_data['id'] )      
 
+    # Make a data frame selecting only the ids.
+    # order in dfid is the same as order in targeted_ids **IF** there are no repeated indexes in df !!  (version dependent?)
+    dfid = df.ix[targeted_ids].copy()
 
-   if (HostGalaxy==1):
+    assert np.array_equal( self.targeted_ids, dfid['id'].values)
 
-      data = read_skid( simdir, snapnum, FileType='grp' )
+    return dfid
 
-      data['GalID'][ data['GalID'] == 0 ] = -1                          # redefine No host galaxy as GalID = -1 rather than 0
+  ########################################################################
+
+  def add_environment_data(self):
+
+    if (host_galaxy==1):
+
+      data = read_skid( sdir, snum, FileType='grp' )
+
+      # redefine No host galaxy as GalID = -1 rather than 0
+      data['GalID'][ data['GalID'] == 0 ] = -1                          
 
       gf = pd.DataFrame( data=data, index=data['id'] )
 
-      gf.drop_duplicates('id', take_last=False, inplace=True)           # make sure there are no duplicate ids
+      # make sure there are no duplicate ids
+      gf.drop_duplicates('id', take_last=False, inplace=True)           
 
-      gfid = gf.ix[theIDs].copy()                                       # order in gfid should be the same as order in theIDS 
+      # order in gfid should be the same as order in theIDS 
+      gfid = gf.ix[targeted_ids].copy()                                       
 
       del data, gf
 
-      dfid = dfid.join( gfid['GalID'] )                                 # this should maintain the same order as theIDs
-      if not np.array_equal( theIDs, dfid['id'].values):
+      # this should maintain the same order as targeted_ids
+      dfid = dfid.join( gfid['GalID'] )                                 
+      if not np.array_equal( targeted_ids, dfid['id'].values):
         print 'WARNING!  issue with IDs (0)  !!!'
 
-      #dfid['GalID'][ pd.isnull(dfid['GalID']) ] = -1                   # there shouldn't be any null values
+      # there shouldn't be any null values
+      #dfid['GalID'][ pd.isnull(dfid['GalID']) ] = -1                   
 
+    if (host_halo==1):
 
-
-   if (HostHalo==1):
-
-      AHFile = glob( simdir + '/snap' + g.snap_ext(snapnum) + 'Rpep..z*.AHF_particles')[0]
+      AHFile = glob( sdir + '/snap' + g.snap_ext(snum) + 'Rpep..z*.AHF_particles')[0]
 
       print '\nreading... ', AHFile
 
@@ -148,26 +186,30 @@ def find_ids( simdir, snapnum, theTypes, theIDs, HostGalaxy=0, HostHalo=0 ):
 
       hf = pd.DataFrame( data=data, index=data['id'] )
 
-      hfid = hf.ix[theIDs].copy()             # WARNING:  order in hfid may **NOT** be the same as order in theIDS if there are reated indexes in hf !!!  (might be version dependent...)
- 
+      # WARNING:  order in hfid may **NOT** be the same as order in theIDS if there are reated indexes in hf !!!  (might be version dependent...)
+      hfid = hf.ix[targeted_ids].copy()             
+
       del data, hf
 
      ### NOTE: use keep='first' ??
 
-      hfid_host = hfid.drop_duplicates('id', take_last=False, inplace=False)   # this keeps ONLY the FIRST value corresponding to each repeated id (i.e. now there are NO repeated IDs in hfid_host)
-      dfid = dfid.join( hfid_host['HaloID'] )      # this maintains the same order as theIDs because now hfid has NO repeated indexes (even if hfid has a different order)
-      if not np.array_equal( theIDs, dfid['id'].values):
+      # this keeps ONLY the FIRST value corresponding to each repeated id (i.e. now there are NO repeated IDs in hfid_host)
+      hfid_host = hfid.drop_duplicates('id', take_last=False, inplace=False)   
+      # this maintains the same order as targeted_ids because now hfid has NO repeated indexes (even if hfid has a different order)
+      dfid = dfid.join( hfid_host['HaloID'] )      
+      if not np.array_equal( targeted_ids, dfid['id'].values):
         print 'WARNING!  issue with IDs (1)  !!!'
 
-      hfid_subhost = hfid[ hfid.duplicated('id', take_last=False) ].copy()  # this keeps ALL values EXCEPT the FIRST one for each repeated id (i.e. there might be repeated IDs in hfid_subhost)
-      hfid_subhost.drop_duplicates('id', take_last=False, inplace=True)    # this keeps ONLY the FIRST value corresponding to each repeated id (i.e. now there are NO repeated IDs in hfid_subhost)
+      # this keeps ALL values EXCEPT the FIRST one for each repeated id (i.e. there might be repeated IDs in hfid_subhost)
+      hfid_subhost = hfid[ hfid.duplicated('id', take_last=False) ].copy()  
+      # this keeps ONLY the FIRST value corresponding to each repeated id (i.e. now there are NO repeated IDs in hfid_subhost)
+      hfid_subhost.drop_duplicates('id', take_last=False, inplace=True)    
       hfid_subhost.rename(columns={'HaloID':'SubHaloID'}, inplace=True)
       dfid = dfid.join( hfid_subhost['SubHaloID'] )
-      if not np.array_equal( theIDs, dfid['id'].values):
+      if not np.array_equal( targeted_ids, dfid['id'].values):
         print 'WARNING!  issue with IDs (2)  !!!'
 
       dfid['HaloID'][ pd.isnull(dfid['HaloID']) ] = -1
       dfid['SubHaloID'][ pd.isnull(dfid['SubHaloID']) ] = -1
       
 
-   return dfid, redshift
