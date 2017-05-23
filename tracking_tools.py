@@ -6,6 +6,12 @@
 @status: Development
 '''
 
+import numpy as np
+import pandas as pd
+import time
+
+from readsnap import readsnap
+
 ########################################################################
 
 def find_ids( simdir, snapnum, theTypes, theIDs, HostGalaxy=0, HostHalo=0 ):
@@ -50,8 +56,7 @@ def find_ids( simdir, snapnum, theTypes, theIDs, HostGalaxy=0, HostHalo=0 ):
 
    for Ptype in theTypes:
 
-      #P = g.readsnap(snapdir,snapnum,Ptype,cosmological=1,skip_bh=1,header_only=0)
-      P = g.readsnap(simdir,snapnum,Ptype,cosmological=1,skip_bh=1,header_only=0)
+      P = readsnap(simdir,snapnum,Ptype,cosmological=1,skip_bh=1,header_only=0)
 
       if P['k'] < 0:
          continue
@@ -89,7 +94,6 @@ def find_ids( simdir, snapnum, theTypes, theIDs, HostGalaxy=0, HostHalo=0 ):
    time_end = time.time()
 
    print 'readsnap done in ... ', time_end - time_start, ' seconds'
-   #print 'id_all.size = ', id_all.size, np.unique( id_all ).size
 
    #####################
     ### FIND theIDs ###
