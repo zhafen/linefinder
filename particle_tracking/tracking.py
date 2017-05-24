@@ -21,19 +21,19 @@ class IDFinder(object):
 
   ########################################################################
 
-  def find_ids( self, sdir, snum, types, targeted_ids, host_galaxy=0, host_halo=0 ):
+  def find_ids( self, sdir, snum, types, target_ids, host_galaxy=0, host_halo=0 ):
     '''Find the information for particular IDs in a given snapshot, ordered by the ID list you pass.
 
     Args:
       sdir (str): The targeted simulation directory.
       snum (int): The snapshot to find the IDs for.
       types (list of ints): Which particle types to target.
-      targeted_ids (np.array): The particle IDs you want to find.
+      target_ids (np.array): The particle IDs you want to find.
       host_galaxy (bool): Whether or not to include the host galaxy in the returned data. (Calculated via SKID)
       host_halo (bool): Whether or not to include the host halo in the returned data. (Calculated via AHF)
 
     Returns:
-      dfid (pandas.DataFrame): Dataframe for the selected IDs, ordered by targeted_ids.
+      dfid (pandas.DataFrame): Dataframe for the selected IDs, ordered by target_ids.
           Contains standard particle information, e.g. position, metallicity, etc.
       redshift (float): Redshift of the snapshot.
     '''
@@ -42,12 +42,12 @@ class IDFinder(object):
     self.sdir = sdir
     self.snum = snum
     self.types = types
-    self.targeted_ids = targeted_ids
+    self.target_ids = target_ids
 
     # Make a big list of the relevant particle data, across all the particle data types
     self.full_snap_data = self.concatenate_particle_data()
 
-    # Find targeted_ids 
+    # Find target_ids 
     self.dfid = self.select_ids()
 
     # Add galaxy and halo data
@@ -140,10 +140,10 @@ class IDFinder(object):
     df = pd.DataFrame( data=self.full_snap_data, index=self.full_snap_data['id'] )      
 
     # Make a data frame selecting only the ids.
-    # order in dfid is the same as order in targeted_ids **IF** there are no repeated indexes in df !!  (version dependent?)
-    dfid = df.ix[targeted_ids].copy()
+    # order in dfid is the same as order in target_ids **IF** there are no repeated indexes in df !!  (version dependent?)
+    dfid = df.ix[ self.target_ids ].copy()
 
-    assert np.array_equal( self.targeted_ids, dfid['id'].values)
+    assert np.array_equal( self.target_ids, dfid['id'].values)
 
     return dfid
 
@@ -164,13 +164,13 @@ class IDFinder(object):
       gf.drop_duplicates('id', take_last=False, inplace=True)           
 
       # order in gfid should be the same as order in theIDS 
-      gfid = gf.ix[targeted_ids].copy()                                       
+      gfid = gf.ix[target_ids].copy()                                       
 
       del data, gf
 
-      # this should maintain the same order as targeted_ids
+      # this should maintain the same order as target_ids
       dfid = dfid.join( gfid['GalID'] )                                 
-      if not np.array_equal( targeted_ids, dfid['id'].values):
+      if not np.array_equal( target_ids, dfid['id'].values):
         print 'WARNING!  issue with IDs (0)  !!!'
 
       # there shouldn't be any null values
@@ -187,7 +187,7 @@ class IDFinder(object):
       hf = pd.DataFrame( data=data, index=data['id'] )
 
       # WARNING:  order in hfid may **NOT** be the same as order in theIDS if there are reated indexes in hf !!!  (might be version dependent...)
-      hfid = hf.ix[targeted_ids].copy()             
+      hfid = hf.ix[target_ids].copy()             
 
       del data, hf
 
@@ -195,9 +195,9 @@ class IDFinder(object):
 
       # this keeps ONLY the FIRST value corresponding to each repeated id (i.e. now there are NO repeated IDs in hfid_host)
       hfid_host = hfid.drop_duplicates('id', take_last=False, inplace=False)   
-      # this maintains the same order as targeted_ids because now hfid has NO repeated indexes (even if hfid has a different order)
+      # this maintains the same order as target_ids because now hfid has NO repeated indexes (even if hfid has a different order)
       dfid = dfid.join( hfid_host['HaloID'] )      
-      if not np.array_equal( targeted_ids, dfid['id'].values):
+      if not np.array_equal( target_ids, dfid['id'].values):
         print 'WARNING!  issue with IDs (1)  !!!'
 
       # this keeps ALL values EXCEPT the FIRST one for each repeated id (i.e. there might be repeated IDs in hfid_subhost)
@@ -206,7 +206,7 @@ class IDFinder(object):
       hfid_subhost.drop_duplicates('id', take_last=False, inplace=True)    
       hfid_subhost.rename(columns={'HaloID':'SubHaloID'}, inplace=True)
       dfid = dfid.join( hfid_subhost['SubHaloID'] )
-      if not np.array_equal( targeted_ids, dfid['id'].values):
+      if not np.array_equal( target_ids, dfid['id'].values):
         print 'WARNING!  issue with IDs (2)  !!!'
 
       dfid['HaloID'][ pd.isnull(dfid['HaloID']) ] = -1
