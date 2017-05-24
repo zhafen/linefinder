@@ -194,19 +194,25 @@ def readsnap(sdir,snum,ptype, load_additional_ids=0, snapshot_name='snapshot', e
 
     file.close();
     if (ptype==0):
-       ret_dict = {'hubble':hubble,'boxsize':boxsize,'time':time,'redshift':redshift,'flag_sfr':flag_sfr,'flag_feedbacktp':flag_feedbacktp,'flag_cooling':flag_cooling,'omega_matter':omega_matter,'omega_lambda':omega_lambda,'flag_stellarage':flag_stellarage,'flag_metals':flag_metals,'k':1,'p':pos,'v':vel,'m':mass,'id':ids,'child_ids':child_ids,'id_gens':id_gens,'u':ugas,'rho':rho,'h':hsml,'ne':nume,'nh':numh,'sfr':sfr}
+       ret_dict = {'hubble':hubble,'boxsize':boxsize,'time':time,'redshift':redshift,'flag_sfr':flag_sfr,'flag_feedbacktp':flag_feedbacktp,'flag_cooling':flag_cooling,'omega_matter':omega_matter,'omega_lambda':omega_lambda,'flag_stellarage':flag_stellarage,'flag_metals':flag_metals,'k':1,'p':pos,'v':vel,'m':mass,'id':ids,'u':ugas,'rho':rho,'h':hsml,'ne':nume,'nh':numh,'sfr':sfr}
        if flag_metals>0:
          ret_dict['z'] = metal
-       return ret_dict
-    if (ptype==4):
-        ret_dict = {'hubble':hubble,'boxsize':boxsize,'time':time,'redshift':redshift,'flag_sfr':flag_sfr,'flag_feedbacktp':flag_feedbacktp,'flag_cooling':flag_cooling,'omega_matter':omega_matter,'omega_lambda':omega_lambda,'flag_stellarage':flag_stellarage,'flag_metals':flag_metals,'k':1,'p':pos,'v':vel,'m':mass,'id':ids,'child_ids':child_ids,'id_gens':id_gens,'age':stellage}
+    elif (ptype==4):
+        ret_dict = {'hubble':hubble,'boxsize':boxsize,'time':time,'redshift':redshift,'flag_sfr':flag_sfr,'flag_feedbacktp':flag_feedbacktp,'flag_cooling':flag_cooling,'omega_matter':omega_matter,'omega_lambda':omega_lambda,'flag_stellarage':flag_stellarage,'flag_metals':flag_metals,'k':1,'p':pos,'v':vel,'m':mass,'id':ids,'age':stellage}
         if flag_metals>0:
           ret_dict['z'] = metal
-        return ret_dict
-    if (ptype==5) and (skip_bh==0):
-        return {'hubble':hubble,'boxsize':boxsize,'time':time,'redshift':redshift,'flag_sfr':flag_sfr,'flag_feedbacktp':flag_feedbacktp,'flag_cooling':flag_cooling,'omega_matter':omega_matter,'omega_lambda':omega_lambda,'flag_stellarage':flag_stellarage,'flag_metals':flag_metals,'k':1,'p':pos,'v':vel,'m':mass,'id':ids,'child_ids':child_ids,'id_gens':id_gens,'mbh':bhmass,'mdot':bhmdot}
-    return {'hubble':hubble,'boxsize':boxsize,'time':time,'redshift':redshift,'flag_sfr':flag_sfr,'flag_feedbacktp':flag_feedbacktp,'flag_cooling':flag_cooling,'omega_matter':omega_matter,'omega_lambda':omega_lambda,'flag_stellarage':flag_stellarage,'flag_metals':flag_metals,'k':1,'p':pos,'v':vel,'m':mass,'id':ids,'child_ids':child_ids,'id_gens':id_gens,}
+    elif (ptype==5) and (skip_bh==0):
+        ret_dict = {'hubble':hubble,'boxsize':boxsize,'time':time,'redshift':redshift,'flag_sfr':flag_sfr,'flag_feedbacktp':flag_feedbacktp,'flag_cooling':flag_cooling,'omega_matter':omega_matter,'omega_lambda':omega_lambda,'flag_stellarage':flag_stellarage,'flag_metals':flag_metals,'k':1,'p':pos,'v':vel,'m':mass,'id':ids,'mbh':bhmass,'mdot':bhmdot}
 
+    else:
+      ret_dict = {'hubble':hubble,'boxsize':boxsize,'time':time,'redshift':redshift,'flag_sfr':flag_sfr,'flag_feedbacktp':flag_feedbacktp,'flag_cooling':flag_cooling,'omega_matter':omega_matter,'omega_lambda':omega_lambda,'flag_stellarage':flag_stellarage,'flag_metals':flag_metals,'k':1,'p':pos,'v':vel,'m':mass,'id':ids,}
+
+    # Include optional ids
+    if load_additional_ids:
+      ret_dict['child_ids'] = child_ids
+      ret_dict['id_gens'] = id_gens
+
+    return ret_dict
 
 def check_if_filename_exists(sdir,snum,snapshot_name='snapshot',extension='.hdf5',four_char=0):
     '''Check if a file name exists, and if so return informatoun about it.
