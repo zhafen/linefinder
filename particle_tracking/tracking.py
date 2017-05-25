@@ -143,8 +143,6 @@ class IDFinder(object):
     # order in dfid is the same as order in target_ids **IF** there are no repeated indexes in df !!  (version dependent?)
     dfid = df.ix[ self.target_ids ].copy()
 
-    assert np.array_equal( self.target_ids, dfid['id'].values)
-
     return dfid
 
   ########################################################################
