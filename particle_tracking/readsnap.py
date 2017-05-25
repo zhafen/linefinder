@@ -209,8 +209,8 @@ def readsnap(sdir,snum,ptype, load_additional_ids=0, snapshot_name='snapshot', e
 
     # Include optional ids
     if load_additional_ids:
-      ret_dict['child_ids'] = child_ids
-      ret_dict['id_gens'] = id_gens
+      ret_dict['child_id'] = child_ids
+      ret_dict['id_gen'] = id_gens
 
     return ret_dict
 
