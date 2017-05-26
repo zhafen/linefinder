@@ -81,7 +81,7 @@ class IDFinder(object):
 
     time_start = time.time()
 
-    for p_type in types:
+    for p_type in self.types:
 
       P = readsnap( self.sdir, self.snum, p_type, cosmological=1, skip_bh=1, header_only=0)
 

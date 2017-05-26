@@ -367,3 +367,28 @@ def load_gadget_binary_header(f):
     'Flag_StellarAge':FlagAge[0], 'Flag_Metals':FlagMetals[0], 'Nall_HW':NallHW, \
     'Flag_EntrICs':flag_entr_ics[0]}
 
+########################################################################
+
+def gas_temperature(u, num_e, keV=0):
+    '''Returns gas particles temperature in Kelvin. Originally from PFH's gadget lib (maybe somewhere else before?).'''
+
+    g_gamma= 5.0/3.0
+    g_minus_1= g_gamma-1.0
+    PROTONMASS = 1.6726e-24
+    BoltzMann_ergs= 1.3806e-16
+    UnitMass_in_g= 1.989e43 # 1.0e10 solar masses
+    UnitEnergy_in_cgs= 1.989e53
+    # note gadget units of energy/mass = 1e10 ergs/g,
+    # this comes into the formula below
+
+    mu = gas_mu(num_e);
+    MeanWeight= mu*PROTONMASS
+    Temp= MeanWeight/BoltzMann_ergs * g_minus_1 * u * 1.e10
+
+    # do we want units of keV?  (0.001 factor converts from eV to keV)
+    if (keV==1):
+        BoltzMann_keV = 8.617e-8;
+        Temp *= BoltzMann_keV;
+
+    return Temp
+
