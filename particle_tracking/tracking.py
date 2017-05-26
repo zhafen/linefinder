@@ -135,13 +135,24 @@ class IDFinder(object):
   ########################################################################
 
   def select_ids(self):
+    '''Function for selecting the targeted ids from the snapshot.'''
+
+    # Setup the index and the way to select the targeted ids
+    if hasattr( self, 'target_child_ids' ):
+      index = [ self.full_snap_data['id'], self.full_snap_data['child_id'] ]
+      target_selection = list( zip( *[ self.target_ids, self.target_child_ids ] ) )
+    else:
+      index = self.full_snap_data['id']
+      target_selection = self.target_ids
 
     # Make a data frame.
-    df = pd.DataFrame( data=self.full_snap_data, index=self.full_snap_data['id'] )      
+    df = pd.DataFrame( data=self.full_snap_data, index=index )      
 
-    # Make a data frame selecting only the ids.
-    # order in dfid is the same as order in target_ids **IF** there are no repeated indexes in df !!  (version dependent?)
-    dfid = df.ix[ self.target_ids ].copy()
+    # Sort for faster indexing
+    df.sort()
+
+    # Make a data frame selecting only the target ids
+    dfid = df.loc[ target_selection ]
 
     return dfid
 

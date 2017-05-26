@@ -86,6 +86,7 @@ class TestSelectIDs(unittest.TestCase):
     self.id_finder.target_child_ids = np.array([ 893109954, 1945060136, 0, 0 ])
     self.id_finder.full_snap_data = {
       'id' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235]),
+      'child_id' : np.array([1945060136, 0, 0, 938428052, 893109954, 0]),
       'rho' : np.array([  3.80374093e-10,   6.80917722e-09,   3.02682572e-08, 1.07385445e-09,   3.45104532e-08,   1.54667816e-08]),
     }
 
@@ -93,6 +94,7 @@ class TestSelectIDs(unittest.TestCase):
 
     expected = {
       'id' : self.id_finder.target_ids,
+      'child_id' : self.id_finder.target_child_ids,
       'rho' : np.array([ 3.45104532e-08, 3.80374093e-10, 6.80917722e-09, 1.54667816e-08 ]),
     }
 
