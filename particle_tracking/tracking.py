@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import time
 
-from readsnap import readsnap
+import readsnap
 
 ########################################################################
 
@@ -83,7 +83,7 @@ class IDFinder(object):
 
     for p_type in self.types:
 
-      P = readsnap( self.sdir, self.snum, p_type, cosmological=1, skip_bh=1, header_only=0)
+      P = readsnap.readsnap( self.sdir, self.snum, p_type, cosmological=1, skip_bh=1, header_only=0)
 
       if P['k'] < 0:
          continue
@@ -97,7 +97,7 @@ class IDFinder(object):
           rho = [0,]*pnum    #; rho.fill(-1)
 
       if 'u' in P:
-          T = g.gas_temperature(P['u'],P['ne'])
+          T = readsnap.gas_temperature(P['u'],P['ne'])
       else:
           T = [0,]*pnum      #; T.fill(-1)
 

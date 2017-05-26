@@ -369,6 +369,13 @@ def load_gadget_binary_header(f):
 
 ########################################################################
 
+def gas_mu(num_e):
+    '''Calculates the mean weight from gadget.'''
+
+    XH=0.76; # we track this with metal species now, could do better...
+    yhelium=(1.-XH)/(4.*XH); 
+    return (1.+4.*yhelium)/(1.+yhelium+num_e);
+
 def gas_temperature(u, num_e, keV=0):
     '''Returns gas particles temperature in Kelvin. Originally from PFH's gadget lib (maybe somewhere else before?).'''
 
