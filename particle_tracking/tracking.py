@@ -21,7 +21,7 @@ class IDFinder(object):
 
   ########################################################################
 
-  def find_ids( self, sdir, snum, types, target_ids, host_galaxy=0, host_halo=0 ):
+  def find_ids( self, sdir, snum, types, target_ids, target_child_ids=None, host_halo=0 ):
     '''Find the information for particular IDs in a given snapshot, ordered by the ID list you pass.
 
     Args:
@@ -29,7 +29,6 @@ class IDFinder(object):
       snum (int): The snapshot to find the IDs for.
       types (list of ints): Which particle types to target.
       target_ids (np.array): The particle IDs you want to find.
-      host_galaxy (bool): Whether or not to include the host galaxy in the returned data. (Calculated via SKID)
       host_halo (bool): Whether or not to include the host halo in the returned data. (Calculated via AHF)
 
     Returns:
@@ -43,6 +42,8 @@ class IDFinder(object):
     self.snum = snum
     self.types = types
     self.target_ids = target_ids
+    if target_child_ids is not None:
+      self.target_child_ids = target_child_ids
 
     # Make a big list of the relevant particle data, across all the particle data types
     self.full_snap_data = self.concatenate_particle_data()
@@ -51,11 +52,10 @@ class IDFinder(object):
     self.dfid = self.select_ids()
 
     # Add galaxy and halo data
-    self.add_environment_data( host_galaxy, host_halo )
+    if host_halo:
+      self.add_environment_data()
 
-    redshift = P['redshift']
-
-    return dfid, redshift
+    return self.dfid, self.redshift
 
   ########################################################################
 
@@ -105,12 +105,12 @@ class IDFinder(object):
       if 'rho' in P:
           rho = P['rho']
       else:
-          rho = [0,]*pnum    #; rho.fill(-1)
+          rho = [0,]*pnum
 
       if 'u' in P:
           T = readsnap.gas_temperature(P['u'],P['ne'])
       else:
-          T = [0,]*pnum      #; T.fill(-1)
+          T = [0,]*pnum
 
       thistype = np.zeros(pnum,dtype='int8'); thistype.fill(p_type)
 
@@ -137,6 +137,9 @@ class IDFinder(object):
     # Convert to numpy arrays
     for key in full_snap_data.keys():
       full_snap_data[key] = np.array( full_snap_data[key] ).flatten()
+
+    # Save the redshift
+    self.redshift = P['redshift']
 
     return full_snap_data
 
@@ -168,65 +171,83 @@ class IDFinder(object):
 
   def add_environment_data(self):
 
-    if (host_galaxy==1):
+    AHFile = glob( sdir + '/snap' + g.snap_ext(snum) + 'Rpep..z*.AHF_particles')[0]
 
-      data = read_skid( sdir, snum, FileType='grp' )
+    print '\nreading... ', AHFile
 
-      # redefine No host galaxy as GalID = -1 rather than 0
-      data['GalID'][ data['GalID'] == 0 ] = -1                          
+    data = read_ahf_particles(AHFile)
 
-      gf = pd.DataFrame( data=data, index=data['id'] )
+    hf = pd.DataFrame( data=data, index=data['id'] )
 
-      # make sure there are no duplicate ids
-      gf.drop_duplicates('id', take_last=False, inplace=True)           
+    # WARNING:  order in hfid may **NOT** be the same as order in theIDS if there are reated indexes in hf !!!  (might be version dependent...)
+    hfid = hf.ix[target_ids].copy()             
 
-      # order in gfid should be the same as order in theIDS 
-      gfid = gf.ix[target_ids].copy()                                       
+    del data, hf
 
-      del data, gf
+   ### NOTE: use keep='first' ??
 
-      # this should maintain the same order as target_ids
-      dfid = dfid.join( gfid['GalID'] )                                 
-      if not np.array_equal( target_ids, dfid['id'].values):
-        print 'WARNING!  issue with IDs (0)  !!!'
+    # this keeps ONLY the FIRST value corresponding to each repeated id (i.e. now there are NO repeated IDs in hfid_host)
+    hfid_host = hfid.drop_duplicates('id', take_last=False, inplace=False)   
+    # this maintains the same order as target_ids because now hfid has NO repeated indexes (even if hfid has a different order)
+    dfid = dfid.join( hfid_host['HaloID'] )      
+    if not np.array_equal( target_ids, dfid['id'].values):
+      print 'WARNING!  issue with IDs (1)  !!!'
 
-      # there shouldn't be any null values
-      #dfid['GalID'][ pd.isnull(dfid['GalID']) ] = -1                   
+    # this keeps ALL values EXCEPT the FIRST one for each repeated id (i.e. there might be repeated IDs in hfid_subhost)
+    hfid_subhost = hfid[ hfid.duplicated('id', take_last=False) ].copy()  
+    # this keeps ONLY the FIRST value corresponding to each repeated id (i.e. now there are NO repeated IDs in hfid_subhost)
+    hfid_subhost.drop_duplicates('id', take_last=False, inplace=True)    
+    hfid_subhost.rename(columns={'HaloID':'SubHaloID'}, inplace=True)
+    dfid = dfid.join( hfid_subhost['SubHaloID'] )
+    if not np.array_equal( target_ids, dfid['id'].values):
+      print 'WARNING!  issue with IDs (2)  !!!'
 
-    if (host_halo==1):
+    dfid['HaloID'][ pd.isnull(dfid['HaloID']) ] = -1
+    dfid['SubHaloID'][ pd.isnull(dfid['SubHaloID']) ] = -1
+    
+########################################################################
 
-      AHFile = glob( sdir + '/snap' + g.snap_ext(snum) + 'Rpep..z*.AHF_particles')[0]
+def read_ahf_particles(filename):
+  '''Read a *.AHF_particles file. See http://popia.ft.uam.es/AHF/files/AHF.pdf,
+  pg 171 for documentation for such a file.
 
-      print '\nreading... ', AHFile
+  Args:
+    filename (str): The full file path.
+  '''
 
-      data = read_AHF_particles(AHFile)
+  time_start = time.time()
 
-      hf = pd.DataFrame( data=data, index=data['id'] )
+  # Get the number of lines
+  f = open(filename, "r")
+  Nhalos = int( f.readline() )
+  f.close()
 
-      # WARNING:  order in hfid may **NOT** be the same as order in theIDS if there are reated indexes in hf !!!  (might be version dependent...)
-      hfid = hf.ix[target_ids].copy()             
+  df = pd.read_csv(filename, delim_whitespace=True, names=['id','Ptype'], header=0)
 
-      del data, hf
+  Nlines = df['id'].size
+  Ndata = Nlines - Nhalos
 
-     ### NOTE: use keep='first' ??
+  data = { 'id':np.zeros(Ndata,dtype='int64'), 'Ptype':np.zeros(Ndata,dtype='int8'), 'HaloID':np.zeros(Ndata,dtype='int32') }
 
-      # this keeps ONLY the FIRST value corresponding to each repeated id (i.e. now there are NO repeated IDs in hfid_host)
-      hfid_host = hfid.drop_duplicates('id', take_last=False, inplace=False)   
-      # this maintains the same order as target_ids because now hfid has NO repeated indexes (even if hfid has a different order)
-      dfid = dfid.join( hfid_host['HaloID'] )      
-      if not np.array_equal( target_ids, dfid['id'].values):
-        print 'WARNING!  issue with IDs (1)  !!!'
 
-      # this keeps ALL values EXCEPT the FIRST one for each repeated id (i.e. there might be repeated IDs in hfid_subhost)
-      hfid_subhost = hfid[ hfid.duplicated('id', take_last=False) ].copy()  
-      # this keeps ONLY the FIRST value corresponding to each repeated id (i.e. now there are NO repeated IDs in hfid_subhost)
-      hfid_subhost.drop_duplicates('id', take_last=False, inplace=True)    
-      hfid_subhost.rename(columns={'HaloID':'SubHaloID'}, inplace=True)
-      dfid = dfid.join( hfid_subhost['SubHaloID'] )
-      if not np.array_equal( target_ids, dfid['id'].values):
-        print 'WARNING!  issue with IDs (2)  !!!'
+  jbeg = 0
 
-      dfid['HaloID'][ pd.isnull(dfid['HaloID']) ] = -1
-      dfid['SubHaloID'][ pd.isnull(dfid['SubHaloID']) ] = -1
-      
+  for i in xrange(0, Nhalos):
+
+    jend = jbeg + df['id'][ jbeg+i ]
+
+    data['id'][ jbeg : jend ] = df['id'][ jbeg+i+1 : jend+i+1 ].values
+    data['Ptype'][ jbeg : jend ] = df['Ptype'][ jbeg+i+1 : jend+i+1 ].values
+    data['HaloID'][ jbeg : jend ] = df['Ptype'][ jbeg+i ]
+
+    if i in [1,10,100,1000,10000,100000]:
+      print '       HaloID =', df['Ptype'][ jbeg+i ], '   i = ', i
+
+    jbeg = jend
+
+  time_end = time.time()    
+
+  print 'read_ahf_particles done in ... ', time_end - time_start, ' seconds'
+
+  return data
 

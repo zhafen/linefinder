@@ -12,6 +12,7 @@ import pdb
 import unittest
 
 from particle_tracking import tracking
+from particle_tracking import readsnap
 
 ########################################################################
 
@@ -134,3 +135,61 @@ class TestSelectIDs(unittest.TestCase):
     for key in dfid.keys():
       npt.assert_allclose( dfid[key], expected[key] )
 
+########################################################################
+
+class TestFindIds( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.id_finder = tracking.IDFinder()
+
+    # The name of the function.
+    self.fn = self.id_finder.find_ids
+
+  ########################################################################
+
+  def test_basic( self ):
+    '''Basically, does it work?.'''
+
+    # Input
+    sdir = './tests/test_data/test_data_with_new_id_scheme'
+    snum = 600
+    types = [0,]
+    target_ids = np.array([ 36091289, 36091289, 3211791, 10952235 ])
+    target_child_ids = np.array([ 893109954, 1945060136, 0, 0 ])
+
+    # My knowledge, by hand
+    target_inds = [4, 0, 1, 5]
+    P = readsnap.readsnap( sdir, snum, 0, True, cosmological=True )
+
+    expected = {
+      'id' : target_ids,
+      'child_id' : target_child_ids,
+      'rho' : np.array([ P['rho'][ind] for ind in target_inds ]),
+    }
+
+    dfid, redshift = self.fn( sdir, snum, types, target_ids, \
+                              target_child_ids=target_child_ids)
+
+    for key in expected.keys():
+      npt.assert_allclose( dfid[key], expected[key] )
+
+    # Make sure the redshift's right too
+    npt.assert_allclose( redshift, 0. )
+
+########################################################################
+
+# TODO
+#class TestReadAHFParticles( unittest.TestCase ):
+#
+#  def setUp( self ):
+#
+#    # The name of the function.
+#    self.fn = tracking.read_ahf_particles
+#
+#  ########################################################################
+#
+#  def test_runs( self ):
+#    '''Test if it even runs.'''
+#
+#    assert False
