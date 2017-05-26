@@ -179,6 +179,24 @@ class TestFindIds( unittest.TestCase ):
 
 ########################################################################
 
+class TestSaveTargetedParticles( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.id_finder = tracking.IDFinder()
+
+    # The name of the function.
+    self.fn = self.id_finder.save_targeted_particles
+
+  ########################################################################
+
+  def test_basic( self ):
+    '''Basically, does it work?'''
+
+    assert False
+
+########################################################################
+
 # TODO
 #class TestReadAHFParticles( unittest.TestCase ):
 #

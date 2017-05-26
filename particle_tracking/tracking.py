@@ -204,6 +204,12 @@ class IDFinder(object):
 
     dfid['HaloID'][ pd.isnull(dfid['HaloID']) ] = -1
     dfid['SubHaloID'][ pd.isnull(dfid['SubHaloID']) ] = -1
+
+  ########################################################################
+
+  def save_targeted_particles( self ):
+
+    pass
     
 ########################################################################
 

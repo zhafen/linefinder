@@ -20,36 +20,38 @@ from tracking_constants import *
 
 time_start = time.time()
 
+########################################################################
+# Input Parameterss
+########################################################################
 
+# Number of tracked particles
+#ntrack = 1e5                
+ntrack = targeted_ids.size
 
+# Simulation name
+sname = 'm12i_res7000_md'
 
-#######################################
- ### DEFINE SIMULATION DIRECTORIES ###
-#######################################
+# What directories
+sdir = '/scratch/projects/xsede/GalaxiesOnFIRE/metaldiff/{}/output'.format( sname )
+outdir = '/scratch/03057/zhafen/{}/output'.format( sname )
 
-# --- check for input parameters
-narg = len(sys.argv)
-if narg == 3:
-   sname = sys.argv[1]
-   ntrack = float(sys.argv[2])     # number of particles that we track
-else:
-   print '-----\n --- using default parameters --- \n-----'
-   sname = 'm13_mr_Dec16_2013'
-   #sname = 'm12v_mr_Dec5_2013_3'
-   #sname = 'm11_hhr_Jan9_2013'
-   ntrack = 1e5                
+targeted_id_filename = ''
 
+# What particle types
+Ptype = [ 0, 4 ]                     # must contain all possible particle types in idlist
 
-simdir = '/scratch/02089/anglesd/FIRE/' + sname 
-outdir = '/work/02089/anglesd/FIRE/' + sname 
+# Snapshot range
+snap_ini = 0
+snap_end = 600                       # z = 0
+snap_step = 1
+
+#####################################################
+### DEFINE PARAMETERS AND READ PARTICLE ID LIST ###
+#####################################################
+
+# Make the path exists
 if not os.path.exists(outdir):
   os.mkdir(outdir)
-
-
-
-#####################################################
- ### DEFINE PARAMETERS AND READ PARTICLE ID LIST ###
-#####################################################
 
 # The "Central" galaxy is the most massive galaxy in all runs but m13...  
 if sname[0:3] == 'm13':
@@ -57,43 +59,28 @@ if sname[0:3] == 'm13':
 else:
   grstr = 'gr0'
 
-idlist = h5py.File( simdir + '/skid/progen_idlist_' + grstr + '.hdf5', 'r')
-
-Ptype = [ 0, 4 ]                     # must contain all possible particle types in idlist
-
-snap_end = 440                       # z = 0
-#snap_end = 15
-
-snap_ini = 0
-
-nskip = 0
-#nskip = 215
-
+idlist = h5py.File( sdir + '/skid/progen_idlist_' + grstr + '.hdf5', 'r')
 
 if idlist['id'].size > ntrack:
    ind_myids = np.arange(idlist['id'].size)
    np.random.seed(seed=1234)
    np.random.shuffle(ind_myids)
-   theIDs = np.unique( idlist['id'][:][ind_myids[0:ntrack]] )
+   targeted_ids = np.unique( idlist['id'][:][ind_myids[0:ntrack]] )
    tag = 'n{0:1.0f}'.format(np.log10(ntrack))
 else:
-   theIDs = np.unique( idlist['id'][:] )
+   targeted_ids = np.unique( idlist['id'][:] )
    tag = 'all'
 
 idlist.close()
-
-
 
 ##########################################
  ### LOOP OVER ALL REDSHIFT SNAPSHOTS ###
 ##########################################
 
-
 # --- define structure to hold particle tracks ---
 # --> ptrack ['varname'] [particle i, snap j, k component]
 
 nsnap = 1 + snap_end - snap_ini       # number of redshift snapshots that we follow back
-ntrack = theIDs.size
 
 #myfloat = 'float64'
 myfloat = 'float32'
@@ -114,22 +101,22 @@ ptrack = { 'redshift':np.zeros(nsnap,dtype=myfloat),
            'SubHaloID':np.zeros(ntrack,dtype=('int32',(nsnap,))) }
 
 
-ptrack['id'][:] = theIDs
+ptrack['id'][:] = targeted_ids
 
 
 print '\n**********************************************************************************'
-print simdir, '   ntrack =', ntrack, '   -->  ', tag
+print sdir, '   ntrack =', ntrack, '   -->  ', tag
 print '**********************************************************************************'
 
 
 j = 0
 
-for ns in range( snap_end, snap_ini-1, -(1+nskip) ):
+for ns in range( snap_end, snap_ini-1, -snap_step ):
 
 
    time_1 = time.time()
 
-   dfid, redshift = tracking_tools.find_ids( simdir, ns, Ptype, theIDs, HostGalaxy=1, HostHalo=1 )
+   dfid, redshift = tracking_tools.find_ids( sdir, ns, Ptype, targeted_ids, HostGalaxy=1, HostHalo=1 )
 
 
    #ptrack['redshift'][:,j] = redshift
