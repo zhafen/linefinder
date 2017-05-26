@@ -53,6 +53,8 @@ class IDFinder(object):
     # Add galaxy and halo data
     self.add_environment_data( host_galaxy, host_halo )
 
+    redshift = P['redshift']
+
     return dfid, redshift
 
   ########################################################################
@@ -66,24 +68,33 @@ class IDFinder(object):
 
     print 'Reading data...'
 
-    id_all    = []
-    p_type_all = []
-    rho_all   = []
-    T_all     = []
-    z_all     = []
-    m_all     = []
-    x0_all    = []
-    x1_all    = []
-    x2_all    = []
-    v0_all    = []
-    v1_all    = []
-    v2_all    = []
+
+    full_snap_data = {
+      'id' : [],
+      'p_type' : [],
+      'rho' : [],
+      'T' : [],
+      'z' : [],
+      'm' : [],
+      'x0' : [],
+      'x1' : [],
+      'x2' : [],
+      'v0' : [],
+      'v1' : [],
+      'v2' : [],
+      }
 
     time_start = time.time()
 
+    if hasattr( self, 'target_child_ids' ):
+      load_additional_ids = True
+      full_snap_data['child_id'] = []
+    else:
+      load_additional_ids = False
+
     for p_type in self.types:
 
-      P = readsnap.readsnap( self.sdir, self.snum, p_type, cosmological=1, skip_bh=1, header_only=0)
+      P = readsnap.readsnap( self.sdir, self.snum, p_type, load_additional_ids=load_additional_ids, cosmological=1, skip_bh=1, header_only=0)
 
       if P['k'] < 0:
          continue
@@ -103,32 +114,29 @@ class IDFinder(object):
 
       thistype = np.zeros(pnum,dtype='int8'); thistype.fill(p_type)
 
-      id_all.append( P['id'] )
-      p_type_all.append( thistype )
-      rho_all.append( rho )
-      T_all.append( T )
-      z_all.append( P['z'][:,0] )
-      m_all.append( P['m'] )
-      x0_all.append( P['p'][:,0] )
-      x1_all.append( P['p'][:,1] )
-      x2_all.append( P['p'][:,2] )
-      v0_all.append( P['v'][:,0] )
-      v1_all.append( P['v'][:,1] )
-      v2_all.append( P['v'][:,2] )
+      full_snap_data['id'].append( P['id'] )
+      full_snap_data['p_type'].append( thistype )
+      full_snap_data['rho'].append( rho )
+      full_snap_data['T'].append( T )
+      full_snap_data['z'].append( P['z'][:,0] )
+      full_snap_data['m'].append( P['m'] )
+      full_snap_data['x0'].append( P['p'][:,0] )
+      full_snap_data['x1'].append( P['p'][:,1] )
+      full_snap_data['x2'].append( P['p'][:,2] )
+      full_snap_data['v0'].append( P['v'][:,0] )
+      full_snap_data['v1'].append( P['v'][:,1] )
+      full_snap_data['v2'].append( P['v'][:,2] )
 
-      redshift = P['redshift']
+      if hasattr( self, 'target_child_ids' ):
+        full_snap_data['child_id'].append( P['child_id'] )
 
     time_end = time.time()
 
     print 'readsnap done in ... ', time_end - time_start, ' seconds'
 
-    full_snap_data = { 'id':id_all, 'p_type':p_type_all, 'rho':rho_all, 'T':T_all, 'z':z_all, 'm':m_all, \
-              'x0':x0_all, 'x1':x1_all, 'x2':x2_all, \
-              'v0':v0_all, 'v1':v1_all, 'v2':v2_all }
-
     # Convert to numpy arrays
     for key in full_snap_data.keys():
-      full_snap_data[key] = np.array( full_snap_data[key] )
+      full_snap_data[key] = np.array( full_snap_data[key] ).flatten()
 
     return full_snap_data
 
