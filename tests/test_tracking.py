@@ -30,6 +30,40 @@ def sane_eq_array(list_in):
 
 ########################################################################
 
+class TestConcatenateParticleData( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.id_finder = tracking.IDFinder()
+
+    # The name of the function.
+    self.fn = self.id_finder.concatenate_particle_data
+
+  ########################################################################
+
+  def test_basic( self ):
+    '''Basically, does it work?'''
+
+    # Input
+    self.id_finder.sdir = './tests/test_data/test_data_with_new_id_scheme'
+    self.id_finder.snum = 600
+    self.id_finder.types = [0,]
+    self.id_finder.target_ids = np.array([ 36091289, 36091289, 3211791, 10952235 ])
+    self.id_finder.target_child_ids = np.array([ 893109954, 1945060136, 0, 0 ])
+
+    actual = self.id_finder.concatenate_particle_data()
+
+    expected = {
+      'id' : self.id_finder.target_ids,
+      'child_id' : self.id_finder.target_child_ids,
+      'rho' : np.array([ 3.45104532e-08, 3.80374093e-10, 6.80917722e-09, 1.54667816e-08 ]),
+      }
+
+    for key in expected.keys():
+      npt.assert_allclose( actual[key], expected[key] )
+
+########################################################################
+
 class TestSelectIDs(unittest.TestCase):
 
   def setUp(self):
