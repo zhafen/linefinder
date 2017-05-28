@@ -14,7 +14,23 @@ import readsnap
 
 ########################################################################
 
+class IDFinderFull(object):
+  '''Searches IDs across snapshots, then saves the results.'''
+
+  def __init__(self):
+    pass
+
+  ########################################################################
+
+  def save_targeted_particles( self ):
+
+    pass
+    
+
+########################################################################
+
 class IDFinder(object):
+  '''Finds targeted ids in a single snapshot.'''
 
   def __init__(self):
     pass
@@ -205,12 +221,6 @@ class IDFinder(object):
     dfid['HaloID'][ pd.isnull(dfid['HaloID']) ] = -1
     dfid['SubHaloID'][ pd.isnull(dfid['SubHaloID']) ] = -1
 
-  ########################################################################
-
-  def save_targeted_particles( self ):
-
-    pass
-    
 ########################################################################
 
 def read_ahf_particles(filename):
