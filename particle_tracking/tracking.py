@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#self.!/usr/bin/env python
 '''Tools for tracking particles.
 
 @author: Daniel Angles-Alcazar, Zach Hafen
@@ -83,8 +83,8 @@ class IDFinderFull( object ):
       ptrack (dict): Structure to hold particle tracks.
                      Structure is... ptrack ['varname'] [particle i, snap j, k component]
     '''
-
-    nsnap = 1 + self.data_p['snap_end'] - self.data_p['snap_ini']       # number of redshift snapshots that we follow back
+    self.snaps = np.arange( self.data_p['snap_end'], self.data_p['snap_ini']-1, -self.data_p['snap_step'] )
+    nsnap = self.snaps.size       # number of redshift snapshots that we follow back
 
     # Legacy of something Daniel encountered. Don't know what.
     #myfloat = 'float64' 
@@ -110,7 +110,9 @@ class IDFinderFull( object ):
       ptrack['HaloID'] = np.zeros(self.ntrack,dtype=('int32',(nsnap,)))
       ptrack['SubHaloID'] = np.zeros(self.ntrack,dtype=('int32',(nsnap,)))
 
-    ptrack['id'][:] = self.data_p['target_ids']
+    if self.target_child_ids is not None:
+      ptrack['id'] = self.data_p['target_ids']
+      ptrack['child_id'] = self.data_p['target_child_ids']
 
     print '\n**********************************************************************************'
     print self.data_p['sdir'], '   ntrack =', self.ntrack, '   -->  ', self.data_p['tag']
@@ -118,7 +120,7 @@ class IDFinderFull( object ):
 
     j = 0
 
-    for snum in range( self.data_p['snap_end'], self.data_p['snap_ini']-1, -self.data_p['snap_step'] ):
+    for snum in self.snaps:
 
       time_1 = time.time()
 
@@ -152,7 +154,7 @@ class IDFinderFull( object ):
       print '------------------------------------------------------------------------------------------------\n'
       sys.stdout.flush()
 
-      return ptrack
+    return ptrack
 
   ########################################################################
 
