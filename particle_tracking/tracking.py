@@ -60,6 +60,12 @@ class IDFinderFull( object ):
 
     time_start = time.time()
 
+    print "########################################################################"
+    print "Starting Tracking!"
+    print "########################################################################"
+    print "Tracking particle data from this directory:\n    {}".format( self.data_p['sdir'] )
+    print "Data will be saved here:\n    {}".format( self.data_p['outdir'] )
+
     # Get the target ids
     if self.old_target_id_retrieval_method:
       self.get_target_ids_old()
@@ -72,8 +78,11 @@ class IDFinderFull( object ):
 
     time_end = time.time()
 
-    print '\n ' + self.outname + ' ... done in just ', time_end - time_start, ' seconds!'
-    print '\n ...', (time_end - time_start) / self.ntrack, ' seconds per particle!\n'
+    print "########################################################################"
+    print "Done Tracking!"
+    print "########################################################################"
+    print "Output file saved as:\n    {}".format( self.outname )
+    print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format( time_end - time_start, (time_end - time_start) / self.ntrack )
 
   ########################################################################
 
@@ -92,6 +101,8 @@ class IDFinderFull( object ):
     myfloat = 'float32'
 
     self.ntrack = self.data_p['target_ids'].size
+
+    print "Tracking {} particles...".format( self.ntrack )
 
     ptrack = {
       'redshift':np.zeros(nsnap,dtype=myfloat), 
@@ -114,10 +125,6 @@ class IDFinderFull( object ):
     if self.target_child_ids is not None:
       ptrack['id'] = self.data_p['target_ids']
       ptrack['child_id'] = self.data_p['target_child_ids']
-
-    print '\n**********************************************************************************'
-    print self.data_p['sdir'], '   ntrack =', self.ntrack, '   -->  ', self.data_p['tag']
-    print '**********************************************************************************'
 
     j = 0
 
@@ -151,8 +158,7 @@ class IDFinderFull( object ):
       time_2 = time.time()
 
       # Print output information.
-      print '\n', snum, ' P[redshift] = ' + '%.3f' % redshift, '    done in ... ', time_2 - time_1, ' seconds'
-      print '------------------------------------------------------------------------------------------------\n'
+      print 'Snapshot {}, P[redshift] = {:>7.3g}, done in ... {:.3g} seconds'.format(  snum, redshift, time_2 - time_1 )
       sys.stdout.flush()
 
     return ptrack
@@ -254,14 +260,15 @@ class IDFinder( object ):
 
   ########################################################################
 
-  def concatenate_particle_data(self):
+  def concatenate_particle_data(self, verbose=False):
     '''Get all the particle data for the snapshot in one big array. (Daniel must use this format somehow...)
 
     Returns:
       full_snap_data (dict): A dictionary of the concatenated particle data.
     '''
 
-    print 'Reading data...'
+    if verbose:
+      print 'Reading data...'
 
 
     full_snap_data = {
@@ -296,7 +303,8 @@ class IDFinder( object ):
          continue
       pnum = P['id'].size
 
-      print '       ...  ', pnum, '   type', p_type , ' particles'
+      if verbose:
+        print '       ...  ', pnum, '   type', p_type , ' particles'
 
       if 'rho' in P:
           rho = P['rho']
@@ -329,7 +337,8 @@ class IDFinder( object ):
 
     time_end = time.time()
 
-    print 'readsnap done in ... ', time_end - time_start, ' seconds'
+    if verbose:
+      print 'readsnap done in ... {:.3g} seconds'.format( time_end - time_start )
 
     # Convert to numpy arrays
     for key in full_snap_data.keys():
