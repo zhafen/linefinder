@@ -6,9 +6,12 @@
 @status: Development
 '''
 
+import gc
+import h5py
 import numpy as np
 import os
 import pandas as pd
+import sys
 import time
 
 import code_tools
@@ -54,6 +57,8 @@ class IDFinderFull( object ):
   def save_target_particles( self ):
     '''Loop over all redshifts, get the data, and save the particle tracks.'''
 
+    time_start = time.time()
+
     # Get the target ids
     if self.old_target_id_retrieval_method:
       self.get_target_ids_old()
@@ -63,6 +68,11 @@ class IDFinderFull( object ):
 
     # Write particle data to the file
     self.write_tracked_data()
+
+    time_end = time.time()
+
+    print '\n ' + self.outname + ' ... done in just ', time_end - time_start, ' seconds!'
+    print '\n ...', (time_end - time_start) / self.ntrack, ' seconds per particle!\n'
 
   ########################################################################
 
@@ -80,28 +90,30 @@ class IDFinderFull( object ):
     #myfloat = 'float64' 
     myfloat = 'float32'
 
-    ntrack = self.data_p['target_ids'].size
+    self.ntrack = self.data_p['target_ids'].size
 
-    ptrack = { 'redshift':np.zeros(nsnap,dtype=myfloat), 
-               'snapnum':np.zeros(nsnap,dtype='int16'),
-               'id':np.zeros(ntrack,dtype='int64'), 
-               'Ptype':np.zeros(ntrack,dtype=('int8',(nsnap,))),
-               'rho':np.zeros(ntrack,dtype=(myfloat,(nsnap,))), 
-               'sfr':np.zeros(ntrack,dtype=(myfloat,(nsnap,))),
-               'T':np.zeros(ntrack,dtype=(myfloat,(nsnap,))),
-               'z':np.zeros(ntrack,dtype=(myfloat,(nsnap,))),
-               'm':np.zeros(ntrack,dtype=(myfloat,(nsnap,))),
-               'p':np.zeros(ntrack,dtype=(myfloat,(nsnap,3))),
-               'v':np.zeros(ntrack,dtype=(myfloat,(nsnap,3))), 
-               'GalID':np.zeros(ntrack,dtype=('int32',(nsnap,))),
-               'HaloID':np.zeros(ntrack,dtype=('int32',(nsnap,))),
-               'SubHaloID':np.zeros(ntrack,dtype=('int32',(nsnap,))) }
+    ptrack = {
+      'redshift':np.zeros(nsnap,dtype=myfloat), 
+      'snapnum':np.zeros(nsnap,dtype='int16'),
+      'id':np.zeros(self.ntrack,dtype='int64'), 
+      'Ptype':np.zeros(self.ntrack,dtype=('int8',(nsnap,))),
+      'rho':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,))), 
+      'sfr':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,))),
+      'T':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,))),
+      'z':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,))),
+      'm':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,))),
+      'p':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,3))),
+      'v':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,3))), 
+    }
 
+    if self.host_halo:
+      ptrack['HaloID'] = np.zeros(self.ntrack,dtype=('int32',(nsnap,)))
+      ptrack['SubHaloID'] = np.zeros(self.ntrack,dtype=('int32',(nsnap,)))
 
     ptrack['id'][:] = self.data_p['target_ids']
 
     print '\n**********************************************************************************'
-    print self.data_p['sdir'], '   ntrack =', ntrack, '   -->  ', self.data_p['tag']
+    print self.data_p['sdir'], '   ntrack =', self.ntrack, '   -->  ', self.data_p['tag']
     print '**********************************************************************************'
 
     j = 0
@@ -114,33 +126,21 @@ class IDFinderFull( object ):
       dfid, redshift = id_finder.find_ids( self.data_p['sdir'], snum, self.data_p['types'], self.data_p['target_ids'], \
                                            target_child_ids=self.target_child_ids, host_halo=self.host_halo )
 
-      # Old option from how Daniel used to have things set up. I don't entirely understand it.
-      #ptrack['redshift'][:,j] = redshift
+      #ptrack['redshift'][:,j] = redshift   # Old option from how Daniel used to have things set up. I don't entirely understand it.
       ptrack['redshift'][j] = redshift
-
       ptrack['snapnum'][j] = snum
-
       ptrack['Ptype'][:,j] = dfid['Ptype'].values
-
       ptrack['rho'][:,j] = dfid['rho'].values                                                           # cm^(-3)
-
       ptrack['sfr'][:,j] = dfid['sfr'].values                                                           # Msun / year   (stellar Age in Myr for star particles)
-
       ptrack['T'][:,j] = dfid['T'].values                                                               # Kelvin
-
       ptrack['z'][:,j] = dfid['z'].values                                                               # Zsun (metal mass fraction in Solar units)
-
       ptrack['m'][:,j] = dfid['m'].values                                                               # Msun (particle mass in solar masses)
-
       ptrack['p'][:,j,:] = np.array( [ dfid['x0'].values, dfid['x1'].values, dfid['x2'].values ] ).T    # kpc (physical)
-
       ptrack['v'][:,j,:] = np.array( [ dfid['v0'].values, dfid['v1'].values, dfid['v2'].values ] ).T    # km/s (peculiar - need to add H(a)*r contribution)
 
-      ptrack['GalID'][:,j] = dfid['GalID'].values
-
-      ptrack['HaloID'][:,j] = dfid['HaloID'].values
-
-      ptrack['SubHaloID'][:,j] = dfid['SubHaloID'].values
+      if self.host_halo:
+        ptrack['HaloID'][:,j] = dfid['HaloID'].values
+        ptrack['SubHaloID'][:,j] = dfid['SubHaloID'].values
 
       j += 1
 
@@ -152,6 +152,8 @@ class IDFinderFull( object ):
       print '------------------------------------------------------------------------------------------------\n'
       sys.stdout.flush()
 
+      return ptrack
+
   ########################################################################
 
   def write_tracked_data( self ):
@@ -161,21 +163,16 @@ class IDFinderFull( object ):
     if not os.path.exists( self.data_p['outdir'] ):
       os.mkdir( self.data_p['outdir'] )
 
-    outname = 'ptrack_idlist_' + tag + '.hdf5'
+    self.outname = 'ptrack_idlist_' + self.data_p['tag'] + '.hdf5'
 
-    outpath =  self.data_p['outdir'] + '/' + outname 
+    outpath =  self.data_p['outdir'] + '/' + self.outname 
     if os.path.isfile( outpath ):
       os.remove( outpath )
 
     f = h5py.File( outpath, 'w' )
-    for keyname in ptrack.keys():
-        f.create_dataset(keyname, data=ptrack[keyname])
+    for keyname in self.ptrack.keys():
+        f.create_dataset( keyname, data=self.ptrack[keyname] )
     f.close()
-
-    time_end = time.time()
-
-    print '\n ' + outname + ' ... done in just ', time_end - time_start, ' seconds!'
-    print '\n ...', (time_end - time_start) / ntrack, ' seconds per particle!\n'
 
   ########################################################################
 
@@ -193,12 +190,12 @@ class IDFinderFull( object ):
 
     idlist = h5py.File( sdir + '/skid/progen_idlist_' + grstr + '.hdf5', 'r')
 
-    if idlist['id'].size > ntrack:
+    if idlist['id'].size > self.ntrack:
        ind_myids = np.arange(idlist['id'].size)
        np.random.seed(seed=1234)
        np.random.shuffle(ind_myids)
-       target_ids = np.unique( idlist['id'][:][ind_myids[0:ntrack]] )
-       tag = 'n{0:1.0f}'.format(np.log10(ntrack))
+       target_ids = np.unique( idlist['id'][:][ind_myids[0:self.ntrack]] )
+       tag = 'n{0:1.0f}'.format(np.log10(self.ntrack))
     else:
        target_ids = np.unique( idlist['id'][:] )
        tag = 'all'
@@ -267,6 +264,7 @@ class IDFinder( object ):
       'id' : [],
       'Ptype' : [],
       'rho' : [],
+      'sfr' : [],
       'T' : [],
       'z' : [],
       'm' : [],
@@ -311,6 +309,7 @@ class IDFinder( object ):
       full_snap_data['id'].append( P['id'] )
       full_snap_data['Ptype'].append( thistype )
       full_snap_data['rho'].append( rho )
+      full_snap_data['sfr'].append( P['sfr'] )
       full_snap_data['T'].append( T )
       full_snap_data['z'].append( P['z'][:,0] )
       full_snap_data['m'].append( P['m'] )
