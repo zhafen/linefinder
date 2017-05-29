@@ -14,6 +14,18 @@ import unittest
 from particle_tracking import tracking
 from particle_tracking import readsnap
 
+default_data_p = {
+  'sdir' : './tests/test_data/test_data_with_new_id_scheme',
+  'types' : [0,],
+  'snap_ini' : 600,
+  'snap_end' : 600,
+  'snap_step' : 1,
+
+  'target_ids' : np.array([ 36091289, 36091289, 3211791, 10952235 ]),
+  'outdir' : './tests/test_data/tracking_output',
+  'tag' : 'test',
+}
+
 ########################################################################
 
 class SaneEqualityArray(np.ndarray):
@@ -183,18 +195,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
   def setUp( self ):
 
-    data_p = {
-      'sdir' : './tests/test_data/test_data_with_new_id_scheme',
-      'types' : [0,],
-      'snap_ini' : 600,
-      'snap_end' : 600,
-      'snap_step' : 1,
-
-      'target_ids' : np.array([ 36091289, 36091289, 3211791, 10952235 ]),
-      'outdir' : './tests/test_data/tracking_output',
-      'tag' : 'test',
-    }
-    self.id_finder_full = tracking.IDFinderFull( data_p )
+    self.id_finder_full = tracking.IDFinderFull( default_data_p )
 
     # The name of the function.
     self.fn = self.id_finder_full.save_target_particles
@@ -202,6 +203,9 @@ class TestSaveTargetedParticles( unittest.TestCase ):
   ########################################################################
 
   def test_runs( self ):
+
+    #DEBUG
+    import pdb; pdb.set_trace()
 
     self.fn()
 
