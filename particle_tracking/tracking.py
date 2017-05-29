@@ -18,6 +18,7 @@ import code_tools
 import readsnap
 
 ########################################################################
+########################################################################
 
 class IDFinderFull( object ):
   '''Searches IDs across snapshots, then saves the results.'''
@@ -205,6 +206,7 @@ class IDFinderFull( object ):
     idlist.close()
 
 ########################################################################
+########################################################################
 
 class IDFinder( object ):
   '''Finds target ids in a single snapshot.'''
@@ -334,7 +336,10 @@ class IDFinder( object ):
       full_snap_data[key] = np.array( full_snap_data[key] ).flatten()
 
     # Save the redshift
-    self.redshift = P['redshift']
+    try:
+      self.redshift = P['redshift']
+    except:
+      raise Exception("Couldn't assign redshift. Snap data probably failed to load. Check that you're pointing the script to the right location.")
 
     return full_snap_data
 

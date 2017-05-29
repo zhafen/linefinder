@@ -42,7 +42,8 @@ def readsnap(sdir,snum,ptype, load_additional_ids=0, snapshot_name='snapshot', e
 
     fname,fname_base,fname_ext = check_if_filename_exists(sdir,snum,\
         snapshot_name=snapshot_name,extension=extension,four_char=four_char)
-    if(fname=='NULL'): print 'NULL fname in readsnap'; return {'k':-1}
+    if(fname=='NULL'): 
+      raise Exception( "Couldn't read snapshot {} in {}.\nCheck if this is the right location.".format( snum, sdir ) )
     if(loud==1): print 'loading file : '+fname
 
     ## open file and parse its header information

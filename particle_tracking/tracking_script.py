@@ -7,47 +7,29 @@
 '''
 
 import numpy as np
-import gadget as g
-import pandas as pd
-import time as time
-import os as os
-import sys as sys
-import gc as gc
-import h5py as h5py
 
-import tracking_tools
-from tracking_constants import *
-
-time_start = time.time()
+import tracking
 
 ########################################################################
 # Input Parameterss
 ########################################################################
 
-# Number of tracked particles
-#ntrack = 1e5                
-ntrack = targeted_ids.size
+data_p = {
+  'sdir' : '/home1/03057/zhafen/repos/worldline/tests/test_data/test_data_with_new_id_scheme',
+  'types' : [0,],
+  'snap_ini' : 500,
+  'snap_end' : 600,
+  'snap_step' : 10,
 
-# Simulation name
-sname = 'm12i_res7000_md'
+  'target_ids' : np.array([ 36091289, 36091289, 3211791, 10952235 ]),
+  'target_child_ids' : np.array([ 893109954, 1945060136, 0, 0 ]),
+  'outdir' : '/home1/03057/zhafen/repos/worldline/tests/test_data/tracking_output',
+  'tag' : 'test',
+}
 
-# What directories
-sdir = '/scratch/projects/xsede/GalaxiesOnFIRE/metaldiff/{}/output'.format( sname )
-outdir = '/scratch/03057/zhafen/{}/output'.format( sname )
+########################################################################
+# Run the Tracking
+########################################################################
 
-targeted_id_filename = ''
-
-# What particle types
-Ptype = [ 0, 4 ]                     # must contain all possible particle types in idlist
-
-# Snapshot range
-snap_ini = 0
-snap_end = 600                       # z = 0
-snap_step = 1
-
-
-
-
-
-
-
+id_finder_full = tracking.IDFinderFull( data_p )
+id_finder_full.save_target_particles()
