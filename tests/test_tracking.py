@@ -183,17 +183,27 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.id_finder_full = tracking.IDFinderFull()
+    data_p = {
+      'sdir' : './tests/test_data/test_data_with_new_id_scheme',
+      'types' : [0,],
+      'snap_ini' : 600,
+      'snap_end' : 600,
+      'snap_step' : 1,
+
+      'target_ids' : np.array([ 36091289, 36091289, 3211791, 10952235 ]),
+      'outdir' : './tests/test_data/tracking_output',
+      'tag' : 'test',
+    }
+    self.id_finder_full = tracking.IDFinderFull( data_p )
 
     # The name of the function.
-    self.fn = self.id_finder_full.save_targeted_particles
+    self.fn = self.id_finder_full.save_target_particles
 
   ########################################################################
 
-  def test_basic( self ):
-    '''Basically, does it work?'''
+  def test_runs( self ):
 
-    assert False
+    self.fn()
 
 ########################################################################
 

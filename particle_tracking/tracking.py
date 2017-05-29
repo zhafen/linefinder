@@ -7,6 +7,7 @@
 '''
 
 import numpy as np
+import os
 import pandas as pd
 import time
 
@@ -14,25 +15,210 @@ import readsnap
 
 ########################################################################
 
-class IDFinderFull(object):
+class IDFinderFull( object ):
   '''Searches IDs across snapshots, then saves the results.'''
 
-  def __init__(self):
-    pass
+  def __init__( self, data_p ):
+    '''Setup the ID Finder.
+
+    Args:
+      data_p (dict): Dictionary containing parameters. Summary below.
+      Input Data Parameters:
+        sdir (str): Simulation data directory.
+        types (list of ints): The particle data types to include.
+        snap_ini (int): Starting snapshot
+        snap_end (int): End snapshot
+        snap_step (int): How many snapshots to jump over?
+
+      Analysis Parameters:
+        Required:
+          outdir (str): Output data directory.
+          tag (str): Identifying tag. Currently must be put in manually.
+          target_ids (np.array): Array of IDs to target.
+        Optional:
+          target_child_ids (np.array): Array of child ids to target.
+          host_halo (bool): Whether or not to include halo data for tracked particles during the tracking process.
+          old_target_id_retrieval_method (bool): Whether or not to get the target ids in the way Daniel originally set up.
+    '''
+
+    self.data_p = data_p
+
+    # Defaults
+    if 'target_child_ids' in self.data_p:
+      self.target_child_ids = self.data_p['target_child_ids']
+    else:
+      self.target_child_ids = None
+    if 'host_halo' in self.data_p:
+      self.host_halo = self.data_p['host_halo']
+    else:
+      self.host_halo = False
+    if 'old_target_id_retrieval_method' in self.data_p:
+      self.old_target_id_retrieval_method = self.data_p['old_target_id_retrieval_method']
+    else:
+      self.old_target_id_retrieval_method = False
 
   ########################################################################
 
-  def save_targeted_particles( self ):
+  def save_target_particles( self ):
+    '''Loop over all redshifts, get the data, and save the particle tracks.'''
 
-    pass
-    
+    # Get the target ids
+    if self.old_target_id_retrieval_method:
+      self.get_target_ids_old()
+
+    # Loop overall redshift snapshots
+    self.ptrack = self.get_tracked_data()
+
+    # Write particle data to the file
+    self.write_tracked_data()
+
+  ########################################################################
+
+  def get_tracked_data( self ):
+    '''Loop overall redshift snapshots, and get the data.
+
+    Returns:
+      ptrack (dict): Structure to hold particle tracks.
+                     Structure is... ptrack ['varname'] [particle i, snap j, k component]
+    '''
+
+    nsnap = 1 + self.data_p['snap_end'] - self.data_p['snap_ini']       # number of redshift snapshots that we follow back
+
+    # Legacy of something Daniel encountered. Don't know what.
+    #myfloat = 'float64' 
+    myfloat = 'float32'
+
+    ntrack = self.data_p['target_ids'].size
+
+    ptrack = { 'redshift':np.zeros(nsnap,dtype=myfloat), 
+               'snapnum':np.zeros(nsnap,dtype='int16'),
+               'id':np.zeros(ntrack,dtype='int64'), 
+               'Ptype':np.zeros(ntrack,dtype=('int8',(nsnap,))),
+               'rho':np.zeros(ntrack,dtype=(myfloat,(nsnap,))), 
+               'sfr':np.zeros(ntrack,dtype=(myfloat,(nsnap,))),
+               'T':np.zeros(ntrack,dtype=(myfloat,(nsnap,))),
+               'z':np.zeros(ntrack,dtype=(myfloat,(nsnap,))),
+               'm':np.zeros(ntrack,dtype=(myfloat,(nsnap,))),
+               'p':np.zeros(ntrack,dtype=(myfloat,(nsnap,3))),
+               'v':np.zeros(ntrack,dtype=(myfloat,(nsnap,3))), 
+               'GalID':np.zeros(ntrack,dtype=('int32',(nsnap,))),
+               'HaloID':np.zeros(ntrack,dtype=('int32',(nsnap,))),
+               'SubHaloID':np.zeros(ntrack,dtype=('int32',(nsnap,))) }
+
+
+    ptrack['id'][:] = self.data_p['target_ids']
+
+    print '\n**********************************************************************************'
+    print self.data_p['sdir'], '   ntrack =', ntrack, '   -->  ', self.data_p['tag']
+    print '**********************************************************************************'
+
+    j = 0
+
+    for snum in range( self.data_p['snap_end'], self.data_p['snap_ini']-1, -self.data_p['snap_step'] ):
+
+      time_1 = time.time()
+
+      id_finder = IDFinder()
+      dfid, redshift = id_finder.find_ids( self.data_p['sdir'], snum, self.data_p['types'], self.data_p['target_ids'], \
+                                           target_child_ids=self.target_child_ids, host_halo=self.host_halo )
+
+      # Old option from how Daniel used to have things set up. I don't entirely understand it.
+      #ptrack['redshift'][:,j] = redshift
+      ptrack['redshift'][j] = redshift
+
+      ptrack['snapnum'][j] = snum
+
+      ptrack['Ptype'][:,j] = dfid['Ptype'].values
+
+      ptrack['rho'][:,j] = dfid['rho'].values                                                           # cm^(-3)
+
+      ptrack['sfr'][:,j] = dfid['sfr'].values                                                           # Msun / year   (stellar Age in Myr for star particles)
+
+      ptrack['T'][:,j] = dfid['T'].values                                                               # Kelvin
+
+      ptrack['z'][:,j] = dfid['z'].values                                                               # Zsun (metal mass fraction in Solar units)
+
+      ptrack['m'][:,j] = dfid['m'].values                                                               # Msun (particle mass in solar masses)
+
+      ptrack['p'][:,j,:] = np.array( [ dfid['x0'].values, dfid['x1'].values, dfid['x2'].values ] ).T    # kpc (physical)
+
+      ptrack['v'][:,j,:] = np.array( [ dfid['v0'].values, dfid['v1'].values, dfid['v2'].values ] ).T    # km/s (peculiar - need to add H(a)*r contribution)
+
+      ptrack['GalID'][:,j] = dfid['GalID'].values
+
+      ptrack['HaloID'][:,j] = dfid['HaloID'].values
+
+      ptrack['SubHaloID'][:,j] = dfid['SubHaloID'].values
+
+      j += 1
+
+      gc.collect()          # helps stop leaking memory ?
+      time_2 = time.time()
+
+      # Print output information.
+      print '\n', snum, ' P[redshift] = ' + '%.3f' % redshift, '    done in ... ', time_2 - time_1, ' seconds'
+      print '------------------------------------------------------------------------------------------------\n'
+      sys.stdout.flush()
+
+  ########################################################################
+
+  def write_tracked_data( self ):
+    '''Write tracks to a file.'''
+
+    # Make sure the output location exists
+    if not os.path.exists( self.data_p['outdir'] ):
+      os.mkdir( self.data_p['outdir'] )
+
+    outname = 'ptrack_idlist_' + tag + '.hdf5'
+
+    outpath =  self.data_p['outdir'] + '/' + outname 
+    if os.path.isfile( outpath ):
+      os.remove( outpath )
+
+    f = h5py.File( outpath, 'w' )
+    for keyname in ptrack.keys():
+        f.create_dataset(keyname, data=ptrack[keyname])
+    f.close()
+
+    time_end = time.time()
+
+    print '\n ' + outname + ' ... done in just ', time_end - time_start, ' seconds!'
+    print '\n ...', (time_end - time_start) / ntrack, ' seconds per particle!\n'
+
+  ########################################################################
+
+  def get_target_ids_old( self ):
+    '''This looks like how Daniel read the IDs before.
+    I don't entirely get it, but given that it seems to involve skid,
+    we probably don't want to go this direction.
+    '''
+
+    # The "Central" galaxy is the most massive galaxy in all runs but m13...  
+    if sname[0:3] == 'm13':
+      grstr = 'gr1' 
+    else:
+      grstr = 'gr0'
+
+    idlist = h5py.File( sdir + '/skid/progen_idlist_' + grstr + '.hdf5', 'r')
+
+    if idlist['id'].size > ntrack:
+       ind_myids = np.arange(idlist['id'].size)
+       np.random.seed(seed=1234)
+       np.random.shuffle(ind_myids)
+       target_ids = np.unique( idlist['id'][:][ind_myids[0:ntrack]] )
+       tag = 'n{0:1.0f}'.format(np.log10(ntrack))
+    else:
+       target_ids = np.unique( idlist['id'][:] )
+       tag = 'all'
+
+    idlist.close()
 
 ########################################################################
 
-class IDFinder(object):
-  '''Finds targeted ids in a single snapshot.'''
+class IDFinder( object ):
+  '''Finds target ids in a single snapshot.'''
 
-  def __init__(self):
+  def __init__( self ):
     pass
 
   ########################################################################
@@ -53,7 +239,7 @@ class IDFinder(object):
       redshift (float): Redshift of the snapshot.
     '''
 
-    # Store the targeted ids for easy access.
+    # Store the target ids for easy access.
     self.sdir = sdir
     self.snum = snum
     self.types = types
@@ -87,7 +273,7 @@ class IDFinder(object):
 
     full_snap_data = {
       'id' : [],
-      'p_type' : [],
+      'Ptype' : [],
       'rho' : [],
       'T' : [],
       'z' : [],
@@ -131,7 +317,7 @@ class IDFinder(object):
       thistype = np.zeros(pnum,dtype='int8'); thistype.fill(p_type)
 
       full_snap_data['id'].append( P['id'] )
-      full_snap_data['p_type'].append( thistype )
+      full_snap_data['Ptype'].append( thistype )
       full_snap_data['rho'].append( rho )
       full_snap_data['T'].append( T )
       full_snap_data['z'].append( P['z'][:,0] )
