@@ -11,6 +11,7 @@ import os
 import pandas as pd
 import time
 
+import code_tools
 import readsnap
 
 ########################################################################
@@ -43,19 +44,10 @@ class IDFinderFull( object ):
 
     self.data_p = data_p
 
-    # Defaults
-    if 'target_child_ids' in self.data_p:
-      self.target_child_ids = self.data_p['target_child_ids']
-    else:
-      self.target_child_ids = None
-    if 'host_halo' in self.data_p:
-      self.host_halo = self.data_p['host_halo']
-    else:
-      self.host_halo = False
-    if 'old_target_id_retrieval_method' in self.data_p:
-      self.old_target_id_retrieval_method = self.data_p['old_target_id_retrieval_method']
-    else:
-      self.old_target_id_retrieval_method = False
+    # Default values
+    code_tools.set_default_attribute( self, 'target_child_ids', None )
+    code_tools.set_default_attribute( self, 'host_halo', False )
+    code_tools.set_default_attribute( self, 'old_target_id_retrieval_method', False )
 
   ########################################################################
 
