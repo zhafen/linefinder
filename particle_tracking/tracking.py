@@ -20,7 +20,7 @@ import readsnap
 ########################################################################
 ########################################################################
 
-class IDFinderFull( object ):
+class ParticleTracker( object ):
   '''Searches IDs across snapshots, then saves the results.'''
 
   def __init__( self, data_p ):
@@ -55,7 +55,7 @@ class IDFinderFull( object ):
 
   ########################################################################
 
-  def save_target_particles( self ):
+  def save_particle_tracks( self ):
     '''Loop over all redshifts, get the data, and save the particle tracks.'''
 
     time_start = time.time()

@@ -197,10 +197,10 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.id_finder_full = tracking.IDFinderFull( default_data_p )
+    self.particle_tracker = tracking.ParticleTracker( default_data_p )
 
     # The name of the function.
-    self.fn = self.id_finder_full.save_target_particles
+    self.fn = self.particle_tracker.save_particle_tracks
 
   ########################################################################
 

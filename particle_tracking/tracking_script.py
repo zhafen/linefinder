@@ -31,5 +31,5 @@ data_p = {
 # Run the Tracking
 ########################################################################
 
-id_finder_full = tracking.IDFinderFull( data_p )
-id_finder_full.save_target_particles()
+particle_tracker = tracking.ParticleTracker( data_p )
+particle_tracker.save_particle_tracks()
