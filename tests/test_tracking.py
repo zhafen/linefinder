@@ -182,7 +182,7 @@ class TestFindIds( unittest.TestCase ):
       'rho' : np.array([ P['rho'][ind] for ind in target_inds ]),
     }
 
-    dfid, redshift = self.fn( sdir, snum, types, target_ids, \
+    dfid, redshift, attrs = self.fn( sdir, snum, types, target_ids, \
                               target_child_ids=target_child_ids)
 
     for key in expected.keys():
@@ -228,6 +228,22 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     npt.assert_allclose( expected_rho_p0, actual_rho_p0 )
 
     assert 'child_id' in f.keys()
+
+  ########################################################################
+
+  def test_has_attributes( self ):
+    
+    self.fn()
+
+    f = h5py.File( 'tests/test_data/tracking_output/ptrack_idlist_test.hdf5', 'r' )
+
+    # Load one of the original snapshots to compare
+    P = readsnap.readsnap( 'tests/test_data/test_data_with_new_id_scheme', 600, 0, True, cosmological=True )
+    
+    compare_keys = [ 'omega_matter', 'omega_lambda', 'hubble' ]
+
+    for key in compare_keys:
+      npt.assert_allclose( P[key], f.attrs[key] )
 
 ########################################################################
 

@@ -70,7 +70,7 @@ class IDFinderFull( object ):
     if self.old_target_id_retrieval_method:
       self.get_target_ids_old()
 
-    # Loop overall redshift snapshots
+    # Loop overall redshift snapshots and get the data out
     self.ptrack = self.get_tracked_data()
 
     # Write particle data to the file
@@ -133,7 +133,7 @@ class IDFinderFull( object ):
       time_1 = time.time()
 
       id_finder = IDFinder()
-      dfid, redshift = id_finder.find_ids( self.data_p['sdir'], snum, self.data_p['types'], self.data_p['target_ids'], \
+      dfid, redshift, self.attrs = id_finder.find_ids( self.data_p['sdir'], snum, self.data_p['types'], self.data_p['target_ids'], \
                                            target_child_ids=self.target_child_ids, host_halo=self.host_halo )
 
       #ptrack['redshift'][:,j] = redshift   # Old option from how Daniel used to have things set up. I don't entirely understand it.
@@ -179,8 +179,12 @@ class IDFinderFull( object ):
       os.remove( outpath )
 
     f = h5py.File( outpath, 'w' )
+    # Save data
     for keyname in self.ptrack.keys():
         f.create_dataset( keyname, data=self.ptrack[keyname] )
+    # Save the attributes
+    for key in self.attrs.keys():
+      f.attrs[key] = self.attrs[key]
     f.close()
 
   ########################################################################
@@ -256,7 +260,7 @@ class IDFinder( object ):
     if host_halo:
       self.add_environment_data()
 
-    return self.dfid, self.redshift
+    return self.dfid, self.redshift, self.attrs
 
   ########################################################################
 
@@ -345,10 +349,13 @@ class IDFinder( object ):
       full_snap_data[key] = np.array( full_snap_data[key] ).flatten()
 
     # Save the redshift
-    try:
-      self.redshift = P['redshift']
-    except:
-      raise Exception("Couldn't assign redshift. Snap data probably failed to load. Check that you're pointing the script to the right location.")
+    self.redshift = P['redshift']
+
+    # Store the attributes to be used in the final data file.
+    attrs_keys = [ 'omega_matter', 'omega_lambda', 'hubble' ]
+    self.attrs = {}
+    for key in attrs_keys:
+      self.attrs[key] = P[key]
 
     return full_snap_data
 
