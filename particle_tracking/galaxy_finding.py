@@ -37,15 +37,21 @@ class ParticleTrackGalaxyFinder( object ):
 class GalaxyFinder( object ):
   '''Find the association with galaxies for a given set of particles at a given redshift.'''
 
-  def __init__( self ):
-    pass
+  def __init__( self, particle_positions ):
+    '''Initialize.
+
+    Args:
+      particle_positions (np.array): Positions with dimensions (n_particles, 3).
+    '''
+
+    self.particle_positions = particle_positions
 
   ########################################################################
 
   def find_galaxies( self ):
 
     # Load the ahf data
-    self.get_ahf_data()
+    self.ahf_reader = ahf_reading.AHFReader( sdir )
     
     # Find the host halo for each particle
     self.find_host_halos()
@@ -60,5 +66,7 @@ class GalaxyFinder( object ):
 
   ########################################################################
 
+  def find_host_halos( self ):
 
+    pass
 
