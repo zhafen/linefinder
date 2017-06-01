@@ -18,6 +18,7 @@ class ParticleTrackGalaxyFinder( object ):
   ########################################################################
 
   def find_galaxies_for_particle_tracks( self ):
+    '''Main function.'''
 
     # Loop over each included snapshot.
     # TODO: Change this loop to a more appropriate loop
