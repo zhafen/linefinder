@@ -56,9 +56,9 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
-  #def test_find_smallest_host_halo( self ):
+  def test_find_smallest_host_halo( self ):
 
-  #  expected = [0, 6962]
-  #  actual = self.galaxy_finder.find_host_halos( halo0_coords )
+    expected = [0, 6962]
+    actual = self.galaxy_finder.find_smallest_halos( halo0_coords )
 
-  #  unittest.assertEqual( expected, actual )
+    unittest.assertEqual( expected, actual )

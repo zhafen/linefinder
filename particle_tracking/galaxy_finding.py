@@ -73,9 +73,19 @@ class GalaxyFinder( object ):
 
   ########################################################################
 
-  def find_host_halos( self,  ):
+  def find_host_halos( self, ):
 
     pass
+
+  ########################################################################
+
+  def find_smallest_containing_halo( self, ):
+
+    # Get the cut
+
+    # Mask the data
+
+    # Take the min of the mask
 
   ########################################################################
 
