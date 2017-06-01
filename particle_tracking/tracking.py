@@ -136,7 +136,6 @@ class ParticleTracker( object ):
       dfid, redshift, self.attrs = id_finder.find_ids( self.data_p['sdir'], snum, self.data_p['types'], self.data_p['target_ids'], \
                                            target_child_ids=self.target_child_ids, host_halo=self.host_halo )
 
-      #ptrack['redshift'][:,j] = redshift   # Old option from how Daniel used to have things set up. I don't entirely understand it.
       ptrack['redshift'][j] = redshift
       ptrack['snapnum'][j] = snum
       ptrack['Ptype'][:,j] = dfid['Ptype'].values
