@@ -42,7 +42,7 @@ class AHFReader( object ):
 
     # If the data's already loaded, don't load it again.
     if hasattr( self, 'ahf_halos' ):
-      return self.ahf_halos
+      return 0
 
     # Load the data
     ahf_halos_filename = 'snap{:03d}Rpep..z*.*.AHF_halos'.format( snum )

@@ -27,9 +27,9 @@ class TestAHFReader( unittest.TestCase ):
 
   def test_get_ahf_halos( self ):
 
-    self.ahf_reader.get_ahf_halos( 600 )
+    self.ahf_reader.get_ahf_halos( 500 )
 
-    expected = 792
+    expected = 789
     actual = self.ahf_reader.ahf_halos['numSubStruct'][0]
     npt.assert_allclose( expected, actual )
 
