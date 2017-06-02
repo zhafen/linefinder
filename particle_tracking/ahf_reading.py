@@ -59,3 +59,6 @@ class AHFReader( object ):
     # Remove the annoying parenthesis at the end of each label.
     self.ahf_halos.columns = [ string.split( label, '(' )[0] for label in list( self.ahf_halos ) ]
 
+    # Rename the index to a more suitable name, without the '#' and the (1)
+    self.ahf_halos.index.names = ['ID']
+

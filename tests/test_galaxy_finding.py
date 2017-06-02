@@ -24,11 +24,11 @@ class TestGalaxyFinder( unittest.TestCase ):
     comoving_halo_coords = np.array([ [ 29414.96458784,  30856.75007114,  32325.90901812],
                                       [ 31926.42103071,  51444.46756529,   1970.1967437 ] ])
 
-    redshift = 0.16946003
-    hubble_param = 0.70199999999999996
-    halo_coords = comoving_halo_coords/(1. + redshift)/hubble_param
+    self.redshift = 0.16946003
+    self.hubble_param = 0.70199999999999996
+    halo_coords = comoving_halo_coords/(1. + self.redshift)/self.hubble_param
 
-    self.galaxy_finder = galaxy_finding.GalaxyFinder( halo_coords, redshift, hubble_param )
+    self.galaxy_finder = galaxy_finding.GalaxyFinder( halo_coords, self.redshift, self.hubble_param )
 
     self.galaxy_finder.ahf_reader = ahf_reading.AHFReader( './tests/test_data/ahf_test_data' )
     
@@ -58,7 +58,31 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   def test_find_smallest_host_halo( self ):
 
-    expected = [0, 6962]
-    actual = self.galaxy_finder.find_smallest_halos( halo0_coords )
+    self.galaxy_finder.particle_positions = np.array([
+      [ 29414.96458784,  30856.75007114,  32325.90901812],
+      [ 31926.42103071,  51444.46756529,   1970.1967437 ],
+      [ 29467.07226789,  30788.6179313 ,  32371.38749237],
+      ])
+    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble_param
 
-    unittest.assertEqual( expected, actual )
+    self.galaxy_finder.n_particles = 3
+
+    expected = np.array( [0, 6962, 7] )
+    actual = self.galaxy_finder.find_smallest_containing_halo()
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_find_smallest_host_halo_none( self ):
+
+    self.galaxy_finder.particle_positions = np.array([
+      [ 0., 0., 0. ],
+      [ 0., 0., 0. ],
+      ])
+
+    expected = np.array( [999999, 999999] )
+    actual = self.galaxy_finder.find_smallest_containing_halo()
+
+    npt.assert_allclose( expected, actual )
+

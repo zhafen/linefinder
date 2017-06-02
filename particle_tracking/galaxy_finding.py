@@ -53,6 +53,9 @@ class GalaxyFinder( object ):
     self.redshift = redshift
     self.hubble_param = hubble_param
 
+    # Derived properties
+    self.n_particles = self.particle_positions.shape[0]
+
   ########################################################################
 
   def find_galaxies( self ):
@@ -79,13 +82,36 @@ class GalaxyFinder( object ):
 
   ########################################################################
 
-  def find_smallest_containing_halo( self, ):
+  def find_smallest_containing_halo( self, radial_cut_fraction=1. ):
+    '''Find which halos our particles are inside of some radial cut of.
+
+    Args:
+      radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*R_vir from the center.
+
+    Returns:
+      smallest_containing_halo (np.array of ints): Shape ( n_particles, ). 
+        If an int, it's the ID of the least massive substructure the particle's part of.
+        If it's None, then that particle is not part of any halo, within radial_cut_fraction*Rvir .
+    '''
 
     # Get the cut
+    part_of_halo = self.find_containing_halos( radial_cut_fraction=radial_cut_fraction )
+
+    # Get the virial masses. It's okay to leave in comoving, since we're just finding the minimum
+    m_vir = self.ahf_reader.ahf_halos['Mvir']
 
     # Mask the data
+    tiled_m_vir = np.tile( m_vir, ( self.n_particles, 1 ) )
+    tiled_m_vir_ma = np.ma.masked_array( tiled_m_vir, mask=np.invert( part_of_halo ), )
 
-    # Take the min of the mask
+    # Take the argmin of the masked data
+    smallest_containing_halo = tiled_m_vir_ma.argmin( 1 )
+    
+    # Account for the fact that the argmin defaults to 0 when there's nothing there
+    mask = tiled_m_vir_ma.min( 1 ).mask
+    smallest_containing_halo = np.ma.filled( np.ma.masked_array(smallest_containing_halo, mask=mask) )
+
+    return smallest_containing_halo
 
   ########################################################################
 
@@ -113,14 +139,10 @@ class GalaxyFinder( object ):
     radial_cut = radial_cut_fraction*r_vir_pkpc
 
     # Tile the radial cut to allow comparison with dist
-    n_particles = self.particle_positions.shape[0]
-    tiled_cut = np.tile( radial_cut, ( n_particles, 1 ) )
+    tiled_cut = np.tile( radial_cut, ( self.n_particles, 1 ) )
 
     # Find the halos that our particles are part of 
     part_of_halo = dist < tiled_cut
 
     return part_of_halo
-
-
-
 
