@@ -33,3 +33,17 @@ class TestAHFReader( unittest.TestCase ):
     actual = self.ahf_reader.ahf_halos['numSubStruct'][0]
     npt.assert_allclose( expected, actual )
 
+  ########################################################################
+
+  def test_get_ahf_mtree_idx( self ):
+
+    self.ahf_reader.get_ahf_mtree_idx( 500 )
+
+    expected = 10
+    actual = self.ahf_reader.ahf_mtree_idx['HaloID(1)'][10]
+    npt.assert_allclose( expected, actual )
+
+    expected = 11
+    actual = self.ahf_reader.ahf_mtree_idx['HaloID(2)'][10]
+    npt.assert_allclose( expected, actual )
+

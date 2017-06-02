@@ -76,14 +76,29 @@ class GalaxyFinder( object ):
 
   ########################################################################
 
-  def find_host_halos( self, ):
+  def find_host_halo( self, radial_cut_fraction=1. ):
+    '''Find the host halos our particles are inside of some radial cut of.
 
-    pass
+    Args:
+      radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*R_vir from the center.
+
+    Returns:
+      host_halo (np.array of ints): Shape ( n_particles, ). 
+        If an int, it's the ID of the host halo the particle's part of.
+        If it's None, then that particle is not part of any halo, within radial_cut_fraction*Rvir .
+    '''
+
+    # Get the cut
+    part_of_halo = self.find_containing_halos( radial_cut_fraction=radial_cut_fraction )
+
+    # Recursive function for getting the host index
+
+    return host_halo
 
   ########################################################################
 
   def find_smallest_containing_halo( self, radial_cut_fraction=1. ):
-    '''Find which halos our particles are inside of some radial cut of.
+    '''Find the smalles halos our particles are inside of some radial cut of.
 
     Args:
       radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*R_vir from the center.
