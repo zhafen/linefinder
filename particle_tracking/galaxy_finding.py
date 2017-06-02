@@ -91,7 +91,33 @@ class GalaxyFinder( object ):
     # Get the cut
     part_of_halo = self.find_containing_halos( radial_cut_fraction=radial_cut_fraction )
 
+    # Get the virial masses. It's okay to leave in comoving, since we're just finding the minimum
+    m_vir = self.ahf_reader.ahf_halos['Mvir']
+
+    # Mask the data
+    tiled_m_vir = np.tile( m_vir, ( self.n_particles, 1 ) )
+    tiled_m_vir_ma = np.ma.masked_array( tiled_m_vir, mask=np.invert( part_of_halo ), )
+
+    # Take the argmin of the masked data
+    largest_containing_halo = tiled_m_vir_ma.argmax( 1 )
+
     # Recursive function for getting the host index
+    def get_mtree_halo_id( halo_id ):
+      
+      root_halo_id = self.ahf_reader.ahf_mtree_idx['HaloID(2)'][halo_id]
+      # DEBUG
+      print 'halo_id={}, root_halo_id={}'.format( halo_id, root_halo_id )
+
+      if root_halo_id == halo_id:
+        return halo_id
+      else:
+        get_mtree_halo_id( root_halo_id )
+
+    host_halo = [ get_mtree_halo_id( halo_id ) for halo_id in largest_containing_halo ]
+    
+    # Account for the fact that the argmin defaults to 0 when there's nothing there
+    mask = tiled_m_vir_ma.max( 1 ).mask
+    host_halo = np.ma.filled( np.ma.masked_array(host_halo, mask=mask) )
 
     return host_halo
 
