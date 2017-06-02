@@ -100,9 +100,6 @@ class TestGalaxyFinder( unittest.TestCase ):
 
     self.galaxy_finder.n_particles = 3
 
-    #DEBUG
-    import pdb; pdb.set_trace()
-
     expected = np.array( [0, 3, 0] )
     actual = self.galaxy_finder.find_host_halo()
 
