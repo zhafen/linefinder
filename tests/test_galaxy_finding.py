@@ -135,6 +135,6 @@ class TestGalaxyFinder( unittest.TestCase ):
       ])
 
     expected = np.array( [-2, -2] )
-    actual = self.galaxy_finder.find_halo_id()
+    actual = self.galaxy_finder.find_host_id()
 
     npt.assert_allclose( expected, actual )

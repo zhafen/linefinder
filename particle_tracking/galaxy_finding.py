@@ -96,7 +96,10 @@ class GalaxyFinder( object ):
     # Get the host halo ID
     host_id = self.ahf_reader.ahf_halos['hostHalo'][ halo_id ]
 
-    return host_id
+    # Fix the invalid values (which come from not being associated with any halo)
+    host_id_fixed = np.ma.fix_invalid( host_id, fill_value=-2 )
+
+    return host_id_fixed.data
 
   ########################################################################
 
