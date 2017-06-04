@@ -63,13 +63,14 @@ class TestGalaxyFinder( unittest.TestCase ):
       [ 29414.96458784,  30856.75007114,  32325.90901812],
       [ 31926.42103071,  51444.46756529,   1970.1967437 ],
       [ 29467.07226789,  30788.6179313 ,  32371.38749237],
+      [ 29459.32290246,  30768.32556725,  32357.26078864], # Halo 3783, host halo 3610
       ])
     self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble_param
 
-    self.galaxy_finder.n_particles = 3
+    self.galaxy_finder.n_particles = 4
 
-    expected = np.array( [0, 6962, 7] )
-    actual = self.galaxy_finder.find_smallest_containing_halo()
+    expected = np.array( [0, 6962, 7, 3783] )
+    actual = self.galaxy_finder.find_halo_id()
 
     npt.assert_allclose( expected, actual )
 
@@ -82,32 +83,32 @@ class TestGalaxyFinder( unittest.TestCase ):
       [ 0., 0., 0. ],
       ])
 
-    expected = np.array( [999999, 999999] )
-    actual = self.galaxy_finder.find_smallest_containing_halo()
+    expected = np.array( [-2, -2] )
+    actual = self.galaxy_finder.find_halo_id()
 
     npt.assert_allclose( expected, actual )
 
   ########################################################################
 
-  def test_find_host_halo( self ):
+  def test_find_host_id( self ):
 
     self.galaxy_finder.particle_positions = np.array([
-      [ 29414.96458784,  30856.75007114,  32325.90901812],
-      [ 29058.92308963,  31944.12724155,  32312.25393713],
-      [ 29467.07226789,  30788.6179313 ,  32371.38749237],
+      [ 29414.96458784,  30856.75007114,  32325.90901812], # Halo 0, host halo 0
+      [ 30068.5541178 ,  32596.72758226,  32928.1115097 ], # Halo 10, host halo 1
+      [ 29459.32290246,  30768.32556725,  32357.26078864], # Halo 3783, host halo 3610
       ])
     self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble_param
 
     self.galaxy_finder.n_particles = 3
 
-    expected = np.array( [0, 3, 0] )
-    actual = self.galaxy_finder.find_host_halo()
+    expected = np.array( [-1, 1, 3610] )
+    actual = self.galaxy_finder.find_host_id()
 
     npt.assert_allclose( expected, actual )
 
   ########################################################################
 
-  #def test_find_host_halo_loop( self ):
+  #def test_find_host_id_loop( self ):
 
   #  self.galaxy_finder.particle_positions = np.array([
   #    [ 29414.96458784,  30856.75007114,  32325.90901812],
@@ -120,20 +121,20 @@ class TestGalaxyFinder( unittest.TestCase ):
   #  self.galaxy_finder.n_particles = 4
 
   #  expected = np.array( [0, 3, 10, 0] )
-  #  actual = self.galaxy_finder.find_host_halo()
+  #  actual = self.galaxy_finder.find_host_id()
 
   #  npt.assert_allclose( expected, actual )
 
   ########################################################################
 
-  def test_find_host_halo_none( self ):
+  def test_find_host_id_none( self ):
 
     self.galaxy_finder.particle_positions = np.array([
       [ 0., 0., 0. ],
       [ 0., 0., 0. ],
       ])
 
-    expected = np.array( [999999, 999999] )
-    actual = self.galaxy_finder.find_smallest_containing_halo()
+    expected = np.array( [-2, -2] )
+    actual = self.galaxy_finder.find_halo_id()
 
     npt.assert_allclose( expected, actual )

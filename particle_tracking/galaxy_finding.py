@@ -76,63 +76,40 @@ class GalaxyFinder( object ):
 
   ########################################################################
 
-  def find_host_halo( self, radial_cut_fraction=1. ):
+  def find_host_id( self, radial_cut_fraction=1. ):
     '''Find the host halos our particles are inside of some radial cut of.
+    This is the host ID at a given snapshot, and is not the same as the merger tree halo ID.
 
     Args:
       radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*R_vir from the center.
 
     Returns:
       host_halo (np.array of ints): Shape ( n_particles, ). 
-        If an int, it's the ID of the host halo the particle's part of.
-        If it's None, then that particle is not part of any halo, within radial_cut_fraction*Rvir .
+        The ID of the least massive substructure the particle's part of.
+        If it's -1, then the halo ID is the host ID.
+        If it's -2, then that particle is not part of any halo, within radial_cut_fraction*Rvir .
     '''
 
-    # Get the cut
-    part_of_halo = self.find_containing_halos( radial_cut_fraction=radial_cut_fraction )
+    # Get the halo ID
+    halo_id = self.find_halo_id( radial_cut_fraction )
 
-    # Get the virial masses. It's okay to leave in comoving, since we're just finding the minimum
-    m_vir = self.ahf_reader.ahf_halos['Mvir']
+    # Get the host halo ID
+    host_id = self.ahf_reader.ahf_halos['hostHalo'][ halo_id ]
 
-    # Mask the data
-    tiled_m_vir = np.tile( m_vir, ( self.n_particles, 1 ) )
-    tiled_m_vir_ma = np.ma.masked_array( tiled_m_vir, mask=np.invert( part_of_halo ), )
-
-    # Take the argmin of the masked data
-    largest_containing_halo = tiled_m_vir_ma.argmax( 1 )
-
-    # Recursive function for getting the host index
-    def get_mtree_halo_id( halo_id ):
-      
-      root_halo_id = self.ahf_reader.ahf_mtree_idx['HaloID(2)'][halo_id]
-      # DEBUG
-      print 'halo_id={}, root_halo_id={}'.format( halo_id, root_halo_id )
-
-      if root_halo_id == halo_id:
-        return halo_id
-      else:
-        get_mtree_halo_id( root_halo_id )
-
-    host_halo = [ get_mtree_halo_id( halo_id ) for halo_id in largest_containing_halo ]
-    
-    # Account for the fact that the argmin defaults to 0 when there's nothing there
-    mask = tiled_m_vir_ma.max( 1 ).mask
-    host_halo = np.ma.filled( np.ma.masked_array(host_halo, mask=mask) )
-
-    return host_halo
+    return host_id
 
   ########################################################################
 
-  def find_smallest_containing_halo( self, radial_cut_fraction=1. ):
-    '''Find the smalles halos our particles are inside of some radial cut of.
+  def find_halo_id( self, radial_cut_fraction=1. ):
+    '''Find the smallest halos our particles are inside of some radial cut of (we define this as the halo ID).
 
     Args:
       radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*R_vir from the center.
 
     Returns:
-      smallest_containing_halo (np.array of ints): Shape ( n_particles, ). 
-        If an int, it's the ID of the least massive substructure the particle's part of.
-        If it's None, then that particle is not part of any halo, within radial_cut_fraction*Rvir .
+      halo_id (np.array of ints): Shape ( n_particles, ). 
+        The ID of the least massive substructure the particle's part of.
+        If it's -2, then that particle is not part of any halo, within radial_cut_fraction*Rvir .
     '''
 
     # Get the cut
@@ -146,13 +123,13 @@ class GalaxyFinder( object ):
     tiled_m_vir_ma = np.ma.masked_array( tiled_m_vir, mask=np.invert( part_of_halo ), )
 
     # Take the argmin of the masked data
-    smallest_containing_halo = tiled_m_vir_ma.argmin( 1 )
+    halo_id = tiled_m_vir_ma.argmin( 1 )
     
     # Account for the fact that the argmin defaults to 0 when there's nothing there
     mask = tiled_m_vir_ma.min( 1 ).mask
-    smallest_containing_halo = np.ma.filled( np.ma.masked_array(smallest_containing_halo, mask=mask) )
+    halo_id = np.ma.filled( np.ma.masked_array(halo_id, mask=mask), fill_value=-2 )
 
-    return smallest_containing_halo
+    return halo_id
 
   ########################################################################
 
