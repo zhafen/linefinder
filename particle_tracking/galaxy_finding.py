@@ -9,6 +9,8 @@
 import numpy as np
 import scipy
 
+import ahf_reading
+
 ########################################################################
 ########################################################################
 
@@ -40,39 +42,55 @@ class ParticleTrackGalaxyFinder( object ):
 class GalaxyFinder( object ):
   '''Find the association with galaxies for a given set of particles at a given redshift.'''
 
-  def __init__( self, particle_positions, redshift, hubble_param ):
+  def __init__( self, particle_positions, data_p ):
     '''Initialize.
 
     Args:
       particle_positions (np.array): Positions with dimensions (n_particles, 3).
-      redshift (float): Redshift the particles are at.
-      hubble_param (float): Cosmological hubble parameter (little h)
+      data_p (dict): Includes...
+        redshift (float): Redshift the particles are at.
+        snum (int): Snapshot the particles correspond to.
+        hubble_param (float): Cosmological hubble parameter (little h)
+        sdir (str): Directory the AHF data is in.
     '''
 
     self.particle_positions = particle_positions
-    self.redshift = redshift
-    self.hubble_param = hubble_param
+    self.data_p = data_p
 
     # Derived properties
     self.n_particles = self.particle_positions.shape[0]
 
   ########################################################################
 
-  def find_galaxies( self ):
+  def find_ids( self, galaxy_cut=0.1 ):
+    '''Find relevant halo and galaxy IDs.
+
+    Args:
+      galaxy_cut (float): The fraction of the virial radius a particle must be inside to be counted as part of a galaxy.
+
+    Returns:
+      galaxy_and_halo_ids (dict): Keys are...
+      Parameters:
+        halo_id (np.array of ints): ID of the least-massive halo the particle is part of.
+        host_halo_id (np.array of ints): ID of the host halo the particle is part of.
+        gal_id (np.array of ints): ID of the smallest galaxy the particle is part of.
+        host_gal_id (np.array of ints): ID of the host galaxy the particle is part of.
+    '''
 
     # Load the ahf data
-    self.ahf_reader = ahf_reading.AHFReader( sdir )
+    self.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
+    self.ahf_reader.get_ahf_halos( self.data_p['snum'] )
+
+    # Dictionary to store the data in.
+    galaxy_and_halo_ids = {}
     
-    # Find the host halo for each particle
-    self.find_host_halos()
-
-    # Find the host galaxy, under the smallest galaxy definition
-    self.find_host_gal_small()
-
-    # Find the host galaxy, under the largest galaxy definition
-    self.find_host_gal_large()
-
-    return galaxy_associations
+    # Actually get the data
+    galaxy_and_halo_ids['halo_id'] = self.find_halo_id()
+    galaxy_and_halo_ids['host_halo_id'] = self.find_host_id()
+    galaxy_and_halo_ids['gal_id'] = self.find_halo_id( galaxy_cut )
+    galaxy_and_halo_ids['host_gal_id'] = self.find_host_id( galaxy_cut )
+    
+    return galaxy_and_halo_ids
 
   ########################################################################
 
@@ -149,14 +167,14 @@ class GalaxyFinder( object ):
 
     # Get the halo positions
     halo_pos_comov = np.array([ self.ahf_reader.ahf_halos['Xc'], self.ahf_reader.ahf_halos['Yc'], self.ahf_reader.ahf_halos['Zc'] ]).transpose()
-    halo_pos = halo_pos_comov/( 1. + self.redshift )/self.hubble_param
+    halo_pos = halo_pos_comov/( 1. + self.data_p['redshift'] )/self.data_p['hubble_param']
 
     # Get the distances
     # Output is ordered such that dist[:,0] is the distance to the center of halo 0 for each particle
     dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
 
     # Get the radial distance
-    r_vir_pkpc = self.ahf_reader.ahf_halos['Rvir']/( 1. + self.redshift )/self.hubble_param
+    r_vir_pkpc = self.ahf_reader.ahf_halos['Rvir']/( 1. + self.data_p['redshift'] )/self.data_p['hubble_param']
     radial_cut = radial_cut_fraction*r_vir_pkpc
 
     # Tile the radial cut to allow comparison with dist
