@@ -217,7 +217,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     f = h5py.File( 'tests/test_data/tracking_output/ptrack_test.hdf5', 'r' )
     
     expected_snum = np.arange(600, 490, -50)
-    actual_snum = f['snapnum'][...]
+    actual_snum = f['snum'][...]
     npt.assert_allclose( expected_snum, actual_snum )
 
     #expected_rho_p0 =  np.array([  1.70068894e-08,   4.28708110e-09,   2.23610355e-09,

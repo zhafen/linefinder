@@ -6,6 +6,7 @@
 @status: Development
 '''
 
+import h5py
 import numpy as np
 import numpy.testing as npt
 import os
@@ -22,13 +23,14 @@ from particle_tracking import galaxy_finding
 gal_finder_data_p = {
   'redshift' : 0.16946003,
   'snum' : 500,
-  'hubble_param' : 0.70199999999999996,
+  'hubble' : 0.70199999999999996,
   'sdir' : './tests/test_data/ahf_test_data',
 }
 
 ptrack_gal_finder_data_p = {
-  'sdir' : '/Users/zhafen/FIRE_Research/Code/worldline/tests/test_data/tracking_output',
-  'tag' : 'test_ahf'
+  'sdir' : './tests/test_data/ahf_test_data',
+  'tracking_dir' : './tests/test_data/tracking_output',
+  'tag' : 'test_gal'
 }
 
 ########################################################################
@@ -42,8 +44,8 @@ class TestGalaxyFinder( unittest.TestCase ):
                                       [ 31926.42103071,  51444.46756529,   1970.1967437 ] ])
 
     self.redshift = gal_finder_data_p['redshift']
-    self.hubble_param = gal_finder_data_p['hubble_param']
-    halo_coords = comoving_halo_coords/(1. + self.redshift)/self.hubble_param
+    self.hubble = gal_finder_data_p['hubble']
+    halo_coords = comoving_halo_coords/(1. + self.redshift)/self.hubble
 
     # Make the necessary data_p
     self.data_p = gal_finder_data_p
@@ -86,7 +88,7 @@ class TestGalaxyFinder( unittest.TestCase ):
       [ 29467.07226789,  30788.6179313 ,  32371.38749237],
       [ 29459.32290246,  30768.32556725,  32357.26078864], # Halo 3783, host halo 3610
       ])
-    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble_param
+    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble
 
     self.galaxy_finder.n_particles = 4
 
@@ -118,7 +120,7 @@ class TestGalaxyFinder( unittest.TestCase ):
       [ 30068.5541178 ,  32596.72758226,  32928.1115097 ], # Halo 10, host halo 1
       [ 29459.32290246,  30768.32556725,  32357.26078864], # Halo 3783, host halo 3610
       ])
-    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble_param
+    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble
 
     self.galaxy_finder.n_particles = 3
 
@@ -150,7 +152,7 @@ class TestGalaxyFinder( unittest.TestCase ):
       [ 30068.5541178 ,  32596.72758226,  32928.1115097 ], # Halo 10, host halo 1
       [ 29459.32290246,  30768.32556725,  32357.26078864], # Halo 3783, host halo 3610
       ])
-    particle_positions *= 1./(1. + self.redshift)/self.hubble_param
+    particle_positions *= 1./(1. + self.redshift)/self.hubble
 
     expected = {
       'host_halo_id' : np.array( [-1, 1, 3610] ),
@@ -173,8 +175,8 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.originalfile = '/Users/zhafen/FIRE_Research/Code/worldline/tests/test_data/tracking_output/ptrack_idlist_test.hdf5'
-    self.savefile = '/Users/zhafen/FIRE_Research/Code/worldline/tests/test_data/tracking_output/ptrack_idlist_test_gal.hdf5'
+    self.originalfile = './tests/test_data/tracking_output/ptrack_test.hdf5'
+    self.savefile = './tests/test_data/tracking_output/ptrack_test_gal.hdf5'
 
     # Make the base particle tracking file
     os.system( 'cp {} {}'.format( self.originalfile, self.savefile ) )
@@ -194,8 +196,15 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
     f = h5py.File( self.savefile, 'r' )
 
-    # What we expect
+    # What we expect (calculated using the positions of the particles in snum 500 )
+    particle_positions = np.array([
+       [ 34463.765625  ,  37409.45703125,  38694.92578125],
+       [ 35956.61328125,  38051.79296875,  39601.91796875],
+       [ 34972.05078125,  39093.890625  ,  39445.94921875],
+       [ 35722.984375  ,  38222.14453125,  39245.52734375],
+    ])
     galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, gal_finder_data_p )
     expected = galaxy_finder.find_ids()
 
-    assert False
+    for key in expected.keys():
+      npt.assert_allclose( expected[key], f[key][...][:,-1] )

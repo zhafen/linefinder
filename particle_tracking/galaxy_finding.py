@@ -12,6 +12,7 @@ import os
 import scipy
 
 import ahf_reading
+import code_tools
 
 ########################################################################
 ########################################################################
@@ -24,11 +25,17 @@ class ParticleTrackGalaxyFinder( object ):
 
     Args:
       data_p (dict): Includes...
-        sdir (str): Directory the ptrack and AHF data is in.
-        tag (str): Identifying tag for the ptrack data
+        Required:
+          sdir (str): Directory the AHF data is in.
+          tracking_dir (str): Directory the ptrack data is in.
+          tag (str): Identifying tag for the ptrack data
+        Optional:
+          galaxy_cut (float): Anything within galaxy_cut*R_vir is counted as being inside the virial radius. Defaults to 0.1.
     '''
 
     self.data_p = data_p
+
+    code_tools.set_default_attribute( self, 'galaxy_cut', 0.1 )
 
   ########################################################################
 
@@ -36,20 +43,43 @@ class ParticleTrackGalaxyFinder( object ):
     '''Main function.'''
 
     # Load the particle track data
-    ptrack_filename = 'ptrack_{}.hdft'.format( self.data_p['tag'] )
-    ptrack_filepath = os.path.join( self.data_p['sdir'], ptrack_filename )
+    ptrack_filename = 'ptrack_{}.hdf5'.format( self.data_p['tag'] )
+    ptrack_filepath = os.path.join( self.data_p['tracking_dir'], ptrack_filename )
     self.ptrack = h5py.File( ptrack_filepath, 'a' )
 
     # Loop over each included snapshot.
-    # TODO: Change this loop to a more appropriate loop
-    for snum in snums:
+    n_snaps = self.ptrack['snum'][...].size
+    for i in range( n_snaps ):
+
+      # Get the particle positions
+      particle_positions = self.ptrack['p'][...][ :, i ]
+      
+      # Get the data parameters to pass to GalaxyFinder
+      data_p = {
+        'redshift' : self.ptrack['redshift'][...][ i ],
+        'snum' : self.ptrack['snum'][...][ i ],
+        'hubble' : self.ptrack.attrs['hubble'],
+        'sdir' : self.data_p['sdir'],
+      }
 
       # Find the galaxy for a given snapshot
-      galaxy_finder = GalaxyFinder()
-      galaxy_associations = galaxy_finder.find_galaxies()
+      galaxy_finder = GalaxyFinder( particle_positions, data_p )
+      galaxy_and_halo_ids = galaxy_finder.find_ids( self.galaxy_cut )
+
+      # Make the arrays to store the data in
+      if not hasattr( self, 'ptrack_gal_ids' ):
+        self.ptrack_gal_ids = {}
+        for key in galaxy_and_halo_ids.keys():
+          self.ptrack_gal_ids[key] = np.empty( ( galaxy_finder.n_particles, n_snaps ), dtype=int )
+
+      # Store the data
+      for key in galaxy_and_halo_ids.keys():
+        self.ptrack_gal_ids[key][ :, i ] = galaxy_and_halo_ids[key]
 
     # Save the data.
-    self.save_galaxy_associations()
+    for key in self.ptrack_gal_ids.keys():
+      self.ptrack.create_dataset( key, data=self.ptrack_gal_ids[key] )
+    self.ptrack.close()
 
 ########################################################################
 ########################################################################
@@ -65,7 +95,7 @@ class GalaxyFinder( object ):
       data_p (dict): Includes...
         redshift (float): Redshift the particles are at.
         snum (int): Snapshot the particles correspond to.
-        hubble_param (float): Cosmological hubble parameter (little h)
+        hubble (float): Cosmological hubble parameter (little h)
         sdir (str): Directory the AHF data is in.
     '''
 
@@ -182,14 +212,14 @@ class GalaxyFinder( object ):
 
     # Get the halo positions
     halo_pos_comov = np.array([ self.ahf_reader.ahf_halos['Xc'], self.ahf_reader.ahf_halos['Yc'], self.ahf_reader.ahf_halos['Zc'] ]).transpose()
-    halo_pos = halo_pos_comov/( 1. + self.data_p['redshift'] )/self.data_p['hubble_param']
+    halo_pos = halo_pos_comov/( 1. + self.data_p['redshift'] )/self.data_p['hubble']
 
     # Get the distances
     # Output is ordered such that dist[:,0] is the distance to the center of halo 0 for each particle
     dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
 
     # Get the radial distance
-    r_vir_pkpc = self.ahf_reader.ahf_halos['Rvir']/( 1. + self.data_p['redshift'] )/self.data_p['hubble_param']
+    r_vir_pkpc = self.ahf_reader.ahf_halos['Rvir']/( 1. + self.data_p['redshift'] )/self.data_p['hubble']
     radial_cut = radial_cut_fraction*r_vir_pkpc
 
     # Tile the radial cut to allow comparison with dist

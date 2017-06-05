@@ -106,7 +106,7 @@ class ParticleTracker( object ):
 
     ptrack = {
       'redshift':np.zeros(nsnap,dtype=myfloat), 
-      'snapnum':np.zeros(nsnap,dtype='int16'),
+      'snum':np.zeros(nsnap,dtype='int16'),
       'id':np.zeros(self.ntrack,dtype='int64'), 
       'Ptype':np.zeros(self.ntrack,dtype=('int8',(nsnap,))),
       'rho':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,))), 
@@ -137,7 +137,7 @@ class ParticleTracker( object ):
                                            target_child_ids=self.target_child_ids, host_halo=self.host_halo )
 
       ptrack['redshift'][j] = redshift
-      ptrack['snapnum'][j] = snum
+      ptrack['snum'][j] = snum
       ptrack['Ptype'][:,j] = dfid['Ptype'].values
       ptrack['rho'][:,j] = dfid['rho'].values                                                           # cm^(-3)
       ptrack['sfr'][:,j] = dfid['sfr'].values                                                           # Msun / year   (stellar Age in Myr for star particles)
