@@ -127,6 +127,9 @@ class Classifier( object ):
 
   def identify_accretion_ejection_and_mergers( self ):
 
+
+    ########################################################################
+
     # --- find if particles are inside/outside of main galaxy at each redshift
     IsInGalID = ( self.ptrack['GalID'][:,0:n_snap] == skidgal['GalID'][0:n_snap] ).astype(int)
 

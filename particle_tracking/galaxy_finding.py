@@ -142,7 +142,7 @@ class GalaxyFinder( object ):
 
     # Load the ahf data
     self.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
-    self.ahf_reader.get_ahf_halos( self.data_p['snum'] )
+    self.ahf_reader.get_halos( self.data_p['snum'] )
 
     # Dictionary to store the data in.
     galaxy_and_halo_ids = {}

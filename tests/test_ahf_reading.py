@@ -25,9 +25,9 @@ class TestAHFReader( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_ahf_halos( self ):
+  def test_get_halos( self ):
 
-    self.ahf_reader.get_ahf_halos( 500 )
+    self.ahf_reader.get_halos( 500 )
 
     expected = 789
     actual = self.ahf_reader.ahf_halos['numSubStruct'][0]
@@ -35,9 +35,9 @@ class TestAHFReader( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_ahf_mtree_idx( self ):
+  def test_get_mtree_idx( self ):
 
-    self.ahf_reader.get_ahf_mtree_idx( 500 )
+    self.ahf_reader.get_mtree_idx( 500 )
 
     expected = 10
     actual = self.ahf_reader.ahf_mtree_idx['HaloID(1)'][10]
@@ -47,3 +47,14 @@ class TestAHFReader( unittest.TestCase ):
     actual = self.ahf_reader.ahf_mtree_idx['HaloID(2)'][10]
     npt.assert_allclose( expected, actual )
 
+  ########################################################################
+
+  def test_get_mtree_halo_files( self ):
+
+    # Halo mass at z=0 for mtree_halo_id = 0
+    expected = 7.5329e+11
+
+    self.ahf_reader.get_mtree_halo_files()
+    actual = self.ahf_reader.mtree_halo_files[0]['Mvir'][-1]
+
+    npt.assert_allclose( expected, actual )

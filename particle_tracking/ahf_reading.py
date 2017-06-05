@@ -30,7 +30,13 @@ class AHFReader( object ):
 
   ########################################################################
 
-  def get_ahf_halos( self, snum ):
+  def get_mtree_halo_files( self ):
+
+    pass
+
+  ########################################################################
+
+  def get_halos( self, snum ):
     '''Get *.AHF_halos file for a particular snapshot.
 
     Args:
@@ -45,7 +51,7 @@ class AHFReader( object ):
       return self.ahf_halos
 
     # Load the data
-    ahf_halos_path = self.get_ahf_filepath( snum, 'AHF_halos' )
+    ahf_halos_path = self.get_filepath( snum, 'AHF_halos' )
     self.ahf_halos = pd.read_csv( ahf_halos_path, sep='\t', index_col=0 )
 
     # Delete a column that shows up as a result of formatting
@@ -61,7 +67,7 @@ class AHFReader( object ):
 
   ########################################################################
 
-  def get_ahf_mtree_idx( self, snum ):
+  def get_mtree_idx( self, snum ):
     '''Get *.AHF_mtree_idx file for a particular snapshot.
 
     Args:
@@ -76,14 +82,14 @@ class AHFReader( object ):
       return self.ahf_mtree_idx
 
     # Load the data
-    ahf_mtree_idx_path = self.get_ahf_filepath( snum, 'AHF_mtree_idx' )
+    ahf_mtree_idx_path = self.get_filepath( snum, 'AHF_mtree_idx' )
     self.ahf_mtree_idx = pd.read_csv( ahf_mtree_idx_path, delim_whitespace=True, names=['HaloID(1)', 'HaloID(2)'], skiprows=1  )
 
     return self.ahf_mtree_idx
 
   ########################################################################
 
-  def get_ahf_filepath( self, snum, ahf_file_type ):
+  def get_filepath( self, snum, ahf_file_type ):
     '''Get the filepath for a specified type of AHF file.
 
     Args:

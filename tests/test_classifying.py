@@ -46,6 +46,6 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   ########################################################################
 
-  def test_basic():
+  def test_basic( self ):
 
     assert False

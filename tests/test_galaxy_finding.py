@@ -56,7 +56,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     self.galaxy_finder.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
     
     # Get the full needed ahf info.
-    self.galaxy_finder.ahf_reader.get_ahf_halos( 500 )
+    self.galaxy_finder.ahf_reader.get_halos( 500 )
 
   ########################################################################
 
