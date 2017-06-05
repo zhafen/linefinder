@@ -10,6 +10,7 @@ import h5py
 import numpy as np
 import os
 import scipy
+import time
 
 import ahf_reading
 import code_tools
@@ -42,6 +43,14 @@ class ParticleTrackGalaxyFinder( object ):
   def find_galaxies_for_particle_tracks( self ):
     '''Main function.'''
 
+    time_start = time.time()
+
+    print "########################################################################"
+    print "Starting Adding Galaxy and Halo IDs!"
+    print "########################################################################"
+    print "Using AHF data from this directory:\n    {}".format( self.data_p['sdir'] )
+    print "Data will be saved here:\n    {}".format( self.data_p['tracking_dir'] )
+
     # Load the particle track data
     ptrack_filename = 'ptrack_{}.hdf5'.format( self.data_p['tag'] )
     ptrack_filepath = os.path.join( self.data_p['tracking_dir'], ptrack_filename )
@@ -62,6 +71,8 @@ class ParticleTrackGalaxyFinder( object ):
         'sdir' : self.data_p['sdir'],
       }
 
+      print 'Snapshot {}, P[redshift] = {:>7.3g}'.format( data_p['snum'], data_p['redshift'], )
+
       # Find the galaxy for a given snapshot
       galaxy_finder = GalaxyFinder( particle_positions, data_p )
       galaxy_and_halo_ids = galaxy_finder.find_ids( self.galaxy_cut )
@@ -80,6 +91,13 @@ class ParticleTrackGalaxyFinder( object ):
     for key in self.ptrack_gal_ids.keys():
       self.ptrack.create_dataset( key, data=self.ptrack_gal_ids[key] )
     self.ptrack.close()
+
+    time_end = time.time()
+    print "########################################################################"
+    print "Done Adding Galaxy and Halo IDs!"
+    print "########################################################################"
+    print "The following particle track file was updated:\n    {}".format( ptrack_filepath )
+    print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format( time_end - time_start, (time_end - time_start) / galaxy_finder.n_particles )
 
 ########################################################################
 ########################################################################

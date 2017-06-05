@@ -105,17 +105,17 @@ class ParticleTracker( object ):
     print "Tracking {} particles...".format( self.ntrack )
 
     ptrack = {
-      'redshift':np.zeros(nsnap,dtype=myfloat), 
-      'snum':np.zeros(nsnap,dtype='int16'),
-      'id':np.zeros(self.ntrack,dtype='int64'), 
-      'Ptype':np.zeros(self.ntrack,dtype=('int8',(nsnap,))),
-      'rho':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,))), 
-      'sfr':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,))),
-      'T':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,))),
-      'z':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,))),
-      'm':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,))),
-      'p':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,3))),
-      'v':np.zeros(self.ntrack,dtype=(myfloat,(nsnap,3))), 
+      'redshift':np.zeros( nsnap, dtype=myfloat ), 
+      'snum':np.zeros( nsnap, dtype='int16' ),
+      'id':np.zeros( self.ntrack, dtype='int64' ), 
+      'Ptype':np.zeros( self.ntrack, dtype=('int8',(nsnap,)) ),
+      'rho':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ), 
+      'sfr':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'T':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'z':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'm':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'p':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
+      'v':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ), 
     }
 
     if self.host_halo:
