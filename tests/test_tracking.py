@@ -20,7 +20,7 @@ default_data_p = {
   'types' : [0,],
   'snap_ini' : 500,
   'snap_end' : 600,
-  'snap_step' : 10,
+  'snap_step' : 50,
 
   'target_ids' : np.array([ 36091289, 36091289, 3211791, 10952235 ]),
   'target_child_ids' : np.array([ 893109954, 1945060136, 0, 0 ]),
@@ -216,14 +216,15 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
     f = h5py.File( 'tests/test_data/tracking_output/ptrack_test.hdf5', 'r' )
     
-    expected_snum = np.arange(600, 490, -10)
+    expected_snum = np.arange(600, 490, -50)
     actual_snum = f['snapnum'][...]
     npt.assert_allclose( expected_snum, actual_snum )
 
-    expected_rho_p0 =  np.array([  1.70068894e-08,   4.28708110e-09,   2.23610355e-09,
-         5.92078259e-09,   6.38462647e-10,   6.44416458e-08,
-         2.44035180e-06,   8.35424314e-09,   8.27433162e-10,
-         2.15146115e-09,   1.94556549e-09])
+    #expected_rho_p0 =  np.array([  1.70068894e-08,   4.28708110e-09,   2.23610355e-09,
+    #     5.92078259e-09,   6.38462647e-10,   6.44416458e-08,
+    #     2.44035180e-06,   8.35424314e-09,   8.27433162e-10,
+    #     2.15146115e-09,   1.94556549e-09])
+    expected_rho_p0 =  np.array([  1.70068894e-08, 6.44416458e-08, 1.94556549e-09])
     actual_rho_p0 = f['rho'][...][0]
     npt.assert_allclose( expected_rho_p0, actual_rho_p0 )
 

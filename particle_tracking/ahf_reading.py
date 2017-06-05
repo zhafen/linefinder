@@ -79,9 +79,6 @@ class AHFReader( object ):
     ahf_mtree_idx_path = self.get_ahf_filepath( snum, 'AHF_mtree_idx' )
     self.ahf_mtree_idx = pd.read_csv( ahf_mtree_idx_path, delim_whitespace=True, names=['HaloID(1)', 'HaloID(2)'], skiprows=1  )
 
-    # Rename the index to a more suitable name, without the '#' and the (1)
-    self.ahf_mtree_idx.index.names = ['ID']
-
     return self.ahf_mtree_idx
 
   ########################################################################
