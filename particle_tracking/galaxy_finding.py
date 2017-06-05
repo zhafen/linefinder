@@ -1,12 +1,14 @@
 #!/usr/bin/env python
-'''Means to associate particles with galaxies at any given time.
+'''Means to associate particles with galaxies and halos at any given time.
 
 @author: Zach Hafen
 @contact: zachary.h.hafen@gmail.com
 @status: Development
 '''
 
+import h5py
 import numpy as np
+import os
 import scipy
 
 import ahf_reading
@@ -17,13 +19,26 @@ import ahf_reading
 class ParticleTrackGalaxyFinder( object ):
   '''Find the association with galaxies for entire particle tracks.'''
 
-  def __init__( self ):
-    pass
+  def __init__( self, data_p ):
+    '''Initialize.
+
+    Args:
+      data_p (dict): Includes...
+        sdir (str): Directory the ptrack and AHF data is in.
+        tag (str): Identifying tag for the ptrack data
+    '''
+
+    self.data_p = data_p
 
   ########################################################################
 
   def find_galaxies_for_particle_tracks( self ):
     '''Main function.'''
+
+    # Load the particle track data
+    ptrack_filename = 'ptrack_{}.hdft'.format( self.data_p['tag'] )
+    ptrack_filepath = os.path.join( self.data_p['sdir'], ptrack_filename )
+    self.ptrack = h5py.File( ptrack_filepath, 'a' )
 
     # Loop over each included snapshot.
     # TODO: Change this loop to a more appropriate loop
@@ -40,7 +55,7 @@ class ParticleTrackGalaxyFinder( object ):
 ########################################################################
 
 class GalaxyFinder( object ):
-  '''Find the association with galaxies for a given set of particles at a given redshift.'''
+  '''Find the association with galaxies and halos for a given set of particles at a given redshift.'''
 
   def __init__( self, particle_positions, data_p ):
     '''Initialize.

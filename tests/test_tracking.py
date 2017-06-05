@@ -214,7 +214,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
     self.fn()
 
-    f = h5py.File( 'tests/test_data/tracking_output/ptrack_idlist_test.hdf5', 'r' )
+    f = h5py.File( 'tests/test_data/tracking_output/ptrack_test.hdf5', 'r' )
     
     expected_snum = np.arange(600, 490, -10)
     actual_snum = f['snapnum'][...]
@@ -235,7 +235,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     
     self.fn()
 
-    f = h5py.File( 'tests/test_data/tracking_output/ptrack_idlist_test.hdf5', 'r' )
+    f = h5py.File( 'tests/test_data/tracking_output/ptrack_test.hdf5', 'r' )
 
     # Load one of the original snapshots to compare
     P = readsnap.readsnap( 'tests/test_data/test_data_with_new_id_scheme', 600, 0, True, cosmological=True )

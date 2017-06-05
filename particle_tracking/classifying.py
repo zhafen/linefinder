@@ -78,7 +78,7 @@ class Classifier( object ):
         print '\nWARNING!  redshifts do NOT match!\n'
 
     # --- particle tracking data
-    ptrack_filename =  'ptrack_idlist_' + self.data_p['tag'] + '.hdf5'
+    ptrack_filename =  'ptrack_' + self.data_p['tag'] + '.hdf5'
     ptrack_filepath = os.path.join( self.data_p['trackdir'], ptrack_filename )
     self.ptrack = h5py.File(ptrack_filepath, 'r')
     self.nsnap = self.ptrack['redshift'][:].size

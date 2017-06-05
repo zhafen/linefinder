@@ -8,11 +8,28 @@
 
 import numpy as np
 import numpy.testing as npt
+import os
 import pdb
 import unittest
 
 from particle_tracking import ahf_reading
 from particle_tracking import galaxy_finding
+
+########################################################################
+# Useful global test variables
+########################################################################
+
+gal_finder_data_p = {
+  'redshift' : 0.16946003,
+  'snum' : 500,
+  'hubble_param' : 0.70199999999999996,
+  'sdir' : './tests/test_data/ahf_test_data',
+}
+
+ptrack_gal_finder_data_p = {
+  'sdir' : '/Users/zhafen/FIRE_Research/Code/worldline/tests/test_data/tracking_output',
+  'tag' : 'test_ahf'
+}
 
 ########################################################################
 
@@ -24,17 +41,12 @@ class TestGalaxyFinder( unittest.TestCase ):
     comoving_halo_coords = np.array([ [ 29414.96458784,  30856.75007114,  32325.90901812],
                                       [ 31926.42103071,  51444.46756529,   1970.1967437 ] ])
 
-    self.redshift = 0.16946003
-    self.hubble_param = 0.70199999999999996
+    self.redshift = gal_finder_data_p['redshift']
+    self.hubble_param = gal_finder_data_p['hubble_param']
     halo_coords = comoving_halo_coords/(1. + self.redshift)/self.hubble_param
 
     # Make the necessary data_p
-    self.data_p = {
-      'redshift' : self.redshift,
-      'snum' : 500,
-      'hubble_param' : self.hubble_param,
-      'sdir' : './tests/test_data/ahf_test_data',
-    }
+    self.data_p = gal_finder_data_p
 
     self.galaxy_finder = galaxy_finding.GalaxyFinder( halo_coords, self.data_p ) 
 
@@ -154,3 +166,36 @@ class TestGalaxyFinder( unittest.TestCase ):
     for key in expected.keys():
       print key
       npt.assert_allclose( expected[key], actual[key] )
+
+########################################################################
+
+class TestParticleTrackGalaxyFinder( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.originalfile = '/Users/zhafen/FIRE_Research/Code/worldline/tests/test_data/tracking_output/ptrack_idlist_test.hdf5'
+    self.savefile = '/Users/zhafen/FIRE_Research/Code/worldline/tests/test_data/tracking_output/ptrack_idlist_test_gal.hdf5'
+
+    # Make the base particle tracking file
+    os.system( 'cp {} {}'.format( self.originalfile, self.savefile ) )
+
+  ########################################################################
+
+  def tearDown( self ):
+
+    os.system( 'rm {}'.format( self.savefile ) )
+
+  ########################################################################
+
+  def test_find_galaxies_for_particle_tracks( self ):
+
+    particle_track_gal_finder = galaxy_finding.ParticleTrackGalaxyFinder( ptrack_gal_finder_data_p )
+    particle_track_gal_finder.find_galaxies_for_particle_tracks()
+
+    f = h5py.File( self.savefile, 'r' )
+
+    # What we expect
+    galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, gal_finder_data_p )
+    expected = galaxy_finder.find_ids()
+
+    assert False

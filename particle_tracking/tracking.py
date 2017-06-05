@@ -171,7 +171,7 @@ class ParticleTracker( object ):
     if not os.path.exists( self.data_p['outdir'] ):
       os.mkdir( self.data_p['outdir'] )
 
-    self.outname = 'ptrack_idlist_' + self.data_p['tag'] + '.hdf5'
+    self.outname = 'ptrack_' + self.data_p['tag'] + '.hdf5'
 
     outpath =  self.data_p['outdir'] + '/' + self.outname 
     if os.path.isfile( outpath ):
