@@ -60,31 +60,27 @@ class Classifier( object ):
 
   def read_data_files( self ):
 
-    if self.use_skid:
-      if sname[0:3] == 'm13':
-        grstr = 'gr1'
-      else:
-        grstr = 'gr0'
-
-      # --- MAIN galaxy as a function of redshift
-      skidname = trackdir + 'skidgal_' + grstr + '.hdf5'
-      skidgal = h5py.File( skidname, 'r')
-      nsgal = skidgal['redshift'][:].size
-
-      nsnap = np.min( [ nsgal, nstrack ] )
-
-      # --- check if redshifts match between particle-halo information
-      if np.max( np.abs(f['redshift'][0:nsnap]-skidgal['redshift'][0:nsnap]) ) > 1e-4:
-        print '\nWARNING!  redshifts do NOT match!\n'
-
-    # --- particle tracking data
+    # Load Particle Tracking Data
     ptrack_filename =  'ptrack_' + self.data_p['tag'] + '.hdf5'
     ptrack_filepath = os.path.join( self.data_p['trackdir'], ptrack_filename )
-    self.ptrack = h5py.File(ptrack_filepath, 'r')
-    self.nsnap = self.ptrack['redshift'][:].size
-    self.npart = self.ptrack['id'][...].size
+    f = h5py.File(ptrack_filepath, 'r')
 
-    print '\nDone with reading.'
+    # Store the particle track data in a dictionary
+    self.ptrack = {}
+    for key in f.keys():
+      self.ptrack[ key ] = f[ key ][...]
+
+    # Store the ptrack attributes
+    self.ptrack_attrs = {}
+    for key in f.attrs.keys():
+      self.ptrack_attrs[ key ] = f.attrs[ key ]
+
+    self.n_snap = self.ptrack['redshift'].size
+    self.n_particles = self.ptrack['id'].size
+
+    f.close()
+
+    print 'Done with reading.'
     sys.stdout.flush()
 
   ########################################################################
@@ -93,36 +89,36 @@ class Classifier( object ):
     '''Perform a number of simple calculations and store the results.
     '''
 
-    # --- coordinates wrt galaxy center (physical kpc)
-    # TODO AHF
-    r = self.ptrack['p'][:,0:nsnap,:] - skidgal['p_phi'][0:nsnap,:]
+    ## --- coordinates wrt galaxy center (physical kpc)
+    ## TODO AHF
+    #r = self.ptrack['p'][:,0:n_snap,:] - skidgal['p_phi'][0:n_snap,:]
 
-    # --- radial distance to galaxy center (physical kpc)
-    R = np.sqrt((r*r).sum(axis=2))                   
+    ## --- radial distance to galaxy center (physical kpc)
+    #R = np.sqrt((r*r).sum(axis=2))                   
 
-    # --- Hubble factor at all redshift
-    hubble_factor = astro_tools.hubble_z( self.ptrack['redshift'][0:nsnap], h=self.ptrack.attrs['hubble'], \
-                                          Omega0=self.ptrack.attrs['omega_matter'], OmegaLambda=self.ptrack.attrs['omega_lambda'] )
+    ## --- Hubble factor at all redshift
+    #hubble_factor = astro_tools.hubble_z( self.ptrack['redshift'][0:n_snap], h=self.ptrack.attrs['hubble'], \
+    #                                      Omega0=self.ptrack.attrs['omega_matter'], OmegaLambda=self.ptrack.attrs['omega_lambda'] )
 
-    # --- physical velocity wrt galaxy center (km/s)
-    # WARNING: need to update with v_phi??
-    v = f['v'][:,0:nsnap,:] - skidgal['v_CM'][0:nsnap,:]  +  hubble_factor[:,np.newaxis] * r * UnitLength_in_cm  / UnitVelocity_in_cm_per_s  
+    ## --- physical velocity wrt galaxy center (km/s)
+    ## WARNING: need to update with v_phi??
+    #v = f['v'][:,0:n_snap,:] - skidgal['v_CM'][0:n_snap,:]  +  hubble_factor[:,np.newaxis] * r * UnitLength_in_cm  / UnitVelocity_in_cm_per_s  
 
-    # --- radial velocity wrt galaxy center (km/s)
-    Vr = (v*r).sum(axis=2) / R 
+    ## --- radial velocity wrt galaxy center (km/s)
+    #Vr = (v*r).sum(axis=2) / R 
 
-    # --- replicate redshifts self.ptrackor indexing (last one removed)
-    redshift = np.tile( self.ptrack['redshift'][0:nsnap], (npart,1) )   
+    ## --- replicate redshifts self.ptrackor indexing (last one removed)
+    #redshift = np.tile( self.ptrack['redshift'][0:n_snap], (n_particles,1) )   
 
-    # --- age of the universe in Myr
-    time = 1e3 * util.age_of_universe( redshift, h=self.ptrack.attrs['hubble'], Omega_M=self.ptrack.attrs['omega_matter'] )
-    dt = time[:,:-1] - time[:,1:] 
+    ## --- age of the universe in Myr
+    #time = 1e3 * util.age_of_universe( redshift, h=self.ptrack.attrs['hubble'], Omega_M=self.ptrack.attrs['omega_matter'] )
+    #dt = time[:,:-1] - time[:,1:] 
 
-    # --- list of snapshots for indexing
-    snaplist = skidgal['snapnum'][0:nsnap] 
+    ## --- list of snapshots for indexing
+    #snaplist = skidgal['snapnum'][0:n_snap] 
 
-    # --- index to revert order of redshift snapshots
-    ind_rev = np.arange(nsnap-2,-1,-1)  
+    ## --- index to revert order of redshift snapshots
+    #ind_rev = np.arange(n_snap-2,-1,-1)  
 
     print '\nDone with initial calculations.'
     sys.stdout.flush()
@@ -132,26 +128,26 @@ class Classifier( object ):
   def identify_accretion_ejection_and_mergers( self ):
 
     # --- find if particles are inside/outside of main galaxy at each redshift
-    IsInGalID = ( self.ptrack['GalID'][:,0:nsnap] == skidgal['GalID'][0:nsnap] ).astype(int)
+    IsInGalID = ( self.ptrack['GalID'][:,0:n_snap] == skidgal['GalID'][0:n_snap] ).astype(int)
 
-    IsInGalRe = ( R < GalDef*skidgal['ReStar'][0:nsnap] ).astype(int)
+    IsInGalRe = ( R < GalDef*skidgal['ReStar'][0:n_snap] ).astype(int)
 
-    IsInOtherGal = ( self.ptrack['GalID'][:,0:nsnap] > 0 )  &  ( IsInGalID == 0 )
-    IsOutsideAnyGal = self.ptrack['GalID'][:,0:nsnap] <= 0 
+    IsInOtherGal = ( self.ptrack['GalID'][:,0:n_snap] > 0 )  &  ( IsInGalID == 0 )
+    IsOutsideAnyGal = self.ptrack['GalID'][:,0:n_snap] <= 0 
 
     # --- Identify accretion/ejection events relative to main galaxy at each redshift
     #    GalEvent = 0 (no change), 1 (entering galaxy), -1 (leaving galaxy) at that redshift
-    GalEventID = IsInGalID[:,0:nsnap-1] - IsInGalID[:,1:nsnap]      
+    GalEventID = IsInGalID[:,0:n_snap-1] - IsInGalID[:,1:n_snap]      
 
-    GalEventRe = IsInGalRe[:,0:nsnap-1] - IsInGalRe[:,1:nsnap]
+    GalEventRe = IsInGalRe[:,0:n_snap-1] - IsInGalRe[:,1:n_snap]
 
     # --- identify ALL gas wind ejection events
                    # (GalEventID == -1) | (GalEventRe == -1)    DAA: could double count if both conditions are satisfied in subsequent snapshots...
     IsEjected = (  ( GalEventID == -1 )  &
-                   ( Vr[:,0:nsnap-1] > WindVelMinVc*skidgal['VcMax'][0:nsnap-1] )  &
-                   ( Vr[:,0:nsnap-1] > WindVelMin )  &
-                   ( self.ptrack['Ptype'][:,0:nsnap-1]==0 )  &
-                   ( IsOutsideAnyGal[:,0:nsnap-1] )  ).astype(int)
+                   ( Vr[:,0:n_snap-1] > WindVelMinVc*skidgal['VcMax'][0:n_snap-1] )  &
+                   ( Vr[:,0:n_snap-1] > WindVelMin )  &
+                   ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )  &
+                   ( IsOutsideAnyGal[:,0:n_snap-1] )  ).astype(int)
 
     # --- identify ALL gas/star accretion events
     IsAccreted = ( GalEventID == 1 ).astype(int)
@@ -170,7 +166,7 @@ class Classifier( object ):
 
     IsJustBeforeFirstAcc = np.roll( IsFirstAcc, 1, axis=1 );   IsJustBeforeFirstAcc[:,0] = 0
 
-    BeforeFirstAcc = ( CumNumAcc == 0 )  &  ( IsInGalID[:,0:nsnap-1] == 0 )
+    BeforeFirstAcc = ( CumNumAcc == 0 )  &  ( IsInGalID[:,0:n_snap-1] == 0 )
 
     # --- identify LAST ejection event
     CumNumEject = IsEjected[:,ind_rev].cumsum(axis=1)[:,ind_rev]      # cumulative number of EJECTION events
@@ -179,18 +175,18 @@ class Classifier( object ):
     IsLastEject = IsEjected  &  ( CumNumEject_rev == 1 )
 
     # --- find star/gas particles inside the galaxy
-    IsStarInside = IsInGalID  &  IsInGalRe  &  ( self.ptrack['Ptype'][:,0:nsnap]==4 )
-    IsGasInside = IsInGalID  &  IsInGalRe  &  ( self.ptrack['Ptype'][:,0:nsnap]==0 )
+    IsStarInside = IsInGalID  &  IsInGalRe  &  ( self.ptrack['Ptype'][:,0:n_snap]==4 )
+    IsGasInside = IsInGalID  &  IsInGalRe  &  ( self.ptrack['Ptype'][:,0:n_snap]==0 )
 
     # --- identify STAR FORMATION event inside galaxy
-    IsStarFormed = IsStarInside[:,0:nsnap-1]  &  ( self.ptrack['Ptype'][:,1:nsnap] == 0 )
+    IsStarFormed = IsStarInside[:,0:n_snap-1]  &  ( self.ptrack['Ptype'][:,1:n_snap] == 0 )
 
     # --- identify GAS ACCRETION events
-    IsGasAccreted = np.zeros( (npart,nsnap), dtype=np.int32 )
+    IsGasAccreted = np.zeros( (n_particles,n_snap), dtype=np.int32 )
     IsGasFirstAcc = IsGasAccreted.copy()
 
-    IsGasAccreted[:,0:nsnap-1] = IsAccreted  &  ( self.ptrack['Ptype'][:,0:nsnap-1]==0 )   # initialize with all gas accretion events including "false" events 
-    IsGasFirstAcc[:,0:nsnap-1] = IsFirstAcc  &  ( self.ptrack['Ptype'][:,0:nsnap-1]==0 )   # only the first accretion event
+    IsGasAccreted[:,0:n_snap-1] = IsAccreted  &  ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )   # initialize with all gas accretion events including "false" events 
+    IsGasFirstAcc[:,0:n_snap-1] = IsFirstAcc  &  ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )   # only the first accretion event
 
     Nacc = IsGasAccreted.sum(axis=1)
 
@@ -219,9 +215,9 @@ class Classifier( object ):
 
     # --- identify the host dark matter halo
 
-    HaloID = np.zeros(nsnap, dtype='int')
-    Rvir = np.zeros(nsnap)
-    Mvir = np.zeros(nsnap)
+    HaloID = np.zeros(n_snap, dtype='int')
+    Rvir = np.zeros(n_snap)
+    Mvir = np.zeros(n_snap)
     nmaxh = 1000
     for ns in range(snaplist.size):
        halos = astro_tools.read_AHF_halos(simdir, snaplist[ns] )
@@ -253,22 +249,22 @@ class Classifier( object ):
     mask = np.logical_not(IsJustBeforeFirstAcc)     # note that this may not be defined for all particles! 
 
     # --- redshift at fist accretion onto the galaxy
-    redshift_FirstAcc = np.ma.masked_array( redshift[:,0:nsnap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
+    redshift_FirstAcc = np.ma.masked_array( redshift[:,0:n_snap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
 
     # --- temperature AT first accretion onto MAIN galaxy
-    T_FirstAcc = np.ma.masked_array( self.ptrack['T'][:,0:nsnap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
+    T_FirstAcc = np.ma.masked_array( self.ptrack['T'][:,0:n_snap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
 
     # --- metallicity AT first accretion onto MAIN galaxy
-    z_FirstAcc = np.ma.masked_array( self.ptrack['z'][:,0:nsnap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
+    z_FirstAcc = np.ma.masked_array( self.ptrack['z'][:,0:n_snap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
 
     # --- Ptype at first accretion onto the galaxy
-    Ptype_FirstAcc = np.ma.masked_array( self.ptrack['Ptype'][:,0:nsnap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
+    Ptype_FirstAcc = np.ma.masked_array( self.ptrack['Ptype'][:,0:n_snap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
     ind = np.where( Ptype_FirstAcc == -1 )[0]
     if ind.size > 0:
-      Ptype_FirstAcc[ind] = self.ptrack['Ptype'][ind,nsnap]           # DAA: check nsnap here!!
+      Ptype_FirstAcc[ind] = self.ptrack['Ptype'][ind,n_snap]           # DAA: check n_snap here!!
 
     # --- Galaxy ID just prior to first accretion onto the main galaxy
-    GalID_FirstAcc = np.ma.masked_array( self.ptrack['GalID'][:,0:nsnap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
+    GalID_FirstAcc = np.ma.masked_array( self.ptrack['GalID'][:,0:n_snap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
 
   ########################################################################
 
@@ -278,10 +274,10 @@ class Classifier( object ):
     mask = np.logical_not(IsLastEject)
 
     # --- redshift at last ejection from the galaxy
-    redshift_LastEject = np.ma.masked_array( redshift[:,0:nsnap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
+    redshift_LastEject = np.ma.masked_array( redshift[:,0:n_snap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
 
     # --- metallicity at last ejection
-    z_LastEject = np.ma.masked_array( self.ptrack['z'][:,0:nsnap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
+    z_LastEject = np.ma.masked_array( self.ptrack['z'][:,0:n_snap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
 
     print '\nDone with first accretion.'
     sys.stdout.flush()
@@ -314,7 +310,7 @@ class Classifier( object ):
     all_RedshiftAccIni = np.array([])
     all_SnapnumAcc = np.array([])
 
-    for i in range(npart):
+    for i in range(n_particles):
 
        if (Neject[i] < 1) or (Nacc[i] < 1):
          continue
@@ -391,11 +387,11 @@ class Classifier( object ):
 
     #--- maximum temperature reached OUTSIDE of ANY galaxy  (T values are "invalid" when the particle is inside any galaxy)
     mask = np.logical_not(IsOutsideAnyGal)
-    TmaxOutside = np.ma.masked_array( self.ptrack['T'][:,0:nsnap], mask=mask ).max(axis=1).filled(fill_value =-1)
+    TmaxOutside = np.ma.masked_array( self.ptrack['T'][:,0:n_snap], mask=mask ).max(axis=1).filled(fill_value =-1)
 
     #--- maximum temperature reached BEFORE first accretion onto MAIN galaxy and OUTSIDE of any galaxy  (T values are "invalid" after first accretion)
-    mask = np.logical_not( BeforeFirstAcc & IsOutsideAnyGal[:,0:nsnap-1] )
-    TmaxBeforeAcc = np.ma.masked_array( self.ptrack['T'][:,0:nsnap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
+    mask = np.logical_not( BeforeFirstAcc & IsOutsideAnyGal[:,0:n_snap-1] )
+    TmaxBeforeAcc = np.ma.masked_array( self.ptrack['T'][:,0:n_snap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
     
     #--- COLD vs HOT 
 
@@ -404,18 +400,18 @@ class Classifier( object ):
     IsHotMode = ( Tmax > ColdHotDef ).astype(int)
     IsColdMode = ( Tmax <= ColdHotDef ).astype(int)
 
-    IsHotMode_mask = np.tile( IsHotMode[:,np.newaxis], nsnap )
-    IsColdMode_mask = np.tile( IsColdMode[:,np.newaxis], nsnap )
+    IsHotMode_mask = np.tile( IsHotMode[:,np.newaxis], n_snap )
+    IsColdMode_mask = np.tile( IsColdMode[:,np.newaxis], n_snap )
 
     #--- WIND vs NO-WIND
     # IsWind[i,n]=YES for particle i if it has been ejected at least once before snapshot n 
 
-    IsWind = np.zeros( (npart,nsnap), dtype=np.int32 )
-    IsWind[:,0:nsnap-1] = ( CumNumEject >= 1 ).astype(int)         
+    IsWind = np.zeros( (n_particles,n_snap), dtype=np.int32 )
+    IsWind[:,0:n_snap-1] = ( CumNumEject >= 1 ).astype(int)         
 
     #correct for "boundary conditions": particles inside galaxy at earliest snapshots cannot count as winds
     #for k in range(4):
-    #   IsWind[ IsInGalID[:,nsnap-1-k] == 1, nsnap-1-k ] = 0
+    #   IsWind[ IsInGalID[:,n_snap-1-k] == 1, n_snap-1-k ] = 0
 
   ########################################################################
 
@@ -423,38 +419,38 @@ class Classifier( object ):
 
     Nstar = IsStarInside.sum(axis=0)
 
-    StarMass = ( self.ptrack['m'][:,0:nsnap] * IsStarInside ).sum(axis=0)
-    StarMassHot = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsHotMode_mask ).sum(axis=0)
-    StarMassCold = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsColdMode_mask ).sum(axis=0)
-    StarMassWind = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsWind ).sum(axis=0)
-    StarMassWindHot = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsWind * IsHotMode_mask ).sum(axis=0)
-    StarMassWindCold = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsWind * IsColdMode_mask ).sum(axis=0)
+    StarMass = ( self.ptrack['m'][:,0:n_snap] * IsStarInside ).sum(axis=0)
+    StarMassHot = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsHotMode_mask ).sum(axis=0)
+    StarMassCold = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsColdMode_mask ).sum(axis=0)
+    StarMassWind = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsWind ).sum(axis=0)
+    StarMassWindHot = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsWind * IsHotMode_mask ).sum(axis=0)
+    StarMassWindCold = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsWind * IsColdMode_mask ).sum(axis=0)
 
-    GasMass = ( self.ptrack['m'][:,0:nsnap] * IsGasInside ).sum(axis=0)
-    GasMassWind = ( self.ptrack['m'][:,0:nsnap] * IsGasInside * IsWind ).sum(axis=0)
+    GasMass = ( self.ptrack['m'][:,0:n_snap] * IsGasInside ).sum(axis=0)
+    GasMassWind = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsWind ).sum(axis=0)
 
-    Sfr = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside ).sum(axis=0)
-    SfrHot = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsHotMode_mask ).sum(axis=0)
-    SfrCold = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsColdMode_mask ).sum(axis=0)
-    SfrWind = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsWind ).sum(axis=0)
-    SfrWindHot = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsWind * IsHotMode_mask ).sum(axis=0)
-    SfrWindCold = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsWind * IsColdMode_mask ).sum(axis=0)
+    Sfr = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside ).sum(axis=0)
+    SfrHot = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsHotMode_mask ).sum(axis=0)
+    SfrCold = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsColdMode_mask ).sum(axis=0)
+    SfrWind = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsWind ).sum(axis=0)
+    SfrWindHot = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsWind * IsHotMode_mask ).sum(axis=0)
+    SfrWindCold = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsWind * IsColdMode_mask ).sum(axis=0)
 
     # --- "Msun per snapshot" from gas accretion events
-    AccretedGasMass = ( self.ptrack['m'][:,0:nsnap] * IsGasAccreted ).sum(axis=0)
-    AccretedGasMassWind = ( self.ptrack['m'][:,0:nsnap] * IsGasAccreted * IsWind ).sum(axis=0) 
+    AccretedGasMass = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted ).sum(axis=0)
+    AccretedGasMassWind = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsWind ).sum(axis=0) 
 
   ########################################################################
 
   def other_growth_modes( self ):
 
-    TimeInOtherGal = ( dt * IsInOtherGal[:,0:nsnap-1].astype(int) ).sum(axis=1)
-    TimeInOtherGalBeforeAcc = ( dt * (BeforeFirstAcc & IsInOtherGal[:,0:nsnap-1]).astype(int) ).sum(axis=1)
-    #TimeInOtherGalBeforeAccAsStar = ( dt * (BeforeFirstAcc & IsInOtherGal[:,0:nsnap-1] & (f['Ptype'][:,0:nsnap-1]==4)).astype(int) ).sum(axis=1)
+    TimeInOtherGal = ( dt * IsInOtherGal[:,0:n_snap-1].astype(int) ).sum(axis=1)
+    TimeInOtherGalBeforeAcc = ( dt * (BeforeFirstAcc & IsInOtherGal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
+    #TimeInOtherGalBeforeAccAsStar = ( dt * (BeforeFirstAcc & IsInOtherGal[:,0:n_snap-1] & (f['Ptype'][:,0:n_snap-1]==4)).astype(int) ).sum(axis=1)
 
     CumTimeBeforeAcc = ( dt * BeforeFirstAcc.astype(int) ).cumsum(axis=1)
     IsTimeIntervalBeforeAcc = ( (CumTimeBeforeAcc <= TimeIntervalFac*TimeMin) & BeforeFirstAcc ).astype(int)
-    TimeInOtherGalBeforeAccDuringInterval = ( dt * (IsTimeIntervalBeforeAcc & IsInOtherGal[:,0:nsnap-1]).astype(int) ).sum(axis=1)
+    TimeInOtherGalBeforeAccDuringInterval = ( dt * (IsTimeIntervalBeforeAcc & IsInOtherGal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
 
 
     #--- GrowthMode = PRISTINE      --> "non-externally processed"  
@@ -464,8 +460,8 @@ class Classifier( object ):
     IsPreProcessed = ( TimeInOtherGalBeforeAcc >= TimeMin ).astype(int)
     #correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
     for k in range(neg):
-       IsPristine[ IsInGalID[:,nsnap-1-k] == 1 ] = 1         
-       IsPreProcessed[ IsInGalID[:,nsnap-1-k] == 1 ] = 0
+       IsPristine[ IsInGalID[:,n_snap-1-k] == 1 ] = 1         
+       IsPreProcessed[ IsInGalID[:,n_snap-1-k] == 1 ] = 0
 
     #--- PRE-PROCESSED GrowthMode: MERGER vs MASS TRANSFER
 
@@ -476,80 +472,80 @@ class Classifier( object ):
 
   def add_additional_info_to_preprocessed_mode( self ):
 
-    IsPreProcessed_mask = np.tile( IsPreProcessed[:,np.newaxis], nsnap )
-    IsMassTransfer_mask = np.tile( IsMassTransfer[:,np.newaxis], nsnap )
-    IsMerger_mask = np.tile( IsMerger[:,np.newaxis], nsnap )
-    IsStarAcc_mask = np.tile( (Ptype_FirstAcc == 4).astype(int)[:,np.newaxis], nsnap )
-    IsGasAcc_mask = np.tile( (Ptype_FirstAcc == 0).astype(int)[:,np.newaxis], nsnap )
+    IsPreProcessed_mask = np.tile( IsPreProcessed[:,np.newaxis], n_snap )
+    IsMassTransfer_mask = np.tile( IsMassTransfer[:,np.newaxis], n_snap )
+    IsMerger_mask = np.tile( IsMerger[:,np.newaxis], n_snap )
+    IsStarAcc_mask = np.tile( (Ptype_FirstAcc == 4).astype(int)[:,np.newaxis], n_snap )
+    IsGasAcc_mask = np.tile( (Ptype_FirstAcc == 0).astype(int)[:,np.newaxis], n_snap )
 
-    StarMassFromPreProcessed = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPreProcessed_mask ).sum(axis=0)
-    StarMassFromMassTransfer = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsMassTransfer_mask ).sum(axis=0)
-    StarMassFromMassTransferGas = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsMassTransfer_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromMassTransferStar = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsMassTransfer_mask * IsStarAcc_mask ).sum(axis=0)
-    StarMassFromMerger = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsMerger_mask ).sum(axis=0)
-    StarMassFromMergerGas = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsMerger_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromMergerStar = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsMerger_mask * IsStarAcc_mask ).sum(axis=0)
+    StarMassFromPreProcessed = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPreProcessed_mask ).sum(axis=0)
+    StarMassFromMassTransfer = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMassTransfer_mask ).sum(axis=0)
+    StarMassFromMassTransferGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMassTransfer_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromMassTransferStar = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMassTransfer_mask * IsStarAcc_mask ).sum(axis=0)
+    StarMassFromMerger = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMerger_mask ).sum(axis=0)
+    StarMassFromMergerGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMerger_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromMergerStar = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMerger_mask * IsStarAcc_mask ).sum(axis=0)
 
-    GasMassFromPreProcessed = ( self.ptrack['m'][:,0:nsnap] * IsGasInside * IsPreProcessed_mask ).sum(axis=0)
-    GasMassFromMassTransfer = ( self.ptrack['m'][:,0:nsnap] * IsGasInside * IsMassTransfer_mask ).sum(axis=0)
-    GasMassFromMerger = ( self.ptrack['m'][:,0:nsnap] * IsGasInside * IsMerger_mask ).sum(axis=0)
+    GasMassFromPreProcessed = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsPreProcessed_mask ).sum(axis=0)
+    GasMassFromMassTransfer = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsMassTransfer_mask ).sum(axis=0)
+    GasMassFromMerger = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsMerger_mask ).sum(axis=0)
 
-    SfrFromPreProcessed = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsPreProcessed_mask ).sum(axis=0) 
-    SfrFromMassTransfer = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsMassTransfer_mask ).sum(axis=0)
-    SfrFromMerger = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsMerger_mask ).sum(axis=0)
+    SfrFromPreProcessed = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPreProcessed_mask ).sum(axis=0) 
+    SfrFromMassTransfer = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsMassTransfer_mask ).sum(axis=0)
+    SfrFromMerger = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsMerger_mask ).sum(axis=0)
 
     # --- "Msun per snapshot" from gas accretion events
-    AccretedGasMassFromPreProcessed = ( self.ptrack['m'][:,0:nsnap] * IsGasAccreted * IsPreProcessed_mask ).sum(axis=0)  
-    AccretedGasMassFromTransfer = ( self.ptrack['m'][:,0:nsnap] * IsGasAccreted * IsMassTransfer_mask ).sum(axis=0)
-    AccretedGasMassFromMerger = ( self.ptrack['m'][:,0:nsnap] * IsGasAccreted * IsMerger_mask ).sum(axis=0)
+    AccretedGasMassFromPreProcessed = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsPreProcessed_mask ).sum(axis=0)  
+    AccretedGasMassFromTransfer = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsMassTransfer_mask ).sum(axis=0)
+    AccretedGasMassFromMerger = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsMerger_mask ).sum(axis=0)
 
   ########################################################################
 
   def add_additional_information_pristine_mode( self ):
 
-    IsPristine_mask = np.tile( IsPristine[:,np.newaxis], nsnap )
+    IsPristine_mask = np.tile( IsPristine[:,np.newaxis], n_snap )
 
-    StarMassFromPristine = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask ).sum(axis=0)
-    StarMassFromPristineHot = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask * IsHotMode_mask ).sum(axis=0)
-    StarMassFromPristineCold = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask * IsColdMode_mask ).sum(axis=0)
-    StarMassFromPristineWind = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask * IsWind ).sum(axis=0)
-    StarMassFromPristineWindHot = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask * IsWind * IsHotMode_mask ).sum(axis=0)
-    StarMassFromPristineWindCold = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask * IsWind * IsColdMode_mask ).sum(axis=0)
+    StarMassFromPristine = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask ).sum(axis=0)
+    StarMassFromPristineHot = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsHotMode_mask ).sum(axis=0)
+    StarMassFromPristineCold = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsColdMode_mask ).sum(axis=0)
+    StarMassFromPristineWind = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind ).sum(axis=0)
+    StarMassFromPristineWindHot = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind * IsHotMode_mask ).sum(axis=0)
+    StarMassFromPristineWindCold = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind * IsColdMode_mask ).sum(axis=0)
 
-    StarMassFromPristineGas = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromPristineHotGas = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask * IsHotMode_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromPristineColdGas = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask * IsColdMode_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromPristineWindGas = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask * IsWind * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromPristineWindHotGas = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask * IsWind * IsHotMode_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromPristineWindColdGas = ( self.ptrack['m'][:,0:nsnap] * IsStarInside * IsPristine_mask * IsWind * IsColdMode_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineHotGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsHotMode_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineColdGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsColdMode_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineWindGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineWindHotGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind * IsHotMode_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineWindColdGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind * IsColdMode_mask * IsGasAcc_mask ).sum(axis=0)
 
-    GasMassFromPristine = ( self.ptrack['m'][:,0:nsnap] * IsGasInside * IsPristine_mask ).sum(axis=0)
-    GasMassFromPristineWind = ( self.ptrack['m'][:,0:nsnap] * IsGasInside * IsPristine_mask * IsWind ).sum(axis=0)
+    GasMassFromPristine = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsPristine_mask ).sum(axis=0)
+    GasMassFromPristineWind = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsWind ).sum(axis=0)
 
-    SfrFromPristine = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsPristine_mask ).sum(axis=0)
-    SfrFromPristineHot = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsPristine_mask * IsHotMode_mask ).sum(axis=0)
-    SfrFromPristineCold = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsPristine_mask * IsColdMode_mask ).sum(axis=0)
-    SfrFromPristineWind = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsPristine_mask * IsWind ).sum(axis=0)
-    SfrFromPristineWindHot = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsPristine_mask * IsWind * IsHotMode_mask ).sum(axis=0)
-    SfrFromPristineWindCold = ( self.ptrack['sfr'][:,0:nsnap] * IsGasInside * IsPristine_mask * IsWind * IsColdMode_mask ).sum(axis=0)
+    SfrFromPristine = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask ).sum(axis=0)
+    SfrFromPristineHot = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsHotMode_mask ).sum(axis=0)
+    SfrFromPristineCold = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsColdMode_mask ).sum(axis=0)
+    SfrFromPristineWind = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsWind ).sum(axis=0)
+    SfrFromPristineWindHot = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsWind * IsHotMode_mask ).sum(axis=0)
+    SfrFromPristineWindCold = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsWind * IsColdMode_mask ).sum(axis=0)
 
     # --- "Msun per snapshot" from gas accretion events
-    AccretedGasMassFromPristine = ( self.ptrack['m'][:,0:nsnap] * IsGasAccreted * IsPristine_mask ).sum(axis=0)
-    AccretedGasMassFromPristineWind = ( self.ptrack['m'][:,0:nsnap] * IsGasAccreted * IsPristine_mask * IsWind ).sum(axis=0)
+    AccretedGasMassFromPristine = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsPristine_mask ).sum(axis=0)
+    AccretedGasMassFromPristineWind = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsPristine_mask * IsWind ).sum(axis=0)
 
   ########################################################################
 
   def calculate_mass_loading( self ):
 
-    IsLost = np.tile( (IsInGalID[:,0]==0).astype(int)[:,np.newaxis], nsnap-1 )
+    IsLost = np.tile( (IsInGalID[:,0]==0).astype(int)[:,np.newaxis], n_snap-1 )
 
-    GasMassLost = ( self.ptrack['m'][:,0:nsnap-1] * IsLastEject * IsLost ).sum(axis=0)
+    GasMassLost = ( self.ptrack['m'][:,0:n_snap-1] * IsLastEject * IsLost ).sum(axis=0)
 
-    MetalMassLost = ( self.ptrack['m'][:,0:nsnap-1] * self.ptrack['z'][:,0:nsnap-1] * IsLastEject * IsLost ).sum(axis=0) * SolarAbundance
+    MetalMassLost = ( self.ptrack['m'][:,0:n_snap-1] * self.ptrack['z'][:,0:n_snap-1] * IsLastEject * IsLost ).sum(axis=0) * SolarAbundance
 
-    GasMassEjected = ( self.ptrack['m'][:,0:nsnap-1] * IsEjected  ).sum(axis=0)
+    GasMassEjected = ( self.ptrack['m'][:,0:n_snap-1] * IsEjected  ).sum(axis=0)
 
-    StarMassFormed = ( self.ptrack['m'][:,0:nsnap-1] * IsStarFormed ).sum(axis=0)
+    StarMassFormed = ( self.ptrack['m'][:,0:n_snap-1] * IsStarFormed ).sum(axis=0)
 
 
     print '\nDone with accretion modes.'
@@ -678,7 +674,7 @@ def delete_me_when_done():
 
   outf = h5py.File(trackdir + outname, 'w')
 
-  #outf.create_dataset('redshift', data=f['redshift'][0:nsnap])
+  #outf.create_dataset('redshift', data=f['redshift'][0:n_snap])
   outf.create_dataset('redshift', data=redshift[0,:])
   outf.create_dataset('dt', data=dt[0,:])
 

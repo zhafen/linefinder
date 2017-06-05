@@ -33,6 +33,19 @@ class TestReadPTrack( unittest.TestCase ):
     self.classifier.read_data_files()
 
     expected = 1.700689e-08
-    actual = self.classifier.ptrack['rho'][...][0,0]
+    actual = self.classifier.ptrack['rho'][0,0]
     npt.assert_allclose( expected, actual )
 
+########################################################################
+
+class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.classifier = classifying.Classifier( default_data_p )
+
+  ########################################################################
+
+  def test_basic():
+
+    assert False

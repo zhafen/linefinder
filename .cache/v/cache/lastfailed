@@ -1,1 +1,3 @@
-{}
+{
+  "tests/test_classifying.py::TestIdentifyAccEjeMerg::test_basic": true
+}

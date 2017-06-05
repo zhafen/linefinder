@@ -208,3 +208,8 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
     for key in expected.keys():
       npt.assert_allclose( expected[key], f[key][...][:,-1] )
+
+    # Make sure we still have the original data...
+    assert 'rho' in f.keys()
+
+    f.close()
