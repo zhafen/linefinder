@@ -1,4 +1,3 @@
 {
-  "tests/test_ahf_reading.py::TestAHFReader::test_get_mtree_halo_files": true, 
   "tests/test_classifying.py::TestIdentifyAccrectionEjectionAndMergers::test_basic": true
 }

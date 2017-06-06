@@ -51,10 +51,15 @@ class TestAHFReader( unittest.TestCase ):
 
   def test_get_mtree_halo_files( self ):
 
+
+    self.ahf_reader.get_mtree_halos()
+
     # Halo mass at z=0 for mtree_halo_id = 0
     expected = 7.5329e+11
+    actual = self.ahf_reader.mtree_halos[0]['Mvir'][599]
+    npt.assert_allclose( expected, actual )
 
-    self.ahf_reader.get_mtree_halo_files()
-    actual = self.ahf_reader.mtree_halo_files[0]['Mvir'][-1]
-
+    # ID at the second snapshot for halo_file 0
+    expected = 8
+    actual = self.ahf_reader.mtree_halos[0]['ID'][1]
     npt.assert_allclose( expected, actual )

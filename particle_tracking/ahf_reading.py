@@ -7,6 +7,7 @@
 '''
 
 import glob
+import numpy as np
 import os
 import pandas as pd
 import string
@@ -30,9 +31,47 @@ class AHFReader( object ):
 
   ########################################################################
 
-  def get_mtree_halo_files( self ):
+  def get_mtree_halos( self ):
 
-    pass
+    # Set up the data storage
+    self.mtree_halos = {}
+
+    # Get the halo filepaths
+    ahf_filename = 'halo_*.dat'
+    ahf_filepath_unexpanded = os.path.join( self.sdir, ahf_filename )
+    halo_filepaths = glob.glob( ahf_filepath_unexpanded )
+
+    # Loop over each file and load it
+    for halo_filepath in halo_filepaths:
+
+      # Load the data
+      mtree_halo = pd.read_csv( halo_filepath, sep='\t', skiprows=1 )
+
+      # Delete a column that shows up as a result of formatting
+      del mtree_halo[ 'Unnamed: 92' ]
+
+      # Remove the annoying parenthesis at the end of each label.
+      mtree_halo.columns = [ string.split( label, '(' )[0] for label in list( mtree_halo ) ]
+
+      # Account for the fact that the redshift was stored differently and mingles with the ID in sasha's version of AHF.
+      # NOTE: This will likely bungle things up in unmodified versions of AHF...
+      redshifts = []
+      ids = []
+      for redshift_id_string in mtree_halo[ '#ID' ]:
+        redshift, halo_id = redshift_id_string.split()
+        redshifts.append( float(redshift) )
+        ids.append( int(halo_id) )
+      mtree_halo[ 'redshift' ] = np.array( redshifts )
+      mtree_halo[ 'ID' ] = np.array( ids )
+      del mtree_halo[ '#ID' ]
+
+      # Get a good key
+      base_filename = string.split( halo_filepath, '/' )[-1]
+      end_of_filename = base_filename[5:]
+      halo_num = int( string.split( end_of_filename, '.' )[0] )
+
+      # Store the data
+      self.mtree_halos[ halo_num ] = mtree_halo
 
   ########################################################################
 
