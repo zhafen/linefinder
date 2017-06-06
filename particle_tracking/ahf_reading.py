@@ -32,6 +32,11 @@ class AHFReader( object ):
   ########################################################################
 
   def get_mtree_halos( self ):
+    '''Get halo files (e.g. halo_00000.dat) in a dictionary of pandas DataFrames.
+
+    Returns:
+      self.mtree_halos (dict of pd.DataFrames): DataFrames containing the requested data. The key for a given dataframe is that dataframe's Merger Tree Halo ID
+    '''
 
     # Set up the data storage
     self.mtree_halos = {}
@@ -72,6 +77,8 @@ class AHFReader( object ):
 
       # Store the data
       self.mtree_halos[ halo_num ] = mtree_halo
+
+    return self.mtree_halos
 
   ########################################################################
 
