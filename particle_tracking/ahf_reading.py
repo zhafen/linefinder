@@ -50,30 +50,28 @@ class AHFReader( object ):
     for halo_filepath in halo_filepaths:
 
       # Load the data
-      mtree_halo = pd.read_csv( halo_filepath, sep='\t', skiprows=1 )
+      mtree_halo = pd.read_csv( halo_filepath, sep='\t', )
 
       # Delete a column that shows up as a result of formatting
-      del mtree_halo[ 'Unnamed: 92' ]
+      del mtree_halo[ 'Unnamed: 93' ]
 
       # Remove the annoying parenthesis at the end of each label.
       mtree_halo.columns = [ string.split( label, '(' )[0] for label in list( mtree_halo ) ]
 
-      # Account for the fact that the redshift was stored differently and mingles with the ID in sasha's version of AHF.
-      # NOTE: This will likely bungle things up in unmodified versions of AHF...
-      redshifts = []
-      ids = []
-      for redshift_id_string in mtree_halo[ '#ID' ]:
-        redshift, halo_id = redshift_id_string.split()
-        redshifts.append( float(redshift) )
-        ids.append( int(halo_id) )
-      mtree_halo[ 'redshift' ] = np.array( redshifts )
-      mtree_halo[ 'ID' ] = np.array( ids )
-      del mtree_halo[ '#ID' ]
+      # Remove the pound sign in front of the first column's name
+      mtree_halo = mtree_halo.rename(columns = {'#redshift':'redshift'})
 
       # Get a good key
       base_filename = string.split( halo_filepath, '/' )[-1]
       end_of_filename = base_filename[5:]
       halo_num = int( string.split( end_of_filename, '.' )[0] )
+
+      # Set the index, assuming we have 600 snapshots
+      if mtree_halo.values[:,0].size == 600:
+        mtree_halo['snum'] = range( 600, 0, -1)
+        mtree_halo.set_index( 'snum' )
+      else:
+        raise Exception( 'Not a proper number of lines to index with snapshot number' )
 
       # Store the data
       self.mtree_halos[ halo_num ] = mtree_halo
