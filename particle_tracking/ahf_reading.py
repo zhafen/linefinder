@@ -66,26 +66,27 @@ class AHFReader( object ):
       # Remove the pound sign in front of the first column's name
       mtree_halo = mtree_halo.rename( columns = {'#redshift':'redshift', ' ID':'ID'} )
 
-      # Set the index, assuming we have 600 snapshots
-      if index == 'snum':
-        n_rows = mtree_halo.shape[0]
-        mtree_halo['snum'] = range( 600, 600 - n_rows, -1)
-        mtree_halo = mtree_halo.set_index( 'snum', )
-      elif index == 'int':
-        pass
-      else:
-        raise Exception( "index type not selected" )
-
       # Get a good key
       base_filename = string.split( halo_filepath, '/' )[-1]
       end_of_filename = base_filename[5:]
       halo_num = int( string.split( end_of_filename, '.' )[0] )
 
+      # Set the index, assuming we have 600 snapshots
+      if index == 'snum':
+        n_rows = mtree_halo.shape[0]
+        mtree_halo['snum'] = range( 600, 600 - n_rows, -1)
+        mtree_halo = mtree_halo.set_index( 'snum', )
+        # Make sure that at least the largest halo is traced for the full 600 snapshots.
+        if halo_num == 0:
+          assert mtree_halo.shape[0] == 600
+      elif index == 'int':
+        pass
+      else:
+        raise Exception( "index type not selected" )
+
       # Store the data
       self.mtree_halos[ halo_num ] = mtree_halo
 
-    # Make sure that at least the largest halo is traced for the full 600 snapshots.
-    assert self.mtree_halos[0].shape[0] == 600
 
     return self.mtree_halos
 

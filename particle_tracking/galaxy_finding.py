@@ -31,11 +31,13 @@ class ParticleTrackGalaxyFinder( object ):
           tracking_dir (str): Directory the ptrack data is in.
           tag (str): Identifying tag for the ptrack data
         Optional:
+          ids_to_return (list of strs): The types of id you want to get out.
           galaxy_cut (float): Anything within galaxy_cut*R_vir is counted as being inside the virial radius. Defaults to 0.1.
     '''
 
     self.data_p = data_p
 
+    code_tools.set_default_attribute( self, 'ids_to_return', [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id'] )
     code_tools.set_default_attribute( self, 'galaxy_cut', 0.1 )
 
   ########################################################################
@@ -43,18 +45,7 @@ class ParticleTrackGalaxyFinder( object ):
   def find_galaxies_for_particle_tracks( self ):
     '''Main function.'''
 
-    time_start = time.time()
-
-    print "########################################################################"
-    print "Starting Adding Galaxy and Halo IDs!"
-    print "########################################################################"
-    print "Using AHF data from this directory:\n    {}".format( self.data_p['sdir'] )
-    print "Data will be saved here:\n    {}".format( self.data_p['tracking_dir'] )
-
-    # Load the particle track data
-    ptrack_filename = 'ptrack_{}.hdf5'.format( self.data_p['tag'] )
-    ptrack_filepath = os.path.join( self.data_p['tracking_dir'], ptrack_filename )
-    self.ptrack = h5py.File( ptrack_filepath, 'a' )
+    self.start_data_processing()
 
     # Loop over each included snapshot.
     n_snaps = self.ptrack['snum'][...].size
@@ -75,7 +66,7 @@ class ParticleTrackGalaxyFinder( object ):
 
       # Find the galaxy for a given snapshot
       galaxy_finder = GalaxyFinder( particle_positions, data_p )
-      galaxy_and_halo_ids = galaxy_finder.find_ids( self.galaxy_cut )
+      galaxy_and_halo_ids = galaxy_finder.find_ids( ids_to_return=self.ids_to_return, galaxy_cut=self.galaxy_cut )
 
       # Make the arrays to store the data in
       if not hasattr( self, 'ptrack_gal_ids' ):
@@ -83,9 +74,37 @@ class ParticleTrackGalaxyFinder( object ):
         for key in galaxy_and_halo_ids.keys():
           self.ptrack_gal_ids[key] = np.empty( ( galaxy_finder.n_particles, n_snaps ), dtype=int )
 
-      # Store the data
+      # Store the data in the primary array
       for key in galaxy_and_halo_ids.keys():
         self.ptrack_gal_ids[key][ :, i ] = galaxy_and_halo_ids[key]
+
+    self.finish_data_processing()
+
+  ########################################################################
+
+  def start_data_processing( self ):
+    '''Open up the ptrack file and print out information.'''
+
+    self.time_start = time.time()
+
+    print "########################################################################"
+    print "Starting Adding Galaxy and Halo IDs!"
+    print "########################################################################"
+    print "Using AHF data from this directory:\n    {}".format( self.data_p['sdir'] )
+    print "Data will be saved here:\n    {}".format( self.data_p['tracking_dir'] )
+
+    # Load the particle track data
+    ptrack_filename = 'ptrack_{}.hdf5'.format( self.data_p['tag'] )
+    self.ptrack_filepath = os.path.join( self.data_p['tracking_dir'], ptrack_filename )
+    self.ptrack = h5py.File( self.ptrack_filepath, 'a' )
+
+  ########################################################################
+
+  def finish_data_processing( self ):
+    '''Write the data, close the file, and print out information.'''
+
+    # Get the number of particles, for use in reporting the time
+    n_particles = self.ptrack[ 'rho' ][...].shape[0]
 
     # Save the data.
     for key in self.ptrack_gal_ids.keys():
@@ -96,8 +115,8 @@ class ParticleTrackGalaxyFinder( object ):
     print "########################################################################"
     print "Done Adding Galaxy and Halo IDs!"
     print "########################################################################"
-    print "The following particle track file was updated:\n    {}".format( ptrack_filepath )
-    print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format( time_end - time_start, (time_end - time_start) / galaxy_finder.n_particles )
+    print "The following particle track file was updated:\n    {}".format( self.ptrack_filepath )
+    print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format( time_end - self.time_start, (time_end - self.time_start) / n_particles )
 
 ########################################################################
 ########################################################################
@@ -125,10 +144,11 @@ class GalaxyFinder( object ):
 
   ########################################################################
 
-  def find_ids( self, galaxy_cut=0.1 ):
+  def find_ids( self, ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id'], galaxy_cut=0.1 ):
     '''Find relevant halo and galaxy IDs.
 
     Args:
+      ids_to_return (list of strs): The types of id you want to get out.
       galaxy_cut (float): The fraction of the virial radius a particle must be inside to be counted as part of a galaxy.
 
     Returns:
@@ -148,10 +168,17 @@ class GalaxyFinder( object ):
     galaxy_and_halo_ids = {}
     
     # Actually get the data
-    galaxy_and_halo_ids['halo_id'] = self.find_halo_id()
-    galaxy_and_halo_ids['host_halo_id'] = self.find_host_id()
-    galaxy_and_halo_ids['gal_id'] = self.find_halo_id( galaxy_cut )
-    galaxy_and_halo_ids['host_gal_id'] = self.find_host_id( galaxy_cut )
+    for id_type in ids_to_return:
+      if id_type == 'halo_id':
+        galaxy_and_halo_ids['halo_id'] = self.find_halo_id()
+      elif id_type == 'host_halo_id':
+        galaxy_and_halo_ids['host_halo_id'] = self.find_host_id()
+      elif id_type == 'gal_id':
+        galaxy_and_halo_ids['gal_id'] = self.find_halo_id( galaxy_cut )
+      elif id_type == 'host_gal_id':
+        galaxy_and_halo_ids['host_gal_id'] = self.find_host_id( galaxy_cut )
+      else:
+        raise Exception( "Unrecognized id_type" )
     
     return galaxy_and_halo_ids
 
