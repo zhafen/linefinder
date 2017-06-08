@@ -64,7 +64,7 @@ class AHFReader( object ):
       mtree_halo.columns = [ string.split( label, '(' )[0] for label in list( mtree_halo ) ]
 
       # Remove the pound sign in front of the first column's name
-      mtree_halo = mtree_halo.rename(columns = {'#redshift':'redshift'})
+      mtree_halo = mtree_halo.rename( columns = {'#redshift':'redshift', ' ID':'ID'} )
 
       # Set the index, assuming we have 600 snapshots
       if index == 'snum':
