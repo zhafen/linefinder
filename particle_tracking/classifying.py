@@ -59,6 +59,7 @@ class Classifier( object ):
   ########################################################################
 
   def read_data_files( self ):
+    '''Read the relevant data files, and store the data in a dictionary for easy access later on.'''
 
     # Load Particle Tracking Data
     ptrack_filename =  'ptrack_' + self.data_p['tag'] + '.hdf5'
@@ -125,7 +126,33 @@ class Classifier( object ):
 
   ########################################################################
 
-  def identify_accretion_ejection_and_mergers( self ):
+  def identify_if_in_gals( self ):
+    # TODO: Documentation
+
+    pass
+
+  ########################################################################
+
+  def identify_accretion( self ):
+    '''Identify ALL gas/star accretion events, i.e. whether or not a particle was outside the galaxy at one redshift, and inside at the next'''
+
+    self.is_accreted = ( gal_event_id == 1 )
+
+  ########################################################################
+
+  def identify_ejection( self ):
+    '''Identify ALL gas wind ejection events.
+      Conditions to identify as ejection:
+        1. Inside the m
+    '''
+    # TODO
+
+                   # (gal_event_id == -1) | (GalEventRe == -1)    DAA: could double count if both conditions are satisfied in subsequent snapshots...
+    self.is_ejected = (  ( gal_event_id == -1 )  &
+                   ( Vr[:,0:n_snap-1] > WindVelMinVc*skidgal['VcMax'][0:n_snap-1] )  &
+                   ( Vr[:,0:n_snap-1] > WindVelMin )  &
+                   ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )  &
+                   ( IsOutsideAnyGal[:,0:n_snap-1] )  ).astype(int)
 
 
     ########################################################################
@@ -140,42 +167,32 @@ class Classifier( object ):
 
     # --- Identify accretion/ejection events relative to main galaxy at each redshift
     #    GalEvent = 0 (no change), 1 (entering galaxy), -1 (leaving galaxy) at that redshift
-    GalEventID = IsInGalID[:,0:n_snap-1] - IsInGalID[:,1:n_snap]      
+    gal_event_id = IsInGalID[:,0:n_snap-1] - IsInGalID[:,1:n_snap]      
 
     GalEventRe = IsInGalRe[:,0:n_snap-1] - IsInGalRe[:,1:n_snap]
 
-    # --- identify ALL gas wind ejection events
-                   # (GalEventID == -1) | (GalEventRe == -1)    DAA: could double count if both conditions are satisfied in subsequent snapshots...
-    IsEjected = (  ( GalEventID == -1 )  &
-                   ( Vr[:,0:n_snap-1] > WindVelMinVc*skidgal['VcMax'][0:n_snap-1] )  &
-                   ( Vr[:,0:n_snap-1] > WindVelMin )  &
-                   ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )  &
-                   ( IsOutsideAnyGal[:,0:n_snap-1] )  ).astype(int)
-
-    # --- identify ALL gas/star accretion events
-    IsAccreted = ( GalEventID == 1 ).astype(int)
 
     # --- correct for "boundary conditions": neglect events at earliest snapshots
-    IsEjected[:,-neg:] = 0
-    IsAccreted[:,-neg:] = 0
+    self.is_ejected[:,-neg:] = 0
+    self.is_accreted[:,-neg:] = 0
 
-    Neject = IsEjected.sum(axis=1)
-    #Nacc = IsAccreted.sum(axis=1)
+    Neject = self.is_ejected.sum(axis=1)
+    #Nacc = self.is_accreted.sum(axis=1)
 
     # --- identify FIRST accretion event
-    CumNumAcc = IsAccreted[:,ind_rev].cumsum(axis=1)[:,ind_rev]      # cumulative number of ACCRETION events
+    CumNumAcc = self.is_accreted[:,ind_rev].cumsum(axis=1)[:,ind_rev]      # cumulative number of ACCRETION events
 
-    IsFirstAcc = IsAccreted  &  ( CumNumAcc == 1 )
+    IsFirstAcc = self.is_accreted  &  ( CumNumAcc == 1 )
 
     IsJustBeforeFirstAcc = np.roll( IsFirstAcc, 1, axis=1 );   IsJustBeforeFirstAcc[:,0] = 0
 
     BeforeFirstAcc = ( CumNumAcc == 0 )  &  ( IsInGalID[:,0:n_snap-1] == 0 )
 
     # --- identify LAST ejection event
-    CumNumEject = IsEjected[:,ind_rev].cumsum(axis=1)[:,ind_rev]      # cumulative number of EJECTION events
+    CumNumEject = self.is_ejected[:,ind_rev].cumsum(axis=1)[:,ind_rev]      # cumulative number of EJECTION events
 
-    CumNumEject_rev = IsEjected.cumsum(axis=1)                           # cumulative number of EJECTION events (in reverse order!)
-    IsLastEject = IsEjected  &  ( CumNumEject_rev == 1 )
+    CumNumEject_rev = self.is_ejected.cumsum(axis=1)                           # cumulative number of EJECTION events (in reverse order!)
+    IsLastEject = self.is_ejected  &  ( CumNumEject_rev == 1 )
 
     # --- find star/gas particles inside the galaxy
     IsStarInside = IsInGalID  &  IsInGalRe  &  ( self.ptrack['Ptype'][:,0:n_snap]==4 )
@@ -188,7 +205,7 @@ class Classifier( object ):
     IsGasAccreted = np.zeros( (n_particles,n_snap), dtype=np.int32 )
     IsGasFirstAcc = IsGasAccreted.copy()
 
-    IsGasAccreted[:,0:n_snap-1] = IsAccreted  &  ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )   # initialize with all gas accretion events including "false" events 
+    IsGasAccreted[:,0:n_snap-1] = self.is_accreted  &  ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )   # initialize with all gas accretion events including "false" events 
     IsGasFirstAcc[:,0:n_snap-1] = IsFirstAcc  &  ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )   # only the first accretion event
 
     Nacc = IsGasAccreted.sum(axis=1)
@@ -200,7 +217,7 @@ class Classifier( object ):
     ind = np.where( (Nacc - Neject > 1)  &  (Neject > 0) )[0] 
 
     for i in ind:
-       ind_eject = np.where( IsEjected[i,:] == 1 )[0]
+       ind_eject = np.where( self.is_ejected[i,:] == 1 )[0]
        ind_acc = np.where( IsGasAccreted[i,:] == 1 )[0]
        IsGasAccreted[i,:] = IsGasFirstAcc[i,:]                             # initialize only to the first accretion event
        ind_this = np.searchsorted( ind_acc, ind_eject ) - 1
@@ -318,7 +335,7 @@ class Classifier( object ):
        if (Neject[i] < 1) or (Nacc[i] < 1):
          continue
 
-       ind_eject = np.where( IsEjected[i,:] == 1 )[0]
+       ind_eject = np.where( self.is_ejected[i,:] == 1 )[0]
        ind_acc = np.where( IsGasAccreted[i,:] == 1 )[0]
        if (ind_eject.size != Neject[i]) or (ind_acc.size != Nacc[i]):
          print 'ueeeeehhhh!!!'
@@ -546,7 +563,7 @@ class Classifier( object ):
 
     MetalMassLost = ( self.ptrack['m'][:,0:n_snap-1] * self.ptrack['z'][:,0:n_snap-1] * IsLastEject * IsLost ).sum(axis=0) * SolarAbundance
 
-    GasMassEjected = ( self.ptrack['m'][:,0:n_snap-1] * IsEjected  ).sum(axis=0)
+    GasMassEjected = ( self.ptrack['m'][:,0:n_snap-1] * self.is_ejected  ).sum(axis=0)
 
     StarMassFormed = ( self.ptrack['m'][:,0:n_snap-1] * IsStarFormed ).sum(axis=0)
 
@@ -688,8 +705,8 @@ def delete_me_when_done():
   outf.create_dataset('IsInGalRe', data=IsInGalRe)
   outf.create_dataset('IsStarInside', data=IsStarInside)
   outf.create_dataset('IsGasInside', data=IsGasInside)
-  outf.create_dataset('IsEjected', data=IsEjected)
-  outf.create_dataset('IsAccreted', data=IsAccreted)
+  outf.create_dataset('self.is_ejected', data=self.is_ejected)
+  outf.create_dataset('self.is_accreted', data=self.is_accreted)
   outf.create_dataset('IsGasAccreted', data=IsGasAccreted)
 
   outf.create_dataset('IsPristine', data=IsPristine)
