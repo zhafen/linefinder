@@ -13,11 +13,29 @@ import unittest
 
 from particle_tracking import classifying
 
+########################################################################
+# Global Variables Useful for Testing
+########################################################################
+
 default_data_p = {
   'trackdir' : './tests/test_data/tracking_output',
   'tag' : 'test',
-}
+  }
 
+default_ptrack = {
+  'mt_gal_id' : np.array([
+    [ 2, 2, 0, ], # Merger
+    [ 0, 0, 0, ], # Always part of main galaxy
+    [ -2, 0, -2, ], # CGM -> Halo -> CGM
+    ]),
+  }
+
+default_ptrack_attrs = {
+  'main_mt_halo_id' : 0,
+  }
+
+########################################################################
+# Test Cases
 ########################################################################
 
 class TestReadPTrack( unittest.TestCase ):
@@ -44,8 +62,34 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     self.classifier = classifying.Classifier( default_data_p )
 
+    self.classifier.ptrack = default_ptrack
+
+    self.classifier.ptrack_attrs = default_ptrack_attrs
+
   ########################################################################
 
-  def test_basic( self ):
+  def test_identify_if_in_galaxies( self ):
 
-    assert False, "This test needs to be written."
+    # Run the function
+    self.classifier.identify_if_in_galaxies()
+
+    expected_gal_event_id = np.array([
+        [ 0, 0, 1, ],
+        [ 0, 0, 0, ],
+        [ 0, 1, -1, ],
+        ])
+
+    npt.assert_allclose( expected_gal_event_id, self.classifiers.gal_event_id )
+
+  ########################################################################
+
+
+
+
+
+
+
+
+
+
+

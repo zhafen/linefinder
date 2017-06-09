@@ -71,14 +71,11 @@ class AHFReader( object ):
       end_of_filename = base_filename[5:]
       halo_num = int( string.split( end_of_filename, '.' )[0] )
 
-      # Set the index, assuming we have 600 snapshots
       if index == 'snum':
+        # Set the index, assuming we have steps of one snapshot
         n_rows = mtree_halo.shape[0]
         mtree_halo['snum'] = range( 600, 600 - n_rows, -1)
         mtree_halo = mtree_halo.set_index( 'snum', )
-        # Make sure that at least the largest halo is traced for the full 600 snapshots.
-        if halo_num == 0:
-          assert mtree_halo.shape[0] == 600
       elif index == 'int':
         pass
       else:

@@ -108,12 +108,12 @@ class Classifier( object ):
     ## --- radial velocity wrt galaxy center (km/s)
     #Vr = (v*r).sum(axis=2) / R 
 
-    ## --- replicate redshifts self.ptrackor indexing (last one removed)
-    #redshift = np.tile( self.ptrack['redshift'][0:n_snap], (n_particles,1) )   
+    # --- replicate redshifts self.ptrackor indexing (last one removed)
+    redshift = np.tile( self.ptrack['redshift'][0:n_snap], (n_particles,1) )   
 
-    ## --- age of the universe in Myr
-    #time = 1e3 * util.age_of_universe( redshift, h=self.ptrack.attrs['hubble'], Omega_M=self.ptrack.attrs['omega_matter'] )
-    #dt = time[:,:-1] - time[:,1:] 
+    # --- age of the universe in Myr
+    time = 1e3 * util.age_of_universe( redshift, h=self.ptrack_attrs['hubble'], Omega_M=self.ptrack_attrs['omega_matter'] )
+    dt = time[:,:-1] - time[:,1:] 
 
     ## --- list of snapshots for indexing
     #snaplist = skidgal['snapnum'][0:n_snap] 
@@ -126,57 +126,158 @@ class Classifier( object ):
 
   ########################################################################
 
-  def identify_if_in_gals( self ):
-    # TODO: Documentation
+  def identify_if_in_galaxies( self ):
+    '''Identify when particles are inside/outside of galaxies, as well as when they switch from one to another.'''
 
-    pass
+    # Find if particles are inside/outside of main galaxy at each redshift
+    is_in_main_gal = (
+      ( self.ptrack['mt_gal_id'][:,0:n_snap] == self.ptrack_attrs['main_mt_halo_id'] ) & # If the mt galaxy id matches the mt halo id
+      () # If the particle isn't inside multiple galaxies
+      () # *or* maybe if the particle isn't inside another galaxy that's not the main galaxy
+      )
+
+    #is_in_any_gal = ( self.ptrack['gal_id'] >= 0 )
+    #is_in_other_gal = is_in_any_gal & ( not is_in_main_gal )
+    #IsOutsideAnyGal = self.ptrack['GalID'][:,0:n_snap] <= 0 
+
+    # --- Identify accretion/ejection events relative to main galaxy at each redshift
+    #    GalEvent = 0 (no change), 1 (entering galaxy), -1 (leaving galaxy) at that redshift
+    self.gal_event_id = is_in_main_gal[:,0:n_snap-1] - is_in_main_gal[:,1:n_snap]      
 
   ########################################################################
 
   def identify_accretion( self ):
     '''Identify ALL gas/star accretion events, i.e. whether or not a particle was outside the galaxy at one redshift, and inside at the next'''
 
-    self.is_accreted = ( gal_event_id == 1 )
+    self.is_accreted = ( self.gal_event_id == 1 )
+
+    # Correct for "boundary conditions": neglect events at earliest snapshots
+    self.is_accreted[:,-neg:] = 0
 
   ########################################################################
 
   def identify_ejection( self ):
     '''Identify ALL gas wind ejection events.
-      Conditions to identify as ejection:
-        1. Inside the m
+      These conditions must be met to identify as ejection:
+        1. Inside the main galaxy at one snapshot, and not at the previous snapshot.
+        2. Radial velocity of the particle relative to the main galaxy must be greater than some fraction of the circular velocity of the main galaxy.
+        3. Radial velocity of the particle relative to the main galaxy must be greater than some base speed.
+        4. The particle must be a gas particle.
+        5. The particle must be outside any other galaxy.
     '''
-    # TODO
 
-                   # (gal_event_id == -1) | (GalEventRe == -1)    DAA: could double count if both conditions are satisfied in subsequent snapshots...
-    self.is_ejected = (  ( gal_event_id == -1 )  &
-                   ( Vr[:,0:n_snap-1] > WindVelMinVc*skidgal['VcMax'][0:n_snap-1] )  &
-                   ( Vr[:,0:n_snap-1] > WindVelMin )  &
-                   ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )  &
-                   ( IsOutsideAnyGal[:,0:n_snap-1] )  ).astype(int)
+    self.is_ejected = ( 
+      ( self.gal_event_id == -1 )  &
+      ( Vr[:,0:n_snap-1] > wind_vel_min_vc_frac*skidgal['VcMax'][0:n_snap-1] )  &
+      ( Vr[:,0:n_snap-1] > wind_vel_min )  &
+      ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )  &
+      ( IsOutsideAnyGal[:,0:n_snap-1] )
+      )
+
+    # Correct for "boundary conditions": neglect events at earliest snapshots
+    self.is_ejected[:,-neg:] = 0
+
+  ########################################################################
+
+  def get_time_in_galaxies( self ):
+    '''Get the amount of time in galaxies'''
+
+    TimeInOtherGal = ( dt * is_in_other_gal[:,0:n_snap-1].astype(int) ).sum(axis=1)
+    time_in_other_gal_before_acc = ( dt * (before_first_ac & is_in_other_gal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
+
+    cum_time_before_acc = ( dt * before_first_ac.astype(int) ).cumsum(axis=1)
+    is_time_interval_before_acc = ( (cum_time_before_acc <= time_interval_fac*time_min) & before_first_ac ).astype(int)
+    time_in_other_gal_before_acc_during_interval = ( dt * (is_time_interval_before_acc & is_in_other_gal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
+
+  ########################################################################
+  # The Main Classification Categories
+  ########################################################################
+
+  def identify_pristine( self ):
+    '''Identify pristine gas, or "non-externally processed" gas.
+
+    Returns:
+      is_pristine (np.array) : True for particle i if it has never spent some minimum amount of time in another galaxy before being accreted.
+    '''
+
+    is_pristine = ( time_in_other_gal_before_acc < time_min ).astype(int)
+    #correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
+    for k in range(neg):
+       is_pristine[ is_in_main_gal[:,n_snap-1-k] == 1 ] = 1         
+
+    return is_pristine
+
+  ########################################################################
+
+  def identify_preprocessed( self ):
+    '''Identify pre-proceesed gas, or "externally processed" gas.
+
+    Returns:
+      is_preprocessed (np.array) : True for particle i if it has at least some minimum amount of time in another galaxy before being accreted.
+    '''
+
+    is_preprocessed = ( time_in_other_gal_before_acc >= time_min ).astype(int)
+    #correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
+    for k in range(neg):
+       is_preprocessed[ is_in_main_gal[:,n_snap-1-k] == 1 ] = 0
+
+    return is_preprocessed
+
+  ########################################################################
+
+  def identify_mass_transfer( self ):
+    '''Boolean for whether or no particles are from mass transfer
+
+    Returns:
+      is_mass_transfer (np.array) : True for particle i if it has been preprocessed but has not
+        spent at least some minimum amount of time in another galaxy in a recent interval.
+    '''
+
+    is_mass_transfer = (  is_preprocessed & (time_in_other_gal_before_acc_during_interval < time_min) ).astype(int)
+
+    return is_mass_transfer
+
+  ########################################################################
 
 
-    ########################################################################
+  def identify_merger( self ):
+    '''Boolean for whether or no particles are from galaxies merging.
 
-    # --- find if particles are inside/outside of main galaxy at each redshift
-    IsInGalID = ( self.ptrack['GalID'][:,0:n_snap] == skidgal['GalID'][0:n_snap] ).astype(int)
+    Returns:
+      is_wind (np.array) : True for particle i if it has been preprocessed and has
+        spent at least some minimum amount of time in another galaxy in a recent interval.
+    '''
 
-    IsInGalRe = ( R < GalDef*skidgal['ReStar'][0:n_snap] ).astype(int)
+    is_merger = (  is_preprocessed & (time_in_other_gal_before_acc_during_interval >= time_min)  )
 
-    IsInOtherGal = ( self.ptrack['GalID'][:,0:n_snap] > 0 )  &  ( IsInGalID == 0 )
-    IsOutsideAnyGal = self.ptrack['GalID'][:,0:n_snap] <= 0 
+    return is_merger
 
-    # --- Identify accretion/ejection events relative to main galaxy at each redshift
-    #    GalEvent = 0 (no change), 1 (entering galaxy), -1 (leaving galaxy) at that redshift
-    gal_event_id = IsInGalID[:,0:n_snap-1] - IsInGalID[:,1:n_snap]      
+  ########################################################################
+
+  def identify_wind( self ):
+    '''Boolean for whether or not particles are from wind.
+
+    Returns:
+      is_wind (np.array) : True for particle i if it has been ejected at least once before snapshot n 
+    '''
+
+    is_wind = np.zeros( (n_particles,n_snap), dtype=np.int32 )
+    is_wind[:,0:n_snap-1] = ( CumNumEject >= 1 ).astype(int)         
+
+    return is_wind
+
+  ########################################################################
+  ########################################################################
+
+  def old_acc_ej_mergers( self ):
+
+
+    #IsInGalRe = ( R < GalDef*skidgal['ReStar'][0:n_snap] ).astype(int)
 
     GalEventRe = IsInGalRe[:,0:n_snap-1] - IsInGalRe[:,1:n_snap]
 
 
-    # --- correct for "boundary conditions": neglect events at earliest snapshots
-    self.is_ejected[:,-neg:] = 0
-    self.is_accreted[:,-neg:] = 0
-
-    Neject = self.is_ejected.sum(axis=1)
+    n_eject = self.is_ejected.sum(axis=1)
     #Nacc = self.is_accreted.sum(axis=1)
 
     # --- identify FIRST accretion event
@@ -184,9 +285,9 @@ class Classifier( object ):
 
     IsFirstAcc = self.is_accreted  &  ( CumNumAcc == 1 )
 
-    IsJustBeforeFirstAcc = np.roll( IsFirstAcc, 1, axis=1 );   IsJustBeforeFirstAcc[:,0] = 0
+    IsJustbefore_first_ac = np.roll( IsFirstAcc, 1, axis=1 );   IsJustbefore_first_ac[:,0] = 0
 
-    BeforeFirstAcc = ( CumNumAcc == 0 )  &  ( IsInGalID[:,0:n_snap-1] == 0 )
+    before_first_ac = ( CumNumAcc == 0 )  &  ( is_in_main_gal[:,0:n_snap-1] == 0 )
 
     # --- identify LAST ejection event
     CumNumEject = self.is_ejected[:,ind_rev].cumsum(axis=1)[:,ind_rev]      # cumulative number of EJECTION events
@@ -195,8 +296,8 @@ class Classifier( object ):
     IsLastEject = self.is_ejected  &  ( CumNumEject_rev == 1 )
 
     # --- find star/gas particles inside the galaxy
-    IsStarInside = IsInGalID  &  IsInGalRe  &  ( self.ptrack['Ptype'][:,0:n_snap]==4 )
-    IsGasInside = IsInGalID  &  IsInGalRe  &  ( self.ptrack['Ptype'][:,0:n_snap]==0 )
+    IsStarInside = is_in_main_gal  &  IsInGalRe  &  ( self.ptrack['Ptype'][:,0:n_snap]==4 )
+    IsGasInside = is_in_main_gal  &  IsInGalRe  &  ( self.ptrack['Ptype'][:,0:n_snap]==0 )
 
     # --- identify STAR FORMATION event inside galaxy
     IsStarFormed = IsStarInside[:,0:n_snap-1]  &  ( self.ptrack['Ptype'][:,1:n_snap] == 0 )
@@ -210,11 +311,11 @@ class Classifier( object ):
 
     Nacc = IsGasAccreted.sum(axis=1)
 
-    ind = np.where( Neject == 0 )[0]
+    ind = np.where( n_eject == 0 )[0]
     if ind.size > 0:
       IsGasAccreted[ind,:] = IsGasFirstAcc[ind,:]
 
-    ind = np.where( (Nacc - Neject > 1)  &  (Neject > 0) )[0] 
+    ind = np.where( (Nacc - n_eject > 1)  &  (n_eject > 0) )[0] 
 
     for i in ind:
        ind_eject = np.where( self.is_ejected[i,:] == 1 )[0]
@@ -266,7 +367,7 @@ class Classifier( object ):
     '''Get values immediately before being accreted.
     '''
 
-    mask = np.logical_not(IsJustBeforeFirstAcc)     # note that this may not be defined for all particles! 
+    mask = np.logical_not(IsJustbefore_first_ac)     # note that this may not be defined for all particles! 
 
     # --- redshift at fist accretion onto the galaxy
     redshift_FirstAcc = np.ma.masked_array( redshift[:,0:n_snap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
@@ -332,12 +433,12 @@ class Classifier( object ):
 
     for i in range(n_particles):
 
-       if (Neject[i] < 1) or (Nacc[i] < 1):
+       if (n_eject[i] < 1) or (Nacc[i] < 1):
          continue
 
        ind_eject = np.where( self.is_ejected[i,:] == 1 )[0]
        ind_acc = np.where( IsGasAccreted[i,:] == 1 )[0]
-       if (ind_eject.size != Neject[i]) or (ind_acc.size != Nacc[i]):
+       if (ind_eject.size != n_eject[i]) or (ind_acc.size != Nacc[i]):
          print 'ueeeeehhhh!!!'
          continue
 
@@ -345,12 +446,12 @@ class Classifier( object ):
        AccTimes = time[ i, ind_acc ]
 
        # --- from ejection to ejection ---
-       if Neject[i] >= 2:
+       if n_eject[i] >= 2:
          all_DtEject = np.append( all_DtEject, EjectTimes[:-1] - EjectTimes[1:] )
          all_RedshiftEject = np.append( all_RedshiftEject, redshift[ i, ind_eject[:-1] ] )              # redshift at re-ejection
          all_RedshiftEjectIni = np.append( all_RedshiftEjectIni, redshift[ i, ind_eject[1:] ] )         # redshift at ejection
          all_SnapnumEject = np.append( all_SnapnumEject, snaplist[ ind_eject[:-1] ] )
-         for j in range(Neject[i]-1):
+         for j in range(n_eject[i]-1):
             Rmax = np.max( R[ i, ind_eject[j]+1:ind_eject[j+1]+1 ] )
             all_RmaxEject = np.append( all_RmaxEject, Rmax )
             #all_RvirEject = np.append( all_RvirEject, np.mean( Rvir[ind_eject[j]+1:ind_eject[j+1]+1] ) )
@@ -363,11 +464,11 @@ class Classifier( object ):
 
        # --- from ejection to accretion ---
        if ind_acc[0] < ind_eject[0]:
-         all_DtAcc = np.append( all_DtAcc, AccTimes[0:Neject[i]] - EjectTimes[:] )
-         all_RedshiftAcc = np.append( all_RedshiftAcc, redshift[ i, ind_acc[0:Neject[i]] ] )    # redshift at re-accretion
+         all_DtAcc = np.append( all_DtAcc, AccTimes[0:n_eject[i]] - EjectTimes[:] )
+         all_RedshiftAcc = np.append( all_RedshiftAcc, redshift[ i, ind_acc[0:n_eject[i]] ] )    # redshift at re-accretion
          all_RedshiftAccIni = np.append( all_RedshiftAccIni, redshift[ i, ind_eject ] )         # redshift at ejection
-         all_SnapnumAcc = np.append( all_SnapnumAcc, snaplist[ ind_acc[0:Neject[i]] ] )
-         for j in range(Neject[i]):
+         all_SnapnumAcc = np.append( all_SnapnumAcc, snaplist[ ind_acc[0:n_eject[i]] ] )
+         for j in range(n_eject[i]):
             Rmax = np.max( R[ i, ind_acc[j]:ind_eject[j]+1 ] )
             all_RmaxAcc = np.append( all_RmaxAcc, Rmax )
             #all_RvirAcc = np.append( all_RvirAcc, np.mean( Rvir[ind_acc[j]:ind_eject[j]+1] ) )
@@ -377,12 +478,12 @@ class Classifier( object ):
             all_ReAccIni = np.append( all_ReAccIni, skidgal['ReStar'][ind_eject[j]] )
             all_TorbAccIni = np.append( all_TorbAccIni, 2.*np.pi*(skidgal['Rhalf'][ind_eject[j]] / skidgal['VcRhalf'][ind_eject[j]]) * CM_PER_KPC/CM_PER_KM/SEC_PER_YEAR/1e6 )
             all_MvirAcc = np.append( all_MvirAcc, np.mean( Mvir[ind_acc[j]:ind_eject[j]+1] ) )
-       elif Neject[i] >= 2:
-         all_DtAcc = np.append( all_DtAcc, AccTimes[0:Neject[i]-1] - EjectTimes[1:] )
-         all_RedshiftAcc = np.append( all_RedshiftAcc, redshift[ i, ind_acc[0:Neject[i]-1] ] )   # redshift at re-accretion
+       elif n_eject[i] >= 2:
+         all_DtAcc = np.append( all_DtAcc, AccTimes[0:n_eject[i]-1] - EjectTimes[1:] )
+         all_RedshiftAcc = np.append( all_RedshiftAcc, redshift[ i, ind_acc[0:n_eject[i]-1] ] )   # redshift at re-accretion
          all_RedshiftAccIni = np.append( all_RedshiftAccIni, redshift[ i, ind_eject[1:] ] )      # redshift at ejection
-         all_SnapnumAcc = np.append( all_SnapnumAcc, snaplist[ ind_acc[0:Neject[i]-1] ] )
-         for j in range(Neject[i]-1):
+         all_SnapnumAcc = np.append( all_SnapnumAcc, snaplist[ ind_acc[0:n_eject[i]-1] ] )
+         for j in range(n_eject[i]-1):
             Rmax = np.max( R[ i, ind_acc[j]:ind_eject[j+1]+1 ] )
             all_RmaxAcc = np.append( all_RmaxAcc, Rmax )
             #all_RvirAcc = np.append( all_RvirAcc, np.mean( Rvir[ind_acc[j]:ind_eject[j+1]+1] ) )
@@ -410,7 +511,7 @@ class Classifier( object ):
     TmaxOutside = np.ma.masked_array( self.ptrack['T'][:,0:n_snap], mask=mask ).max(axis=1).filled(fill_value =-1)
 
     #--- maximum temperature reached BEFORE first accretion onto MAIN galaxy and OUTSIDE of any galaxy  (T values are "invalid" after first accretion)
-    mask = np.logical_not( BeforeFirstAcc & IsOutsideAnyGal[:,0:n_snap-1] )
+    mask = np.logical_not( before_first_ac & IsOutsideAnyGal[:,0:n_snap-1] )
     TmaxBeforeAcc = np.ma.masked_array( self.ptrack['T'][:,0:n_snap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
     
     #--- COLD vs HOT 
@@ -423,15 +524,10 @@ class Classifier( object ):
     IsHotMode_mask = np.tile( IsHotMode[:,np.newaxis], n_snap )
     IsColdMode_mask = np.tile( IsColdMode[:,np.newaxis], n_snap )
 
-    #--- WIND vs NO-WIND
-    # IsWind[i,n]=YES for particle i if it has been ejected at least once before snapshot n 
-
-    IsWind = np.zeros( (n_particles,n_snap), dtype=np.int32 )
-    IsWind[:,0:n_snap-1] = ( CumNumEject >= 1 ).astype(int)         
 
     #correct for "boundary conditions": particles inside galaxy at earliest snapshots cannot count as winds
     #for k in range(4):
-    #   IsWind[ IsInGalID[:,n_snap-1-k] == 1, n_snap-1-k ] = 0
+    #   is_wind[ is_in_main_gal[:,n_snap-1-k] == 1, n_snap-1-k ] = 0
 
   ########################################################################
 
@@ -442,122 +538,105 @@ class Classifier( object ):
     StarMass = ( self.ptrack['m'][:,0:n_snap] * IsStarInside ).sum(axis=0)
     StarMassHot = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsHotMode_mask ).sum(axis=0)
     StarMassCold = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsColdMode_mask ).sum(axis=0)
-    StarMassWind = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsWind ).sum(axis=0)
-    StarMassWindHot = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsWind * IsHotMode_mask ).sum(axis=0)
-    StarMassWindCold = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsWind * IsColdMode_mask ).sum(axis=0)
+    StarMassWind = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_wind ).sum(axis=0)
+    StarMassWindHot = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_wind * IsHotMode_mask ).sum(axis=0)
+    StarMassWindCold = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_wind * IsColdMode_mask ).sum(axis=0)
 
     GasMass = ( self.ptrack['m'][:,0:n_snap] * IsGasInside ).sum(axis=0)
-    GasMassWind = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsWind ).sum(axis=0)
+    GasMassWind = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * is_wind ).sum(axis=0)
 
     Sfr = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside ).sum(axis=0)
     SfrHot = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsHotMode_mask ).sum(axis=0)
     SfrCold = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsColdMode_mask ).sum(axis=0)
-    SfrWind = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsWind ).sum(axis=0)
-    SfrWindHot = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsWind * IsHotMode_mask ).sum(axis=0)
-    SfrWindCold = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsWind * IsColdMode_mask ).sum(axis=0)
+    SfrWind = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_wind ).sum(axis=0)
+    SfrWindHot = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_wind * IsHotMode_mask ).sum(axis=0)
+    SfrWindCold = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_wind * IsColdMode_mask ).sum(axis=0)
 
     # --- "Msun per snapshot" from gas accretion events
     AccretedGasMass = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted ).sum(axis=0)
-    AccretedGasMassWind = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsWind ).sum(axis=0) 
+    AccretedGasMassWind = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * is_wind ).sum(axis=0) 
 
   ########################################################################
 
   def other_growth_modes( self ):
 
-    TimeInOtherGal = ( dt * IsInOtherGal[:,0:n_snap-1].astype(int) ).sum(axis=1)
-    TimeInOtherGalBeforeAcc = ( dt * (BeforeFirstAcc & IsInOtherGal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
-    #TimeInOtherGalBeforeAccAsStar = ( dt * (BeforeFirstAcc & IsInOtherGal[:,0:n_snap-1] & (f['Ptype'][:,0:n_snap-1]==4)).astype(int) ).sum(axis=1)
+    # Woot, moved everything I need out of here.
 
-    CumTimeBeforeAcc = ( dt * BeforeFirstAcc.astype(int) ).cumsum(axis=1)
-    IsTimeIntervalBeforeAcc = ( (CumTimeBeforeAcc <= TimeIntervalFac*TimeMin) & BeforeFirstAcc ).astype(int)
-    TimeInOtherGalBeforeAccDuringInterval = ( dt * (IsTimeIntervalBeforeAcc & IsInOtherGal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
+    pass
 
 
-    #--- GrowthMode = PRISTINE      --> "non-externally processed"  
-    #                 PRE-PROCESSED --> "externally processed"
 
-    IsPristine = ( TimeInOtherGalBeforeAcc < TimeMin ).astype(int)
-    IsPreProcessed = ( TimeInOtherGalBeforeAcc >= TimeMin ).astype(int)
-    #correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
-    for k in range(neg):
-       IsPristine[ IsInGalID[:,n_snap-1-k] == 1 ] = 1         
-       IsPreProcessed[ IsInGalID[:,n_snap-1-k] == 1 ] = 0
-
-    #--- PRE-PROCESSED GrowthMode: MERGER vs MASS TRANSFER
-
-    IsMassTransfer = (  IsPreProcessed & (TimeInOtherGalBeforeAccDuringInterval < TimeMin) ).astype(int)
-    IsMerger = (  IsPreProcessed & (TimeInOtherGalBeforeAccDuringInterval >= TimeMin)  ).astype(int)
 
   ########################################################################
 
   def add_additional_info_to_preprocessed_mode( self ):
 
-    IsPreProcessed_mask = np.tile( IsPreProcessed[:,np.newaxis], n_snap )
-    IsMassTransfer_mask = np.tile( IsMassTransfer[:,np.newaxis], n_snap )
-    IsMerger_mask = np.tile( IsMerger[:,np.newaxis], n_snap )
+    is_preprocessed_mask = np.tile( is_preprocessed[:,np.newaxis], n_snap )
+    is_mass_transfer_mask = np.tile( is_mass_transfer[:,np.newaxis], n_snap )
+    is_merger_mask = np.tile( is_merger[:,np.newaxis], n_snap )
     IsStarAcc_mask = np.tile( (Ptype_FirstAcc == 4).astype(int)[:,np.newaxis], n_snap )
     IsGasAcc_mask = np.tile( (Ptype_FirstAcc == 0).astype(int)[:,np.newaxis], n_snap )
 
-    StarMassFromPreProcessed = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPreProcessed_mask ).sum(axis=0)
-    StarMassFromMassTransfer = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMassTransfer_mask ).sum(axis=0)
-    StarMassFromMassTransferGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMassTransfer_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromMassTransferStar = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMassTransfer_mask * IsStarAcc_mask ).sum(axis=0)
-    StarMassFromMerger = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMerger_mask ).sum(axis=0)
-    StarMassFromMergerGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMerger_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromMergerStar = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsMerger_mask * IsStarAcc_mask ).sum(axis=0)
+    StarMassFromPreProcessed = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_preprocessed_mask ).sum(axis=0)
+    StarMassFromMassTransfer = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_mass_transfer_mask ).sum(axis=0)
+    StarMassFromMassTransferGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_mass_transfer_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromMassTransferStar = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_mass_transfer_mask * IsStarAcc_mask ).sum(axis=0)
+    StarMassFromMerger = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_merger_mask ).sum(axis=0)
+    StarMassFromMergerGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_merger_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromMergerStar = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_merger_mask * IsStarAcc_mask ).sum(axis=0)
 
-    GasMassFromPreProcessed = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsPreProcessed_mask ).sum(axis=0)
-    GasMassFromMassTransfer = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsMassTransfer_mask ).sum(axis=0)
-    GasMassFromMerger = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsMerger_mask ).sum(axis=0)
+    GasMassFromPreProcessed = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * is_preprocessed_mask ).sum(axis=0)
+    GasMassFromMassTransfer = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * is_mass_transfer_mask ).sum(axis=0)
+    GasMassFromMerger = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * is_merger_mask ).sum(axis=0)
 
-    SfrFromPreProcessed = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPreProcessed_mask ).sum(axis=0) 
-    SfrFromMassTransfer = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsMassTransfer_mask ).sum(axis=0)
-    SfrFromMerger = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsMerger_mask ).sum(axis=0)
+    SfrFromPreProcessed = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_preprocessed_mask ).sum(axis=0) 
+    SfrFromMassTransfer = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_mass_transfer_mask ).sum(axis=0)
+    SfrFromMerger = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_merger_mask ).sum(axis=0)
 
     # --- "Msun per snapshot" from gas accretion events
-    AccretedGasMassFromPreProcessed = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsPreProcessed_mask ).sum(axis=0)  
-    AccretedGasMassFromTransfer = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsMassTransfer_mask ).sum(axis=0)
-    AccretedGasMassFromMerger = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsMerger_mask ).sum(axis=0)
+    AccretedGasMassFromPreProcessed = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * is_preprocessed_mask ).sum(axis=0)  
+    AccretedGasMassFromTransfer = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * is_mass_transfer_mask ).sum(axis=0)
+    AccretedGasMassFromMerger = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * is_merger_mask ).sum(axis=0)
 
   ########################################################################
 
   def add_additional_information_pristine_mode( self ):
 
-    IsPristine_mask = np.tile( IsPristine[:,np.newaxis], n_snap )
+    is_pristine_mask = np.tile( is_pristine[:,np.newaxis], n_snap )
 
-    StarMassFromPristine = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask ).sum(axis=0)
-    StarMassFromPristineHot = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsHotMode_mask ).sum(axis=0)
-    StarMassFromPristineCold = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsColdMode_mask ).sum(axis=0)
-    StarMassFromPristineWind = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind ).sum(axis=0)
-    StarMassFromPristineWindHot = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind * IsHotMode_mask ).sum(axis=0)
-    StarMassFromPristineWindCold = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind * IsColdMode_mask ).sum(axis=0)
+    StarMassFromPristine = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask ).sum(axis=0)
+    StarMassFromPristineHot = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask * IsHotMode_mask ).sum(axis=0)
+    StarMassFromPristineCold = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask * IsColdMode_mask ).sum(axis=0)
+    StarMassFromPristineWind = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask * is_wind ).sum(axis=0)
+    StarMassFromPristineWindHot = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask * is_wind * IsHotMode_mask ).sum(axis=0)
+    StarMassFromPristineWindCold = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask * is_wind * IsColdMode_mask ).sum(axis=0)
 
-    StarMassFromPristineGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromPristineHotGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsHotMode_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromPristineColdGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsColdMode_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromPristineWindGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromPristineWindHotGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind * IsHotMode_mask * IsGasAcc_mask ).sum(axis=0)
-    StarMassFromPristineWindColdGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * IsPristine_mask * IsWind * IsColdMode_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineHotGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask * IsHotMode_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineColdGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask * IsColdMode_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineWindGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask * is_wind * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineWindHotGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask * is_wind * IsHotMode_mask * IsGasAcc_mask ).sum(axis=0)
+    StarMassFromPristineWindColdGas = ( self.ptrack['m'][:,0:n_snap] * IsStarInside * is_pristine_mask * is_wind * IsColdMode_mask * IsGasAcc_mask ).sum(axis=0)
 
-    GasMassFromPristine = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsPristine_mask ).sum(axis=0)
-    GasMassFromPristineWind = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsWind ).sum(axis=0)
+    GasMassFromPristine = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * is_pristine_mask ).sum(axis=0)
+    GasMassFromPristineWind = ( self.ptrack['m'][:,0:n_snap] * IsGasInside * is_pristine_mask * is_wind ).sum(axis=0)
 
-    SfrFromPristine = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask ).sum(axis=0)
-    SfrFromPristineHot = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsHotMode_mask ).sum(axis=0)
-    SfrFromPristineCold = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsColdMode_mask ).sum(axis=0)
-    SfrFromPristineWind = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsWind ).sum(axis=0)
-    SfrFromPristineWindHot = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsWind * IsHotMode_mask ).sum(axis=0)
-    SfrFromPristineWindCold = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * IsPristine_mask * IsWind * IsColdMode_mask ).sum(axis=0)
+    SfrFromPristine = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_pristine_mask ).sum(axis=0)
+    SfrFromPristineHot = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_pristine_mask * IsHotMode_mask ).sum(axis=0)
+    SfrFromPristineCold = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_pristine_mask * IsColdMode_mask ).sum(axis=0)
+    SfrFromPristineWind = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_pristine_mask * is_wind ).sum(axis=0)
+    SfrFromPristineWindHot = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_pristine_mask * is_wind * IsHotMode_mask ).sum(axis=0)
+    SfrFromPristineWindCold = ( self.ptrack['sfr'][:,0:n_snap] * IsGasInside * is_pristine_mask * is_wind * IsColdMode_mask ).sum(axis=0)
 
     # --- "Msun per snapshot" from gas accretion events
-    AccretedGasMassFromPristine = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsPristine_mask ).sum(axis=0)
-    AccretedGasMassFromPristineWind = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * IsPristine_mask * IsWind ).sum(axis=0)
+    AccretedGasMassFromPristine = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * is_pristine_mask ).sum(axis=0)
+    AccretedGasMassFromPristineWind = ( self.ptrack['m'][:,0:n_snap] * IsGasAccreted * is_pristine_mask * is_wind ).sum(axis=0)
 
   ########################################################################
 
   def calculate_mass_loading( self ):
 
-    IsLost = np.tile( (IsInGalID[:,0]==0).astype(int)[:,np.newaxis], n_snap-1 )
+    IsLost = np.tile( (is_in_main_gal[:,0]==0).astype(int)[:,np.newaxis], n_snap-1 )
 
     GasMassLost = ( self.ptrack['m'][:,0:n_snap-1] * IsLastEject * IsLost ).sum(axis=0)
 
@@ -613,15 +692,15 @@ def delete_me_when_done():
 
 
   GalDef = 2                  # imposed size of SKID galaxy in units of the stellar effective radius 
-  WindVelMin = 15             # minimum absolute radial velocity to be considered wind in km/s
-  WindVelMinVc = 2            # minimum radial velocity to be considered wind in units of the maximum circular velocity
+  wind_vel_min = 15             # minimum absolute radial velocity to be considered wind in km/s
+  wind_vel_min_vc_frac = 2            # minimum radial velocity to be considered wind in units of the maximum circular velocity
   ColdHotDef = 2.5e5          # Temperature (k) threshold to separate COLD/HOT modes
-  TimeMin = 100.              # Minimum time (Myr) spent in other galaxy prior to first accretion to qualify as EXTERNALLY-PROCESSED contribution 
-  TimeIntervalFac = 5.        # Externally-processed mass is required to spend at least TimeMin during the interval TimeIntervalFac x TimeMin prior to accretion to qualify as MERGER
+  time_min = 100.              # Minimum time (Myr) spent in other galaxy prior to first accretion to qualify as EXTERNALLY-PROCESSED contribution 
+  time_interval_fac = 5.        # Externally-processed mass is required to spend at least time_min during the interval time_interval_fac x time_min prior to accretion to qualify as MERGER
   neg = 5                     # Number of earliest snapshots for which we neglect accretion/ejection events
 
 
-  outname = 'accmode_idlist_%s_g%dv%dvc%dt%dti%dneg%d.hdf5' % ( tag, GalDef, WindVelMin, WindVelMinVc, TimeMin, TimeIntervalFac, neg )
+  outname = 'accmode_idlist_%s_g%dv%dvc%dt%dti%dneg%d.hdf5' % ( tag, GalDef, wind_vel_min, wind_vel_min_vc_frac, time_min, time_interval_fac, neg )
 
 
   skipreading = 0
@@ -701,7 +780,7 @@ def delete_me_when_done():
   outf.create_dataset('R', data=R)
   outf.create_dataset('Vr', data=Vr)
 
-  outf.create_dataset('IsInGalID', data=IsInGalID)
+  outf.create_dataset('is_in_main_gal', data=is_in_main_gal)
   outf.create_dataset('IsInGalRe', data=IsInGalRe)
   outf.create_dataset('IsStarInside', data=IsStarInside)
   outf.create_dataset('IsGasInside', data=IsGasInside)
@@ -709,22 +788,22 @@ def delete_me_when_done():
   outf.create_dataset('self.is_accreted', data=self.is_accreted)
   outf.create_dataset('IsGasAccreted', data=IsGasAccreted)
 
-  outf.create_dataset('IsPristine', data=IsPristine)
-  outf.create_dataset('IsPreProcessed', data=IsPreProcessed)
-  outf.create_dataset('IsMassTransfer', data=IsMassTransfer)
-  outf.create_dataset('IsMerger', data=IsMerger)
+  outf.create_dataset('is_pristine', data=is_pristine)
+  outf.create_dataset('is_preprocessed', data=is_preprocessed)
+  outf.create_dataset('is_mass_transfer', data=is_mass_transfer)
+  outf.create_dataset('is_merger', data=is_merger)
   outf.create_dataset('IsHotMode', data=IsHotMode)
   outf.create_dataset('IsColdMode', data=IsColdMode)
-  outf.create_dataset('IsWind', data=IsWind)
+  outf.create_dataset('is_wind', data=is_wind)
 
 
   outf.create_dataset('TmaxOutside', data=TmaxOutside)
   outf.create_dataset('TmaxBeforeAcc', data=TmaxBeforeAcc)
-  outf.create_dataset('Neject', data=Neject)
+  outf.create_dataset('n_eject', data=n_eject)
   outf.create_dataset('Nacc', data=Nacc)
   outf.create_dataset('TimeInOtherGal', data=TimeInOtherGal)
-  outf.create_dataset('TimeInOtherGalBeforeAcc', data=TimeInOtherGalBeforeAcc)
-  outf.create_dataset('TimeInOtherGalBeforeAccDuringInterval', data=TimeInOtherGalBeforeAccDuringInterval)
+  outf.create_dataset('time_in_other_gal_before_acc', data=time_in_other_gal_before_acc)
+  outf.create_dataset('time_in_other_gal_before_acc_during_interval', data=time_in_other_gal_before_acc_during_interval)
 
   outf.create_dataset('T_FirstAcc', data=T_FirstAcc)
   outf.create_dataset('redshift_FirstAcc', data=redshift_FirstAcc)
