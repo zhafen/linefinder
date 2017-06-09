@@ -48,4 +48,4 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   def test_basic( self ):
 
-    assert False
+    assert False, "This test needs to be written."

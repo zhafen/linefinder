@@ -80,6 +80,34 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
+  def test_find_mt_containing_halos( self ):
+    
+    # DEBUG
+    assert False, "I need to copy over particle positions here from a good halo tree. I can't test this until then."
+
+    self.particle_positions = np.array([
+      ])
+    self.particle_positions *= 1./(1. + self.redshift)/self.hubble
+
+    result = self.galaxy_finder.find_mt_containing_halos()
+
+    # If none of the distances are within any of the halos, we have a problem.
+    assert result.sum() > 0
+
+  ########################################################################
+
+  # DEBUG
+  #def test_find_mt_containing_halos_strict( self ):
+  #  '''Here I'll restrict the fraction to a very small fraction of the virial radius, such that the sum of the results should be two.
+  #  '''
+
+  #  result = self.galaxy_finder.find_containing_halos( 0.0001 )
+
+  #  # If none of the distances are within any of the halos, we have a problem.
+  #  npt.assert_allclose( 2, result.sum() )
+
+  ########################################################################
+
   def test_find_smallest_host_halo( self ):
 
     self.galaxy_finder.particle_positions = np.array([
