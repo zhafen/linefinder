@@ -275,3 +275,21 @@ class GalaxyFinder( object ):
 
     return part_of_halo
 
+  ########################################################################
+
+  def find_mt_containing_halos( self, radial_cut_fraction=1. ):
+    '''Find which MergerTrace halos our particles are inside of some radial cut of.
+
+    Args:
+      radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*R_vir from the center.
+
+    Returns:
+      part_of_halo (np.array of bools): Shape (n_particles, n_halos). 
+        If index [i, j] is True, then particle i is inside radial_cut_fraction*R_vir of the jth halo, defined via the MergerTrace ID.
+    '''
+
+    # Load up the merger tree data
+    self.ahf_reader.get_mtree_halos( 'snum' )
+
+    for halo_id in self.ahf_reader.mtree_halos.keys():
+      mtree_halo = self.ahf_reader.mtree_halo.keys()
