@@ -108,13 +108,6 @@ class Classifier( object ):
     ## --- radial velocity wrt galaxy center (km/s)
     #Vr = (v*r).sum(axis=2) / R 
 
-    # --- replicate redshifts self.ptrackor indexing (last one removed)
-    redshift = np.tile( self.ptrack['redshift'][0:n_snap], (n_particles,1) )   
-
-    # --- age of the universe in Myr
-    time = 1e3 * util.age_of_universe( redshift, h=self.ptrack_attrs['hubble'], Omega_M=self.ptrack_attrs['omega_matter'] )
-    dt = time[:,:-1] - time[:,1:] 
-
     ## --- list of snapshots for indexing
     #snaplist = skidgal['snapnum'][0:n_snap] 
 
@@ -127,7 +120,11 @@ class Classifier( object ):
   ########################################################################
 
   def identify_if_in_galaxies( self ):
-    '''Identify when particles are inside/outside of galaxies, as well as when they switch from one to another.'''
+    '''Identify potential accretion/ejection events relative to main galaxy at each redshift
+
+    Returns:
+      gal_event_id (np.array) : GalEvent = 0 (no change), 1 (entering galaxy), -1 (leaving galaxy) at that redshift
+    '''
 
     # Find if particles are inside/outside of main galaxy at each redshift
     is_in_main_gal = (
@@ -140,9 +137,9 @@ class Classifier( object ):
     #is_in_other_gal = is_in_any_gal & ( not is_in_main_gal )
     #IsOutsideAnyGal = self.ptrack['GalID'][:,0:n_snap] <= 0 
 
-    # --- Identify accretion/ejection events relative to main galaxy at each redshift
-    #    GalEvent = 0 (no change), 1 (entering galaxy), -1 (leaving galaxy) at that redshift
-    self.gal_event_id = is_in_main_gal[:,0:n_snap-1] - is_in_main_gal[:,1:n_snap]      
+    gal_event_id = is_in_main_gal[:,0:n_snap-1] - is_in_main_gal[:,1:n_snap]      
+
+    return gal_event_id
 
   ########################################################################
 
@@ -179,10 +176,25 @@ class Classifier( object ):
 
   ########################################################################
 
+  def get_time( self ):
+    # TODO: Documentation
+
+    # Replicate redshifts self.ptrackor indexing (last one removed)
+    redshift = np.tile( self.ptrack['redshift'][0:n_snap], (n_particles,1) )   
+
+    # Age of the universe in Myr
+    time = 1e3 * util.age_of_universe( redshift, h=self.ptrack_attrs['hubble'], Omega_M=self.ptrack_attrs['omega_matter'] )
+    dt = time[:,:-1] - time[:,1:] 
+
+    return dt
+
+  ########################################################################
+
   def get_time_in_galaxies( self ):
     '''Get the amount of time in galaxies'''
+    # TODO: Documentation
 
-    TimeInOtherGal = ( dt * is_in_other_gal[:,0:n_snap-1].astype(int) ).sum(axis=1)
+    #TimeInOtherGal = ( dt * is_in_other_gal[:,0:n_snap-1].astype(int) ).sum(axis=1)
     time_in_other_gal_before_acc = ( dt * (before_first_ac & is_in_other_gal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
 
     cum_time_before_acc = ( dt * before_first_ac.astype(int) ).cumsum(axis=1)
@@ -267,6 +279,7 @@ class Classifier( object ):
     return is_wind
 
   ########################################################################
+  # Old Stuff
   ########################################################################
 
   def old_acc_ej_mergers( self ):

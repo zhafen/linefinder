@@ -74,18 +74,61 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
     self.classifier.identify_if_in_galaxies()
 
     expected_gal_event_id = np.array([
-        [ 0, 0, 1, ],
-        [ 0, 0, 0, ],
-        [ 0, 1, -1, ],
+        [ 0, 1, ],
+        [ 0, 0, ],
+        [ 1, -1, ],
         ])
 
-    npt.assert_allclose( expected_gal_event_id, self.classifiers.gal_event_id )
+    npt.assert_allclose( expectget_timeed_gal_event_id, self.classifiers.gal_event_id )
 
-  ########################################################################
+  #########################################################################
 
+  #def test_identify_accretion( self ):
 
+  #  assert False, "Need to do this test."
 
+  #########################################################################
 
+  #def test_identify_ejection( self ):
+
+  #  assert False, "Need to do this test."
+
+  #########################################################################
+
+  #def test_get_time_in_galaxies( self ):
+
+  #  assert False, "Need to do this test."
+
+  #########################################################################
+  #def test_identify_pristine( self ):
+
+  #  assert False, "Need to do this test."
+
+  #########################################################################
+
+  #def test_identify_preprocessed( self ):
+
+  #  assert False, "Need to do this test."
+
+  #########################################################################
+
+  #def test_identify_mass_transfer( self ):
+
+  #  assert False, "Need to do this test."
+
+  #########################################################################
+
+  #def test_identify_merger( self ):
+
+  #  assert False, "Need to do this test."
+
+  #########################################################################
+
+  #def test_identify_wind( self ):
+
+  #  assert False, "Need to do this test."
+
+  #########################################################################
 
 
 
