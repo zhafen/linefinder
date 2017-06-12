@@ -292,4 +292,4 @@ class GalaxyFinder( object ):
     self.ahf_reader.get_mtree_halos( 'snum' )
 
     for halo_id in self.ahf_reader.mtree_halos.keys():
-      mtree_halo = self.ahf_reader.mtree_halo.keys()
+      mtree_halo = self.ahf_reader.mtree_halos[ halo_id ]
