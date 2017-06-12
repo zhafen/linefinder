@@ -51,10 +51,6 @@ class TestAHFReader( unittest.TestCase ):
 
   def test_get_mtree_halo_files( self ):
 
-
-    #DEBUG
-    import pdb; pdb.set_trace()
-
     self.ahf_reader.get_mtree_halos( 'snum' )
 
     # Halo mass at z=0 for mtree_halo_id = 0

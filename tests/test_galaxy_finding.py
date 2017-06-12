@@ -82,10 +82,8 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   def test_find_mt_containing_halos( self ):
     
-    # DEBUG
-    assert False, "I need to copy over particle positions here from a good halo tree. I can't test this until then."
-
     self.particle_positions = np.array([
+      [ 29338.0986366 ,  30980.1241434 ,  32479.90455557], # Right in the middle of mt halo 0
       ])
     self.particle_positions *= 1./(1. + self.redshift)/self.hubble
 
