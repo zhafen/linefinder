@@ -204,6 +204,8 @@ class TestGalaxyFinder( unittest.TestCase ):
       'halo_id' : np.array( [0, 10, 3783] ),
       'host_gal_id' : np.array( [-1, 1, 3610] ),
       'gal_id' : np.array( [0, 10, 3783] ),
+      'mt_gal_id' : np.array( [0, -2, -2] ),
+      'mt_halo_id' : np.array( [0, 1, 0] ),
     }
 
     # Do the actual calculation

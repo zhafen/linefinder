@@ -37,7 +37,7 @@ class ParticleTrackGalaxyFinder( object ):
 
     self.data_p = data_p
 
-    code_tools.set_default_attribute( self, 'ids_to_return', [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id'] )
+    code_tools.set_default_attribute( self, 'ids_to_return', [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ] )
     code_tools.set_default_attribute( self, 'galaxy_cut', 0.1 )
 
   ########################################################################
@@ -144,7 +144,7 @@ class GalaxyFinder( object ):
 
   ########################################################################
 
-  def find_ids( self, ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id'], galaxy_cut=0.1 ):
+  def find_ids( self, ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id'], galaxy_cut=0.1 ):
     '''Find relevant halo and galaxy IDs.
 
     Args:
@@ -177,6 +177,10 @@ class GalaxyFinder( object ):
         galaxy_and_halo_ids['gal_id'] = self.find_halo_id( galaxy_cut )
       elif id_type == 'host_gal_id':
         galaxy_and_halo_ids['host_gal_id'] = self.find_host_id( galaxy_cut )
+      elif id_type == 'mt_halo_id':
+        galaxy_and_halo_ids['mt_halo_id'] = self.find_halo_id( type_of_halo_id='mt_halo_id' )
+      elif id_type == 'mt_gal_id':
+        galaxy_and_halo_ids['mt_gal_id'] = self.find_halo_id( galaxy_cut, type_of_halo_id='mt_halo_id' )
       else:
         raise Exception( "Unrecognized id_type" )
     
