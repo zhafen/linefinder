@@ -78,3 +78,22 @@ class TestAHFReader( unittest.TestCase ):
     expected = np.arange( 0, 20 )
 
     npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_mtree_halo_id_matches( self ):
+    '''Test that the ID in the mtree_halo_id is exactly what we expect it to be.'''
+
+    self.ahf_reader.get_mtree_halos( 'snum' )
+    halo_id = self.ahf_reader.mtree_halos[10]['ID'][500]
+
+    # First make sure we have the right ID
+    assert halo_id == 11 # just looked this up manually.
+
+    # Now make sure we have the right x position, as a check
+    expected = 28213.25906375 # Halo 11 X position at snum 500
+
+    self.ahf_reader.get_halos( 500 )
+    actual = self.ahf_reader.ahf_halos['Xc'][ halo_id ]
+
+    npt.assert_allclose( expected, actual )

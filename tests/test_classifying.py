@@ -24,9 +24,9 @@ default_data_p = {
 
 default_ptrack = {
   'mt_gal_id' : np.array([
-    [ 2, 2, 0, ], # Merger
-    [ 0, 0, 0, ], # Always part of main galaxy
-    [ -2, 0, -2, ], # CGM -> Halo -> CGM
+    [ -2, 2, 2, 0, ], # Merger, except in early snapshots
+    [ 0, 0, 0, 0, ], # Always part of main galaxy
+    [ -2, -2, 0, -2, ], # CGM -> Halo -> CGM
     ]),
   }
 
@@ -74,9 +74,9 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
     self.classifier.identify_if_in_galaxies()
 
     expected_gal_event_id = np.array([
-        [ 0, 1, ],
-        [ 0, 0, ],
-        [ 1, -1, ],
+        [ 0, 0, 1, ],
+        [ 0, 0, 0, ],
+        [ 0, 1, -1, ],
         ])
 
     npt.assert_allclose( expectget_timeed_gal_event_id, self.classifiers.gal_event_id )
