@@ -137,12 +137,13 @@ class Classifier( object ):
     ahf_reader.get_mtree_halos( 'snum' )
     main_mtree_halo = ahf_reader.mtree_halos[ self.ptrack_attrs['main_mt_halo_id'] ]
     main_halo_id = main_mtree_halo[ 'ID' ][ self.ptrack[ 'snum' ] ]
+    main_halo_id_tiled = np.tile( main_halo_id, ( self.n_particles, 1 ) )
 
     # Check if we're inside a galaxy other than the main galaxy
     # This step is necessary, and the inverse of it is not redundant, because it removes anything that's in the main halo *and* that's the least massive galaxy it's in.
     is_not_in_main_gal = ( self.ptrack['gal_id'] != main_halo_id_tiled )
     is_in_gal = ( self.ptrack['gal_id'] >= 0 )
-    is_not_in_other_gal = not ( is_in_other_gal & is_not_in_main_gal )
+    is_not_in_other_gal = np.invert( is_in_gal & is_not_in_main_gal )
 
     # Find if particles are inside/outside of main galaxy at each redshift
     is_in_main_gal = (
@@ -151,7 +152,7 @@ class Classifier( object ):
       )
 
     # Find when the particles enter and exit the galaxy
-    gal_event_id = is_in_main_gal[:,0:self.n_snap-1] - is_in_main_gal[:,1:self.n_snap]      
+    gal_event_id = is_in_main_gal[:,0:self.n_snap-1].astype( int ) - is_in_main_gal[:,1:self.n_snap].astype( int )
 
     return gal_event_id
 

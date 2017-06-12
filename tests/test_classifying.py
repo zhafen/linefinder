@@ -25,10 +25,16 @@ default_data_p = {
 
 default_ptrack = {
   'mt_gal_id' : np.array([
-    [ -2, 2, 2, 0, ], # Merger, except in early snapshots
+    [ 0, 2, 2, -2, ], # Merger, except in early snapshots
     [ 0, 0, 0, 0, ], # Always part of main galaxy
-    [ -2, -2, 0, -2, ], # CGM -> Halo -> CGM
+    [ -2, 0, -2, -2, ], # CGM -> main galaxy -> CGM
     ]),
+  'gal_id' : np.array([
+    [ 0, 2, 2, -2, ], # Merger, except in early snapshots
+    [ 0, 0, 0, 0, ], # Always part of main galaxy
+    [ -2, 0, -2, -2, ], # CGM -> main galaxy -> CGM
+    ]),
+  'snum' : np.array([ 600, 550, 500, 450 ]),
   }
 
 default_ptrack_attrs = {
@@ -67,32 +73,30 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     self.classifier.ptrack_attrs = default_ptrack_attrs
 
-    # Put in the number of snapshots so that the function works correctly.
-    self.classifier.n_snap = 4
+    # Put in the number of snapshots and particles so that the function works correctly.
+    self.classifier.n_snap = default_ptrack['gal_id'].shape[1]
+    self.classifier.n_particles = default_ptrack['gal_id'].shape[0]
 
   ########################################################################
 
   def test_identify_if_in_galaxies( self ):
 
-    #DEBUG
-    import pdb; pdb.set_trace()
-
-    # Run the function
-    self.classifier.identify_if_in_galaxies()
-
     expected_gal_event_id = np.array([
-        [ 0, 0, 1, ],
-        [ 0, 0, 0, ],
-        [ 0, 1, -1, ],
+        [ 1, 0, 0, ], # Merger, except in early snapshots
+        [ 0, 0, 0, ], # Always part of main galaxy
+        [ -1, 1, 0, ], # CGM -> main galaxy -> CGM
         ])
 
-    npt.assert_allclose( expectget_timeed_gal_event_id, self.classifiers.gal_event_id )
+    # Run the function
+    actual = self.classifier.identify_if_in_galaxies()
+
+    npt.assert_allclose( expected_gal_event_id, actual )
 
   #########################################################################
 
-  #def test_identify_accretion( self ):
+  def test_identify_accretion( self ):
 
-  #  assert False, "Need to do this test."
+    assert False, "Need to do this test."
 
   #########################################################################
 
