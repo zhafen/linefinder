@@ -99,10 +99,6 @@ class AHFReader( object ):
       self.ahf_halos (pd.DataFrame): Dataframe containing the requested data.
     '''
 
-    # If the data's already loaded, don't load it again.
-    if hasattr( self, 'ahf_halos' ):
-      return self.ahf_halos
-
     # Load the data
     ahf_halos_path = self.get_filepath( snum, 'AHF_halos' )
     self.ahf_halos = pd.read_csv( ahf_halos_path, sep='\t', index_col=0 )
@@ -169,7 +165,7 @@ class AHFReader( object ):
     '''Get a desired quantity for all halos at a particular snapshot.
 
     Args:
-      quantity (str): mtree_halo key to load in the dataaset
+      quantity (str): mtree_halo key to load in the dataset
       indice (int): Indice of the quantity to load, as indicated by the index.
       index (str) : What type of index to use. Defaults to None, which raises an exception. You *must* choose an index, to avoid easy mistakes. Options are...
         'snum' : Indexes by snapshot number, starting at 600 and counting down. Only viable with snapshot steps of 1!!

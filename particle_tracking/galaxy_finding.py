@@ -62,10 +62,10 @@ class ParticleTrackGalaxyFinder( object ):
         'sdir' : self.data_p['sdir'],
       }
 
-      print 'Snapshot {}, P[redshift] = {:>7.3g}'.format( data_p['snum'], data_p['redshift'], )
+      print 'Snapshot {:>3} | redshift {:>7.3g}'.format( data_p['snum'], data_p['redshift'], )
 
       # Find the galaxy for a given snapshot
-      galaxy_finder = GalaxyFinder( particle_positions, data_p )
+      galaxy_finder = GalaxyFinder( particle_positions, data_p, ahf_reader=self.ahf_reader )
       galaxy_and_halo_ids = galaxy_finder.find_ids( ids_to_return=self.ids_to_return, galaxy_cut=self.galaxy_cut )
 
       # Make the arrays to store the data in
@@ -98,6 +98,9 @@ class ParticleTrackGalaxyFinder( object ):
     self.ptrack_filepath = os.path.join( self.data_p['tracking_dir'], ptrack_filename )
     self.ptrack = h5py.File( self.ptrack_filepath, 'a' )
 
+    # Load the ahf data
+    self.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
+
   ########################################################################
 
   def finish_data_processing( self ):
@@ -109,6 +112,11 @@ class ParticleTrackGalaxyFinder( object ):
     # Save the data.
     for key in self.ptrack_gal_ids.keys():
       self.ptrack.create_dataset( key, data=self.ptrack_gal_ids[key] )
+
+    # Store the main mt halo id
+    m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=600, index='snum' )
+    self.ptrack.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
+
     self.ptrack.close()
 
     time_end = time.time()
@@ -124,7 +132,7 @@ class ParticleTrackGalaxyFinder( object ):
 class GalaxyFinder( object ):
   '''Find the association with galaxies and halos for a given set of particles at a given redshift.'''
 
-  def __init__( self, particle_positions, data_p ):
+  def __init__( self, particle_positions, data_p, ahf_reader=None ):
     '''Initialize.
 
     Args:
@@ -134,10 +142,17 @@ class GalaxyFinder( object ):
         snum (int): Snapshot the particles correspond to.
         hubble (float): Cosmological hubble parameter (little h)
         sdir (str): Directory the AHF data is in.
+      ahf_reader (ahf_reading object): An instance of an object that reads in the AHF data. If not given initiate one using the sdir in data_p
     '''
 
     self.particle_positions = particle_positions
     self.data_p = data_p
+
+    # Setup the default ahf_reader
+    if ahf_reader is not None:
+      self.ahf_reader = ahf_reader
+    else:
+      self.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
 
     # Derived properties
     self.n_particles = self.particle_positions.shape[0]
@@ -161,7 +176,6 @@ class GalaxyFinder( object ):
     '''
 
     # Load the ahf data
-    self.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
     self.ahf_reader.get_halos( self.data_p['snum'] )
 
     # Dictionary to store the data in.
@@ -211,7 +225,7 @@ class GalaxyFinder( object ):
     # Fix the invalid values (which come from not being associated with any halo)
     host_id_fixed = np.ma.fix_invalid( host_id, fill_value=-2 )
 
-    return host_id_fixed.data
+    return host_id_fixed.data.astype( int )
 
   ########################################################################
 

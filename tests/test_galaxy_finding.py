@@ -216,6 +216,42 @@ class TestGalaxyFinder( unittest.TestCase ):
       print key
       npt.assert_allclose( expected[key], actual[key] )
 
+  ########################################################################
+
+  def test_pass_ahf_reader( self ):
+    '''Test that it still works when we pass in an ahf_reader. '''
+
+    particle_positions = np.array([
+      [ 29414.96458784,  30856.75007114,  32325.90901812], # Halo 0, host halo 0
+      [ 30068.5541178 ,  32596.72758226,  32928.1115097 ], # Halo 10, host halo 1
+      [ 29459.32290246,  30768.32556725,  32357.26078864], # Halo 3783, host halo 3610
+      ])
+    particle_positions *= 1./(1. + self.redshift)/self.hubble
+
+    expected = {
+      'host_halo_id' : np.array( [-1, 1, 3610] ),
+      'halo_id' : np.array( [0, 10, 3783] ),
+      'host_gal_id' : np.array( [-1, 1, 3610] ),
+      'gal_id' : np.array( [0, 10, 3783] ),
+      'mt_gal_id' : np.array( [0, -2, -2] ),
+      'mt_halo_id' : np.array( [0, 1, 0] ),
+    }
+
+    # Prepare an ahf_reader to pass along.
+    ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
+
+    # Muck it up by making it try to retrieve data
+    ahf_reader.get_halos( 600 )
+    ahf_reader.get_mtree_halos( 'snum' )
+
+    # Do the actual calculation
+    galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, self.data_p, ahf_reader=ahf_reader )
+    actual = galaxy_finder.find_ids()
+
+    for key in expected.keys():
+      print key
+      npt.assert_allclose( expected[key], actual[key] )
+
 ########################################################################
 
 class TestParticleTrackGalaxyFinder( unittest.TestCase ):
@@ -258,5 +294,8 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
     # Make sure we still have the original data...
     assert 'rho' in f.keys()
+
+    # Make sure the main MT halo ID is the one we expect.
+    assert f.attrs['main_mt_halo_id'] == 0
 
     f.close()
