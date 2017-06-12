@@ -229,67 +229,43 @@ class GalaxyFinder( object ):
 
     # Choose parameters of the rest of the function based on what type of halo ID we're using
     if type_of_halo_id == 'halo_id':
+
+      # Functions that change.
       find_containing_halos_fn = self.find_containing_halos
       arg_extremum_fn = np.argmin
       extremum_fn = np.min
+
+      # Get the virial masses. It's okay to leave in comoving, since we're just finding the minimum
+      m_vir = self.ahf_reader.ahf_halos['Mvir']
+
     elif type_of_halo_id == 'mt_halo_id':
+
+      # Functions that change.
       find_containing_halos_fn = self.find_mt_containing_halos
       arg_extremum_fn = np.argmax
       extremum_fn = np.max
+
+      # Get the virial masses. It's okay to leave in comoving, since we're just finding the maximum
+      m_vir = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=self.data_p['snum'], index='snum' )
+
     else:
       raise Exception( "Unrecognized type_of_halo_id" )
 
     # Get the cut
     part_of_halo = find_containing_halos_fn( radial_cut_fraction=radial_cut_fraction )
 
-    # Get the virial masses. It's okay to leave in comoving, since we're just finding the minimum
-    m_vir = self.ahf_reader.ahf_halos['Mvir']
-
     # Mask the data
     tiled_m_vir = np.tile( m_vir, ( self.n_particles, 1 ) )
     tiled_m_vir_ma = np.ma.masked_array( tiled_m_vir, mask=np.invert( part_of_halo ), )
 
-    # Take the argmin of the masked data
+    # Take the extremum of the masked data
     halo_id = arg_extremum_fn( tiled_m_vir_ma, axis=1 )
     
     # Account for the fact that the argmin defaults to 0 when there's nothing there
-    mask = tiled_m_vir_ma.min( 1 ).mask
+    mask = extremum_fn( tiled_m_vir_ma, axis=1 ).mask
     halo_id = np.ma.filled( np.ma.masked_array(halo_id, mask=mask), fill_value=-2 )
 
     return halo_id
-
-  ########################################################################
-
-  #def find_mt_halo_id( self, radial_cut_fraction=1. ):
-  #  '''Find the most massive merger tree halo our particles are inside of some radial cut of (we define this as the merger tree halo ID).
-
-  #  Args:
-  #    radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*R_vir from the center.
-
-  #  Returns:
-  #    mt_halo_id (np.array of ints): Shape ( n_particles, ). 
-  #      The ID of the most massive MT halo the particle is part of.
-  #      If it's -2, then that particle is not part of any halo, within radial_cut_fraction*Rvir .
-  #  '''
-
-  #  # Get the cut
-  #  part_of_halo = self.find_mt_containing_halos( radial_cut_fraction=radial_cut_fraction )
-  #  
-  #  # Get the virial masses. It's okay to leave in comoving, since we're just finding the maximum
-  #  m_vir = self.ahf_reader.ahf_halos['Mvir']
-
-  #  # Mask the data
-  #  tiled_m_vir = np.tile( m_vir, ( self.n_particles, 1 ) )
-  #  tiled_m_vir_ma = np.ma.masked_array( tiled_m_vir, mask=np.invert( part_of_halo ), )
-
-  #  # Take the argmin of the masked data
-  #  halo_id = tiled_m_vir_ma.argmax( 1 )
-  #  
-  #  # Account for the fact that the argmin defaults to 0 when there's nothing there
-  #  mask = tiled_m_vir_ma.min( 1 ).mask
-  #  halo_id = np.ma.filled( np.ma.masked_array(halo_id, mask=mask), fill_value=-2 )
-
-  #  return halo_id
 
   ########################################################################
 

@@ -179,6 +179,7 @@ class TestGalaxyFinder( unittest.TestCase ):
       [             0.,              0.,              0.], # The middle of nowhere.
       ])
     self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble
+    self.galaxy_finder.n_particles = 4
 
     actual = self.galaxy_finder.find_halo_id( 2.5, 'mt_halo_id' )
 
