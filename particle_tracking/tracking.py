@@ -157,7 +157,7 @@ class ParticleTracker( object ):
       time_2 = time.time()
 
       # Print output information.
-      print 'Snapshot {}, P[redshift] = {:>7.3g}, done in ... {:.3g} seconds'.format(  snum, redshift, time_2 - time_1 )
+      print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'.format(  snum, redshift, time_2 - time_1 )
       sys.stdout.flush()
 
     return ptrack

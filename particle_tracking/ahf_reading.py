@@ -50,6 +50,8 @@ class AHFReader( object ):
     ahf_filename = 'halo_*.dat'
     ahf_filepath_unexpanded = os.path.join( self.sdir, ahf_filename )
     halo_filepaths = glob.glob( ahf_filepath_unexpanded )
+    if len( halo_filepaths ) == 0:
+      raise Exception( 'No files to load in {}'.format( self.sdir ) )
 
     # Loop over each file and load it
     for halo_filepath in halo_filepaths:
@@ -153,7 +155,9 @@ class AHFReader( object ):
     ahf_filename = 'snap{:03d}Rpep..z*.*.{}'.format( snum, ahf_file_type )
     ahf_filepath_unexpanded = os.path.join( self.sdir, ahf_filename )
     possible_filepaths = glob.glob( ahf_filepath_unexpanded )
-    if len( possible_filepaths ) > 1:
+    if len( possible_filepaths ) == 0:
+      raise Exception( 'No files to load in {}'.format( self.sdir ) )
+    elif len( possible_filepaths ) > 1:
       raise Exception( 'Multiple possible *.{} files to load'.format( ahf_file_type ) )
     ahf_filepath = possible_filepaths[0]
 

@@ -18,7 +18,8 @@ from particle_tracking import classifying
 ########################################################################
 
 default_data_p = {
-  'trackdir' : './tests/test_data/tracking_output',
+  'sdir' : './tests/test_data/ahf_test_data',
+  'tracking_dir' : './tests/test_data/tracking_output',
   'tag' : 'test',
   }
 
@@ -66,9 +67,15 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     self.classifier.ptrack_attrs = default_ptrack_attrs
 
+    # Put in the number of snapshots so that the function works correctly.
+    self.classifier.n_snap = 4
+
   ########################################################################
 
   def test_identify_if_in_galaxies( self ):
+
+    #DEBUG
+    import pdb; pdb.set_trace()
 
     # Run the function
     self.classifier.identify_if_in_galaxies()

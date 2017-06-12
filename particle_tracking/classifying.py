@@ -11,6 +11,7 @@ import numpy as np
 import os
 import sys
 
+import ahf_reading
 import code_tools
 
 ########################################################################
@@ -23,14 +24,16 @@ class Classifier( object ):
     '''Setup the ID Finder.
 
     Args:
-      data_p (dict): Dictionary containing parameters. Summary below.
-      Input Data Parameters:
-        trackdir (str): Data directory for tracked particle data.
-        tag (str): Identifying tag. Currently must be put in manually.
-        #types (list of ints): The particle data types to include.
-        #snap_ini (int): Starting snapshot
-        #snap_end (int): End snapshot
-        #snap_step (int): How many snapshots to jump over?
+      data_p (dict): Dictionary containing parameters. Includes..
+        Required:
+          sdir (str): Data directory for AHF data.
+          tracking_dir (str): Data directory for tracked particle data.
+          tag (str): Identifying tag. Currently must be put in manually.
+          
+          #types (list of ints): The particle data types to include.
+          #snap_ini (int): Starting snapshot
+          #snap_end (int): End snapshot
+          #snap_step (int): How many snapshots to jump over?
 
       Analysis Parameters:
         Required:
@@ -63,7 +66,7 @@ class Classifier( object ):
 
     # Load Particle Tracking Data
     ptrack_filename =  'ptrack_' + self.data_p['tag'] + '.hdf5'
-    ptrack_filepath = os.path.join( self.data_p['trackdir'], ptrack_filename )
+    ptrack_filepath = os.path.join( self.data_p['tracking_dir'], ptrack_filename )
     f = h5py.File(ptrack_filepath, 'r')
 
     # Store the particle track data in a dictionary
@@ -126,20 +129,36 @@ class Classifier( object ):
       gal_event_id (np.array) : GalEvent = 0 (no change), 1 (entering galaxy), -1 (leaving galaxy) at that redshift
     '''
 
+    # If we're literally inside the main galaxy
+    is_in_main_gal_literal = ( self.ptrack['mt_gal_id'][:,0:self.n_snap] == self.ptrack_attrs['main_mt_halo_id'] )
+
+    # Get the ID of the main halo for a given snapshot (remember that the mtree halo ID isn't the same as the ID at a given snapshot).
+    ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
+    ahf_reader.get_mtree_halos( 'snum' )
+    main_mtree_halo = ahf_reader.mtree_halos[ self.ptrack_attrs['main_mt_halo_id'] ]
+    main_halo_id = main_mtree_halo[ 'ID' ][ self.ptrack[ 'snum' ] ]
+
+    # Check if we're inside a galaxy other than the main galaxy
+    # This step is necessary, and the inverse of it is not redundant, because it removes anything that's in the main halo *and* that's the least massive galaxy it's in.
+    is_not_in_main_gal = ( self.ptrack['gal_id'] != main_halo_id_tiled )
+    is_in_gal = ( self.ptrack['gal_id'] >= 0 )
+    is_not_in_other_gal = not ( is_in_other_gal & is_not_in_main_gal )
+
     # Find if particles are inside/outside of main galaxy at each redshift
     is_in_main_gal = (
-      ( self.ptrack['mt_gal_id'][:,0:n_snap] == self.ptrack_attrs['main_mt_halo_id'] ) & # If the mt galaxy id matches the mt halo id
-      () # If the particle isn't inside multiple galaxies
-      () # *or* maybe if the particle isn't inside another galaxy that's not the main galaxy
+      is_in_main_gal_literal & 
+      is_not_in_other_gal
       )
 
+    # Find when the particles enter and exit the galaxy
+    gal_event_id = is_in_main_gal[:,0:self.n_snap-1] - is_in_main_gal[:,1:self.n_snap]      
+
+    return gal_event_id
+
+    # TODO: Remove?
     #is_in_any_gal = ( self.ptrack['gal_id'] >= 0 )
     #is_in_other_gal = is_in_any_gal & ( not is_in_main_gal )
     #IsOutsideAnyGal = self.ptrack['GalID'][:,0:n_snap] <= 0 
-
-    gal_event_id = is_in_main_gal[:,0:n_snap-1] - is_in_main_gal[:,1:n_snap]      
-
-    return gal_event_id
 
   ########################################################################
 
@@ -720,7 +739,7 @@ def delete_me_when_done():
 
   # TODO: Remove. This should be obsolete.
   #simdir = '/scratch/02089/anglesd/FIRE/' + sname + '/'
-  #trackdir = '/work/02089/anglesd/FIRE/' + sname + '/'
+  #tracking_dir = '/work/02089/anglesd/FIRE/' + sname + '/'
 
   #########################
    ### READ DATA FILES ###
@@ -781,10 +800,10 @@ def delete_me_when_done():
   #outname = 'accmode_' + ptrack_filepath + '-' + sname + '.hdf5'
   #outname = 'accmode_idlist_' + tag + '.hdf5'
 
-  if os.path.isfile(trackdir + outname):
-    os.remove(trackdir + outname)
+  if os.path.isfile(tracking_dir + outname):
+    os.remove(tracking_dir + outname)
 
-  outf = h5py.File(trackdir + outname, 'w')
+  outf = h5py.File(tracking_dir + outname, 'w')
 
   #outf.create_dataset('redshift', data=f['redshift'][0:n_snap])
   outf.create_dataset('redshift', data=redshift[0,:])
