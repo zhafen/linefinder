@@ -82,31 +82,25 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   def test_find_mt_containing_halos( self ):
     
-    self.particle_positions = np.array([
+    self.galaxy_finder.particle_positions = np.array([
       [ 29414.96458784,  30856.75007114,  32325.90901812], # Right in the middle of mt halo 0 at snap 500
       [ 29467.07226789,  30788.6179313 ,  32371.38749237], # Right in the middle of mt halo 9 at snap 500.
                                                            # mt halo 9 is 0.5 R_vir_mt_0 (2 R_vir_mt_9) away from the center of mt halo 0
       [ 29073.22333685,  31847.72434505,  32283.53620817], # Right in the middle of mt halo 19 at snap 500.
       ])
-    self.particle_positions *= 1./(1. + self.redshift)/self.hubble
+    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble
 
     actual = self.galaxy_finder.find_mt_containing_halos( 2.5 )
 
-    # Note that we want to find the most massive galaxy we're part of.
-    expected = np.array([ 0, 0, 19 ])
+    # Build the expected output
+    expected = np.zeros( (self.galaxy_finder.particle_positions.shape[0], 20) ).astype( bool )
+    expected[ 0, 0 ] = True
+    expected[ 0, 9 ] = True
+    expected[ 1, 0 ] = True
+    expected[ 1, 9 ] = True
+    expected[ 2, 19 ] = True
+
     npt.assert_allclose( actual, expected )
-
-  ########################################################################
-
-  # DEBUG
-  #def test_find_mt_containing_halos_strict( self ):
-  #  '''Here I'll restrict the fraction to a very small fraction of the virial radius, such that the sum of the results should be two.
-  #  '''
-
-  #  result = self.galaxy_finder.find_containing_halos( 0.0001 )
-
-  #  # If none of the distances are within any of the halos, we have a problem.
-  #  npt.assert_allclose( 2, result.sum() )
 
   ########################################################################
 

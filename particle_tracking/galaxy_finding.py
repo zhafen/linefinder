@@ -291,5 +291,30 @@ class GalaxyFinder( object ):
     # Load up the merger tree data
     self.ahf_reader.get_mtree_halos( 'snum' )
 
+    part_of_halo = []
     for halo_id in self.ahf_reader.mtree_halos.keys():
       mtree_halo = self.ahf_reader.mtree_halos[ halo_id ]
+
+      # Get the halo position
+      halo_pos_comov = np.array([ mtree_halo['Xc'][ self.data_p['snum'] ], mtree_halo['Yc'][ self.data_p['snum'] ], mtree_halo['Zc'][ self.data_p['snum'] ] ])
+      halo_pos = halo_pos_comov/( 1. + self.data_p['redshift'] )/self.data_p['hubble']
+
+      # Make halo_pos 2D for compatibility with cdist
+      halo_pos = np.array( [ halo_pos, ] )
+
+      # Get the distances
+      dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
+
+      # Get the radial distance
+      r_vir_pkpc = mtree_halo['Rvir'][ self.data_p['snum'] ]/( 1. + self.data_p['redshift'] )/self.data_p['hubble']
+      radial_cut = radial_cut_fraction*r_vir_pkpc
+      
+      # Find if our particles are part of this halo
+      part_of_this_halo = dist < radial_cut
+
+      part_of_halo.append( part_of_this_halo )
+
+    # Format part_of_halo correctly
+    part_of_halo = np.array( part_of_halo ).transpose()[0]
+
+    return part_of_halo
