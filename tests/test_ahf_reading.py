@@ -67,3 +67,14 @@ class TestAHFReader( unittest.TestCase ):
     expected = 60
     actual = self.ahf_reader.mtree_halos[2]['ID'][30]
     npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_mtree_halo_quantity( self ):
+
+    self.ahf_reader.get_mtree_halos( 'snum' )
+
+    actual = self.ahf_reader.get_mtree_halo_quantity( 'ID', 600, 'snum' )
+    expected = np.arange( 0, 20 )
+
+    npt.assert_allclose( expected, actual )

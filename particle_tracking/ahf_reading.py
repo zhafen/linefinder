@@ -162,3 +162,31 @@ class AHFReader( object ):
     ahf_filepath = possible_filepaths[0]
 
     return ahf_filepath
+
+  ########################################################################
+
+  def get_mtree_halo_quantity( self, quantity, indice, index=None ):
+    '''Get a desired quantity for all halos at a particular snapshot.
+
+    Args:
+      quantity (str): mtree_halo key to load in the dataaset
+      indice (int): Indice of the quantity to load, as indicated by the index.
+      index (str) : What type of index to use. Defaults to None, which raises an exception. You *must* choose an index, to avoid easy mistakes. Options are...
+        'snum' : Indexes by snapshot number, starting at 600 and counting down. Only viable with snapshot steps of 1!!
+        'int' : Index by integer.
+
+    Returns:
+      mtree_halo_quantity (np.array): The ith index is the requested quantity for ith MT halo.
+    '''
+
+    # Load the data if it's not already loaded.
+    if not hasattr( self, 'mtree_halos' ):
+      self.get_mtree_halos( index )
+
+    mtree_halo_quantity = [] 
+    for halo_id in self.mtree_halos.keys():
+      
+      mtree_halo_quantity.append( self.mtree_halos[ halo_id ][ quantity ][ indice ] )
+
+    return np.array( mtree_halo_quantity )
+

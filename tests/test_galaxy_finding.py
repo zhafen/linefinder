@@ -169,6 +169,26 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
+  def test_find_mt_halo_id( self ):
+    
+    self.galaxy_finder.particle_positions = np.array([
+      [ 29414.96458784,  30856.75007114,  32325.90901812], # Right in the middle of mt halo 0 at snap 500
+      [ 29467.07226789,  30788.6179313 ,  32371.38749237], # Right in the middle of mt halo 9 at snap 500.
+                                                           # mt halo 9 is 0.5 R_vir_mt_0 (2 R_vir_mt_9) away from the center of mt halo 0
+      [ 29073.22333685,  31847.72434505,  32283.53620817], # Right in the middle of mt halo 19 at snap 500.
+      [             0.,              0.,              0.], # The middle of nowhere.
+      ])
+    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble
+
+    actual = self.galaxy_finder.find_halo_id( 2.5, 'mt_halo_id' )
+
+    # Build the expected output
+    expected = np.array([ 0, 0, 19, -2 ])
+
+    npt.assert_allclose( actual, expected )
+
+  ########################################################################
+
   def test_find_ids( self ):
 
     particle_positions = np.array([
