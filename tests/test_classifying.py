@@ -11,6 +11,7 @@ import numpy.testing as npt
 import pdb
 import unittest
 
+from particle_tracking import ahf_reading
 from particle_tracking import classifying
 
 ########################################################################
@@ -70,9 +71,11 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     self.classifier = classifying.Classifier( default_data_p )
 
+    # Emulate the loading data phase
     self.classifier.ptrack = default_ptrack
-
     self.classifier.ptrack_attrs = default_ptrack_attrs
+    self.classifier.ahf_reader = ahf_reading.AHFReader( default_data_p['sdir'] )
+    self.classifier.ahf_reader.get_mtree_halos( 'snum' )
 
     # Put in the number of snapshots and particles so that the function works correctly.
     self.classifier.n_snap = default_ptrack['gal_id'].shape[1]
@@ -117,9 +120,25 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   #########################################################################
 
-  #def test_identify_ejection( self ):
+  def test_identify_ejection( self ):
 
-  #  assert False, "Need to do this test."
+    expected = np.array([
+      [ 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+
+    # Get the prerequisites
+    self.classifier.gal_event_id= np.array([
+      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ -1, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+      ])
+
+    # Run the function
+    actual = self.classifier.identify_ejection()
+
+    npt.assert_allclose( expected, actual )
 
   #########################################################################
 

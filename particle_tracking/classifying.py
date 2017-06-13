@@ -86,6 +86,10 @@ class Classifier( object ):
 
     f.close()
 
+    # Load the ahf data
+    self.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
+    self.ahf_reader.get_mtree_halos( 'snum' )
+
     print 'Done with reading.'
     sys.stdout.flush()
 
@@ -132,9 +136,7 @@ class Classifier( object ):
     '''
 
     # Get the ID of the main halo for a given snapshot (remember that the mtree halo ID isn't the same as the ID at a given snapshot).
-    ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
-    ahf_reader.get_mtree_halos( 'snum' )
-    main_mtree_halo = ahf_reader.mtree_halos[ self.ptrack_attrs['main_mt_halo_id'] ]
+    main_mtree_halo = self.ahf_reader.mtree_halos[ self.ptrack_attrs['main_mt_halo_id'] ]
     main_halo_id = main_mtree_halo[ 'ID' ][ self.ptrack[ 'snum' ] ]
     main_halo_id_tiled = np.tile( main_halo_id, ( self.n_particles, 1 ) )
 
@@ -179,16 +181,29 @@ class Classifier( object ):
         5. The particle must be outside any other galaxy.
     '''
 
+    # Get the velocity of the main galaxy
+    # TODO
+    # Apply cosmological corrections
+    # TODO
+
+    # Get the radial velocity of the particles
+    # TODO
+
+    # Get circular velocity of the galaxy
+    # TODO
+    # Apply cosmological corrections
+    # TODO
+
     self.is_ejected = ( 
-      ( self.gal_event_id == -1 )  &
-      ( Vr[:,0:n_snap-1] > wind_vel_min_vc_frac*skidgal['VcMax'][0:n_snap-1] )  &
-      ( Vr[:,0:n_snap-1] > wind_vel_min )  &
-      ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )  &
-      ( IsOutsideAnyGal[:,0:n_snap-1] )
+      ( self.gal_event_id == -1 )  & # Condition 1
+      ( Vr[:,0:n_snap-1] > wind_vel_min_vc_frac*skidgal['VcMax'][0:n_snap-1] )  & # Condition 2
+      ( Vr[:,0:n_snap-1] > wind_vel_min )  & # Condition 3
+      ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )  & # Condition 4
+      ( IsOutsideAnyGal[:,0:n_snap-1] ) # Condition 5
       )
 
     # Correct for "boundary conditions": neglect events at earliest snapshots
-    self.is_ejected[:,-neg:] = 0
+    self.is_ejected[:,-self.data_p['neg']:] = 0
 
   ########################################################################
 
