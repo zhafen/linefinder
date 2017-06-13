@@ -25,16 +25,16 @@ default_data_p = {
 
 default_ptrack = {
   'mt_gal_id' : np.array([
-    [ 0, 2, 2, -2, ], # Merger, except in early snapshots
-    [ 0, 0, 0, 0, ], # Always part of main galaxy
-    [ -2, 0, -2, -2, ], # CGM -> main galaxy -> CGM
+    [  0,  0,  2, -2, -2, ], # Merger, except in early snapshots
+    [  0,  0,  0,  0, 0, ], # Always part of main galaxy
+    [ -2,  0, -2, -2, -2, ], # CGM -> main galaxy -> CGM
     ]),
   'gal_id' : np.array([
-    [ 0, 2, 2, -2, ], # Merger, except in early snapshots
-    [ 0, 0, 0, 0, ], # Always part of main galaxy
-    [ -2, 0, -2, -2, ], # CGM -> main galaxy -> CGM
+    [  0,  2,  2, -2, -2, ], # Merger, except in early snapshots
+    [  0,  0,  0,  0, 10, ], # Always part of main galaxy
+    [ -2,  0, -2, -2, -2, ], # CGM -> main galaxy -> CGM
     ]),
-  'snum' : np.array([ 600, 550, 500, 450 ]),
+  'snum' : np.array([ 600, 550, 500, 450, 10 ]),
   }
 
 default_ptrack_attrs = {
@@ -82,10 +82,10 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
   def test_identify_if_in_galaxies( self ):
 
     expected_gal_event_id = np.array([
-        [ 1, 0, 0, ], # Merger, except in early snapshots
-        [ 0, 0, 0, ], # Always part of main galaxy
-        [ -1, 1, 0, ], # CGM -> main galaxy -> CGM
-        ])
+      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ -1, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+      ])
 
     # Run the function
     actual = self.classifier.identify_if_in_galaxies()
@@ -94,9 +94,18 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   #########################################################################
 
-  def test_identify_accretion( self ):
+  #def test_identify_accretion( self ):
 
-    assert False, "Need to do this test."
+  #  expected = np.array([
+  #    [ 1, 0, 0, ], # Merger, except in early snapshots
+  #    [ 0, 0, 0, ], # Always part of main galaxy
+  #    [ 0, 1, 0, ], # CGM -> main galaxy -> CGM
+  #    ]).astype( bool )
+
+  #  
+  #  actual = self.classifier.identify_accretion()
+
+  #  npt.assert_allclose( expected_gal_event_id, actual )
 
   #########################################################################
 

@@ -129,9 +129,6 @@ class Classifier( object ):
       gal_event_id (np.array) : GalEvent = 0 (no change), 1 (entering galaxy), -1 (leaving galaxy) at that redshift
     '''
 
-    # If we're literally inside the main galaxy
-    is_in_main_gal_literal = ( self.ptrack['mt_gal_id'][:,0:self.n_snap] == self.ptrack_attrs['main_mt_halo_id'] )
-
     # Get the ID of the main halo for a given snapshot (remember that the mtree halo ID isn't the same as the ID at a given snapshot).
     ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
     ahf_reader.get_mtree_halos( 'snum' )
@@ -145,21 +142,16 @@ class Classifier( object ):
     is_in_gal = ( self.ptrack['gal_id'] >= 0 )
     is_not_in_other_gal = np.invert( is_in_gal & is_not_in_main_gal )
 
+    # If we're literally inside the main galaxy
+    is_in_main_gal_literal = ( self.ptrack['mt_gal_id'][:,0:self.n_snap] == self.ptrack_attrs['main_mt_halo_id'] )
+
     # Find if particles are inside/outside of main galaxy at each redshift
-    is_in_main_gal = (
-      is_in_main_gal_literal & 
-      is_not_in_other_gal
-      )
+    is_in_main_gal = ( is_in_main_gal_literal & is_not_in_other_gal )
 
     # Find when the particles enter and exit the galaxy
     gal_event_id = is_in_main_gal[:,0:self.n_snap-1].astype( int ) - is_in_main_gal[:,1:self.n_snap].astype( int )
 
     return gal_event_id
-
-    # TODO: Remove?
-    #is_in_any_gal = ( self.ptrack['gal_id'] >= 0 )
-    #is_in_other_gal = is_in_any_gal & ( not is_in_main_gal )
-    #IsOutsideAnyGal = self.ptrack['GalID'][:,0:n_snap] <= 0 
 
   ########################################################################
 
