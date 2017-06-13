@@ -172,13 +172,31 @@ class Classifier( object ):
   ########################################################################
 
   def get_circular_velocity( self ):
+    '''Get the circular velocity of the halo.
 
-    # Get circular velocity of the galaxy
-    # TODO
-    # Apply cosmological corrections
-    # TODO
+    Returns:
+      v_c : Circular velocity of the halo in km/s, indexed the same way that ahf_reader.mtree_halos[i] is.
+    '''
 
-    pass
+    # Get the virial radius and mass of the main galaxy
+    r_vir_kpc = self.ahf_reader.mtree_halos[0]['Rvir'][ self.ptrack[ 'snum' ] ]
+    m_vir_msun = self.ahf_reader.mtree_halos[0]['Mvir'][ self.ptrack[ 'snum' ] ]
+    
+    # Convert r_vir and m_vir to physical units
+    r_vir_kpc *= 1./( 1. + self.ptrack['redshift'] )/self.ptrack_attrs['hubble']
+    m_vir_msun /= self.ptrack_attrs['hubble']
+
+    # Convert r_vir and m_vir to cgs
+    r_vir_cgs = r_vir_kpc*constants.CM_PER_KPC
+    m_vir_cgs = m_vir_msun*constants.MSUN
+
+    # Get v_c
+    v_c_cgs = np.sqrt( constants.G_UNIV * m_vir_cgs / r_vir_cgs )
+
+    # Convert to km/s
+    v_c = v_c_cgs / constants.CM_PER_KM
+
+    return v_c
 
   ########################################################################
 

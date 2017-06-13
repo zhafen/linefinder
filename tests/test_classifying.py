@@ -94,6 +94,22 @@ class TestDerivedFunctions( unittest.TestCase ):
     # Make sure that we have 0 radial velocity when we should
     npt.assert_allclose( result[ 1, 1 ], 0., atol=1e-3 )
 
+  ########################################################################
+
+  def test_get_circular_velocity( self ):
+
+    self.classifier.read_data_files()
+
+    # What our actual circular velocity is
+    result = self.classifier.get_circular_velocity()
+
+    # Make sure we have the right dimensions
+    assert result.shape == ( 3, )
+
+    # We expect the circular velocity of a 1e12 Msun galaxy to be roughly ~100 km/s
+    expected = 100.
+    actual = result[600]
+    npt.assert_allclose( expected, actual, rtol=0.5 )
 
 ########################################################################
 
