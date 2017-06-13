@@ -97,3 +97,17 @@ class TestAHFReader( unittest.TestCase ):
     actual = self.ahf_reader.ahf_halos['Xc'][ halo_id ]
 
     npt.assert_allclose( expected, actual )
+
+########################################################################
+
+  def test_get_pos_or_vel( self ):
+
+    # Snap 550, mt halo 0, position
+    expected = np.array([ 29372.26565053,  30929.16894187,  32415.81701217])
+
+    # Get the values
+    self.ahf_reader.get_mtree_halos( 'snum' )
+    mt_halo_0_pos = self.ahf_reader.get_pos_or_vel( 'pos', 0, 550 )
+    actual = mt_halo_0_pos
+    
+    npt.assert_allclose( expected, actual )

@@ -182,6 +182,15 @@ class Classifier( object ):
     '''
 
     # Get the velocity of the main galaxy
+    main_mtree_halo = self.ahf_reader.mtree_halos[ self.ptrack_attrs['main_mt_halo_id'] ]
+    main_mt_halo_vx = main_mtree_halo[ 'Vx' ][ self.ptrack[ 'snum' ] ]
+    main_mt_halo_vy = main_mtree_halo[ 'Vy' ][ self.ptrack[ 'snum' ] ]
+    main_mt_halo_vz = main_mtree_halo[ 'Vz' ][ self.ptrack[ 'snum' ] ]
+    main_mt_halo_v = []
+    vel_keys = [ 'Vx', 'Vy', 'Vz' ]
+    for vel_key in vel_keys:
+      v_part_comoving =  main_mtree_halo[ vel_key ][ self.ptrack[ 'snum' ] ] 
+    main_mt_halo_v = np.array( main_mt_halo_vx, main_mt_halo_vy, main_mt_halo_vz ).transpose()
     # TODO
     # Apply cosmological corrections
     # TODO

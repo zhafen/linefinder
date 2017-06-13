@@ -190,3 +190,34 @@ class AHFReader( object ):
 
     return np.array( mtree_halo_quantity )
 
+  ########################################################################
+
+  def get_pos_or_vel( self, pos_or_vel, mt_halo_id, inds ):
+    '''Get the position or velocity of a mt halo (three dimensional).
+
+    Args:
+      pos_or_vel (str): Get position ('pos') or velocity ('vel').
+      mt_halo_id (int): Merger tree halo ID for the position or velocity you want.
+      inds (int or np.array of ints): Indices you want the position or velocity for. Uses same index as mtree_halos.
+
+    Returns:
+      p_or_v ( [len(inds), 3] np.array ): Position or velocity for the specified inds.
+    '''
+
+    # Choose the indices we'll access the data through
+    if pos_or_vel == 'pos':
+      keys = [ 'Xc', 'Yc', 'Zc' ]
+    elif pos_or_vel == 'vel':
+      keys = [ 'VXc', 'VYc', 'VZc' ]
+    else:
+      raise Exception( 'Unrecognized pos_or_vel, {}'.format( pos_or_vel ) )
+
+    # Get the data.
+    p_or_v = []
+    for key in keys:
+      p_or_v.append( self.mtree_halos[ mt_halo_id ][ key ][ inds ] )
+
+    # Finish formatting.
+    p_or_v = np.array( p_or_v ).transpose()
+
+    return p_or_v
