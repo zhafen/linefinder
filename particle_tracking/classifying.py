@@ -29,6 +29,8 @@ class Classifier( object ):
           sdir (str): Data directory for AHF data.
           tracking_dir (str): Data directory for tracked particle data.
           tag (str): Identifying tag. Currently must be put in manually.
+          neg (int) : Number of earliest indices for which we neglect accretion/ejection events.
+                      If each indice corresponds to a snapshot, then it's the number of snapshots
           
           #types (list of ints): The particle data types to include.
           #snap_ini (int): Starting snapshot
@@ -158,10 +160,12 @@ class Classifier( object ):
   def identify_accretion( self ):
     '''Identify ALL gas/star accretion events, i.e. whether or not a particle was outside the galaxy at one redshift, and inside at the next'''
 
-    self.is_accreted = ( self.gal_event_id == 1 )
+    is_accreted = ( self.gal_event_id == 1 )
 
     # Correct for "boundary conditions": neglect events at earliest snapshots
-    self.is_accreted[:,-neg:] = 0
+    is_accreted[:,-self.data_p['neg']: ] = False
+
+    return is_accreted
 
   ########################################################################
 

@@ -21,6 +21,7 @@ default_data_p = {
   'sdir' : './tests/test_data/ahf_test_data',
   'tracking_dir' : './tests/test_data/tracking_output',
   'tag' : 'test',
+  'neg' : 1,
   }
 
 default_ptrack = {
@@ -94,18 +95,25 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   #########################################################################
 
-  #def test_identify_accretion( self ):
+  def test_identify_accretion( self ):
 
-  #  expected = np.array([
-  #    [ 1, 0, 0, ], # Merger, except in early snapshots
-  #    [ 0, 0, 0, ], # Always part of main galaxy
-  #    [ 0, 1, 0, ], # CGM -> main galaxy -> CGM
-  #    ]).astype( bool )
+    expected = np.array([
+      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
 
-  #  
-  #  actual = self.classifier.identify_accretion()
+    # Get the prerequisites
+    self.classifier.gal_event_id= np.array([
+      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ -1, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+      ])
 
-  #  npt.assert_allclose( expected_gal_event_id, actual )
+    # Run the function
+    actual = self.classifier.identify_accretion()
+
+    npt.assert_allclose( expected, actual )
 
   #########################################################################
 
