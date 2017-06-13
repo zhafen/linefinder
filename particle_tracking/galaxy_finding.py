@@ -9,7 +9,7 @@
 import h5py
 import numpy as np
 import os
-import scipy
+import scipy.spatial
 import time
 
 import ahf_reading
@@ -343,7 +343,7 @@ class GalaxyFinder( object ):
       halo_pos = halo_pos_comov/( 1. + self.data_p['redshift'] )/self.data_p['hubble']
 
       # Make halo_pos 2D for compatibility with cdist
-      halo_pos = np.array( [ halo_pos, ] )
+      halo_pos = halo_pos[np.newaxis]
 
       # Get the distances
       dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )

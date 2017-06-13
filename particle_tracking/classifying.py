@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Script for categorizing particles into different accretion modes.
+'''Tools for categorizing particles into different accretion modes.
 
 @author: Daniel Angles-Alcazar, Zach Hafen
 @contact: zachary.h.hafen@gmail.com
@@ -9,11 +9,13 @@
 import h5py
 import numpy as np
 import os
+import scipy.spatial
 import sys
 
 import ahf_reading
 import code_tools
 
+########################################################################
 ########################################################################
 
 class Classifier( object ):
@@ -108,7 +110,7 @@ class Classifier( object ):
 
     ## --- Hubble factor at all redshift
     #hubble_factor = astro_tools.hubble_z( self.ptrack['redshift'][0:n_snap], h=self.ptrack.attrs['hubble'], \
-    #                                      Omega0=self.ptrack.attrs['omega_matter'], OmegaLambda=self.ptrack.attrs['omega_lambda'] )
+    #                                      omega_0=self.ptrack.attrs['omega_matter'], omega_lambda=self.ptrack.attrs['omega_lambda'] )
 
     ## --- physical velocity wrt galaxy center (km/s)
     ## WARNING: need to update with v_phi??
@@ -125,6 +127,45 @@ class Classifier( object ):
 
     print '\nDone with initial calculations.'
     sys.stdout.flush()
+
+  ########################################################################
+
+  def get_radial_velocity( self ):
+    '''Get the radial velocity of particles, relative to the main galaxy.
+
+    Returns:
+      v_r ( [n_particles, n_snap] np.array ) : The radial velocity of each particle at that redshift, relative to the main galaxy.
+    '''
+
+    # Get the velocity of the main galaxy
+    main_mt_halo_v = self.ahf_reader.get_pos_or_vel( 'vel', self.ptrack_attrs[ 'main_mt_halo_id' ], self.ptrack[ 'snum' ] )
+
+    # Apply cosmological corrections to the velocity of the main galaxy
+    # TODO: Check if this needs to be done (easiest is to compare to the velocity of the CoM )
+
+    # Loop over each redshift
+    for i in range(self.n_snap):
+
+      # Get the radial velocity of the particles
+      v_r_i = scipy.spatial.distance.cdist( self.ptrack[ 'v' ][:,i], main_mt_halo_v[i][np.newaxis] )
+
+      # Add the hubble flow.
+      hubble_factor = astro_tools.hubble_z( self.ptrack['redshift'][i], h=self.ptrack_attrs['hubble'], \
+                                            omega_0=self.ptrack_attrs['omega_matter'], omega_lambda=self_ptrack.attrs['omega_lambda'] )
+      v_r_i += hubble_factor[:,np.newaxis] * r * constants.UNITLENGTH_IN_CM  / constants.UNITVELOCITY_IN_CM_PER_S  
+
+    return v_r
+
+  ########################################################################
+
+  def get_circular_velocity( self ):
+
+    # Get circular velocity of the galaxy
+    # TODO
+    # Apply cosmological corrections
+    # TODO
+
+    pass
 
   ########################################################################
 
@@ -180,28 +221,6 @@ class Classifier( object ):
         4. The particle must be a gas particle.
         5. The particle must be outside any other galaxy.
     '''
-
-    # Get the velocity of the main galaxy
-    main_mtree_halo = self.ahf_reader.mtree_halos[ self.ptrack_attrs['main_mt_halo_id'] ]
-    main_mt_halo_vx = main_mtree_halo[ 'Vx' ][ self.ptrack[ 'snum' ] ]
-    main_mt_halo_vy = main_mtree_halo[ 'Vy' ][ self.ptrack[ 'snum' ] ]
-    main_mt_halo_vz = main_mtree_halo[ 'Vz' ][ self.ptrack[ 'snum' ] ]
-    main_mt_halo_v = []
-    vel_keys = [ 'Vx', 'Vy', 'Vz' ]
-    for vel_key in vel_keys:
-      v_part_comoving =  main_mtree_halo[ vel_key ][ self.ptrack[ 'snum' ] ] 
-    main_mt_halo_v = np.array( main_mt_halo_vx, main_mt_halo_vy, main_mt_halo_vz ).transpose()
-    # TODO
-    # Apply cosmological corrections
-    # TODO
-
-    # Get the radial velocity of the particles
-    # TODO
-
-    # Get circular velocity of the galaxy
-    # TODO
-    # Apply cosmological corrections
-    # TODO
 
     self.is_ejected = ( 
       ( self.gal_event_id == -1 )  & # Condition 1

@@ -21,7 +21,7 @@ from particle_tracking import classifying
 default_data_p = {
   'sdir' : './tests/test_data/ahf_test_data',
   'tracking_dir' : './tests/test_data/tracking_output',
-  'tag' : 'test',
+  'tag' : 'test_classify',
   'neg' : 1,
   }
 
@@ -62,6 +62,36 @@ class TestReadPTrack( unittest.TestCase ):
     expected = 1.700689e-08
     actual = self.classifier.ptrack['rho'][0,0]
     npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+class TestDerivedFunctions( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.classifier = classifying.Classifier( default_data_p )
+
+  ########################################################################
+
+  def test_get_radial_velocity( self ):
+
+    self.classifier.read_data_files()
+
+    # Set the second particle at snapshot 550 to be at the center of the main halo at that redshift
+    # Also set the velocity of the second particle at snapshot 550 to the velocity of the main halo at that redshift
+    # This should result in an identically 0 radial velocity
+    self.classifier.ptrack[ 'p' ][ 1, 1 ] = np.array([ 29372.26565053,  30929.16894187,  32415.81701217 ])
+    self.classifier.ptrack[ 'p' ][ 1, 1 ] *= 1./(1. + self.classifer.ptrack['redshift'][ 1 ])/self.classifier.ptrack.attrs['hubble']
+    self.classifier.ptrack[ 'v' ][ 1, 1 ] = np.array([ -49.05,  72.73,  96.86 ])
+
+    result = self.classifier.get_radial_velocity()
+
+    # Make sure we have the right shape.
+    assert result.shape == self.classifier.ptrack[ 'rho' ].shape
+
+    # Make sure that we have 0 radial velocity when we should
+    npt.assert_allclose( result[ 1, 1 ], 0. )
+
 
 ########################################################################
 
@@ -120,25 +150,26 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   #########################################################################
 
-  def test_identify_ejection( self ):
+  # TODO
+  #def test_identify_ejection( self ):
 
-    expected = np.array([
-      [ 0, 0, 0, 0, ], # Merger, except in early snapshots
-      [ 0, 0, 0, 0, ], # Always part of main galaxy
-      [ 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
-      ]).astype( bool )
+  #  expected = np.array([
+  #    [ 0, 0, 0, 0, ], # Merger, except in early snapshots
+  #    [ 0, 0, 0, 0, ], # Always part of main galaxy
+  #    [ 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+  #    ]).astype( bool )
 
-    # Get the prerequisites
-    self.classifier.gal_event_id= np.array([
-      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
-      [ 0, 0, 0, 0, ], # Always part of main galaxy
-      [ -1, 1, 0, 0, ], # CGM -> main galaxy -> CGM
-      ])
+  #  # Get the prerequisites
+  #  self.classifier.gal_event_id= np.array([
+  #    [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+  #    [ 0, 0, 0, 0, ], # Always part of main galaxy
+  #    [ -1, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+  #    ])
 
-    # Run the function
-    actual = self.classifier.identify_ejection()
+  #  # Run the function
+  #  actual = self.classifier.identify_ejection()
 
-    npt.assert_allclose( expected, actual )
+  #  npt.assert_allclose( expected, actual )
 
   #########################################################################
 
