@@ -13,7 +13,9 @@ import scipy.spatial
 import sys
 
 import ahf_reading
+import astro_tools
 import code_tools
+import constants
 
 ########################################################################
 ########################################################################
@@ -137,22 +139,33 @@ class Classifier( object ):
       v_r ( [n_particles, n_snap] np.array ) : The radial velocity of each particle at that redshift, relative to the main galaxy.
     '''
 
-    # Get the velocity of the main galaxy
+    # Get the position and velocity of the main galaxy
+    main_mt_halo_p = self.ahf_reader.get_pos_or_vel( 'pos', self.ptrack_attrs[ 'main_mt_halo_id' ], self.ptrack[ 'snum' ] )
     main_mt_halo_v = self.ahf_reader.get_pos_or_vel( 'vel', self.ptrack_attrs[ 'main_mt_halo_id' ], self.ptrack[ 'snum' ] )
 
-    # Apply cosmological corrections to the velocity of the main galaxy
-    # TODO: Check if this needs to be done (easiest is to compare to the velocity of the CoM )
+    # Apply cosmological corrections to the position of the main galaxy
+    main_mt_halo_p *= 1./( 1. + self.ptrack['redshift'][:,np.newaxis] )/self.ptrack_attrs['hubble']
+    # TODO: Check if the velocity also needs to be corrected (probably easiest is to compare to the velocity of the CoM, calculated by me)
 
     # Loop over each redshift
+    v_r = []
     for i in range(self.n_snap):
 
       # Get the radial velocity of the particles
-      v_r_i = scipy.spatial.distance.cdist( self.ptrack[ 'v' ][:,i], main_mt_halo_v[i][np.newaxis] )
+      v_r_i = scipy.spatial.distance.cdist( self.ptrack[ 'v' ][:,i], main_mt_halo_v[i][np.newaxis] ).flatten()
+
+      # Get the radial distance of the particles for the hubble flow.
+      r_i = scipy.spatial.distance.cdist( self.ptrack[ 'p' ][:,i], main_mt_halo_p[i][np.newaxis] ).flatten()
 
       # Add the hubble flow.
       hubble_factor = astro_tools.hubble_z( self.ptrack['redshift'][i], h=self.ptrack_attrs['hubble'], \
-                                            omega_0=self.ptrack_attrs['omega_matter'], omega_lambda=self_ptrack.attrs['omega_lambda'] )
-      v_r_i += hubble_factor[:,np.newaxis] * r * constants.UNITLENGTH_IN_CM  / constants.UNITVELOCITY_IN_CM_PER_S  
+                                            omega_0=self.ptrack_attrs['omega_matter'], omega_lambda=self.ptrack_attrs['omega_lambda'] )
+      v_r_i += hubble_factor * r_i * constants.UNITLENGTH_IN_CM  / constants.UNITVELOCITY_IN_CM_PER_S  
+
+      v_r.append( v_r_i )
+
+    # Format the output
+    v_r = np.array( v_r ).transpose()
 
     return v_r
 

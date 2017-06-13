@@ -81,16 +81,18 @@ class TestDerivedFunctions( unittest.TestCase ):
     # Also set the velocity of the second particle at snapshot 550 to the velocity of the main halo at that redshift
     # This should result in an identically 0 radial velocity
     self.classifier.ptrack[ 'p' ][ 1, 1 ] = np.array([ 29372.26565053,  30929.16894187,  32415.81701217 ])
-    self.classifier.ptrack[ 'p' ][ 1, 1 ] *= 1./(1. + self.classifer.ptrack['redshift'][ 1 ])/self.classifier.ptrack.attrs['hubble']
+    self.classifier.ptrack[ 'p' ][ 1, 1 ] *= 1./(1. + self.classifier.ptrack['redshift'][ 1 ])/self.classifier.ptrack_attrs['hubble']
+    #self.classifier.ptrack[ 'p' ][ 1, 1 ] = np.array([ 39109.18838863,  41182.20600492,  43161.67875451]) #This has already been converted to physical
     self.classifier.ptrack[ 'v' ][ 1, 1 ] = np.array([ -49.05,  72.73,  96.86 ])
 
+    # Get the result
     result = self.classifier.get_radial_velocity()
 
     # Make sure we have the right shape.
     assert result.shape == self.classifier.ptrack[ 'rho' ].shape
 
     # Make sure that we have 0 radial velocity when we should
-    npt.assert_allclose( result[ 1, 1 ], 0. )
+    npt.assert_allclose( result[ 1, 1 ], 0., atol=1e-3 )
 
 
 ########################################################################
