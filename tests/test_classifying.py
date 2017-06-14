@@ -23,6 +23,8 @@ default_data_p = {
   'tracking_dir' : './tests/test_data/tracking_output',
   'tag' : 'test_classify',
   'neg' : 1,
+  'wind_vel_min_vc' : 2.,
+  'wind_vel_min' : 15.,
   }
 
 default_ptrack = {
@@ -36,10 +38,44 @@ default_ptrack = {
     [  0,  0,  0,  0, 10, ], # Always part of main galaxy
     [ -2,  0, -2, -2, -2, ], # CGM -> main galaxy -> CGM
     ]),
+  'Ptype' : np.array([
+    [  4,  4,  0,  0,  0, ], # Merger, except in early snapshots
+    [  4,  0,  0,  0,  0, ], # Always part of main galaxy
+    [  0,  0,  0,  0,  0, ], # CGM -> main galaxy -> CGM
+    ]),
+  'p' : np.array([
+    [ [ 41792.1633    ,  44131.2309735 ,  46267.67030708 ], # Merger, except in early snapshots
+      [ 38198.04856455,  42852.63974461,  43220.86278364 ],
+      [ 34972.28497249,  39095.17772698,  39446.83170768 ],
+      [             0.,              0.,              0. ],
+      [             0.,              0.,              0. ], ],
+    [ [ 41792.1633    ,  44131.2309735 ,  46267.67030708 ], # Always part of main galaxy
+      [ 39109.18846174,  41182.20608191,  43161.6788352  ],
+      [ 35829.91969126,  37586.13659658,  39375.69670048 ],
+      [ 32543.5697382 ,  33981.19081307,  35583.36876478 ],
+      [  3245.25202392,   3136.94192456,   3317.2277023  ], ],
+    [ [             0.,              0.,              0. ], # CGM -> main galaxy -> CGM
+      [ 39109.18846174,  41182.20608191,  43161.6788352  ],
+      [             0.,              0.,              0. ],
+      [             0.,              0.,              0. ],
+      [             0.,              0.,              0. ], ],
+    ]),
   'v' : np.array([
-    [  0,  2,  2, -2, -2, ], # Merger, except in early snapshots
-    [  0,  0,  0,  0, 10, ], # Always part of main galaxy
-    [ -2,  0, -2, -2, -2, ], # CGM -> main galaxy -> CGM
+    [ [-48.53,  72.1 ,  96.12], # Merger, except in early snapshots
+      [-23.75,  91.13,  80.57],
+      [-20.92,  92.55,  75.86],
+      [-17.9 ,  92.69,  70.54],
+      [ 0.,   0.,   0., ], ],
+    [ [-48.53,  72.1 ,  96.12], # Always part of main galaxy
+      [-49.05,  72.73,  96.86],
+      [-48.89,  73.77,  97.25],
+      [-49.75,  75.68,  96.52],
+      [-12.43,  39.47,  13.  ], ],
+    [ [-48.53 + 100.,  72.1 ,  96.12], # CGM -> main galaxy -> CGM
+      [-49.05,  72.73,  96.86],
+      [-48.89,  73.77,  97.25],
+      [-49.75,  75.68,  96.52],
+      [-12.43,  39.47,  13.  ], ],
     ]),
   'snum' : np.array([ 600, 550, 500, 450, 10 ]),
   'redshift' : np.array([ 0.        ,  0.06984665,  0.16946003, 0.290, 12.311 ]),
@@ -91,7 +127,6 @@ class TestDerivedFunctions( unittest.TestCase ):
     # This should result in an identically 0 radial velocity
     self.classifier.ptrack[ 'p' ][ 1, 1 ] = np.array([ 29372.26565053,  30929.16894187,  32415.81701217 ])
     self.classifier.ptrack[ 'p' ][ 1, 1 ] *= 1./(1. + self.classifier.ptrack['redshift'][ 1 ])/self.classifier.ptrack_attrs['hubble']
-    #self.classifier.ptrack[ 'p' ][ 1, 1 ] = np.array([ 39109.18838863,  41182.20600492,  43161.67875451]) #This has already been converted to physical
     self.classifier.ptrack[ 'v' ][ 1, 1 ] = np.array([ -49.05,  72.73,  96.86 ])
 
     # Get the result
@@ -191,6 +226,9 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
       [ 0, 0, 0, 0, ], # Always part of main galaxy
       [ -1, 1, 0, 0, ], # CGM -> main galaxy -> CGM
       ])
+
+    #DEBUG
+    import pdb; pdb.set_trace()
 
     # Run the function
     actual = self.classifier.identify_ejection()

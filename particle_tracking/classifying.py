@@ -33,8 +33,10 @@ class Classifier( object ):
           sdir (str): Data directory for AHF data.
           tracking_dir (str): Data directory for tracked particle data.
           tag (str): Identifying tag. Currently must be put in manually.
-          neg (int) : Number of earliest indices for which we neglect accretion/ejection events.
+          neg (int): Number of earliest indices for which we neglect accretion/ejection events.
                       If each indice corresponds to a snapshot, then it's the number of snapshots
+          wind_vel_min (float): The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
+          wind_vel_min_vc (float): The minimum radial velocity (in units of the main galaxy circular velocity) a particle must have to be considered ejection.
           
           #types (list of ints): The particle data types to include.
           #snap_ini (int): Starting snapshot
@@ -260,15 +262,19 @@ class Classifier( object ):
     v_c = self.get_circular_velocity()
     v_c_tiled = np.tile( v_c, ( self.n_particles, 1 ) )
 
-    # The condition for being outside any galaxy
-    is_outside_any_gal = ( self.ptrack['gal_id'] < 0 )
+    # The conditions for being outside any galaxy
+    is_outside_before_inside_after = ( self.gal_event_id == -1 ) # Condition 1
+    has_minimum_vr_in_vc = ( v_r[:,0:self.n_snap-1] > self.data_p['wind_vel_min_vc']*v_c_tiled[:,0:self.n_snap-1] ) # Condition 2
+    has_minimum_vr = ( v_r[:,0:self.n_snap-1] > self.data_p['wind_vel_min'] ) # Condition 3
+    is_gas = ( self.ptrack['Ptype'][:,0:self.n_snap-1] == 0 ) # Condition 4
+    is_outside_any_gal = ( self.ptrack['gal_id'][:,0:self.n_snap-1] < 0 ) # Condition 5
 
     is_ejected = ( 
-      ( self.gal_event_id == -1 )  & # Condition 1
-      ( v_r[:,0:n_snap-1] > self.data_p['wind_vel_min_vc_frac']*v_c_tiled[0:n_snap-1] )  & # Condition 2
-      ( v_r[:,0:n_snap-1] > self.data_p['wind_vel_min'] )  & # Condition 3
-      ( self.ptrack['Ptype'][:,0:n_snap-1] == 0 )  & # Condition 4
-      ( is_outside_any_gal[:,0:n_snap-1] ) # Condition 5
+      is_outside_before_inside_after & 
+      has_minimum_vr_in_vc & 
+      has_minimum_vr &
+      is_gas & 
+      is_outside_any_gal  
       )
 
     # Correct for "boundary conditions": neglect events at earliest snapshots
