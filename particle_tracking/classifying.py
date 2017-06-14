@@ -114,7 +114,7 @@ class Classifier( object ):
 
     ## --- Hubble factor at all redshift
     #hubble_factor = astro_tools.hubble_z( self.ptrack['redshift'][0:n_snap], h=self.ptrack.attrs['hubble'], \
-    #                                      omega_0=self.ptrack.attrs['omega_matter'], omega_lambda=self.ptrack.attrs['omega_lambda'] )
+    #                                      omega_matter=self.ptrack.attrs['omega_matter'], omega_lambda=self.ptrack.attrs['omega_lambda'] )
 
     ## --- physical velocity wrt galaxy center (km/s)
     ## WARNING: need to update with v_phi??
@@ -132,6 +132,8 @@ class Classifier( object ):
     print '\nDone with initial calculations.'
     sys.stdout.flush()
 
+  ########################################################################
+  # Auxilliary Calculations
   ########################################################################
 
   def get_radial_velocity( self ):
@@ -161,7 +163,7 @@ class Classifier( object ):
 
       # Add the hubble flow.
       hubble_factor = astro_tools.hubble_z( self.ptrack['redshift'][i], h=self.ptrack_attrs['hubble'], \
-                                            omega_0=self.ptrack_attrs['omega_matter'], omega_lambda=self.ptrack_attrs['omega_lambda'] )
+                                            omega_matter=self.ptrack_attrs['omega_matter'], omega_lambda=self.ptrack_attrs['omega_lambda'] )
       v_r_i += hubble_factor * r_i * constants.UNITLENGTH_IN_CM  / constants.UNITVELOCITY_IN_CM_PER_S  
 
       v_r.append( v_r_i )
@@ -200,6 +202,39 @@ class Classifier( object ):
 
     return v_c
 
+  ########################################################################
+
+  def get_time_difference( self ):
+    '''Get the time between snapshots.
+
+    Returns:
+      dt ([n_particles, n_snap-1] np.array): Time between snapshots in Myr.
+    '''
+
+    # Replicate redshifts self.ptrack indexing (last one removed)
+    redshift = np.tile( self.ptrack['redshift'][0:self.n_snap], (self.n_particles,1) )   
+
+    # Age of the universe in Myr
+    time = 1e3 * astro_tools.age_of_universe( redshift, h=self.ptrack_attrs['hubble'], omega_matter=self.ptrack_attrs['omega_matter'] )
+    dt = time[:,:-1] - time[:,1:] 
+
+    return dt
+
+  ########################################################################
+
+  def get_time_in_galaxies( self ):
+    '''Get the amount of time in galaxies'''
+    # TODO: Documentation
+
+    #TimeInOtherGal = ( dt * is_in_other_gal[:,0:n_snap-1].astype(int) ).sum(axis=1)
+    time_in_other_gal_before_acc = ( dt * (before_first_ac & is_in_other_gal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
+
+    cum_time_before_acc = ( dt * before_first_ac.astype(int) ).cumsum(axis=1)
+    is_time_interval_before_acc = ( (cum_time_before_acc <= time_interval_fac*time_min) & before_first_ac ).astype(int)
+    time_in_other_gal_before_acc_during_interval = ( dt * (is_time_interval_before_acc & is_in_other_gal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
+
+  ########################################################################
+  # Auxilliary Classification Methods
   ########################################################################
 
   def identify_if_in_galaxies( self ):
@@ -283,34 +318,7 @@ class Classifier( object ):
     return is_ejected
 
   ########################################################################
-
-  def get_time( self ):
-    # TODO: Documentation
-
-    # Replicate redshifts self.ptrackor indexing (last one removed)
-    redshift = np.tile( self.ptrack['redshift'][0:n_snap], (n_particles,1) )   
-
-    # Age of the universe in Myr
-    time = 1e3 * util.age_of_universe( redshift, h=self.ptrack_attrs['hubble'], Omega_M=self.ptrack_attrs['omega_matter'] )
-    dt = time[:,:-1] - time[:,1:] 
-
-    return dt
-
-  ########################################################################
-
-  def get_time_in_galaxies( self ):
-    '''Get the amount of time in galaxies'''
-    # TODO: Documentation
-
-    #TimeInOtherGal = ( dt * is_in_other_gal[:,0:n_snap-1].astype(int) ).sum(axis=1)
-    time_in_other_gal_before_acc = ( dt * (before_first_ac & is_in_other_gal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
-
-    cum_time_before_acc = ( dt * before_first_ac.astype(int) ).cumsum(axis=1)
-    is_time_interval_before_acc = ( (cum_time_before_acc <= time_interval_fac*time_min) & before_first_ac ).astype(int)
-    time_in_other_gal_before_acc_during_interval = ( dt * (is_time_interval_before_acc & is_in_other_gal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
-
-  ########################################################################
-  # The Main Classification Categories
+  # Main Classification Methods
   ########################################################################
 
   def identify_pristine( self ):

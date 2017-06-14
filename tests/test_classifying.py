@@ -155,6 +155,23 @@ class TestDerivedFunctions( unittest.TestCase ):
     actual = result[600]
     npt.assert_allclose( expected, actual, rtol=0.5 )
 
+  ########################################################################
+
+  def test_get_time_difference( self ):
+
+    self.classifier.read_data_files()
+
+    result = self.classifier.get_time_difference()
+
+    # Expected difference in time, from NED's cosmology calculator.
+    travel_time_at_snum_550 = 0.927*1e3 # In Myr
+    travel_time_at_snum_600 = 2.104*1e3 # In Myr
+    expected_0 = travel_time_at_snum_550
+    expected_1 = travel_time_at_snum_600 - travel_time_at_snum_550
+
+    npt.assert_allclose( expected_0, result[0][0], 1e-3)
+    npt.assert_allclose( expected_1, result[1][1], 1e-3)
+
 ########################################################################
 
 class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
@@ -227,9 +244,6 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
       [ -1, 1, 0, 0, ], # CGM -> main galaxy -> CGM
       ])
 
-    #DEBUG
-    import pdb; pdb.set_trace()
-
     # Run the function
     actual = self.classifier.identify_ejection()
 
@@ -237,11 +251,6 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   #########################################################################
 
-  #def test_get_time_in_galaxies( self ):
-
-  #  assert False, "Need to do this test."
-
-  #########################################################################
   #def test_identify_pristine( self ):
 
   #  assert False, "Need to do this test."
