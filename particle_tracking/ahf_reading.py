@@ -192,13 +192,18 @@ class AHFReader( object ):
 
   ########################################################################
 
-  def get_pos_or_vel( self, pos_or_vel, mt_halo_id, inds ):
+  def get_pos_or_vel( self, pos_or_vel, halo_id, inds, type_of_halo_id='merger_tree' ):
     '''Get the position or velocity of a mt halo (three dimensional).
 
     Args:
       pos_or_vel (str): Get position ('pos') or velocity ('vel').
-      mt_halo_id (int): Merger tree halo ID for the position or velocity you want.
-      inds (int or np.array of ints): Indices you want the position or velocity for. Uses same index as mtree_halos.
+      halo_id (int): Merger tree halo ID for the position or velocity you want.
+      inds (int or np.array of ints): Indices you want the position or velocity for.
+                                      If type_of_halo_id == 'merger_tree', uses same index as mtree_halos.
+                                      Elif type_of_halo_id == 'ahf_halos', can only be a single int,
+                                      which should be the snapshot number.
+      type_of_halo_id (str): 'merger_tree' if the halo id is a merger tree halo id.
+                             'ahf_halos' if the halo id is a *.AHF_halos halo id.
 
     Returns:
       p_or_v ( [len(inds), 3] np.array ): Position or velocity for the specified inds.
@@ -212,10 +217,23 @@ class AHFReader( object ):
     else:
       raise Exception( 'Unrecognized pos_or_vel, {}'.format( pos_or_vel ) )
 
+    # Get the ahf_halo data, if requested.
+    if type_of_halo_id == 'ahf_halos':
+      self.get_halos( inds )
+
     # Get the data.
     p_or_v = []
     for key in keys:
-      p_or_v.append( self.mtree_halos[ mt_halo_id ][ key ][ inds ] )
+
+      # Get the part
+      if type_of_halo_id == 'merger_tree':
+        p_or_v_part = self.mtree_halos[ halo_id ][ key ][ inds ] 
+      elif type_of_halo_id == 'ahf_halos':
+        p_or_v_part = self.ahf_halos[ key ][ halo_id ] 
+      else:
+        raise Exception( 'Unrecognized type_of_halo_id, {}'.format( type_of_halo_id ) )
+
+      p_or_v.append( p_or_v_part )
 
     # Finish formatting.
     p_or_v = np.array( p_or_v ).transpose()

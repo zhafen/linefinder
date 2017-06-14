@@ -36,11 +36,20 @@ default_ptrack = {
     [  0,  0,  0,  0, 10, ], # Always part of main galaxy
     [ -2,  0, -2, -2, -2, ], # CGM -> main galaxy -> CGM
     ]),
+  'v' : np.array([
+    [  0,  2,  2, -2, -2, ], # Merger, except in early snapshots
+    [  0,  0,  0,  0, 10, ], # Always part of main galaxy
+    [ -2,  0, -2, -2, -2, ], # CGM -> main galaxy -> CGM
+    ]),
   'snum' : np.array([ 600, 550, 500, 450, 10 ]),
+  'redshift' : np.array([ 0.        ,  0.06984665,  0.16946003, 0.290, 12.311 ]),
   }
 
 default_ptrack_attrs = {
   'main_mt_halo_id' : 0,
+  'hubble' : 0.70199999999999996,
+  'omega_lambda' : 0.72799999999999998,
+  'omega_matter' : 0.27200000000000002,
   }
 
 ########################################################################
