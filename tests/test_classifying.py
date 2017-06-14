@@ -168,26 +168,25 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   #########################################################################
 
-  # TODO
-  #def test_identify_ejection( self ):
+  def test_identify_ejection( self ):
 
-  #  expected = np.array([
-  #    [ 0, 0, 0, 0, ], # Merger, except in early snapshots
-  #    [ 0, 0, 0, 0, ], # Always part of main galaxy
-  #    [ 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
-  #    ]).astype( bool )
+    expected = np.array([
+      [ 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
 
-  #  # Get the prerequisites
-  #  self.classifier.gal_event_id= np.array([
-  #    [ 1, 0, 0, 0, ], # Merger, except in early snapshots
-  #    [ 0, 0, 0, 0, ], # Always part of main galaxy
-  #    [ -1, 1, 0, 0, ], # CGM -> main galaxy -> CGM
-  #    ])
+    # Get the prerequisites
+    self.classifier.gal_event_id= np.array([
+      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ -1, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+      ])
 
-  #  # Run the function
-  #  actual = self.classifier.identify_ejection()
+    # Run the function
+    actual = self.classifier.identify_ejection()
 
-  #  npt.assert_allclose( expected, actual )
+    npt.assert_allclose( expected, actual )
 
   #########################################################################
 

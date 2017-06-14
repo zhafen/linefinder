@@ -119,7 +119,7 @@ class Classifier( object ):
     #v = f['v'][:,0:n_snap,:] - skidgal['v_CM'][0:n_snap,:]  +  hubble_factor[:,np.newaxis] * r * UnitLength_in_cm  / UnitVelocity_in_cm_per_s  
 
     ## --- radial velocity wrt galaxy center (km/s)
-    #Vr = (v*r).sum(axis=2) / R 
+    #v_r = (v*r).sum(axis=2) / R 
 
     ## --- list of snapshots for indexing
     #snaplist = skidgal['snapnum'][0:n_snap] 
@@ -253,16 +253,28 @@ class Classifier( object ):
         5. The particle must be outside any other galaxy.
     '''
 
-    self.is_ejected = ( 
+    # Get the radial velocity out.
+    v_r = self.get_radial_velocity()
+
+    # Get the circular velocity out and tile it for comparison
+    v_c = self.get_circular_velocity()
+    v_c_tiled = np.tile( v_c, ( self.n_particles, 1 ) )
+
+    # The condition for being outside any galaxy
+    is_outside_any_gal = ( self.ptrack['gal_id'] < 0 )
+
+    is_ejected = ( 
       ( self.gal_event_id == -1 )  & # Condition 1
-      ( Vr[:,0:n_snap-1] > wind_vel_min_vc_frac*skidgal['VcMax'][0:n_snap-1] )  & # Condition 2
-      ( Vr[:,0:n_snap-1] > wind_vel_min )  & # Condition 3
-      ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )  & # Condition 4
-      ( IsOutsideAnyGal[:,0:n_snap-1] ) # Condition 5
+      ( v_r[:,0:n_snap-1] > self.data_p['wind_vel_min_vc_frac']*v_c_tiled[0:n_snap-1] )  & # Condition 2
+      ( v_r[:,0:n_snap-1] > self.data_p['wind_vel_min'] )  & # Condition 3
+      ( self.ptrack['Ptype'][:,0:n_snap-1] == 0 )  & # Condition 4
+      ( is_outside_any_gal[:,0:n_snap-1] ) # Condition 5
       )
 
     # Correct for "boundary conditions": neglect events at earliest snapshots
-    self.is_ejected[:,-self.data_p['neg']:] = 0
+    is_ejected[:,-self.data_p['neg']:] = False
+
+    return is_ejected
 
   ########################################################################
 
@@ -881,7 +893,7 @@ def delete_me_when_done():
   outf.create_dataset('dt', data=dt[0,:])
 
   outf.create_dataset('R', data=R)
-  outf.create_dataset('Vr', data=Vr)
+  outf.create_dataset('v_r', data=v_r)
 
   outf.create_dataset('is_in_main_gal', data=is_in_main_gal)
   outf.create_dataset('IsInGalRe', data=IsInGalRe)
