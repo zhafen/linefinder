@@ -348,7 +348,9 @@ class Classifier( object ):
 
     #IsJustbefore_first_acc = np.roll( IsFirstAcc, 1, axis=1 );   IsJustbefore_first_acc[:,0] = 0
 
-    before_first_acc = ( cum_num_acc == 0 )  &  ( self.is_in_main_gal[:,0:n_snap-1] == 0 )
+    before_first_acc = ( cum_num_acc == 0 )  &  ( self.is_in_main_gal[:,0:self.n_snap-1] == 0 )
+
+    return before_first_acc
 
   ########################################################################
   # Main Classification Methods
