@@ -237,11 +237,11 @@ class Classifier( object ):
   # Auxilliary Classification Methods
   ########################################################################
 
-  def identify_is_in_main_gal( self ):
-    '''Identify what particles are in a main galaxy. They must be in the main galaxy *and* not inside any other galaxy at that redshift, even a subhalo galaxy.
+  def identify_is_in_other_gal( self ):
+    '''Identify what particles are in a galaxy besides the main galaxy.
 
     Returns:
-      is_in_main_gal ( [n_particles, n_snap-1] np.array of bools) : True if in the main galaxy (and not any other galaxy) at that redshift.
+      is_in_main_gal ( [n_particles, n_snap-1] np.array of bools) : True if in a galaxy other than the main galaxy at that redshift.
     '''
 
     # Get the ID of the main halo for a given snapshot (remember that the mtree halo ID isn't the same as the ID at a given snapshot).
@@ -253,7 +253,21 @@ class Classifier( object ):
     # This step is necessary, and the inverse of it is not redundant, because it removes anything that's in the main halo *and* that's the least massive galaxy it's in.
     is_not_in_main_gal = ( self.ptrack['gal_id'] != main_halo_id_tiled )
     is_in_gal = ( self.ptrack['gal_id'] >= 0 )
-    is_not_in_other_gal = np.invert( is_in_gal & is_not_in_main_gal )
+
+    is_in_other_gal =  ( is_in_gal & is_not_in_main_gal )
+
+    return is_in_other_gal
+
+  ########################################################################
+
+  def identify_is_in_main_gal( self ):
+    '''Identify what particles are in a main galaxy. They must be in the main galaxy *and* not inside any other galaxy at that redshift, even a subhalo galaxy.
+
+    Returns:
+      is_in_main_gal ( [n_particles, n_snap-1] np.array of bools) : True if in the main galaxy (and not any other galaxy) at that redshift.
+    '''
+
+    is_not_in_other_gal = np.invert( self.is_in_other_gal )
 
     # If we're literally inside the main galaxy
     is_in_main_gal_literal = ( self.ptrack['mt_gal_id'][:,0:self.n_snap] == self.ptrack_attrs['main_mt_halo_id'] )
@@ -344,13 +358,13 @@ class Classifier( object ):
     reverse_cum_num_acc =  self.is_accreted[:,ind_rev].cumsum(axis=1)
     cum_num_acc = reverse_cum_num_acc[:,ind_rev]      
 
-    #IsFirstAcc = self.is_accreted  &  ( cum_num_acc == 1 )
-
-    #IsJustbefore_first_acc = np.roll( IsFirstAcc, 1, axis=1 );   IsJustbefore_first_acc[:,0] = 0
-
     before_first_acc = ( cum_num_acc == 0 )  &  ( self.is_in_main_gal[:,0:self.n_snap-1] == 0 )
 
     return before_first_acc
+
+    # TODO: delete?
+    #IsFirstAcc = self.is_accreted  &  ( cum_num_acc == 1 )
+    #IsJustbefore_first_acc = np.roll( IsFirstAcc, 1, axis=1 );   IsJustbefore_first_acc[:,0] = 0
 
   ########################################################################
   # Main Classification Methods

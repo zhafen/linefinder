@@ -195,7 +195,29 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   ########################################################################
 
+  def test_identify_is_in_other_gal( self ):
+
+    expected = np.array([
+      [ 0, 1, 1, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+
+    # Run the function
+    actual = self.classifier.identify_is_in_other_gal()
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
   def test_identify_is_in_main_gal( self ):
+
+    # Prerequisites
+    self.classifier.is_in_other_gal = np.array([
+      [ 0, 1, 1, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
 
     expected = np.array([
       [ 1, 0, 0, 0, 0, ], # Merger, except in early snapshots
