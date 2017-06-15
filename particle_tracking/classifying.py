@@ -221,19 +221,6 @@ class Classifier( object ):
     return dt
 
   ########################################################################
-
-  def get_time_in_galaxies( self ):
-    '''Get the amount of time in galaxies'''
-    # TODO: Documentation
-
-    #TimeInOtherGal = ( dt * is_in_other_gal[:,0:n_snap-1].astype(int) ).sum(axis=1)
-    time_in_other_gal_before_acc = ( dt * (before_first_acc & is_in_other_gal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
-
-    cum_time_before_acc = ( dt * before_first_acc.astype(int) ).cumsum(axis=1)
-    is_time_interval_before_acc = ( (cum_time_before_acc <= time_interval_fac*time_min) & before_first_acc ).astype(int)
-    time_in_other_gal_before_acc_during_interval = ( dt * (is_time_interval_before_acc & is_in_other_gal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
-
-  ########################################################################
   # Auxilliary Classification Methods
   ########################################################################
 
@@ -344,11 +331,11 @@ class Classifier( object ):
 
   ########################################################################
 
-  def identify_before_first_acc( self ):
+  def identify_is_before_first_acc( self ):
     '''Identify when before a particle's first accretion event.
 
     Returns:
-      before_first_acc ([n_particles, n_snap-1] np.array of bools): If True, then the first accretion event for that particle hasn't happened yet.
+      is_before_first_acc ([n_particles, n_snap-1] np.array of bools): If True, then the first accretion event for that particle hasn't happened yet.
     '''
 
     # Index to revert order of redshift snapshots
@@ -358,13 +345,38 @@ class Classifier( object ):
     reverse_cum_num_acc =  self.is_accreted[:,ind_rev].cumsum(axis=1)
     cum_num_acc = reverse_cum_num_acc[:,ind_rev]      
 
-    before_first_acc = ( cum_num_acc == 0 )  &  ( self.is_in_main_gal[:,0:self.n_snap-1] == 0 )
+    is_before_first_acc = ( cum_num_acc == 0 )  &  ( self.is_in_main_gal[:,0:self.n_snap-1] == 0 )
 
-    return before_first_acc
+    return is_before_first_acc
 
     # TODO: delete?
     #IsFirstAcc = self.is_accreted  &  ( cum_num_acc == 1 )
-    #IsJustbefore_first_acc = np.roll( IsFirstAcc, 1, axis=1 );   IsJustbefore_first_acc[:,0] = 0
+    #IsJust_before_first_acc = np.roll( IsFirstAcc, 1, axis=1 );   IsJust_before_first_acc[:,0] = 0
+
+  ########################################################################
+
+  def get_time_in_other_gal_before_acc( self ):
+    '''Get the amount of time in galaxies besides the main galaxy before being accreted.
+    For a single time in another galaxy, this is the ( age of universe at the last snapshot before the conditions are true ) -
+    ( age of the universe at the last snapshot where the conditions are true ), and generalizes to multiple events in other galaxies.
+
+    Returns:
+      time_in_other_gal_before_acc ([ n_particles, ] np.array): Time in another galaxy before being first accreted onto the main galaxy.
+    '''
+
+    is_in_other_gal_before_first_acc = ( self.is_before_first_acc & self.is_in_other_gal[:,0:self.n_snap-1] )
+    time_in_other_gal_before_acc = ( self.dt * is_in_other_gal_before_first_acc.astype( int )  ).sum(axis=1)
+
+    return time_in_other_gal_before_acc
+
+  ########################################################################
+
+    # TODO: Include?
+    #TimeInOtherGal = ( dt * is_in_other_gal[:,0:n_snap-1].astype(int) ).sum(axis=1)
+    #cum_time_before_acc = ( dt * is_before_first_acc.astype(int) ).cumsum(axis=1)
+    #is_time_interval_before_acc = ( (cum_time_before_acc <= time_interval_fac*time_min) & is_before_first_acc ).astype(int)
+    #time_in_other_gal_before_acc_during_interval = ( dt * (is_time_interval_before_acc & is_in_other_gal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
+
 
   ########################################################################
   # Main Classification Methods
@@ -465,7 +477,7 @@ class Classifier( object ):
 
     IsJustbefore_first_acc = np.roll( IsFirstAcc, 1, axis=1 );   IsJustbefore_first_acc[:,0] = 0
 
-    before_first_acc = ( cum_num_acc == 0 )  &  ( is_in_main_gal[:,0:n_snap-1] == 0 )
+    is_before_first_acc = ( cum_num_acc == 0 )  &  ( is_in_main_gal[:,0:n_snap-1] == 0 )
 
     # --- identify LAST ejection event
     CumNumEject = self.is_ejected[:,ind_rev].cumsum(axis=1)[:,ind_rev]      # cumulative number of EJECTION events
@@ -689,7 +701,7 @@ class Classifier( object ):
     TmaxOutside = np.ma.masked_array( self.ptrack['T'][:,0:n_snap], mask=mask ).max(axis=1).filled(fill_value =-1)
 
     #--- maximum temperature reached BEFORE first accretion onto MAIN galaxy and OUTSIDE of any galaxy  (T values are "invalid" after first accretion)
-    mask = np.logical_not( before_first_acc & IsOutsideAnyGal[:,0:n_snap-1] )
+    mask = np.logical_not( is_before_first_acc & IsOutsideAnyGal[:,0:n_snap-1] )
     TmaxBeforeAcc = np.ma.masked_array( self.ptrack['T'][:,0:n_snap-1], mask=mask ).max(axis=1).filled(fill_value =-1)
     
     #--- COLD vs HOT 

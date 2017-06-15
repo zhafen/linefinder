@@ -78,7 +78,7 @@ default_ptrack = {
       [-12.43,  39.47,  13.  ], ],
     ]),
   'snum' : np.array([ 600, 550, 500, 450, 10 ]),
-  'redshift' : np.array([ 0.        ,  0.06984665,  0.16946003, 0.290, 12.311 ]),
+  'redshift' : np.array([ 0.        ,  0.06984665,  0.16946003, 0.28952773953090749, 12.310917860336163 ]),
   }
 
 default_ptrack_attrs = {
@@ -186,8 +186,6 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
     # Emulate the loading data phase
     self.classifier.ptrack = default_ptrack
     self.classifier.ptrack_attrs = default_ptrack_attrs
-    self.classifier.ahf_reader = ahf_reading.AHFReader( default_data_p['sdir'] )
-    self.classifier.ahf_reader.get_mtree_halos( 'snum' )
 
     # Put in the number of snapshots and particles so that the function works correctly.
     self.classifier.n_snap = default_ptrack['gal_id'].shape[1]
@@ -196,6 +194,9 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
   ########################################################################
 
   def test_identify_is_in_other_gal( self ):
+
+    self.classifier.ahf_reader = ahf_reading.AHFReader( default_data_p['sdir'] )
+    self.classifier.ahf_reader.get_mtree_halos( 'snum' )
 
     expected = np.array([
       [ 0, 1, 1, 0, 0, ], # Merger, except in early snapshots
@@ -278,6 +279,10 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   def test_identify_ejection( self ):
 
+    # Prerequisites
+    self.classifier.ahf_reader = ahf_reading.AHFReader( default_data_p['sdir'] )
+    self.classifier.ahf_reader.get_mtree_halos( 'snum' )
+
     expected = np.array([
       [ 0, 0, 0, 0, ], # Merger, except in early snapshots
       [ 0, 0, 0, 0, ], # Always part of main galaxy
@@ -298,7 +303,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   ########################################################################
 
-  def test_identify_before_first_acc( self ):
+  def test_identify_is_before_first_acc( self ):
 
     # Prerequisites
     self.classifier.is_accreted = np.array([
@@ -318,9 +323,37 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
       [ 0, 0, 1, 1, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
 
-    actual = self.classifier.identify_before_first_acc()
+    actual = self.classifier.identify_is_before_first_acc()
 
     npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_time_in_other_gal_before_acc( self ):
+
+    # Prerequisites
+    self.classifier.dt = self.classifier.get_time_difference()
+    self.classifier.is_before_first_acc = np.array([
+      [ 0, 1, 1, 1, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 1, 1, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.is_in_other_gal = np.array([
+      [ 0, 1, 1, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+
+    # Calculated using NED cosmology calculator
+    expected = np.array([
+      2.404*1e3, # Merger, except in early snapshots
+      0.,    # Always part of main galaxy
+      0.,    # CGM -> main galaxy -> CGM
+      ])
+
+    actual = self.classifier.get_time_in_other_gal_before_acc()
+
+    npt.assert_allclose( expected, actual, rtol=1e-3 )
 
   #########################################################################
 
