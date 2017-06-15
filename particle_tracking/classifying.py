@@ -61,9 +61,6 @@ class Classifier( object ):
 
     self.data_p = data_p
 
-    # Default values
-    code_tools.set_default_attribute( self, 'use_skid', False )
-
   ########################################################################
 
   # TODO
@@ -94,7 +91,7 @@ class Classifier( object ):
       self.ptrack_attrs[ key ] = f.attrs[ key ]
 
     self.n_snap = self.ptrack['redshift'].size
-    self.n_particles = self.ptrack['id'].size
+    self.n_particle = self.ptrack['id'].size
 
     f.close()
 
@@ -146,7 +143,7 @@ class Classifier( object ):
     '''Get the radial velocity of particles, relative to the main galaxy.
 
     Returns:
-      v_r ( [n_particles, n_snap] np.array ) : The radial velocity of each particle at that redshift, relative to the main galaxy.
+      v_r ( [n_particle, n_snap] np.array ) : The radial velocity of each particle at that redshift, relative to the main galaxy.
     '''
 
     # Get the position and velocity of the main galaxy
@@ -214,11 +211,11 @@ class Classifier( object ):
     '''Get the time between snapshots.
 
     Returns:
-      dt ([n_particles, n_snap-1] np.array): Time between snapshots in Myr.
+      dt ([n_particle, n_snap-1] np.array): Time between snapshots in Myr.
     '''
 
     # Replicate redshifts self.ptrack indexing (last one removed)
-    redshift = np.tile( self.ptrack['redshift'][0:self.n_snap], (self.n_particles,1) )   
+    redshift = np.tile( self.ptrack['redshift'][0:self.n_snap], (self.n_particle,1) )   
 
     # Age of the universe in Myr
     time = 1e3 * astro_tools.age_of_universe( redshift, h=self.ptrack_attrs['hubble'], omega_matter=self.ptrack_attrs['omega_matter'] )
@@ -234,13 +231,13 @@ class Classifier( object ):
     '''Identify what particles are in a galaxy besides the main galaxy.
 
     Returns:
-      is_in_main_gal ( [n_particles, n_snap-1] np.array of bools) : True if in a galaxy other than the main galaxy at that redshift.
+      is_in_main_gal ( [n_particle, n_snap-1] np.array of bools) : True if in a galaxy other than the main galaxy at that redshift.
     '''
 
     # Get the ID of the main halo for a given snapshot (remember that the mtree halo ID isn't the same as the ID at a given snapshot).
     main_mtree_halo = self.ahf_reader.mtree_halos[ self.ptrack_attrs['main_mt_halo_id'] ]
     main_halo_id = main_mtree_halo[ 'ID' ][ self.ptrack[ 'snum' ] ]
-    main_halo_id_tiled = np.tile( main_halo_id, ( self.n_particles, 1 ) )
+    main_halo_id_tiled = np.tile( main_halo_id, ( self.n_particle, 1 ) )
 
     # Check if we're inside a galaxy other than the main galaxy
     # This step is necessary, and the inverse of it is not redundant, because it removes anything that's in the main halo *and* that's the least massive galaxy it's in.
@@ -257,7 +254,7 @@ class Classifier( object ):
     '''Identify what particles are in a main galaxy. They must be in the main galaxy *and* not inside any other galaxy at that redshift, even a subhalo galaxy.
 
     Returns:
-      is_in_main_gal ( [n_particles, n_snap-1] np.array of bools) : True if in the main galaxy (and not any other galaxy) at that redshift.
+      is_in_main_gal ( [n_particle, n_snap-1] np.array of bools) : True if in the main galaxy (and not any other galaxy) at that redshift.
     '''
 
     is_not_in_other_gal = np.invert( self.is_in_other_gal )
@@ -276,7 +273,7 @@ class Classifier( object ):
     '''Identify potential accretion/ejection events relative to main galaxy at each redshift
 
     Returns:
-      gal_event_id ( [n_particles, n_snap-1] np.array of ints) : GalEvent = 0 (no change), 1 (entering galaxy), -1 (leaving galaxy) at that redshift
+      gal_event_id ( [n_particle, n_snap-1] np.array of ints) : GalEvent = 0 (no change), 1 (entering galaxy), -1 (leaving galaxy) at that redshift
     '''
 
     # Find when the particles enter and exit the galaxy
@@ -313,7 +310,7 @@ class Classifier( object ):
 
     # Get the circular velocity out and tile it for comparison
     v_c = self.get_circular_velocity()
-    v_c_tiled = np.tile( v_c, ( self.n_particles, 1 ) )
+    v_c_tiled = np.tile( v_c, ( self.n_particle, 1 ) )
 
     # The conditions for being outside any galaxy
     is_outside_before_inside_after = ( self.gal_event_id == -1 ) # Condition 1
@@ -341,7 +338,7 @@ class Classifier( object ):
     '''Identify when before a particle's first accretion event.
 
     Returns:
-      is_before_first_acc ([n_particles, n_snap-1] np.array of bools): If True, then the first accretion event for that particle hasn't happened yet.
+      is_before_first_acc ([n_particle, n_snap-1] np.array of bools): If True, then the first accretion event for that particle hasn't happened yet.
     '''
 
     # Index to revert order of redshift snapshots
@@ -367,7 +364,7 @@ class Classifier( object ):
     ( age of the universe at the last snapshot where the conditions are true ), and generalizes to multiple events in other galaxies.
 
     Returns:
-      time_in_other_gal_before_acc ([ n_particles, ] np.array of floats): Time in another galaxy before being first accreted onto the main galaxy.
+      time_in_other_gal_before_acc ([ n_particle, ] np.array of floats): Time in another galaxy before being first accreted onto the main galaxy.
     '''
 
     is_in_other_gal_before_first_acc = ( self.is_before_first_acc & self.is_in_other_gal[:,0:self.n_snap-1] )
@@ -381,7 +378,7 @@ class Classifier( object ):
     '''Get the amount of time in galaxies besides the main galaxy before being accreted, during an interval before being accreted.
 
     Returns:
-      time_in_other_gal_before_acc_during_interval ([ n_particles, ] np.array of floats): Time in another galaxy before being first accreted onto the main galaxy,
+      time_in_other_gal_before_acc_during_interval ([ n_particle, ] np.array of floats): Time in another galaxy before being first accreted onto the main galaxy,
         within some recent time interval
     '''
 
@@ -477,8 +474,15 @@ class Classifier( object ):
       is_wind ( [n_particle] np.array of bools ) : True for particle i if it has been ejected at least once before snapshot n 
     '''
 
-    is_wind = np.zeros( (n_particles,n_snap), dtype=np.int32 )
-    is_wind[:,0:n_snap-1] = ( CumNumEject >= 1 ).astype(int)         
+    # Index to revert order of redshift snapshots
+    ind_rev = np.arange( self.n_snap-2, -1, -1 )  
+
+    # Cumulative number of ejection events
+    cum_num_eject = self.is_ejected[:,ind_rev].cumsum( axis=1 )[:,ind_rev]      
+
+    # Set up and build is_wind
+    is_wind = np.zeros( ( self.n_particle, self.n_snap ), dtype=np.int32 )
+    is_wind[:,0:self.n_snap-1] = ( cum_num_eject >= 1 ).astype( bool )
 
     return is_wind
 
@@ -507,10 +511,10 @@ class Classifier( object ):
     is_before_first_acc = ( cum_num_acc == 0 )  &  ( is_in_main_gal[:,0:n_snap-1] == 0 )
 
     # --- identify LAST ejection event
-    CumNumEject = self.is_ejected[:,ind_rev].cumsum(axis=1)[:,ind_rev]      # cumulative number of EJECTION events
+    cum_num_eject = self.is_ejected[:,ind_rev].cumsum(axis=1)[:,ind_rev]      # cumulative number of EJECTION events
 
-    CumNumEject_rev = self.is_ejected.cumsum(axis=1)                           # cumulative number of EJECTION events (in reverse order!)
-    IsLastEject = self.is_ejected  &  ( CumNumEject_rev == 1 )
+    cum_num_eject_rev = self.is_ejected.cumsum(axis=1)                           # cumulative number of EJECTION events (in reverse order!)
+    IsLastEject = self.is_ejected  &  ( cum_num_eject_rev == 1 )
 
     # --- find star/gas particles inside the galaxy
     IsStarInside = is_in_main_gal  &  IsInGalRe  &  ( self.ptrack['Ptype'][:,0:n_snap]==4 )
@@ -520,7 +524,7 @@ class Classifier( object ):
     IsStarFormed = IsStarInside[:,0:n_snap-1]  &  ( self.ptrack['Ptype'][:,1:n_snap] == 0 )
 
     # --- identify GAS ACCRETION events
-    IsGasAccreted = np.zeros( (n_particles,n_snap), dtype=np.int32 )
+    IsGasAccreted = np.zeros( (n_particle,n_snap), dtype=np.int32 )
     IsGasFirstAcc = IsGasAccreted.copy()
 
     IsGasAccreted[:,0:n_snap-1] = self.is_accreted  &  ( self.ptrack['Ptype'][:,0:n_snap-1]==0 )   # initialize with all gas accretion events including "false" events 
@@ -648,7 +652,7 @@ class Classifier( object ):
     all_RedshiftAccIni = np.array([])
     all_SnapnumAcc = np.array([])
 
-    for i in range(n_particles):
+    for i in range(n_particle):
 
        if (n_eject[i] < 1) or (Nacc[i] < 1):
          continue

@@ -191,7 +191,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     # Put in the number of snapshots and particles so that the function works correctly.
     self.classifier.n_snap = default_ptrack['gal_id'].shape[1]
-    self.classifier.n_particles = default_ptrack['gal_id'].shape[0]
+    self.classifier.n_particle = default_ptrack['gal_id'].shape[0]
 
   ########################################################################
 
@@ -517,9 +517,27 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   #########################################################################
 
-  #def test_identify_wind( self ):
+  def test_identify_wind( self ):
 
-  #  assert False, "Need to do this test."
+    # Prerequisites
+    self.classifier.is_ejected = np.array([
+      [ 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      [ 1, 0, 1, 0, ], # Another test case
+      ]).astype( bool )
+    self.classifier.n_particle = self.classifier.is_ejected.shape[0]
+
+    expected = np.array([
+      [ 0, 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 1, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      [ 1, 1, 1, 0, 0, ], # Another test case
+      ]).astype( bool )
+
+    actual = self.classifier.identify_wind()
+
+    npt.assert_allclose( expected, actual, )
 
   #########################################################################
 
