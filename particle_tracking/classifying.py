@@ -460,11 +460,11 @@ class Classifier( object ):
     '''Boolean for whether or no particles are from galaxies merging.
 
     Returns:
-      is_wind (np.array) : True for particle i if it has been preprocessed and has
+      is_merger ( [n_particle] np.array of bools ) : True for particle i if it has been preprocessed and has
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
-
-    is_merger = (  is_preprocessed & (time_in_other_gal_before_acc_during_interval >= time_min)  )
+    has_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval >= self.data_p['time_min'] )
+    is_merger = (  self.is_preprocessed & has_spent_minimum_time  )
 
     return is_merger
 
@@ -474,7 +474,7 @@ class Classifier( object ):
     '''Boolean for whether or not particles are from wind.
 
     Returns:
-      is_wind (np.array) : True for particle i if it has been ejected at least once before snapshot n 
+      is_wind ( [n_particle] np.array of bools ) : True for particle i if it has been ejected at least once before snapshot n 
     '''
 
     is_wind = np.zeros( (n_particles,n_snap), dtype=np.int32 )
