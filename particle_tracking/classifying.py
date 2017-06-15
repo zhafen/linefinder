@@ -44,20 +44,6 @@ class Classifier( object ):
             time_min (float): Minimum time (in Myr) a particle must reside in a galaxy to not count as pristine gas.
             time_interval_fac (float): Externally-processed mass is required to spend at least time_min during the
                                        interval time_interval_fac x time_min prior to accretion to qualify as a *merger*.
-            
-          #types (list of ints): The particle data types to include.
-          #snap_ini (int): Starting snapshot
-          #snap_end (int): End snapshot
-          #snap_step (int): How many snapshots to jump over?
-
-      Analysis Parameters:
-        Required:
-          #target_ids (np.array): Array of IDs to target.
-        Optional:
-          #use_skid (bool): Whether or not to use skid, which is how things were originally set up.
-          #target_child_ids (np.array): Array of child ids to target.
-          #host_halo (bool): Whether or not to include halo data for tracked particles during the tracking process.
-          #old_target_id_retrieval_method (bool): Whether or not to get the target ids in the way Daniel originally set up.
     '''
 
     self.data_p = data_p
@@ -76,12 +62,44 @@ class Classifier( object ):
     print "Using AHF data from this directory:\n    {}".format( self.data_p['sdir'] )
     print "Data will be saved here:\n    {}".format( self.data_p['tracking_dir'] )
 
-    # Do the actual work.
+    # Get the data files out
+    self.read_data_files()
+
+    # Do the auxiliary calculations
+    print "Calculating radial velocity, circular velocity, and dt..."
+    self.v_r = self.get_radial_velocity()
+    self.v_c = self.get_circular_velocity()
+    self.dt = self.get_time_difference()
+
+    # Do the first wave of classifications
+    print "Identifying accretion, ejection, etc..."
+    self.is_in_other_gal = self.identify_is_in_other_gal()
+    self.is_in_main_gal = self.identify_is_in_main_gal()
+    self.gal_event_id = self.calc_gal_event_id()
+    self.is_accreted = self.identify_accretion()
+    self.is_ejected = self.identify_ejection()
+
+    # Information on what happens before accretion.
+    print "Figuring out what happens before first accretion..."
+    self.is_before_first_acc = self.identify_is_before_first_acc()
+    self.time_in_other_gal_before_acc = self.get_time_in_other_gal_before_acc()
+    self.time_in_other_gal_before_acc_during_interval = self.get_time_in_other_gal_before_acc_during_interval()
+
+    # Get the primary classifications
+    print "Performing the main classifications..."
+    self.is_pristine = self.identify_pristine()
+    self.is_preprocessed = self.identify_preprocessed()
+    self.is_mass_transfer = self.identify_mass_transfer()
+    self.is_merger = self.identify_merger()
+    self.is_wind = self.identify_wind()
+
+    # Save the results
+    self.save_classifications()
 
     # Print out end information
     time_end = time.time()
     print "########################################################################"
-    print "Done Tracking!"
+    print "Done Classifying!"
     print "########################################################################"
     print "Output file saved as:\n    {}".format( self.classification_filepath )
     print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format( time_end - time_start, (time_end - time_start) / self.n_particle )
@@ -90,6 +108,8 @@ class Classifier( object ):
 
   def read_data_files( self ):
     '''Read the relevant data files, and store the data in a dictionary for easy access later on.'''
+
+    print "Reading data..."
 
     # Load Particle Tracking Data
     ptrack_filename =  'ptrack_' + self.data_p['tag'] + '.hdf5'
@@ -114,9 +134,6 @@ class Classifier( object ):
     # Load the ahf data
     self.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
     self.ahf_reader.get_mtree_halos( 'snum' )
-
-    print 'Done with reading.'
-    sys.stdout.flush()
 
   ########################################################################
 
@@ -338,6 +355,8 @@ class Classifier( object ):
     return is_ejected
 
   ########################################################################
+  # What happens before accretion?
+  ########################################################################
 
   def identify_is_before_first_acc( self ):
     '''Identify when before a particle's first accretion event.
@@ -401,9 +420,6 @@ class Classifier( object ):
     time_in_other_gal_before_acc_during_interval = ( self.dt * is_in_other_gal_in_time_interval_before_acc.astype(int) ).sum(axis=1)
 
     return time_in_other_gal_before_acc_during_interval
-
-    # TODO: Remove?
-    #TimeInOtherGal = ( dt * is_in_other_gal[:,0:n_snap-1].astype(int) ).sum(axis=1)
 
   ########################################################################
   # Main Classification Methods
@@ -487,9 +503,9 @@ class Classifier( object ):
 
     # Set up and build is_wind
     is_wind = np.zeros( ( self.n_particle, self.n_snap ), dtype=np.int32 )
-    is_wind[:,0:self.n_snap-1] = ( cum_num_eject >= 1 ).astype( bool )
+    is_wind[:,0:self.n_snap-1] = ( cum_num_eject >= 1 )
 
-    return is_wind
+    return is_wind.astype( bool )
 
   ########################################################################
   # Old Stuff

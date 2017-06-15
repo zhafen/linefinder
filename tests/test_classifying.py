@@ -612,7 +612,8 @@ class TestFullClassifierPipeline( unittest.TestCase ):
       1,
       1,
       1,
+      1,
       ]).astype( bool )
 
     f = h5py.File( self.savefile, 'r')
-    actual =  f.attrs['is_pristine']
+    actual =  f['is_pristine'][...]
