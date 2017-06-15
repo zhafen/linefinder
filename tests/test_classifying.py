@@ -172,6 +172,9 @@ class TestDerivedFunctions( unittest.TestCase ):
     npt.assert_allclose( expected_0, result[0][0], 1e-3)
     npt.assert_allclose( expected_1, result[1][1], 1e-3)
 
+  ########################################################################
+
+
 ########################################################################
 
 class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
@@ -192,7 +195,29 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   ########################################################################
 
-  def test_identify_if_in_galaxies( self ):
+  def test_identify_is_in_main_gal( self ):
+
+    expected = np.array([
+      [ 1, 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 1, 1, 1, 1, 1, ], # Always part of main galaxy
+      [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+
+    # Run the function
+    actual = self.classifier.identify_is_in_main_gal()
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_calc_gal_event_id( self ):
+
+    # Prerequisite
+    self.classifier.is_in_main_gal = np.array([
+      [ 1, 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 1, 1, 1, 1, 1, ], # Always part of main galaxy
+      [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
 
     expected_gal_event_id = np.array([
       [ 1, 0, 0, 0, ], # Merger, except in early snapshots
@@ -201,7 +226,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
       ])
 
     # Run the function
-    actual = self.classifier.identify_if_in_galaxies()
+    actual = self.classifier.calc_gal_event_id()
 
     npt.assert_allclose( expected_gal_event_id, actual )
 
@@ -246,6 +271,26 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     # Run the function
     actual = self.classifier.identify_ejection()
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_identify_before_first_acc( self ):
+
+    self.classifier.is_accretion = np.array([
+      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+
+    expected = np.array([
+      [ 0, 1, 1, 1, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 1, 1, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+
+    actual = self.classifier.identify_before_first_acc()
 
     npt.assert_allclose( expected, actual )
 
