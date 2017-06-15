@@ -600,10 +600,19 @@ class TestFullClassifierPipeline( unittest.TestCase ):
     
     npt.assert_allclose( self.classifier.is_pristine, f['is_pristine'][...] )
 
-  ########################################################################
-
-  #def test_full_pipeline_not_from_file( self ):
 
   ########################################################################
 
-  #def test_full_pipeline_from_file( self ):
+  def test_full_pipeline( self ):
+    '''Test that we can run the full pipeline from just the files.'''
+
+    self.classifier.classify_particles()
+
+    expected = np.array([
+      1,
+      1,
+      1,
+      ]).astype( bool )
+
+    f = h5py.File( self.savefile, 'r')
+    actual =  f.attrs['is_pristine']

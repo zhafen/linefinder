@@ -11,6 +11,7 @@ import numpy as np
 import os
 import scipy.spatial
 import sys
+import time
 
 import ahf_reading
 import astro_tools
@@ -63,12 +64,27 @@ class Classifier( object ):
 
   ########################################################################
 
-  # TODO
   def classify_particles( self ):
+    '''Run the full classification suite.'''
 
+    # Print out starting information
     time_start = time.time()
+    print "########################################################################"
+    print "Starting Classifying!"
+    print "########################################################################"
+    print "Using tracked particle data from this directory:\n    {}".format( self.data_p['tracking_dir'] )
+    print "Using AHF data from this directory:\n    {}".format( self.data_p['sdir'] )
+    print "Data will be saved here:\n    {}".format( self.data_p['tracking_dir'] )
 
-    pass
+    # Do the actual work.
+
+    # Print out end information
+    time_end = time.time()
+    print "########################################################################"
+    print "Done Tracking!"
+    print "########################################################################"
+    print "Output file saved as:\n    {}".format( self.classification_filepath )
+    print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format( time_end - time_start, (time_end - time_start) / self.n_particle )
 
   ########################################################################
 
@@ -113,8 +129,8 @@ class Classifier( object ):
 
     # Open up the file to save the data in.
     classification_filename =  'classified_' + self.data_p['tag'] + '.hdf5'
-    classification_filepath = os.path.join( self.data_p['tracking_dir'], classification_filename )
-    f = h5py.File( classification_filepath, 'a' )
+    self.classification_filepath = os.path.join( self.data_p['tracking_dir'], classification_filename )
+    f = h5py.File( self.classification_filepath, 'a' )
 
     # Save the data
     for classification in classifications_to_save:
