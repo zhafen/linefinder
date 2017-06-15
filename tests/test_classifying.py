@@ -6,8 +6,10 @@
 @status: Development
 '''
 
+import h5py
 import numpy as np
 import numpy.testing as npt
+import os
 import pdb
 import unittest
 
@@ -541,9 +543,67 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   #########################################################################
 
+########################################################################
 
+class TestFullClassifierPipeline( unittest.TestCase ):
 
+  def setUp( self ):
 
+    self.classifier = classifying.Classifier( default_data_p )
 
+    self.savefile = './tests/test_data/tracking_output/classified_test_classify.hdf5'
 
+    if os.path.isfile( self.savefile ):
+      os.system( 'rm {}'.format( self.savefile ) )
 
+  ########################################################################
+
+  def test_save_classifications( self ):
+
+    # Prerequisites
+    self.classifier.is_pristine = np.array([
+      0,    # Merger, except in early snapshots
+      0,    # Mass Transfer
+      1,    # Always part of main galaxy
+      1,    # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.is_preprocessed = np.array([
+      1,    # Merger, except in early snapshots
+      1,    # Mass Transfer
+      0,    # Always part of main galaxy
+      0,    # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.is_mass_transfer = np.array([
+      0,    # Merger, except in early snapshots
+      1,    # Mass Transfer
+      0,    # Always part of main galaxy
+      0,    # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.is_merger = np.array([
+      1,    # Merger, except in early snapshots
+      0,    # Mass Transfer
+      0,    # Always part of main galaxy
+      0,    # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.is_wind = np.array([
+      [ 0, 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 1, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      [ 1, 1, 1, 0, 0, ], # Another test case
+      ]).astype( bool )
+
+    # The function itself.
+    self.classifier.save_classifications()
+
+    # Try to load the data
+    f = h5py.File( self.savefile, 'r')
+    
+    npt.assert_allclose( self.classifier.is_pristine, f['is_pristine'][...] )
+
+  ########################################################################
+
+  #def test_full_pipeline_not_from_file( self ):
+
+  ########################################################################
+
+  #def test_full_pipeline_from_file( self ):

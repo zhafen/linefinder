@@ -246,19 +246,3 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     for key in compare_keys:
       npt.assert_allclose( P[key], f.attrs[key] )
 
-########################################################################
-
-# TODO
-#class TestReadAHFParticles( unittest.TestCase ):
-#
-#  def setUp( self ):
-#
-#    # The name of the function.
-#    self.fn = tracking.read_ahf_particles
-#
-#  ########################################################################
-#
-#  def test_runs( self ):
-#    '''Test if it even runs.'''
-#
-#    assert False

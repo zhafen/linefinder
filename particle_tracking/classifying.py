@@ -104,36 +104,25 @@ class Classifier( object ):
 
   ########################################################################
 
-  def simple_calculations( self ):
-    '''Perform a number of simple calculations and store the results.
+  def save_classifications( self, classifications_to_save=[ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind' ] ):
+    '''Save the results of running the classifier.
+
+    Args:
+      classifications_to_save (list of str): A list of the attributes you want to save.
     '''
 
-    ## --- coordinates wrt galaxy center (physical kpc)
-    ## TODO AHF
-    #r = self.ptrack['p'][:,0:n_snap,:] - skidgal['p_phi'][0:n_snap,:]
+    # Open up the file to save the data in.
+    classification_filename =  'classified_' + self.data_p['tag'] + '.hdf5'
+    classification_filepath = os.path.join( self.data_p['tracking_dir'], classification_filename )
+    f = h5py.File( classification_filepath, 'a' )
 
-    ## --- radial distance to galaxy center (physical kpc)
-    #R = np.sqrt((r*r).sum(axis=2))                   
+    # Save the data
+    for classification in classifications_to_save:
 
-    ## --- Hubble factor at all redshift
-    #hubble_factor = astro_tools.hubble_z( self.ptrack['redshift'][0:n_snap], h=self.ptrack.attrs['hubble'], \
-    #                                      omega_matter=self.ptrack.attrs['omega_matter'], omega_lambda=self.ptrack.attrs['omega_lambda'] )
+      data = getattr( self, classification )
+      f.create_dataset( classification, data=data )
 
-    ## --- physical velocity wrt galaxy center (km/s)
-    ## WARNING: need to update with v_phi??
-    #v = f['v'][:,0:n_snap,:] - skidgal['v_CM'][0:n_snap,:]  +  hubble_factor[:,np.newaxis] * r * UnitLength_in_cm  / UnitVelocity_in_cm_per_s  
-
-    ## --- radial velocity wrt galaxy center (km/s)
-    #v_r = (v*r).sum(axis=2) / R 
-
-    ## --- list of snapshots for indexing
-    #snaplist = skidgal['snapnum'][0:n_snap] 
-
-    ## --- index to revert order of redshift snapshots
-    #ind_rev = np.arange(n_snap-2,-1,-1)  
-
-    print '\nDone with initial calculations.'
-    sys.stdout.flush()
+    f.close()
 
   ########################################################################
   # Auxilliary Calculations
