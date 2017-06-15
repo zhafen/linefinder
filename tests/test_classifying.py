@@ -26,6 +26,7 @@ default_data_p = {
   'wind_vel_min_vc' : 2.,
   'wind_vel_min' : 15.,
   'time_min' : 100., 
+  'time_interval_fac' : 5.,
   }
 
 default_ptrack = {
@@ -359,32 +360,43 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
   ########################################################################
 
   def test_get_time_in_other_gal_before_acc_during_interval( self ):
-
-    #DEBUG
-    import pdb; pdb.set_trace()
+    '''Our interval is 200 Myr'''
 
     # Prerequisites
+    # For this test we're not going to use the default data
+    self.classifier.data_p['time_interval_fac'] = 1.5
     self.classifier.dt = np.array([
-       [   927.28207315,   1177.85408893,   1226.70924873,  10105.49448605],
-       [   927.28207315,   1177.85408893,   1226.70924873,  10105.49448605],
-       [   927.28207315,   1177.85408893,   1226.70924873,  10105.49448605],
+       [   50.,   50.,  50.,  50.,  50., ],
+       [   50.,   50.,  50.,  50.,  50., ],
+       [   50.,   50.,  50.,  50.,  50., ],
+       [   50.,   50.,  50.,  50.,  50., ],
+       [   50.,   50.,  50.,  50.,  50., ],
+       [   50.,   50.,  50.,  50.,  50., ],
        ])
     self.classifier.is_before_first_acc = np.array([
-      [ 0, 1, 1, 1, ], # Merger, except in early snapshots
-      [ 0, 1, 1, 1, ], # Mass transfer
-      [ 0, 0, 0, 0, ], # Always part of main galaxy
-      [ 0, 0, 1, 1, ], # CGM -> main galaxy -> CGM
+      [ 0, 1, 1, 1, 1, ], # Merger, except in early snapshots
+      [ 0, 1, 1, 1, 1, ], # Another merger
+      [ 0, 1, 1, 1, 1, ], # Mass transfer
+      [ 0, 0, 1, 1, 1, ], # Another test
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 1, 1, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
     self.classifier.is_in_other_gal = np.array([
-      [ 0, 1, 1, 1, 0, ], # Merger, except in early snapshots
-      [ 0, 1, 0, 1, 0, ], # Mass transfer
-      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
-      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      [ 0, 1, 1, 1, 1, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 1, 1, 1, ], # Another merger
+      [ 0, 1, 0, 0, 1, 0, ], # Mass transfer
+      [ 0, 0, 1, 0, 1, 1, ], # Another test
+      [ 0, 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
+    # Correct the number of snapshots, accordingly
+    self.classifier.n_snap = self.classifier.is_in_other_gal.shape[1]
 
-    # TODO
     expected = np.array([
-      2.404*1e3, # Merger, except in early snapshots
+      150., # Merger, except in early snapshots
+      50., # Another merger
+      50.,    # Mass transfer
+      100.,  # Another test
       0.,    # Always part of main galaxy
       0.,    # CGM -> main galaxy -> CGM
       ])

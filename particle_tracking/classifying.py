@@ -28,17 +28,22 @@ class Classifier( object ):
     '''Setup the ID Finder.
 
     Args:
-      data_p (dict): Dictionary containing parameters. Includes..
+      data_p (dict): Dictionary containing parameters for the analysis. Includes..
         Required:
-          sdir (str): Data directory for AHF data.
-          tracking_dir (str): Data directory for tracked particle data.
-          tag (str): Identifying tag. Currently must be put in manually.
-          neg (int): Number of earliest indices for which we neglect accretion/ejection events.
-                      If each indice corresponds to a snapshot, then it's the number of snapshots
-          wind_vel_min (float): The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
-          wind_vel_min_vc (float): The minimum radial velocity (in units of the main galaxy circular velocity) a particle must have to be considered ejection.
-          time_min (float): Minimum time (in Myr) a particle must reside in a galaxy to not count as pristine gas.
-          
+          Data Parameters:
+            sdir (str): Data directory for AHF data.
+            tracking_dir (str): Data directory for tracked particle data.
+            tag (str): Identifying tag. Currently must be put in manually.
+
+          Analysis Parameters:
+            neg (int): Number of earliest indices for which we neglect accretion/ejection events.
+                       If each indice corresponds to a snapshot, then it's the number of snapshots
+            wind_vel_min (float): The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
+            wind_vel_min_vc (float): The minimum radial velocity (in units of the main galaxy circular velocity) a particle must have to be considered ejection.
+            time_min (float): Minimum time (in Myr) a particle must reside in a galaxy to not count as pristine gas.
+            time_interval_fac (float): Externally-processed mass is required to spend at least time_min during the
+                                       interval time_interval_fac x time_min prior to accretion to qualify as a *merger*.
+            
           #types (list of ints): The particle data types to include.
           #snap_ini (int): Starting snapshot
           #snap_end (int): End snapshot
@@ -48,7 +53,7 @@ class Classifier( object ):
         Required:
           #target_ids (np.array): Array of IDs to target.
         Optional:
-          use_skid (bool): Whether or not to use skid, which is how things were originally set up.
+          #use_skid (bool): Whether or not to use skid, which is how things were originally set up.
           #target_child_ids (np.array): Array of child ids to target.
           #host_halo (bool): Whether or not to include halo data for tracked particles during the tracking process.
           #old_target_id_retrieval_method (bool): Whether or not to get the target ids in the way Daniel originally set up.
@@ -381,14 +386,14 @@ class Classifier( object ):
     '''
 
     # Get the total amount of time before being accreted
-    cum_time_before_acc = ( self.dt * is_before_first_acc.astype(int) ).cumsum(axis=1)
+    cum_time_before_acc = ( self.dt * self.is_before_first_acc.astype(int) ).cumsum(axis=1)
 
     # Conditions for counting up time
     time_interval = self.data_p['time_interval_fac'] * self.data_p['time_min']
     is_in_other_gal_in_time_interval_before_acc = (
-      ( cum_time_before_acc <= time_interval ) & # Make sure there's enough time before accretion, in general
+      ( cum_time_before_acc <= time_interval ) & # Count up only the time before first accretion.
       self.is_before_first_acc & # Make sure we haven't accreted yet
-      self.is_in_other_gal[:,0:n_snap-1] # Make sure we're in another galaxy at that time
+      self.is_in_other_gal[:,0:self.n_snap-1] # Make sure we're in another galaxy at that time
       )
 
     time_in_other_gal_before_acc_during_interval = ( self.dt * is_in_other_gal_in_time_interval_before_acc.astype(int) ).sum(axis=1)
