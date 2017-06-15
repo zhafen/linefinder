@@ -25,6 +25,7 @@ default_data_p = {
   'neg' : 1,
   'wind_vel_min_vc' : 2.,
   'wind_vel_min' : 15.,
+  'time_min' : 100., 
   }
 
 default_ptrack = {
@@ -357,9 +358,29 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   #########################################################################
 
-  #def test_identify_pristine( self ):
+  def test_identify_pristine( self ):
 
-  #  assert False, "Need to do this test."
+    # Prerequisites
+    self.classifier.time_in_other_gal_before_acc = np.array([
+      2.404*1e3, # Merger, except in early snapshots
+      0.,    # Always part of main galaxy
+      0.,    # CGM -> main galaxy -> CGM
+      ])
+    self.classifier.is_in_main_gal = np.array([
+      [ 1, 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 1, 1, 1, 1, 1, ], # Always part of main galaxy
+      [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+
+    expected = np.array([
+      0,    # Merger, except in early snapshots
+      1,    # Always part of main galaxy
+      1,    # CGM -> main galaxy -> CGM
+      ])
+
+    actual = self.classifier.identify_pristine()
+
+    npt.assert_allclose( expected, actual, )
 
   #########################################################################
 

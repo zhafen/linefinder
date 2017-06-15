@@ -37,6 +37,7 @@ class Classifier( object ):
                       If each indice corresponds to a snapshot, then it's the number of snapshots
           wind_vel_min (float): The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
           wind_vel_min_vc (float): The minimum radial velocity (in units of the main galaxy circular velocity) a particle must have to be considered ejection.
+          time_min (float): Minimum time (in Myr) a particle must reside in a galaxy to not count as pristine gas.
           
           #types (list of ints): The particle data types to include.
           #snap_ini (int): Starting snapshot
@@ -361,7 +362,7 @@ class Classifier( object ):
     ( age of the universe at the last snapshot where the conditions are true ), and generalizes to multiple events in other galaxies.
 
     Returns:
-      time_in_other_gal_before_acc ([ n_particles, ] np.array): Time in another galaxy before being first accreted onto the main galaxy.
+      time_in_other_gal_before_acc ([ n_particles, ] np.array of floats): Time in another galaxy before being first accreted onto the main galaxy.
     '''
 
     is_in_other_gal_before_first_acc = ( self.is_before_first_acc & self.is_in_other_gal[:,0:self.n_snap-1] )
@@ -386,13 +387,14 @@ class Classifier( object ):
     '''Identify pristine gas, or "non-externally processed" gas.
 
     Returns:
-      is_pristine (np.array) : True for particle i if it has never spent some minimum amount of time in another galaxy before being accreted.
+      is_pristine ( [n_particle] np.array of bools) : True for particle i if it has never spent some minimum amount of time in another galaxy before being accreted.
     '''
 
-    is_pristine = ( time_in_other_gal_before_acc < time_min ).astype(int)
-    #correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
-    for k in range(neg):
-       is_pristine[ is_in_main_gal[:,n_snap-1-k] == 1 ] = 1         
+    is_pristine = ( self.time_in_other_gal_before_acc < self.data_p['time_min'] )
+
+    # Correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
+    for k in range( self.data_p['neg'] ):
+       is_pristine[ self.is_in_main_gal[:,self.n_snap-1-k] ] = True
 
     return is_pristine
 
