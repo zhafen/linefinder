@@ -356,6 +356,43 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     npt.assert_allclose( expected, actual, rtol=1e-3 )
 
+  ########################################################################
+
+  def test_get_time_in_other_gal_before_acc_during_interval( self ):
+
+    #DEBUG
+    import pdb; pdb.set_trace()
+
+    # Prerequisites
+    self.classifier.dt = np.array([
+       [   927.28207315,   1177.85408893,   1226.70924873,  10105.49448605],
+       [   927.28207315,   1177.85408893,   1226.70924873,  10105.49448605],
+       [   927.28207315,   1177.85408893,   1226.70924873,  10105.49448605],
+       ])
+    self.classifier.is_before_first_acc = np.array([
+      [ 0, 1, 1, 1, ], # Merger, except in early snapshots
+      [ 0, 1, 1, 1, ], # Mass transfer
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 1, 1, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.is_in_other_gal = np.array([
+      [ 0, 1, 1, 1, 0, ], # Merger, except in early snapshots
+      [ 0, 1, 0, 1, 0, ], # Mass transfer
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+
+    # TODO
+    expected = np.array([
+      2.404*1e3, # Merger, except in early snapshots
+      0.,    # Always part of main galaxy
+      0.,    # CGM -> main galaxy -> CGM
+      ])
+
+    actual = self.classifier.get_time_in_other_gal_before_acc_during_interval()
+
+    npt.assert_allclose( expected, actual, rtol=1e-3 )
+
   #########################################################################
 
   def test_identify_pristine( self ):

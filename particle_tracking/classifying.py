@@ -372,12 +372,31 @@ class Classifier( object ):
 
   ########################################################################
 
-    # TODO: Include?
-    #TimeInOtherGal = ( dt * is_in_other_gal[:,0:n_snap-1].astype(int) ).sum(axis=1)
-    #cum_time_before_acc = ( dt * is_before_first_acc.astype(int) ).cumsum(axis=1)
-    #is_time_interval_before_acc = ( (cum_time_before_acc <= time_interval_fac*time_min) & is_before_first_acc ).astype(int)
-    #time_in_other_gal_before_acc_during_interval = ( dt * (is_time_interval_before_acc & is_in_other_gal[:,0:n_snap-1]).astype(int) ).sum(axis=1)
+  def get_time_in_other_gal_before_acc_during_interval( self ):
+    '''Get the amount of time in galaxies besides the main galaxy before being accreted, during an interval before being accreted.
 
+    Returns:
+      time_in_other_gal_before_acc_during_interval ([ n_particles, ] np.array of floats): Time in another galaxy before being first accreted onto the main galaxy,
+        within some recent time interval
+    '''
+
+    # Get the total amount of time before being accreted
+    cum_time_before_acc = ( self.dt * is_before_first_acc.astype(int) ).cumsum(axis=1)
+
+    # Conditions for counting up time
+    time_interval = self.data_p['time_interval_fac'] * self.data_p['time_min']
+    is_in_other_gal_in_time_interval_before_acc = (
+      ( cum_time_before_acc <= time_interval ) & # Make sure there's enough time before accretion, in general
+      self.is_before_first_acc & # Make sure we haven't accreted yet
+      self.is_in_other_gal[:,0:n_snap-1] # Make sure we're in another galaxy at that time
+      )
+
+    time_in_other_gal_before_acc_during_interval = ( self.dt * is_in_other_gal_in_time_interval_before_acc.astype(int) ).sum(axis=1)
+
+    return time_in_other_gal_before_acc_during_interval
+
+    # TODO: Remove?
+    #TimeInOtherGal = ( dt * is_in_other_gal[:,0:n_snap-1].astype(int) ).sum(axis=1)
 
   ########################################################################
   # Main Classification Methods
@@ -421,7 +440,7 @@ class Classifier( object ):
     '''Boolean for whether or no particles are from mass transfer
 
     Returns:
-      is_mass_transfer (np.array) : True for particle i if it has been preprocessed but has not
+      is_mass_transfer (np.array) : True for particle i if it has been preprocessed but has *not*
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
 
