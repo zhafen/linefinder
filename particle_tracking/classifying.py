@@ -387,14 +387,14 @@ class Classifier( object ):
     '''Identify pristine gas, or "non-externally processed" gas.
 
     Returns:
-      is_pristine ( [n_particle] np.array of bools) : True for particle i if it has never spent some minimum amount of time in another galaxy before being accreted.
+      is_pristine ( [n_particle] np.array of bools ) : True for particle i if it has never spent some minimum amount of time in another galaxy before being accreted.
     '''
 
     is_pristine = ( self.time_in_other_gal_before_acc < self.data_p['time_min'] )
 
     # Correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
     for k in range( self.data_p['neg'] ):
-       is_pristine[ self.is_in_main_gal[:,self.n_snap-1-k] ] = True
+      is_pristine[ self.is_in_main_gal[:,self.n_snap-1-k] ] = True
 
     return is_pristine
 
@@ -404,13 +404,14 @@ class Classifier( object ):
     '''Identify pre-proceesed gas, or "externally processed" gas.
 
     Returns:
-      is_preprocessed (np.array) : True for particle i if it has at least some minimum amount of time in another galaxy before being accreted.
+      is_preprocessed ( [n_particle] np.array of bools ) : True for particle i if it has spent at least some minimum amount of time in another galaxy before being accreted.
     '''
 
-    is_preprocessed = ( time_in_other_gal_before_acc >= time_min ).astype(int)
-    #correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
-    for k in range(neg):
-       is_preprocessed[ is_in_main_gal[:,n_snap-1-k] == 1 ] = 0
+    is_preprocessed = ( self.time_in_other_gal_before_acc >= self.data_p['time_min'] )
+
+    # Correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
+    for k in range( self.data_p['neg'] ):
+      is_preprocessed[ self.is_in_main_gal[:, self.n_snap-1-k] ] = False
 
     return is_preprocessed
 
