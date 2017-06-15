@@ -459,9 +459,32 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   #########################################################################
 
-  #def test_identify_mass_transfer( self ):
+  def test_identify_mass_transfer( self ):
 
-  #  assert False, "Need to do this test."
+    # Prerequisites
+    self.classifier.is_preprocessed = np.array([
+      1,    # Merger, except in early snapshots
+      1,    # Mass transfer
+      0,    # Always part of main galaxy
+      0,    # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.time_in_other_gal_before_acc_during_interval = np.array([
+      300.,    # Merger, except in early snapshots
+      50.,    # Mass transfer
+      0.,    # Always part of main galaxy
+      0.,    # CGM -> main galaxy -> CGM
+      ])
+
+    expected = np.array([
+      0,    # Merger, except in early snapshots
+      1,    # Mass Transfer
+      0,    # Always part of main galaxy
+      0,    # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+
+    actual = self.classifier.identify_mass_transfer()
+
+    npt.assert_allclose( expected, actual, )
 
   #########################################################################
 

@@ -445,11 +445,11 @@ class Classifier( object ):
     '''Boolean for whether or no particles are from mass transfer
 
     Returns:
-      is_mass_transfer (np.array) : True for particle i if it has been preprocessed but has *not*
+      is_mass_transfer (np.array of bools) : True for particle i if it has been preprocessed but has *not*
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
-
-    is_mass_transfer = (  is_preprocessed & (time_in_other_gal_before_acc_during_interval < time_min) ).astype(int)
+    has_not_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval < self.data_p['time_min'] )
+    is_mass_transfer = (  self.is_preprocessed & has_not_spent_minimum_time )
 
     return is_mass_transfer
 
