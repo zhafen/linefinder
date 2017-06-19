@@ -238,6 +238,20 @@ class AHFReader( object ):
 
   ########################################################################
 
+  def smooth_mtree_halos( self ):
+    '''Make Rvir and Mvir monotonically increasing, to help mitigate artifacts in the AHF-calculated merger tree.'''
+
+    for halo_id in self.mtree_halos.keys():
+
+      # Load the data
+      mtree_halo = self.mtree_halos[ halo_id ]
+
+      # Smooth Rvir and Mvir
+      mtree_halo['Rvir'] = np.maximum.accumulate( mtree_halo['Rvir'][::-1] )[::-1]
+      mtree_halo['Mvir'] = np.maximum.accumulate( mtree_halo['Mvir'][::-1] )[::-1]
+
+  ########################################################################
+
   def get_pos_or_vel( self, pos_or_vel, halo_id, inds, type_of_halo_id='merger_tree' ):
     '''Get the position or velocity of a mt halo (three dimensional).
 

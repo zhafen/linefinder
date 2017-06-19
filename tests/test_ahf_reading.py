@@ -168,3 +168,21 @@ class TestAHFReader( unittest.TestCase ):
     os.system( 'cp {} {}'.format( halo_0_filepath, halo_0_filepath_test ) )
 
     self.ahf_reader.get_mtree_halos( 'snum' )
+
+  ########################################################################
+
+  def test_smooth_mtree_halos( self ):
+    
+    self.ahf_reader.get_mtree_halos( 'snum' )
+
+    self.ahf_reader.smooth_mtree_halos()
+
+    # Test that r_vir worked
+    r_vir_expected_600 = 209.83000000000001
+    r_vir_actual = self.ahf_reader.mtree_halos[0]['Rvir'][600]
+    npt.assert_allclose( r_vir_expected_600, r_vir_actual )
+
+    # Test that m_vir worked
+    m_vir_expected_600 = 753290000000.0
+    m_vir_actual = self.ahf_reader.mtree_halos[0]['Mvir'][600]
+    npt.assert_allclose( m_vir_expected_600, m_vir_actual )
