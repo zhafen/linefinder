@@ -239,7 +239,12 @@ class AHFReader( object ):
   ########################################################################
 
   def smooth_mtree_halos( self ):
-    '''Make Rvir and Mvir monotonically increasing, to help mitigate artifacts in the AHF-calculated merger tree.'''
+    '''Make Rvir and Mvir monotonically increasing, to help mitigate artifacts in the AHF-calculated merger tree.
+
+    Modifies:
+      self.mtree_halos (dict of pd.DataFrames) : Changes self.mtree_halos[halo_id]['Rvir'] and self.mtree_halos[halo_id]['Mvir']
+                                                 to be monotonically increasing.
+    '''
 
     for halo_id in self.mtree_halos.keys():
 
@@ -249,6 +254,26 @@ class AHFReader( object ):
       # Smooth Rvir and Mvir
       mtree_halo['Rvir'] = np.maximum.accumulate( mtree_halo['Rvir'][::-1] )[::-1]
       mtree_halo['Mvir'] = np.maximum.accumulate( mtree_halo['Mvir'][::-1] )[::-1]
+
+  ########################################################################
+
+  def save_smooth_mtree_halos( self, index=None ):
+    '''Load halo files, smooth them, and save as a new file e.g., halo_00000_smooth.dat
+
+    Args:
+      index (str) : What type of index to use. Defaults to None, which raises an exception. You *must* choose an index, to avoid easy mistakes. Options are...
+        'snum' : Indexes by snapshot number, starting at 600 and counting down. Only viable with snapshot steps of 1!!
+        'int' : Index by integer.
+    '''
+    
+    # Load the data
+    self.get_mtree_halos( index=index )
+
+    # Smooth the halos
+    self.smooth_mtree_halos()
+
+    # Save the halos
+    self.save_mtree_halos( 'smooth' )
 
   ########################################################################
 
