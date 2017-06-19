@@ -30,21 +30,6 @@ default_data_p = {
 
 ########################################################################
 
-class SaneEqualityArray(np.ndarray):
-  '''Numpy array subclass that allows you to test if two arrays are equal.'''
-
-  def __eq__(self, other):
-      return (isinstance(other, np.ndarray) and self.shape == other.shape and np.allclose(self, other))
-
-def sane_eq_array(list_in):
-  '''Wrapper for SaneEqualityArray, that takes in a list.'''
-
-  arr = np.array(list_in)
-
-  return arr.view(SaneEqualityArray)
-
-########################################################################
-
 class TestConcatenateParticleData( unittest.TestCase ):
 
   def setUp( self ):
@@ -197,7 +182,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.particle_tracker = tracking.ParticleTracker( default_data_p )
+    self.particle_tracker = tracking.ParticleTracker( **default_data_p )
 
     # The name of the function.
     self.fn = self.particle_tracker.save_particle_tracks

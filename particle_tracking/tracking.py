@@ -23,11 +23,15 @@ import readsnap
 class ParticleTracker( object ):
   '''Searches IDs across snapshots, then saves the results.'''
 
-  def __init__( self, data_p ):
+  def __init__( self, target_child_ids=None, host_halo=False, old_target_id_retrieval_method=False, **kwargs ):
     '''Setup the ID Finder.
 
     Args:
-      data_p (dict): Dictionary containing parameters. Summary below.
+      outdir (str): Output data directory.
+      tag (str): Identifying tag. Currently must be put in manually.
+      target_ids (np.array): Array of IDs to target.
+
+    Keyword Args:
       Input Data Parameters:
         sdir (str): Simulation data directory.
         types (list of ints): The particle data types to include.
@@ -36,22 +40,18 @@ class ParticleTracker( object ):
         snap_step (int): How many snapshots to jump over?
 
       Analysis Parameters:
-        Required:
-          outdir (str): Output data directory.
-          tag (str): Identifying tag. Currently must be put in manually.
-          target_ids (np.array): Array of IDs to target.
-        Optional:
-          target_child_ids (np.array): Array of child ids to target.
-          host_halo (bool): Whether or not to include halo data for tracked particles during the tracking process.
-          old_target_id_retrieval_method (bool): Whether or not to get the target ids in the way Daniel originally set up.
+        target_child_ids (np.array): Array of child ids to target.
+        host_halo (bool): Whether or not to include halo data for tracked particles during the tracking process.
+        old_target_id_retrieval_method (bool): Whether or not to get the target ids in the way Daniel originally set up.
     '''
 
-    self.data_p = data_p
+    # Save the kwargs
+    self.kwargs = kwargs
 
-    # Default values
-    code_tools.set_default_attribute( self, 'target_child_ids', None )
-    code_tools.set_default_attribute( self, 'host_halo', False )
-    code_tools.set_default_attribute( self, 'old_target_id_retrieval_method', False )
+    # Save the arguments that have default values
+    self.target_child_ids = target_child_ids
+    self.host_halo = host_halo
+    self.old_target_id_retrieval_method = old_target_id_retrieval_method
 
   ########################################################################
 
@@ -63,8 +63,8 @@ class ParticleTracker( object ):
     print "########################################################################"
     print "Starting Tracking!"
     print "########################################################################"
-    print "Tracking particle data from this directory:\n    {}".format( self.data_p['sdir'] )
-    print "Data will be saved here:\n    {}".format( self.data_p['outdir'] )
+    print "Tracking particle data from this directory:\n    {}".format( self.kwargs['sdir'] )
+    print "Data will be saved here:\n    {}".format( self.kwargs['outdir'] )
 
     # Get the target ids
     if self.old_target_id_retrieval_method:
@@ -93,14 +93,14 @@ class ParticleTracker( object ):
       ptrack (dict): Structure to hold particle tracks.
                      Structure is... ptrack ['varname'] [particle i, snap j, k component]
     '''
-    self.snaps = np.arange( self.data_p['snap_end'], self.data_p['snap_ini']-1, -self.data_p['snap_step'] )
+    self.snaps = np.arange( self.kwargs['snap_end'], self.kwargs['snap_ini']-1, -self.kwargs['snap_step'] )
     nsnap = self.snaps.size       # number of redshift snapshots that we follow back
 
     # Legacy of something Daniel encountered. Don't know what.
     #myfloat = 'float64' 
     myfloat = 'float32'
 
-    self.ntrack = self.data_p['target_ids'].size
+    self.ntrack = self.kwargs['target_ids'].size
 
     print "Tracking {} particles...".format( self.ntrack )
 
@@ -123,8 +123,8 @@ class ParticleTracker( object ):
       ptrack['SubHaloID'] = np.zeros(self.ntrack,dtype=('int32',(nsnap,)))
 
     if self.target_child_ids is not None:
-      ptrack['id'] = self.data_p['target_ids']
-      ptrack['child_id'] = self.data_p['target_child_ids']
+      ptrack['id'] = self.kwargs['target_ids']
+      ptrack['child_id'] = self.target_child_ids
 
     j = 0
 
@@ -133,7 +133,7 @@ class ParticleTracker( object ):
       time_1 = time.time()
 
       id_finder = IDFinder()
-      dfid, redshift, self.attrs = id_finder.find_ids( self.data_p['sdir'], snum, self.data_p['types'], self.data_p['target_ids'], \
+      dfid, redshift, self.attrs = id_finder.find_ids( self.kwargs['sdir'], snum, self.kwargs['types'], self.kwargs['target_ids'], \
                                            target_child_ids=self.target_child_ids, host_halo=self.host_halo )
 
       ptrack['redshift'][j] = redshift
@@ -168,12 +168,12 @@ class ParticleTracker( object ):
     '''Write tracks to a file.'''
 
     # Make sure the output location exists
-    if not os.path.exists( self.data_p['outdir'] ):
-      os.mkdir( self.data_p['outdir'] )
+    if not os.path.exists( self.kwargs['outdir'] ):
+      os.mkdir( self.kwargs['outdir'] )
 
-    self.outname = 'ptrack_' + self.data_p['tag'] + '.hdf5'
+    self.outname = 'ptrack_' + self.kwargs['tag'] + '.hdf5'
 
-    outpath =  self.data_p['outdir'] + '/' + self.outname 
+    outpath =  self.kwargs['outdir'] + '/' + self.outname 
     if os.path.isfile( outpath ):
       os.remove( outpath )
 
@@ -193,6 +193,8 @@ class ParticleTracker( object ):
     I don't entirely get it, but given that it seems to involve skid,
     we probably don't want to go this direction.
     '''
+
+    raise Exception( "This function is legacy. It most likely doesn't work. If you still want to try, delete this line and run it." )
 
     # The "Central" galaxy is the most massive galaxy in all runs but m13...  
     if sname[0:3] == 'm13':
