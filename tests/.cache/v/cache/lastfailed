@@ -1,1 +1,7 @@
-{}
+{
+  "test_ahf_reading.py::TestAHFReader::test_get_mtree_halo_files": true, 
+  "test_ahf_reading.py::TestAHFReader::test_get_mtree_halo_quantity": true, 
+  "test_ahf_reading.py::TestAHFReader::test_get_pos_or_vel": true, 
+  "test_ahf_reading.py::TestAHFReader::test_mtree_halo_id_matches": true, 
+  "test_ahf_reading.py::TestAHFReader::test_save_and_load_mtree_halo_files": true
+}

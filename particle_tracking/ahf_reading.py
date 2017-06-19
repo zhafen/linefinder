@@ -31,7 +31,7 @@ class AHFReader( object ):
 
   ########################################################################
 
-  def get_mtree_halos( self, index=None ):
+  def get_mtree_halos( self, index=None, tag=None ):
     '''Get halo files (e.g. halo_00000.dat) in a dictionary of pandas DataFrames.
 
     Args:
@@ -45,9 +45,15 @@ class AHFReader( object ):
 
     # Set up the data storage
     self.mtree_halos = {}
+    self.mtree_halo_filepaths = {}
+
+    # Get the filename to search for
+    if tag is not None:
+      ahf_filename = 'halo_*_{}.dat'.format( tag )
+    else:
+      ahf_filename = 'halo_*.dat'
 
     # Get the halo filepaths
-    ahf_filename = 'halo_*.dat'
     ahf_filepath_unexpanded = os.path.join( self.sdir, ahf_filename )
     halo_filepaths = glob.glob( ahf_filepath_unexpanded )
     if len( halo_filepaths ) == 0:
@@ -59,19 +65,23 @@ class AHFReader( object ):
       # Load the data
       mtree_halo = pd.read_csv( halo_filepath, sep='\t', )
 
-      # Delete a column that shows up as a result of formatting
-      del mtree_halo[ 'Unnamed: 93' ]
+      # Extra tweaking to read the default AHF file format
+      if tag is None:
+        # Delete a column that shows up as a result of formatting
+        del mtree_halo[ 'Unnamed: 93' ]
 
-      # Remove the annoying parenthesis at the end of each label.
-      mtree_halo.columns = [ string.split( label, '(' )[0] for label in list( mtree_halo ) ]
+        # Remove the annoying parenthesis at the end of each label.
+        mtree_halo.columns = [ string.split( label, '(' )[0] for label in list( mtree_halo ) ]
 
-      # Remove the pound sign in front of the first column's name
-      mtree_halo = mtree_halo.rename( columns = {'#redshift':'redshift', ' ID':'ID'} )
+        # Remove the pound sign in front of the first column's name
+        mtree_halo = mtree_halo.rename( columns = {'#redshift':'redshift', ' ID':'ID'} )
 
       # Get a good key
-      base_filename = string.split( halo_filepath, '/' )[-1]
-      end_of_filename = base_filename[5:]
-      halo_num = int( string.split( end_of_filename, '.' )[0] )
+      base_filename = os.path.basename( halo_filepath )
+      halo_num_str = base_filename[5:]
+      if tag is not None:
+        halo_num_str = string.split( halo_num_str, '_' )[0]
+      halo_num = int( string.split( halo_num_str, '.' )[0] )
 
       if index == 'snum':
         # Set the index, assuming we have steps of one snapshot
@@ -85,9 +95,31 @@ class AHFReader( object ):
 
       # Store the data
       self.mtree_halos[ halo_num ] = mtree_halo
-
+      self.mtree_halo_filepaths[ halo_num ] = halo_filepath
 
     return self.mtree_halos
+
+  ########################################################################
+
+  def save_mtree_halos( self, tag ):
+    '''Save loaded mergertree halo files in a csv file.
+
+    Args:
+      tag (str) : If the previous file was for example '/path/to/file/halo_00000.dat',
+                  the new file will be '/path/to/file/halo_00000_{}.dat'.format( tag )
+    '''
+
+    for halo_id in self.mtree_halos.keys():
+
+      # Load the data
+      mtree_halo = self.mtree_halos[ halo_id ]
+      halo_filepath = self.mtree_halo_filepaths[ halo_id ]
+
+      # Create the new filename
+      filepath_base, file_ext = os.path.splitext( halo_filepath )
+      save_filepath = '{}_{}{}'.format( filepath_base, tag, file_ext )
+
+      mtree_halo.to_csv( save_filepath, sep='\t' )
 
   ########################################################################
 

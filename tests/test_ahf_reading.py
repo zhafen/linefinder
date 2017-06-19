@@ -6,8 +6,10 @@
 @status: Development
 '''
 
+import glob
 import numpy as np
 import numpy.testing as npt
+import os
 import pdb
 import unittest
 
@@ -22,6 +24,16 @@ class TestAHFReader( unittest.TestCase ):
   def setUp( self ):
 
     self.ahf_reader = ahf_reading.AHFReader( sdir )
+
+  ########################################################################
+
+  def tearDown( self ):
+
+    # Remove extra files that are generated
+    halo_filepaths = glob.glob( './tests/test_data/ahf_test_data/halo_*_test.dat' )
+    for halo_filepath in halo_filepaths:
+      if os.path.isfile( halo_filepath ):
+        os.system( 'rm {}'.format( halo_filepath ) )
 
   ########################################################################
 
@@ -122,3 +134,24 @@ class TestAHFReader( unittest.TestCase ):
     actual = self.ahf_reader.get_pos_or_vel( 'pos', 2, 550, 'ahf_halos' )
     
     npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_save_and_load_mtree_halo_files( self ):
+
+    self.ahf_reader.get_mtree_halos( 'snum' )
+    expected = self.ahf_reader.mtree_halos[10]['ID']
+    expected_detail = self.ahf_reader.mtree_halos[0]['ID'][500]
+
+    # Save
+    save_tag = 'test'
+    self.ahf_reader.save_mtree_halos( save_tag )
+
+    # Load
+    new_ahf_reader = ahf_reading.AHFReader( sdir )
+    new_ahf_reader.get_mtree_halos( 'snum', tag=save_tag )
+    actual = new_ahf_reader.mtree_halos[10]['ID']
+    actual_detail = new_ahf_reader.mtree_halos[0]['ID'][500]
+
+    npt.assert_allclose( expected, actual )
+    npt.assert_allclose( expected_detail, actual_detail )
