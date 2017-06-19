@@ -43,21 +43,35 @@ class AHFReader( object ):
       self.mtree_halos (dict of pd.DataFrames): DataFrames containing the requested data. The key for a given dataframe is that dataframe's Merger Tree Halo ID
     '''
 
-    # Set up the data storage
-    self.mtree_halos = {}
-    self.mtree_halo_filepaths = {}
+    def get_halo_filepaths( unexpanded_filename ):
+      '''Function for getting a list of filepaths'''
+      filepath_unexpanded = os.path.join( self.sdir, unexpanded_filename )
+      halo_filepaths = glob.glob( filepath_unexpanded )
+      return set( halo_filepaths )
 
     # Get the filename to search for
     if tag is not None:
       ahf_filename = 'halo_*_{}.dat'.format( tag )
+      halo_filepaths = get_halo_filepaths( ahf_filename )
+
     else:
       ahf_filename = 'halo_*.dat'
+      halo_filepaths = get_halo_filepaths( ahf_filename )
 
-    # Get the halo filepaths
-    ahf_filepath_unexpanded = os.path.join( self.sdir, ahf_filename )
-    halo_filepaths = glob.glob( ahf_filepath_unexpanded )
+      # Find all files that are modified.
+      ahf_modified_filename = 'halo_*_*.dat'
+      halo_modified_filepaths = get_halo_filepaths( ahf_modified_filename )
+
+      # Remove all the modified filepaths from the search list.
+      halo_filepaths -= halo_modified_filepaths
+
+    # Raise an exception if there are no files to load
     if len( halo_filepaths ) == 0:
       raise Exception( 'No files to load in {}'.format( self.sdir ) )
+
+    # Set up the data storage
+    self.mtree_halos = {}
+    self.mtree_halo_filepaths = {}
 
     # Loop over each file and load it
     for halo_filepath in halo_filepaths:

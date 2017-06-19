@@ -155,3 +155,16 @@ class TestAHFReader( unittest.TestCase ):
 
     npt.assert_allclose( expected, actual )
     npt.assert_allclose( expected_detail, actual_detail )
+
+  ######################################################################
+
+  def test_get_mtree_halo_files_multiple_files( self ):
+    '''Take care of the issue where if halo_00000.dat and halo_00000_test.dat are in the same directory,
+    then the loading function breaks.
+    '''
+
+    halo_0_filepath = './tests/test_data/ahf_test_data/halo_00000.dat'
+    halo_0_filepath_test = './tests/test_data/ahf_test_data/halo_00000_test.dat'
+    os.system( 'cp {} {}'.format( halo_0_filepath, halo_0_filepath_test ) )
+
+    self.ahf_reader.get_mtree_halos( 'snum' )
