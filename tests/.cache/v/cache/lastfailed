@@ -1,7 +1,1 @@
-{
-  "test_classifying.py::TestDerivedFunctions::test_get_circular_velocity": true, 
-  "test_classifying.py::TestDerivedFunctions::test_get_radial_velocity": true, 
-  "test_classifying.py::TestDerivedFunctions::test_get_time_difference": true, 
-  "test_classifying.py::TestFullClassifierPipeline::test_full_pipeline": true, 
-  "test_classifying.py::TestReadPTrack::test_basic": true
-}
+{}

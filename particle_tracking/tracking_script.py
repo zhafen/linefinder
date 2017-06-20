@@ -15,7 +15,7 @@ import tracking
 # Input Parameters
 ########################################################################
 
-data_p = {
+kwargs = {
   'sdir' : '../tests/test_data/test_data_with_new_id_scheme',
   'types' : [0,],
   'snap_ini' : 500,
@@ -32,23 +32,23 @@ data_p = {
 # Input Parameters for the Galaxy Finder
 ########################################################################
 
-# Most (if not all) of the input parameters should be taken directly from the original ptrack data_p
-gal_finder_data_p = {
+# Most (if not all) of the input parameters should be taken directly from the original ptrack kwargs
+gal_finder_kwargs = {
   'sdir' : '../tests/test_data/ahf_test_data',
-  'tracking_dir' : data_p['outdir'],
-  'tag' : data_p['tag'],
+  'tracking_dir' : kwargs['outdir'],
+  'tag' : kwargs['tag'],
 }
 
 ########################################################################
 # Run the Tracking
 ########################################################################
 
-particle_tracker = tracking.ParticleTracker( data_p )
+particle_tracker = tracking.ParticleTracker( **kwargs )
 particle_tracker.save_particle_tracks()
 
 ########################################################################
 # Run the Galaxy Finding
 ########################################################################
 
-particle_track_gal_finder = galaxy_finding.ParticleTrackGalaxyFinder( gal_finder_data_p )
+particle_track_gal_finder = galaxy_finding.ParticleTrackGalaxyFinder( **gal_finder_kwargs )
 particle_track_gal_finder.find_galaxies_for_particle_tracks()

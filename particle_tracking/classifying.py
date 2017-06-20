@@ -108,18 +108,18 @@ class Classifier( object ):
 
     print "Reading data..."
 
+    self.ptrack = {}
+    self.ptrack_attrs = {}
     def load_data_into_ptrack( filename ):
 
       filepath = os.path.join( self.kwargs['tracking_dir'], filename )
       f = h5py.File(filepath, 'r')
 
       # Store the particle track data in a dictionary
-      self.ptrack = {}
       for key in f.keys():
         self.ptrack[ key ] = f[ key ][...]
 
       # Store the ptrack attributes
-      self.ptrack_attrs = {}
       for key in f.attrs.keys():
         self.ptrack_attrs[ key ] = f.attrs[ key ]
 
