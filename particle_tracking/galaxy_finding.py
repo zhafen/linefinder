@@ -21,24 +21,23 @@ import code_tools
 class ParticleTrackGalaxyFinder( object ):
   '''Find the association with galaxies for entire particle tracks.'''
 
-  def __init__( self, data_p ):
+  def __init__( self, galaxy_cut=0.1, ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ], **kwargs ):
     '''Initialize.
 
     Args:
-      data_p (dict): Includes...
-        Required:
-          sdir (str): Directory the AHF data is in.
-          tracking_dir (str): Directory the ptrack data is in.
-          tag (str): Identifying tag for the ptrack data
-        Optional:
-          ids_to_return (list of strs): The types of id you want to get out.
-          galaxy_cut (float): Anything within galaxy_cut*R_vir is counted as being inside the virial radius. Defaults to 0.1.
+      galaxy_cut (float, optional): Anything within galaxy_cut*R_vir is counted as being inside the virial radius.
+      ids_to_return (list of strs, optional): The types of id you want to get out.
+
+    Keyword Args:
+      sdir (str): Directory the AHF data is in.
+      tracking_dir (str): Directory the ptrack data is in.
+      tag (str): Identifying tag for the ptrack data
     '''
 
-    self.data_p = data_p
+    self.kwargs = kwargs
 
-    code_tools.set_default_attribute( self, 'ids_to_return', [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ] )
-    code_tools.set_default_attribute( self, 'galaxy_cut', 0.1 )
+    self.galaxy_cut = galaxy_cut
+    self.ids_to_return = ids_to_return
 
   ########################################################################
 
@@ -55,17 +54,17 @@ class ParticleTrackGalaxyFinder( object ):
       particle_positions = self.ptrack['p'][...][ :, i ]
       
       # Get the data parameters to pass to GalaxyFinder
-      data_p = {
+      kwargs = {
         'redshift' : self.ptrack['redshift'][...][ i ],
         'snum' : self.ptrack['snum'][...][ i ],
         'hubble' : self.ptrack.attrs['hubble'],
-        'sdir' : self.data_p['sdir'],
+        'sdir' : self.kwargs['sdir'],
       }
 
-      print 'Snapshot {:>3} | redshift {:>7.3g}'.format( data_p['snum'], data_p['redshift'], )
+      print 'Snapshot {:>3} | redshift {:>7.3g}'.format( kwargs['snum'], kwargs['redshift'], )
 
       # Find the galaxy for a given snapshot
-      galaxy_finder = GalaxyFinder( particle_positions, data_p, ahf_reader=self.ahf_reader )
+      galaxy_finder = GalaxyFinder( particle_positions, ahf_reader=self.ahf_reader, **kwargs )
       galaxy_and_halo_ids = galaxy_finder.find_ids( ids_to_return=self.ids_to_return, galaxy_cut=self.galaxy_cut )
 
       # Make the arrays to store the data in
@@ -90,16 +89,16 @@ class ParticleTrackGalaxyFinder( object ):
     print "########################################################################"
     print "Starting Adding Galaxy and Halo IDs!"
     print "########################################################################"
-    print "Using AHF data from this directory:\n    {}".format( self.data_p['sdir'] )
-    print "Data will be saved here:\n    {}".format( self.data_p['tracking_dir'] )
+    print "Using AHF data from this directory:\n    {}".format( self.kwargs['sdir'] )
+    print "Data will be saved here:\n    {}".format( self.kwargs['tracking_dir'] )
 
     # Load the particle track data
-    ptrack_filename = 'ptrack_{}.hdf5'.format( self.data_p['tag'] )
-    self.ptrack_filepath = os.path.join( self.data_p['tracking_dir'], ptrack_filename )
+    ptrack_filename = 'ptrack_{}.hdf5'.format( self.kwargs['tag'] )
+    self.ptrack_filepath = os.path.join( self.kwargs['tracking_dir'], ptrack_filename )
     self.ptrack = h5py.File( self.ptrack_filepath, 'a' )
 
     # Load the ahf data
-    self.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
+    self.ahf_reader = ahf_reading.AHFReader( self.kwargs['sdir'] )
 
   ########################################################################
 
@@ -132,27 +131,29 @@ class ParticleTrackGalaxyFinder( object ):
 class GalaxyFinder( object ):
   '''Find the association with galaxies and halos for a given set of particles at a given redshift.'''
 
-  def __init__( self, particle_positions, data_p, ahf_reader=None ):
+  def __init__( self, particle_positions, ahf_reader=None, **kwargs ):
     '''Initialize.
 
     Args:
       particle_positions (np.array): Positions with dimensions (n_particles, 3).
-      data_p (dict): Includes...
-        redshift (float): Redshift the particles are at.
-        snum (int): Snapshot the particles correspond to.
-        hubble (float): Cosmological hubble parameter (little h)
-        sdir (str): Directory the AHF data is in.
-      ahf_reader (ahf_reading object): An instance of an object that reads in the AHF data. If not given initiate one using the sdir in data_p
+      ahf_reader (ahf_reading object, optional): An instance of an object that reads in the AHF data. If not given initiate one using the sdir in kwargs
+
+    Keyword Args:
+      redshift (float): Redshift the particles are at.
+      snum (int): Snapshot the particles correspond to.
+      hubble (float): Cosmological hubble parameter (little h)
+      sdir (str): Directory the AHF data is in.
     '''
 
+    self.kwargs = kwargs
+
     self.particle_positions = particle_positions
-    self.data_p = data_p
 
     # Setup the default ahf_reader
     if ahf_reader is not None:
       self.ahf_reader = ahf_reader
     else:
-      self.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
+      self.ahf_reader = ahf_reading.AHFReader( self.kwargs['sdir'] )
 
     # Derived properties
     self.n_particles = self.particle_positions.shape[0]
@@ -176,7 +177,7 @@ class GalaxyFinder( object ):
     '''
 
     # Load the ahf data
-    self.ahf_reader.get_halos( self.data_p['snum'] )
+    self.ahf_reader.get_halos( self.kwargs['snum'] )
 
     # Dictionary to store the data in.
     galaxy_and_halo_ids = {}
@@ -264,7 +265,7 @@ class GalaxyFinder( object ):
       extremum_fn = np.max
 
       # Get the virial masses. It's okay to leave in comoving, since we're just finding the maximum
-      m_vir = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=self.data_p['snum'], index='snum' )
+      m_vir = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=self.kwargs['snum'], index='snum' )
 
     else:
       raise Exception( "Unrecognized type_of_halo_id" )
@@ -300,14 +301,14 @@ class GalaxyFinder( object ):
 
     # Get the halo positions
     halo_pos_comov = np.array([ self.ahf_reader.ahf_halos['Xc'], self.ahf_reader.ahf_halos['Yc'], self.ahf_reader.ahf_halos['Zc'] ]).transpose()
-    halo_pos = halo_pos_comov/( 1. + self.data_p['redshift'] )/self.data_p['hubble']
+    halo_pos = halo_pos_comov/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
 
     # Get the distances
     # Output is ordered such that dist[:,0] is the distance to the center of halo 0 for each particle
     dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
 
     # Get the radial distance
-    r_vir_pkpc = self.ahf_reader.ahf_halos['Rvir']/( 1. + self.data_p['redshift'] )/self.data_p['hubble']
+    r_vir_pkpc = self.ahf_reader.ahf_halos['Rvir']/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
     radial_cut = radial_cut_fraction*r_vir_pkpc
 
     # Tile the radial cut to allow comparison with dist
@@ -339,8 +340,8 @@ class GalaxyFinder( object ):
       mtree_halo = self.ahf_reader.mtree_halos[ halo_id ]
 
       # Get the halo position
-      halo_pos_comov = np.array([ mtree_halo['Xc'][ self.data_p['snum'] ], mtree_halo['Yc'][ self.data_p['snum'] ], mtree_halo['Zc'][ self.data_p['snum'] ] ])
-      halo_pos = halo_pos_comov/( 1. + self.data_p['redshift'] )/self.data_p['hubble']
+      halo_pos_comov = np.array([ mtree_halo['Xc'][ self.kwargs['snum'] ], mtree_halo['Yc'][ self.kwargs['snum'] ], mtree_halo['Zc'][ self.kwargs['snum'] ] ])
+      halo_pos = halo_pos_comov/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
 
       # Make halo_pos 2D for compatibility with cdist
       halo_pos = halo_pos[np.newaxis]
@@ -349,7 +350,7 @@ class GalaxyFinder( object ):
       dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
 
       # Get the radial distance
-      r_vir_pkpc = mtree_halo['Rvir'][ self.data_p['snum'] ]/( 1. + self.data_p['redshift'] )/self.data_p['hubble']
+      r_vir_pkpc = mtree_halo['Rvir'][ self.kwargs['snum'] ]/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
       radial_cut = radial_cut_fraction*r_vir_pkpc
       
       # Find if our particles are part of this halo

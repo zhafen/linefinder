@@ -20,14 +20,14 @@ from particle_tracking import galaxy_finding
 # Useful global test variables
 ########################################################################
 
-gal_finder_data_p = {
+gal_finder_kwargs = {
   'redshift' : 0.16946003,
   'snum' : 500,
   'hubble' : 0.70199999999999996,
   'sdir' : './tests/test_data/ahf_test_data',
 }
 
-ptrack_gal_finder_data_p = {
+ptrack_gal_finder_kwargs = {
   'sdir' : './tests/test_data/ahf_test_data',
   'tracking_dir' : './tests/test_data/tracking_output',
   'tag' : 'test_gal'
@@ -43,17 +43,17 @@ class TestGalaxyFinder( unittest.TestCase ):
     comoving_halo_coords = np.array([ [ 29414.96458784,  30856.75007114,  32325.90901812],
                                       [ 31926.42103071,  51444.46756529,   1970.1967437 ] ])
 
-    self.redshift = gal_finder_data_p['redshift']
-    self.hubble = gal_finder_data_p['hubble']
+    self.redshift = gal_finder_kwargs['redshift']
+    self.hubble = gal_finder_kwargs['hubble']
     halo_coords = comoving_halo_coords/(1. + self.redshift)/self.hubble
 
-    # Make the necessary data_p
-    self.data_p = gal_finder_data_p
+    # Make the necessary kwargs
+    self.kwargs = gal_finder_kwargs
 
-    self.galaxy_finder = galaxy_finding.GalaxyFinder( halo_coords, self.data_p ) 
+    self.galaxy_finder = galaxy_finding.GalaxyFinder( halo_coords, **self.kwargs ) 
 
     # Get the necessary reader.
-    self.galaxy_finder.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
+    self.galaxy_finder.ahf_reader = ahf_reading.AHFReader( self.kwargs['sdir'] )
     
     # Get the full needed ahf info.
     self.galaxy_finder.ahf_reader.get_halos( 500 )
@@ -209,7 +209,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     }
 
     # Do the actual calculation
-    galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, self.data_p )
+    galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, **self.kwargs )
     actual = galaxy_finder.find_ids()
 
     for key in expected.keys():
@@ -238,14 +238,14 @@ class TestGalaxyFinder( unittest.TestCase ):
     }
 
     # Prepare an ahf_reader to pass along.
-    ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
+    ahf_reader = ahf_reading.AHFReader( self.kwargs['sdir'] )
 
     # Muck it up by making it try to retrieve data
     ahf_reader.get_halos( 600 )
     ahf_reader.get_mtree_halos( 'snum' )
 
     # Do the actual calculation
-    galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, self.data_p, ahf_reader=ahf_reader )
+    galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, ahf_reader=ahf_reader, **self.kwargs )
     actual = galaxy_finder.find_ids()
 
     for key in expected.keys():
@@ -274,7 +274,7 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
   def test_find_galaxies_for_particle_tracks( self ):
 
-    particle_track_gal_finder = galaxy_finding.ParticleTrackGalaxyFinder( ptrack_gal_finder_data_p )
+    particle_track_gal_finder = galaxy_finding.ParticleTrackGalaxyFinder( **ptrack_gal_finder_kwargs )
     particle_track_gal_finder.find_galaxies_for_particle_tracks()
 
     f = h5py.File( self.savefile, 'r' )
@@ -286,7 +286,7 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
        [ 34972.05078125,  39093.890625  ,  39445.94921875],
        [ 35722.984375  ,  38222.14453125,  39245.52734375],
     ])
-    galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, gal_finder_data_p )
+    galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, **gal_finder_kwargs )
     expected = galaxy_finder.find_ids()
 
     for key in expected.keys():
