@@ -558,6 +558,13 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
   ########################################################################
 
+  def tearDown( self ):
+
+    if os.path.isfile( self.savefile ):
+      os.system( 'rm {}'.format( self.savefile ) )
+
+  ########################################################################
+
   def test_save_classifications( self ):
 
     # Prerequisites
