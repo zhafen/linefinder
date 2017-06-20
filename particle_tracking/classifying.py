@@ -15,7 +15,6 @@ import time
 
 import ahf_reading
 import astro_tools
-import code_tools
 import constants
 
 ########################################################################
@@ -25,28 +24,26 @@ class Classifier( object ):
   '''Loads the tracked particle data, and uses that to classify the particles into different categories.
   '''
 
-  def __init__( self, data_p ):
+  def __init__( self, **kwargs ):
     '''Setup the ID Finder.
 
-    Args:
-      data_p (dict): Dictionary containing parameters for the analysis. Includes..
-        Required:
-          Data Parameters:
-            sdir (str): Data directory for AHF data.
-            tracking_dir (str): Data directory for tracked particle data.
-            tag (str): Identifying tag. Currently must be put in manually.
+    Keyword Args:
+      Data Parameters:
+        sdir (str): Data directory for AHF data.
+        tracking_dir (str): Data directory for tracked particle data.
+        tag (str): Identifying tag. Currently must be put in manually.
 
-          Analysis Parameters:
-            neg (int): Number of earliest indices for which we neglect accretion/ejection events.
-                       If each indice corresponds to a snapshot, then it's the number of snapshots
-            wind_vel_min (float): The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
-            wind_vel_min_vc (float): The minimum radial velocity (in units of the main galaxy circular velocity) a particle must have to be considered ejection.
-            time_min (float): Minimum time (in Myr) a particle must reside in a galaxy to not count as pristine gas.
-            time_interval_fac (float): Externally-processed mass is required to spend at least time_min during the
-                                       interval time_interval_fac x time_min prior to accretion to qualify as a *merger*.
+      Analysis Parameters:
+        neg (int): Number of earliest indices for which we neglect accretion/ejection events.
+                   If each indice corresponds to a snapshot, then it's the number of snapshots
+        wind_vel_min (float): The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
+        wind_vel_min_vc (float): The minimum radial velocity (in units of the main galaxy circular velocity) a particle must have to be considered ejection.
+        time_min (float): Minimum time (in Myr) a particle must reside in a galaxy to not count as pristine gas.
+        time_interval_fac (float): Externally-processed mass is required to spend at least time_min during the
+                                   interval time_interval_fac x time_min prior to accretion to qualify as a *merger*.
     '''
 
-    self.data_p = data_p
+    self.kwargs = kwargs
 
   ########################################################################
 
@@ -58,9 +55,9 @@ class Classifier( object ):
     print "########################################################################"
     print "Starting Classifying!"
     print "########################################################################"
-    print "Using tracked particle data from this directory:\n    {}".format( self.data_p['tracking_dir'] )
-    print "Using AHF data from this directory:\n    {}".format( self.data_p['sdir'] )
-    print "Data will be saved here:\n    {}".format( self.data_p['tracking_dir'] )
+    print "Using tracked particle data from this directory:\n    {}".format( self.kwargs['tracking_dir'] )
+    print "Using AHF data from this directory:\n    {}".format( self.kwargs['sdir'] )
+    print "Data will be saved here:\n    {}".format( self.kwargs['tracking_dir'] )
 
     # Get the data files out
     self.read_data_files()
@@ -112,8 +109,8 @@ class Classifier( object ):
     print "Reading data..."
 
     # Load Particle Tracking Data
-    ptrack_filename =  'ptrack_' + self.data_p['tag'] + '.hdf5'
-    ptrack_filepath = os.path.join( self.data_p['tracking_dir'], ptrack_filename )
+    ptrack_filename =  'ptrack_' + self.kwargs['tag'] + '.hdf5'
+    ptrack_filepath = os.path.join( self.kwargs['tracking_dir'], ptrack_filename )
     f = h5py.File(ptrack_filepath, 'r')
 
     # Store the particle track data in a dictionary
@@ -132,7 +129,7 @@ class Classifier( object ):
     f.close()
 
     # Load the ahf data
-    self.ahf_reader = ahf_reading.AHFReader( self.data_p['sdir'] )
+    self.ahf_reader = ahf_reading.AHFReader( self.kwargs['sdir'] )
     self.ahf_reader.get_mtree_halos( 'snum' )
 
   ########################################################################
@@ -145,8 +142,8 @@ class Classifier( object ):
     '''
 
     # Open up the file to save the data in.
-    classification_filename =  'classified_' + self.data_p['tag'] + '.hdf5'
-    self.classification_filepath = os.path.join( self.data_p['tracking_dir'], classification_filename )
+    classification_filename =  'classified_' + self.kwargs['tag'] + '.hdf5'
+    self.classification_filepath = os.path.join( self.kwargs['tracking_dir'], classification_filename )
     f = h5py.File( self.classification_filepath, 'a' )
 
     # Save the data
@@ -311,7 +308,7 @@ class Classifier( object ):
     is_accreted = ( self.gal_event_id == 1 )
 
     # Correct for "boundary conditions": neglect events at earliest snapshots
-    is_accreted[:,-self.data_p['neg']: ] = False
+    is_accreted[:,-self.kwargs['neg']: ] = False
 
     return is_accreted
 
@@ -336,8 +333,8 @@ class Classifier( object ):
 
     # The conditions for being outside any galaxy
     is_outside_before_inside_after = ( self.gal_event_id == -1 ) # Condition 1
-    has_minimum_vr_in_vc = ( v_r[:,0:self.n_snap-1] > self.data_p['wind_vel_min_vc']*v_c_tiled[:,0:self.n_snap-1] ) # Condition 2
-    has_minimum_vr = ( v_r[:,0:self.n_snap-1] > self.data_p['wind_vel_min'] ) # Condition 3
+    has_minimum_vr_in_vc = ( v_r[:,0:self.n_snap-1] > self.kwargs['wind_vel_min_vc']*v_c_tiled[:,0:self.n_snap-1] ) # Condition 2
+    has_minimum_vr = ( v_r[:,0:self.n_snap-1] > self.kwargs['wind_vel_min'] ) # Condition 3
     is_gas = ( self.ptrack['Ptype'][:,0:self.n_snap-1] == 0 ) # Condition 4
     is_outside_any_gal = ( self.ptrack['gal_id'][:,0:self.n_snap-1] < 0 ) # Condition 5
 
@@ -350,7 +347,7 @@ class Classifier( object ):
       )
 
     # Correct for "boundary conditions": neglect events at earliest snapshots
-    is_ejected[:,-self.data_p['neg']:] = False
+    is_ejected[:,-self.kwargs['neg']:] = False
 
     return is_ejected
 
@@ -406,7 +403,7 @@ class Classifier( object ):
     cum_time_before_acc = ( self.dt * self.is_before_first_acc.astype( float ) ).cumsum(axis=1)
 
     # Conditions for counting up time
-    time_interval = self.data_p['time_interval_fac'] * self.data_p['time_min']
+    time_interval = self.kwargs['time_interval_fac'] * self.kwargs['time_min']
     is_in_other_gal_in_time_interval_before_acc = (
       ( cum_time_before_acc <= time_interval ) & # Count up only the time before first accretion.
       self.is_before_first_acc & # Make sure we haven't accreted yet
@@ -428,10 +425,10 @@ class Classifier( object ):
       is_pristine ( [n_particle] np.array of bools ) : True for particle i if it has never spent some minimum amount of time in another galaxy before being accreted.
     '''
 
-    is_pristine = ( self.time_in_other_gal_before_acc < self.data_p['time_min'] )
+    is_pristine = ( self.time_in_other_gal_before_acc < self.kwargs['time_min'] )
 
     # Correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
-    for k in range( self.data_p['neg'] ):
+    for k in range( self.kwargs['neg'] ):
       is_pristine[ self.is_in_main_gal[:,self.n_snap-1-k] ] = True
 
     return is_pristine
@@ -445,10 +442,10 @@ class Classifier( object ):
       is_preprocessed ( [n_particle] np.array of bools ) : True for particle i if it has spent at least some minimum amount of time in another galaxy before being accreted.
     '''
 
-    is_preprocessed = ( self.time_in_other_gal_before_acc >= self.data_p['time_min'] )
+    is_preprocessed = ( self.time_in_other_gal_before_acc >= self.kwargs['time_min'] )
 
     # Correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
-    for k in range( self.data_p['neg'] ):
+    for k in range( self.kwargs['neg'] ):
       is_preprocessed[ self.is_in_main_gal[:, self.n_snap-1-k] ] = False
 
     return is_preprocessed
@@ -462,7 +459,7 @@ class Classifier( object ):
       is_mass_transfer (np.array of bools) : True for particle i if it has been preprocessed but has *not*
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
-    has_not_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval < self.data_p['time_min'] )
+    has_not_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval < self.kwargs['time_min'] )
     is_mass_transfer = (  self.is_preprocessed & has_not_spent_minimum_time )
 
     return is_mass_transfer
@@ -477,7 +474,7 @@ class Classifier( object ):
       is_merger ( [n_particle] np.array of bools ) : True for particle i if it has been preprocessed and has
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
-    has_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval >= self.data_p['time_min'] )
+    has_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval >= self.kwargs['time_min'] )
     is_merger = (  self.is_preprocessed & has_spent_minimum_time  )
 
     return is_merger

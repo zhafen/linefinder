@@ -14,7 +14,6 @@ import pandas as pd
 import sys
 import time
 
-import code_tools
 import readsnap
 
 ########################################################################

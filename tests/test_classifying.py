@@ -20,7 +20,7 @@ from particle_tracking import classifying
 # Global Variables Useful for Testing
 ########################################################################
 
-default_data_p = {
+default_kwargs = {
   'sdir' : './tests/test_data/ahf_test_data',
   'tracking_dir' : './tests/test_data/tracking_output',
   'tag' : 'test_classify',
@@ -100,7 +100,7 @@ class TestReadPTrack( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classifier = classifying.Classifier( default_data_p )
+    self.classifier = classifying.Classifier( **default_kwargs )
 
   ########################################################################
 
@@ -118,7 +118,7 @@ class TestDerivedFunctions( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classifier = classifying.Classifier( default_data_p )
+    self.classifier = classifying.Classifier( **default_kwargs )
 
   ########################################################################
 
@@ -185,7 +185,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classifier = classifying.Classifier( default_data_p )
+    self.classifier = classifying.Classifier( **default_kwargs )
 
     # Emulate the loading data phase
     self.classifier.ptrack = default_ptrack
@@ -199,7 +199,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   def test_identify_is_in_other_gal( self ):
 
-    self.classifier.ahf_reader = ahf_reading.AHFReader( default_data_p['sdir'] )
+    self.classifier.ahf_reader = ahf_reading.AHFReader( default_kwargs['sdir'] )
     self.classifier.ahf_reader.get_mtree_halos( 'snum' )
 
     expected = np.array([
@@ -284,7 +284,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
   def test_identify_ejection( self ):
 
     # Prerequisites
-    self.classifier.ahf_reader = ahf_reading.AHFReader( default_data_p['sdir'] )
+    self.classifier.ahf_reader = ahf_reading.AHFReader( default_kwargs['sdir'] )
     self.classifier.ahf_reader.get_mtree_halos( 'snum' )
 
     expected = np.array([
@@ -366,7 +366,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     # Prerequisites
     # For this test we're not going to use the default data
-    self.classifier.data_p['time_interval_fac'] = 1.5
+    self.classifier.kwargs['time_interval_fac'] = 1.5
     self.classifier.dt = np.array([
        [   50.,   50.,  50.,  50.,  50., ],
        [   50.,   50.,  50.,  50.,  50., ],
@@ -549,7 +549,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classifier = classifying.Classifier( default_data_p )
+    self.classifier = classifying.Classifier( **default_kwargs )
 
     self.savefile = './tests/test_data/tracking_output/classified_test_classify.hdf5'
 
