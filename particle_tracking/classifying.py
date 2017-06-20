@@ -108,25 +108,32 @@ class Classifier( object ):
 
     print "Reading data..."
 
-    # Load Particle Tracking Data
-    ptrack_filename =  'ptrack_' + self.kwargs['tag'] + '.hdf5'
-    ptrack_filepath = os.path.join( self.kwargs['tracking_dir'], ptrack_filename )
-    f = h5py.File(ptrack_filepath, 'r')
+    def load_data_into_ptrack( filename ):
 
-    # Store the particle track data in a dictionary
-    self.ptrack = {}
-    for key in f.keys():
-      self.ptrack[ key ] = f[ key ][...]
+      filepath = os.path.join( self.kwargs['tracking_dir'], filename )
+      f = h5py.File(filepath, 'r')
 
-    # Store the ptrack attributes
-    self.ptrack_attrs = {}
-    for key in f.attrs.keys():
-      self.ptrack_attrs[ key ] = f.attrs[ key ]
+      # Store the particle track data in a dictionary
+      self.ptrack = {}
+      for key in f.keys():
+        self.ptrack[ key ] = f[ key ][...]
 
+      # Store the ptrack attributes
+      self.ptrack_attrs = {}
+      for key in f.attrs.keys():
+        self.ptrack_attrs[ key ] = f.attrs[ key ]
+
+      f.close()
+
+    # Load Particle Tracking and Galaxy Finding Data
+    ptrack_filename =  'ptrack_{}.hdf5'.format( self.kwargs['tag'] )
+    galfind_filename =  'galfind_{}.hdf5'.format( self.kwargs['tag'] )
+    load_data_into_ptrack( ptrack_filename )
+    load_data_into_ptrack( galfind_filename )
+
+    # Set useful state variables
     self.n_snap = self.ptrack['redshift'].size
     self.n_particle = self.ptrack['id'].size
-
-    f.close()
 
     # Load the ahf data
     self.ahf_reader = ahf_reading.AHFReader( self.kwargs['sdir'] )

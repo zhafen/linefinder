@@ -107,15 +107,22 @@ class ParticleTrackGalaxyFinder( object ):
     # Get the number of particles, for use in reporting the time
     n_particles = self.ptrack[ 'rho' ][...].shape[0]
 
+    # Close the old dataset
+    self.ptrack.close()
+
     # Save the data.
+    # Load the particle track data
+    save_filename = 'galfind_{}.hdf5'.format( self.kwargs['tag'] )
+    save_filepath = os.path.join( self.kwargs['tracking_dir'], save_filename )
+    f = h5py.File( save_filepath )
     for key in self.ptrack_gal_ids.keys():
-      self.ptrack.create_dataset( key, data=self.ptrack_gal_ids[key] )
+      f.create_dataset( key, data=self.ptrack_gal_ids[key] )
 
     # Store the main mt halo id
     m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=600, index='snum' )
-    self.ptrack.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
+    f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
 
-    self.ptrack.close()
+    f.close()
 
     time_end = time.time()
     print "########################################################################"

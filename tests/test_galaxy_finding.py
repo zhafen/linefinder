@@ -30,7 +30,7 @@ gal_finder_kwargs = {
 ptrack_gal_finder_kwargs = {
   'sdir' : './tests/test_data/ahf_test_data',
   'tracking_dir' : './tests/test_data/tracking_output',
-  'tag' : 'test_gal'
+  'tag' : 'test'
 }
 
 ########################################################################
@@ -259,10 +259,7 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
   def setUp( self ):
 
     self.originalfile = './tests/test_data/tracking_output/ptrack_test.hdf5'
-    self.savefile = './tests/test_data/tracking_output/ptrack_test_gal.hdf5'
-
-    # Make the base particle tracking file
-    os.system( 'cp {} {}'.format( self.originalfile, self.savefile ) )
+    self.savefile = './tests/test_data/tracking_output/galfind_test.hdf5'
 
   ########################################################################
 
@@ -291,9 +288,6 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
     for key in expected.keys():
       npt.assert_allclose( expected[key], f[key][...][:,-1] )
-
-    # Make sure we still have the original data...
-    assert 'rho' in f.keys()
 
     # Make sure the main MT halo ID is the one we expect.
     assert f.attrs['main_mt_halo_id'] == 0
