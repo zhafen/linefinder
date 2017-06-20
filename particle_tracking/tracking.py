@@ -240,6 +240,7 @@ class IDFinder( object ):
       dfid (pandas.DataFrame): Dataframe for the selected IDs, ordered by target_ids.
           Contains standard particle information, e.g. position, metallicity, etc.
       redshift (float): Redshift of the snapshot.
+      attrs (dict): Dictionary of attributes of the snapshot
     '''
 
     # Store the target ids for easy access.
@@ -251,7 +252,7 @@ class IDFinder( object ):
       self.target_child_ids = target_child_ids
 
     # Make a big list of the relevant particle data, across all the particle data types
-    self.full_snap_data = self.concatenate_particle_data()
+    self.concatenate_particle_data()
 
     # Find target_ids 
     self.dfid = self.select_ids()
@@ -267,8 +268,8 @@ class IDFinder( object ):
   def concatenate_particle_data(self, verbose=False):
     '''Get all the particle data for the snapshot in one big array. (Daniel must use this format somehow...)
 
-    Returns:
-      full_snap_data (dict): A dictionary of the concatenated particle data.
+    Modifies:
+      self.full_snap_data (dict): A dictionary of the concatenated particle data.
     '''
 
     if verbose:
@@ -357,7 +358,7 @@ class IDFinder( object ):
     for key in attrs_keys:
       self.attrs[key] = P[key]
 
-    return full_snap_data
+    self.full_snap_data = full_snap_data
 
   ########################################################################
 

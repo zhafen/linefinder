@@ -39,7 +39,7 @@ class AHFReader( object ):
         'snum' : Indexes by snapshot number, starting at 600 and counting down. Only viable with snapshot steps of 1!!
         'int' : Index by integer.
 
-    Returns:
+    Modifies:
       self.mtree_halos (dict of pd.DataFrames): DataFrames containing the requested data. The key for a given dataframe is that dataframe's Merger Tree Halo ID
     '''
 
@@ -111,8 +111,6 @@ class AHFReader( object ):
       self.mtree_halos[ halo_num ] = mtree_halo
       self.mtree_halo_filepaths[ halo_num ] = halo_filepath
 
-    return self.mtree_halos
-
   ########################################################################
 
   def save_mtree_halos( self, tag ):
@@ -143,7 +141,7 @@ class AHFReader( object ):
     Args:
       snum (int): Snapshot number to load.
 
-    Returns:
+    Modifies:
       self.ahf_halos (pd.DataFrame): Dataframe containing the requested data.
     '''
 
@@ -160,8 +158,6 @@ class AHFReader( object ):
     # Rename the index to a more suitable name, without the '#' and the (1)
     self.ahf_halos.index.names = ['ID']
 
-    return self.ahf_halos
-
   ########################################################################
 
   def get_mtree_idx( self, snum ):
@@ -170,7 +166,7 @@ class AHFReader( object ):
     Args:
       snum (int): Snapshot number to load.
 
-    Returns:
+    Modifies:
       self.ahf_mtree_idx (pd.DataFrame): Dataframe containing the requested data.
     '''
 
@@ -181,8 +177,6 @@ class AHFReader( object ):
     # Load the data
     ahf_mtree_idx_path = self.get_filepath( snum, 'AHF_mtree_idx' )
     self.ahf_mtree_idx = pd.read_csv( ahf_mtree_idx_path, delim_whitespace=True, names=['HaloID(1)', 'HaloID(2)'], skiprows=1  )
-
-    return self.ahf_mtree_idx
 
   ########################################################################
 

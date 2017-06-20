@@ -51,7 +51,8 @@ class TestConcatenateParticleData( unittest.TestCase ):
     self.id_finder.target_ids = np.array([ 36091289, 36091289, 3211791, 10952235 ])
     self.id_finder.target_child_ids = np.array([ 893109954, 1945060136, 0, 0 ])
 
-    actual = self.id_finder.concatenate_particle_data()
+    self.id_finder.concatenate_particle_data()
+    actual = self.id_finder.full_snap_data
 
     expected = {
       'id' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235]),

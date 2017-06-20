@@ -1,1 +1,3 @@
-{}
+{
+  "tests/test_tracking.py::TestConcatenateParticleData::test_basic": true
+}
