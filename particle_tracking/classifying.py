@@ -137,7 +137,7 @@ class Classifier( object ):
 
     # Load the ahf data
     self.ahf_reader = galaxy_diver.read_ahf.AHFReader( self.kwargs['sdir'] )
-    self.ahf_reader.get_mtree_halos( 'snum' )
+    self.ahf_reader.get_mtree_halos( 'snum', 'smooth' )
 
   ########################################################################
 

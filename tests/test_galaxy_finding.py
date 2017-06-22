@@ -242,7 +242,7 @@ class TestGalaxyFinder( unittest.TestCase ):
 
     # Muck it up by making it try to retrieve data
     ahf_reader.get_halos( 600 )
-    ahf_reader.get_mtree_halos( 'snum' )
+    ahf_reader.get_mtree_halos( 'snum', tag='smooth' )
 
     # Do the actual calculation
     galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, ahf_reader=ahf_reader, **self.kwargs )

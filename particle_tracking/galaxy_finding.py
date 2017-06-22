@@ -119,7 +119,7 @@ class ParticleTrackGalaxyFinder( object ):
       f.create_dataset( key, data=self.ptrack_gal_ids[key] )
 
     # Store the main mt halo id
-    m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=600, index='snum' )
+    m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=600, index='snum', tag='smooth' )
     f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
 
     f.close()
@@ -271,7 +271,7 @@ class GalaxyFinder( object ):
       extremum_fn = np.max
 
       # Get the virial masses. It's okay to leave in comoving, since we're just finding the maximum
-      m_vir = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=self.kwargs['snum'], index='snum' )
+      m_vir = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=self.kwargs['snum'], index='snum', tag='smooth' )
 
     else:
       raise Exception( "Unrecognized type_of_halo_id" )
@@ -339,7 +339,7 @@ class GalaxyFinder( object ):
     '''
 
     # Load up the merger tree data
-    self.ahf_reader.get_mtree_halos( 'snum' )
+    self.ahf_reader.get_mtree_halos( 'snum', 'smooth' )
 
     part_of_halo = []
     for halo_id in self.ahf_reader.mtree_halos.keys():
