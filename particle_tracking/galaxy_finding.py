@@ -12,7 +12,7 @@ import os
 import scipy.spatial
 import time
 
-import ahf_reading
+import galaxy_diver.read_ahf
 
 ########################################################################
 ########################################################################
@@ -97,7 +97,7 @@ class ParticleTrackGalaxyFinder( object ):
     self.ptrack = h5py.File( self.ptrack_filepath, 'a' )
 
     # Load the ahf data
-    self.ahf_reader = ahf_reading.AHFReader( self.kwargs['sdir'] )
+    self.ahf_reader = galaxy_diver.read_ahf.AHFReader( self.kwargs['sdir'] )
 
   ########################################################################
 
@@ -142,7 +142,7 @@ class GalaxyFinder( object ):
 
     Args:
       particle_positions (np.array): Positions with dimensions (n_particles, 3).
-      ahf_reader (ahf_reading object, optional): An instance of an object that reads in the AHF data. If not given initiate one using the sdir in kwargs
+      ahf_reader (galaxy_diver.read_ahf object, optional): An instance of an object that reads in the AHF data. If not given initiate one using the sdir in kwargs
 
     Keyword Args:
       redshift (float): Redshift the particles are at.
@@ -159,7 +159,7 @@ class GalaxyFinder( object ):
     if ahf_reader is not None:
       self.ahf_reader = ahf_reader
     else:
-      self.ahf_reader = ahf_reading.AHFReader( self.kwargs['sdir'] )
+      self.ahf_reader = galaxy_diver.read_ahf.AHFReader( self.kwargs['sdir'] )
 
     # Derived properties
     self.n_particles = self.particle_positions.shape[0]

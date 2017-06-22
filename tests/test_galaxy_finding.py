@@ -13,7 +13,7 @@ import os
 import pdb
 import unittest
 
-from particle_tracking import ahf_reading
+from galaxy_diver import read_ahf
 from particle_tracking import galaxy_finding
 
 ########################################################################
@@ -53,7 +53,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     self.galaxy_finder = galaxy_finding.GalaxyFinder( halo_coords, **self.kwargs ) 
 
     # Get the necessary reader.
-    self.galaxy_finder.ahf_reader = ahf_reading.AHFReader( self.kwargs['sdir'] )
+    self.galaxy_finder.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
     
     # Get the full needed ahf info.
     self.galaxy_finder.ahf_reader.get_halos( 500 )
@@ -238,7 +238,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     }
 
     # Prepare an ahf_reader to pass along.
-    ahf_reader = ahf_reading.AHFReader( self.kwargs['sdir'] )
+    ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
 
     # Muck it up by making it try to retrieve data
     ahf_reader.get_halos( 600 )

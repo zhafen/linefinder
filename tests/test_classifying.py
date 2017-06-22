@@ -13,7 +13,7 @@ import os
 import pdb
 import unittest
 
-from particle_tracking import ahf_reading
+from galaxy_diver import read_ahf
 from particle_tracking import classifying
 
 ########################################################################
@@ -199,7 +199,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   def test_identify_is_in_other_gal( self ):
 
-    self.classifier.ahf_reader = ahf_reading.AHFReader( default_kwargs['sdir'] )
+    self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['sdir'] )
     self.classifier.ahf_reader.get_mtree_halos( 'snum' )
 
     expected = np.array([
@@ -284,7 +284,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
   def test_identify_ejection( self ):
 
     # Prerequisites
-    self.classifier.ahf_reader = ahf_reading.AHFReader( default_kwargs['sdir'] )
+    self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['sdir'] )
     self.classifier.ahf_reader.get_mtree_halos( 'snum' )
 
     expected = np.array([

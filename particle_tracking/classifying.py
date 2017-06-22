@@ -13,7 +13,7 @@ import scipy.spatial
 import sys
 import time
 
-import ahf_reading
+import galaxy_diver.read_ahf
 import astro_tools
 import constants
 
@@ -136,7 +136,7 @@ class Classifier( object ):
     self.n_particle = self.ptrack['id'].size
 
     # Load the ahf data
-    self.ahf_reader = ahf_reading.AHFReader( self.kwargs['sdir'] )
+    self.ahf_reader = galaxy_diver.read_ahf.AHFReader( self.kwargs['sdir'] )
     self.ahf_reader.get_mtree_halos( 'snum' )
 
   ########################################################################
