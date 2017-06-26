@@ -14,7 +14,7 @@ import pdb
 import unittest
 
 from galaxy_diver import read_ahf
-from particle_tracking import classifying
+from particle_tracking import classify
 
 ########################################################################
 # Global Variables Useful for Testing
@@ -100,7 +100,7 @@ class TestReadPTrack( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classifier = classifying.Classifier( **default_kwargs )
+    self.classifier = classify.Classifier( **default_kwargs )
 
   ########################################################################
 
@@ -118,7 +118,7 @@ class TestDerivedFunctions( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classifier = classifying.Classifier( **default_kwargs )
+    self.classifier = classify.Classifier( **default_kwargs )
 
   ########################################################################
 
@@ -185,7 +185,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classifier = classifying.Classifier( **default_kwargs )
+    self.classifier = classify.Classifier( **default_kwargs )
 
     # Emulate the loading data phase
     self.classifier.ptrack = default_ptrack
@@ -549,7 +549,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classifier = classifying.Classifier( **default_kwargs )
+    self.classifier = classify.Classifier( **default_kwargs )
 
     self.savefile = './tests/test_data/tracking_output/classified_test_classify.hdf5'
 

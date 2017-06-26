@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Testing for tracking.py
+'''Testing for track.py
 
 @author: Zach Hafen
 @contact: zachary.h.hafen@gmail.com
@@ -12,7 +12,7 @@ import numpy.testing as npt
 import pdb
 import unittest
 
-from particle_tracking import tracking
+from particle_tracking import track
 from particle_tracking import readsnap
 
 default_data_p = {
@@ -34,7 +34,7 @@ class TestConcatenateParticleData( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.id_finder = tracking.IDFinder()
+    self.id_finder = track.IDFinder()
 
     # The name of the function.
     self.fn = self.id_finder.concatenate_particle_data
@@ -68,7 +68,7 @@ class TestSelectIDs(unittest.TestCase):
 
   def setUp(self):
 
-    self.id_finder = tracking.IDFinder()
+    self.id_finder = track.IDFinder()
 
     # The name of the function.
     self.fn = self.id_finder.select_ids
@@ -141,7 +141,7 @@ class TestFindIds( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.id_finder = tracking.IDFinder()
+    self.id_finder = track.IDFinder()
 
     # The name of the function.
     self.fn = self.id_finder.find_ids
@@ -183,7 +183,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.particle_tracker = tracking.ParticleTracker( **default_data_p )
+    self.particle_tracker = track.ParticleTracker( **default_data_p )
 
     # The name of the function.
     self.fn = self.particle_tracker.save_particle_tracks

@@ -14,7 +14,7 @@ import pdb
 import unittest
 
 from galaxy_diver import read_ahf
-from particle_tracking import galaxy_finding
+from particle_tracking import galaxy_find
 
 ########################################################################
 # Useful global test variables
@@ -50,7 +50,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     # Make the necessary kwargs
     self.kwargs = gal_finder_kwargs
 
-    self.galaxy_finder = galaxy_finding.GalaxyFinder( halo_coords, **self.kwargs ) 
+    self.galaxy_finder = galaxy_find.GalaxyFinder( halo_coords, **self.kwargs ) 
 
     # Get the necessary reader.
     self.galaxy_finder.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
@@ -209,7 +209,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     }
 
     # Do the actual calculation
-    galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, **self.kwargs )
+    galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **self.kwargs )
     actual = galaxy_finder.find_ids()
 
     for key in expected.keys():
@@ -245,7 +245,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     ahf_reader.get_mtree_halos( 'snum', tag='smooth' )
 
     # Do the actual calculation
-    galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, ahf_reader=ahf_reader, **self.kwargs )
+    galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, ahf_reader=ahf_reader, **self.kwargs )
     actual = galaxy_finder.find_ids()
 
     for key in expected.keys():
@@ -271,7 +271,7 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
   def test_find_galaxies_for_particle_tracks( self ):
 
-    particle_track_gal_finder = galaxy_finding.ParticleTrackGalaxyFinder( **ptrack_gal_finder_kwargs )
+    particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder( **ptrack_gal_finder_kwargs )
     particle_track_gal_finder.find_galaxies_for_particle_tracks()
 
     f = h5py.File( self.savefile, 'r' )
@@ -283,7 +283,7 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
        [ 34972.05078125,  39093.890625  ,  39445.94921875],
        [ 35722.984375  ,  38222.14453125,  39245.52734375],
     ])
-    galaxy_finder = galaxy_finding.GalaxyFinder( particle_positions, **gal_finder_kwargs )
+    galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **gal_finder_kwargs )
     expected = galaxy_finder.find_ids()
 
     for key in expected.keys():
