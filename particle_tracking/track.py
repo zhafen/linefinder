@@ -193,12 +193,19 @@ class ParticleTracker( object ):
       os.remove( outpath )
 
     f = h5py.File( outpath, 'w' )
+
     # Save data
     for keyname in self.ptrack.keys():
         f.create_dataset( keyname, data=self.ptrack[keyname] )
+
     # Save the attributes
     for key in self.attrs.keys():
       f.attrs[key] = self.attrs[key]
+
+    # Save the data parameters (kwargs) to the attributes too.
+    for key in self.kwargs.keys():
+      f.attrs[key] = self.kwargs[key]
+
     f.close()
 
 ########################################################################

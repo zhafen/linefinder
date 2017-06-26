@@ -230,6 +230,10 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     for key in compare_keys:
       npt.assert_allclose( P[key], f.attrs[key] )
 
+    for key in default_data_p.keys():
+      #npt.assert_allclose( default_data_p[key], f.attrs[key] )
+      assert default_data_p[key] == f.attrs[key] 
+
   ########################################################################
 
   def test_get_target_ids( self ):
