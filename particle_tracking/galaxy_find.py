@@ -288,7 +288,12 @@ class GalaxyFinder( object ):
     tiled_m_vir_ma = np.ma.masked_array( tiled_m_vir, mask=np.invert( part_of_halo ), )
 
     # Take the extremum of the masked data
-    halo_id = arg_extremum_fn( tiled_m_vir_ma, axis=1 )
+    if type_of_halo_id == 'halo_id':
+      halo_id = arg_extremum_fn( tiled_m_vir_ma, axis=1 )
+    elif type_of_halo_id == 'mt_halo_id':
+      halo_ind = arg_extremum_fn( tiled_m_vir_ma, axis=1 )
+      halo_ids = np.array( sorted( self.ahf_reader.mtree_halos.keys() ) )
+      halo_id = halo_ids[halo_ind]
     
     # Account for the fact that the argmin defaults to 0 when there's nothing there
     mask = extremum_fn( tiled_m_vir_ma, axis=1 ).mask

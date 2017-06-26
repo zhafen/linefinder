@@ -93,12 +93,12 @@ class TestGalaxyFinder( unittest.TestCase ):
     actual = self.galaxy_finder.find_mt_containing_halos( 2.5 )
 
     # Build the expected output
-    expected = np.zeros( (self.galaxy_finder.particle_positions.shape[0], 20) ).astype( bool )
+    expected = np.zeros( (self.galaxy_finder.particle_positions.shape[0], 11) ).astype( bool )
     expected[ 0, 0 ] = True
     expected[ 0, 9 ] = True
     expected[ 1, 0 ] = True
     expected[ 1, 9 ] = True
-    expected[ 2, 19 ] = True
+    expected[ 2, -1 ] = True
 
     npt.assert_allclose( actual, expected )
 
