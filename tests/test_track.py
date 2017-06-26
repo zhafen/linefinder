@@ -22,8 +22,6 @@ default_data_p = {
   'snap_end' : 600,
   'snap_step' : 50,
 
-  'target_ids' : np.array([ 36091289, 36091289, 3211791, 10952235 ]),
-  'target_child_ids' : np.array([ 893109954, 1945060136, 0, 0 ]),
   'outdir' : './tests/test_data/tracking_output',
   'tag' : 'test',
 }

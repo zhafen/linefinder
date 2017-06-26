@@ -22,13 +22,11 @@ import readsnap
 class ParticleTracker( object ):
   '''Searches IDs across snapshots, then saves the results.'''
 
-  def __init__( self, target_child_ids=None, host_halo=False, old_target_id_retrieval_method=False, **kwargs ):
+  def __init__( self, host_halo=False, **kwargs ):
     '''Setup the ID Finder.
 
     Args:
-      outdir (str): Output data directory.
-      tag (str): Identifying tag. Currently must be put in manually.
-      target_ids (np.array): Array of IDs to target.
+      host_halo (bool): Whether or not to include halo data for tracked particles during the tracking process.
 
     Keyword Args:
       Input Data Parameters:
@@ -39,18 +37,15 @@ class ParticleTracker( object ):
         snap_step (int): How many snapshots to jump over?
 
       Analysis Parameters:
-        target_child_ids (np.array): Array of child ids to target.
-        host_halo (bool): Whether or not to include halo data for tracked particles during the tracking process.
-        old_target_id_retrieval_method (bool): Whether or not to get the target ids in the way Daniel originally set up.
+        tag (str): Identifying tag. Currently must be put in manually. Should be the same for all stages of the pipeline.
+        outdir (str): Output data directory. Also the directory for the file the ids to track should be in.
     '''
 
     # Save the kwargs
     self.kwargs = kwargs
 
     # Save the arguments that have default values
-    self.target_child_ids = target_child_ids
     self.host_halo = host_halo
-    self.old_target_id_retrieval_method = old_target_id_retrieval_method
 
   ########################################################################
 
@@ -66,8 +61,7 @@ class ParticleTracker( object ):
     print "Data will be saved here:\n    {}".format( self.kwargs['outdir'] )
 
     # Get the target ids
-    if self.old_target_id_retrieval_method:
-      self.get_target_ids_old()
+    self.get_target_ids()
 
     # Loop overall redshift snapshots and get the data out
     self.ptrack = self.get_tracked_data()
@@ -121,7 +115,7 @@ class ParticleTracker( object ):
     #myfloat = 'float64' 
     myfloat = 'float32'
 
-    self.ntrack = self.kwargs['target_ids'].size
+    self.ntrack = self.target_ids.size
 
     print "Tracking {} particles...".format( self.ntrack )
 
@@ -144,7 +138,7 @@ class ParticleTracker( object ):
       ptrack['SubHaloID'] = np.zeros(self.ntrack,dtype=('int32',(nsnap,)))
 
     if self.target_child_ids is not None:
-      ptrack['id'] = self.kwargs['target_ids']
+      ptrack['id'] = self.target_ids
       ptrack['child_id'] = self.target_child_ids
 
     j = 0
@@ -154,7 +148,7 @@ class ParticleTracker( object ):
       time_1 = time.time()
 
       id_finder = IDFinder()
-      dfid, redshift, self.attrs = id_finder.find_ids( self.kwargs['sdir'], snum, self.kwargs['types'], self.kwargs['target_ids'], \
+      dfid, redshift, self.attrs = id_finder.find_ids( self.kwargs['sdir'], snum, self.kwargs['types'], self.target_ids, \
                                            target_child_ids=self.target_child_ids, host_halo=self.host_halo )
 
       ptrack['redshift'][j] = redshift
@@ -206,36 +200,6 @@ class ParticleTracker( object ):
     for key in self.attrs.keys():
       f.attrs[key] = self.attrs[key]
     f.close()
-
-  ########################################################################
-
-  def get_target_ids_old( self ):
-    '''This looks like how Daniel read the IDs before.
-    I don't entirely get it, but given that it seems to involve skid,
-    we probably don't want to go this direction.
-    '''
-
-    raise Exception( "This function is legacy. It most likely doesn't work. If you still want to try, delete this line and run it." )
-
-    # The "Central" galaxy is the most massive galaxy in all runs but m13...  
-    if sname[0:3] == 'm13':
-      grstr = 'gr1' 
-    else:
-      grstr = 'gr0'
-
-    idlist = h5py.File( sdir + '/skid/progen_idlist_' + grstr + '.hdf5', 'r')
-
-    if idlist['id'].size > self.ntrack:
-       ind_myids = np.arange(idlist['id'].size)
-       np.random.seed(seed=1234)
-       np.random.shuffle(ind_myids)
-       target_ids = np.unique( idlist['id'][:][ind_myids[0:self.ntrack]] )
-       tag = 'n{0:1.0f}'.format(np.log10(self.ntrack))
-    else:
-       target_ids = np.unique( idlist['id'][:] )
-       tag = 'all'
-
-    idlist.close()
 
 ########################################################################
 ########################################################################
