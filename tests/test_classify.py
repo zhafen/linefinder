@@ -624,3 +624,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
     f = h5py.File( self.savefile, 'r')
     actual =  f['is_pristine'][...]
+
+    # Make sure that we've saved our input arguments
+    for key in default_kwargs.keys():
+      assert default_kwargs[key] == f.attrs[key]

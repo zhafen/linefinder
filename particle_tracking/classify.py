@@ -159,6 +159,10 @@ class Classifier( object ):
       data = getattr( self, classification )
       f.create_dataset( classification, data=data )
 
+    # Save the data parameters
+    for key in self.kwargs.keys():
+      f.attrs[key] = self.kwargs[key]
+
     f.close()
 
   ########################################################################
