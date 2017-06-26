@@ -122,6 +122,10 @@ class ParticleTrackGalaxyFinder( object ):
     m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=600, index='snum', tag='smooth' )
     f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
 
+    # Save the data parameters
+    for key in self.kwargs.keys():
+      f.attrs[key] = self.kwargs[key]
+
     f.close()
 
     time_end = time.time()

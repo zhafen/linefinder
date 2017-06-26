@@ -292,4 +292,8 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
     # Make sure the main MT halo ID is the one we expect.
     assert f.attrs['main_mt_halo_id'] == 0
 
+    # Make sure we have stored the data parameters too.
+    for key in ptrack_gal_finder_kwargs.keys():
+      assert ptrack_gal_finder_kwargs[key] == f.attrs[key]
+
     f.close()
