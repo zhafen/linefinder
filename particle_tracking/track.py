@@ -85,6 +85,28 @@ class ParticleTracker( object ):
 
   ########################################################################
 
+  def get_target_ids( self ):
+    '''Open the file containing the target ids and retrieve them.
+
+    Modifies:
+      self.target_ids (np.array): Fills the array.
+      self.target_child_ids (np.array, optional): Fills the array, if child_ids are included.
+    '''
+
+    id_filename = 'ids_{}.hdf5'.format( self.kwargs['tag'] )
+    id_filepath = os.path.join( self.kwargs['outdir'], id_filename )
+
+    f = h5py.File( id_filepath, 'r' )
+
+    # Load in the data
+    for key in f.keys():
+      setattr( self, key, f[key][...] )
+
+    # Make sure our simulation directory matches up
+    assert self.kwargs['sdir'] == f.attrs['sdir']
+
+  ########################################################################
+
   def get_tracked_data( self ):
     '''Loop overall redshift snapshots, and get the data.
 

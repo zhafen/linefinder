@@ -64,7 +64,7 @@ class TestConcatenateParticleData( unittest.TestCase ):
 
 ########################################################################
 
-class TestSelectIDs(unittest.TestCase):
+class TestSelectIDs( unittest.TestCase ):
 
   def setUp(self):
 
@@ -231,4 +231,23 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
     for key in compare_keys:
       npt.assert_allclose( P[key], f.attrs[key] )
+
+  ########################################################################
+
+  def test_get_target_ids( self ):
+
+    # Remove any interfering attributes
+    if hasattr( self.particle_tracker, 'target_ids'):
+      del self.particle_tracker.target_ids
+
+    self.particle_tracker.get_target_ids()
+
+    expected = {
+      'target_ids' : np.array([ 36091289, 36091289, 3211791, 10952235 ]),
+      'target_child_ids' : np.array([ 893109954, 1945060136, 0, 0 ]),
+    }
+
+    for key in expected.keys():
+      npt.assert_allclose( getattr( self.particle_tracker, key ), expected[key] )
+
 
