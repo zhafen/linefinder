@@ -32,7 +32,7 @@ class Classifier( object ):
         sdir (str): Data directory for AHF data.
         tracking_dir (str): Data directory for tracked particle data.
         tag (str): Identifying tag. Currently must be put in manually.
-        mtree_halo_index: The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
+        mtree_halos_index: The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
                           snapshot number, but see AHFReader.get_mtree_halos's documentation.
 
       Analysis Parameters:
@@ -139,7 +139,7 @@ class Classifier( object ):
 
     # Load the ahf data
     self.ahf_reader = galaxy_diver.read_ahf.AHFReader( self.kwargs['sdir'] )
-    self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halo_index'], 'smooth' )
+    self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
 
   ########################################################################
 

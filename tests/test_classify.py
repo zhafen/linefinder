@@ -25,7 +25,7 @@ default_kwargs = {
   'tracking_dir' : './tests/test_data/tracking_output',
   'tag' : 'test_classify',
   'neg' : 1,
-  'mtree_halo_index' : 600,
+  'mtree_halos_index' : 600,
   'wind_vel_min_vc' : 2.,
   'wind_vel_min' : 15.,
   'time_min' : 100., 

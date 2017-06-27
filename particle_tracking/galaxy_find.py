@@ -26,6 +26,8 @@ class ParticleTrackGalaxyFinder( object ):
     Args:
       galaxy_cut (float, optional): Anything within galaxy_cut*R_vir is counted as being inside the virial radius.
       ids_to_return (list of strs, optional): The types of id you want to get out.
+      mtree_halos_index: The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
+                        snapshot number, but see AHFReader.get_mtree_halos's documentation.
 
     Keyword Args:
       sdir (str): Directory the AHF data is in.
@@ -58,6 +60,7 @@ class ParticleTrackGalaxyFinder( object ):
         'snum' : self.ptrack['snum'][...][ i ],
         'hubble' : self.ptrack.attrs['hubble'],
         'sdir' : self.kwargs['sdir'],
+        'mtree_halos_index' : self.kwargs['mtree_halos_index'],
       }
 
       print 'Snapshot {:>3} | redshift {:>7.3g}'.format( kwargs['snum'], kwargs['redshift'], )
@@ -119,7 +122,7 @@ class ParticleTrackGalaxyFinder( object ):
       f.create_dataset( key, data=self.ptrack_gal_ids[key] )
 
     # Store the main mt halo id
-    m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=600, index='snum', tag='smooth' )
+    m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=600, index=self.kwargs['mtree_halos_index'], tag='smooth' )
     f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
 
     # Save the data parameters
@@ -275,7 +278,7 @@ class GalaxyFinder( object ):
       extremum_fn = np.max
 
       # Get the virial masses. It's okay to leave in comoving, since we're just finding the maximum
-      m_vir = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=self.kwargs['snum'], index='snum', tag='smooth' )
+      m_vir = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=self.kwargs['snum'], index=self.kwargs['mtree_halos_index'], tag='smooth' )
 
     else:
       raise Exception( "Unrecognized type_of_halo_id" )
@@ -348,7 +351,7 @@ class GalaxyFinder( object ):
     '''
 
     # Load up the merger tree data
-    self.ahf_reader.get_mtree_halos( 'snum', 'smooth' )
+    self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
 
     part_of_halo = []
     for halo_id in self.ahf_reader.mtree_halos.keys():

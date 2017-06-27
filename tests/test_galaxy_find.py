@@ -25,12 +25,14 @@ gal_finder_kwargs = {
   'snum' : 500,
   'hubble' : 0.70199999999999996,
   'sdir' : './tests/test_data/ahf_test_data',
+  'mtree_halos_index' : 600,
 }
 
 ptrack_gal_finder_kwargs = {
   'sdir' : './tests/test_data/ahf_test_data',
   'tracking_dir' : './tests/test_data/tracking_output',
-  'tag' : 'test'
+  'tag' : 'test',
+  'mtree_halos_index' : 600,
 }
 
 ########################################################################
@@ -242,7 +244,7 @@ class TestGalaxyFinder( unittest.TestCase ):
 
     # Muck it up by making it try to retrieve data
     ahf_reader.get_halos( 600 )
-    ahf_reader.get_mtree_halos( 'snum', tag='smooth' )
+    ahf_reader.get_mtree_halos( 600, tag='smooth' )
 
     # Do the actual calculation
     galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, ahf_reader=ahf_reader, **self.kwargs )
