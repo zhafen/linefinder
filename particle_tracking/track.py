@@ -186,11 +186,9 @@ class ParticleTracker( object ):
     if not os.path.exists( self.kwargs['outdir'] ):
       os.mkdir( self.kwargs['outdir'] )
 
-    self.outname = 'ptrack_' + self.kwargs['tag'] + '.hdf5'
+    self.outname = 'ptrack_{}.hdf5'.format( self.kwargs['tag'] )
 
-    outpath =  self.kwargs['outdir'] + '/' + self.outname 
-    if os.path.isfile( outpath ):
-      os.remove( outpath )
+    outpath =  os.path.join( self.kwargs['outdir'], self.outname )
 
     f = h5py.File( outpath, 'w' )
 

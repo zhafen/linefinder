@@ -52,6 +52,7 @@ gal_finder_kwargs = {
   'sdir' : '../tests/test_data/ahf_test_data',
   'tracking_dir' : kwargs['outdir'],
   'tag' : kwargs['tag'],
+  'mtree_halos_index' : 'snum',
 }
 
 ########################################################################
