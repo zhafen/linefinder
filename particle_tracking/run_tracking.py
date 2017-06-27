@@ -1,4 +1,21 @@
 #!/usr/bin/env python
+
+#SBATCH --job-name=tracking
+#SBATCH --partition=development
+## Stampede node has 16 processors & 32 GB
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+##SBATCH --ntasks-per-node=4
+#SBATCH --time=0:05:00
+#SBATCH --output=tracking_jobs/tracking_job%j.txt
+#SBATCH --error=tracking_jobs/tracking_job_e%j.txt
+#SBATCH --mail-user=zhafen@u.northwestern.edu
+#SBATCH --mail-type=begin
+#SBATCH --mail-type=fail
+#SBATCH --mail-type=end
+#SBATCH --account=TG-AST140023
+##SBATCH --begin=now+48hour
+
 '''Script for tracking particles.
 
 @author: Zach Hafen
@@ -8,8 +25,8 @@
 
 import numpy as np
 
-import galaxy_finding
-import tracking
+import galaxy_find
+import track
 
 ########################################################################
 # Input Parameters
@@ -22,10 +39,8 @@ kwargs = {
   'snap_end' : 600,
   'snap_step' : 50,
 
-  'target_ids' : np.array([ 36091289, 36091289, 3211791, 10952235 ]),
-  'target_child_ids' : np.array([ 893109954, 1945060136, 0, 0 ]),
   'outdir' : '../tests/test_data/tracking_output',
-  'tag' : 'test_classify',
+  'tag' : 'test',
 }
 
 ########################################################################
@@ -43,12 +58,12 @@ gal_finder_kwargs = {
 # Run the Tracking
 ########################################################################
 
-particle_tracker = tracking.ParticleTracker( **kwargs )
+particle_tracker = track.ParticleTracker( **kwargs )
 particle_tracker.save_particle_tracks()
 
 ########################################################################
 # Run the Galaxy Finding
 ########################################################################
 
-particle_track_gal_finder = galaxy_finding.ParticleTrackGalaxyFinder( **gal_finder_kwargs )
+particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder( **gal_finder_kwargs )
 particle_track_gal_finder.find_galaxies_for_particle_tracks()

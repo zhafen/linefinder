@@ -23,7 +23,7 @@ class ParticleTracker( object ):
   '''Searches IDs across snapshots, then saves the results.'''
 
   def __init__( self, host_halo=False, **kwargs ):
-    '''Setup the ID Finder.
+    '''Setup the ID Finder. Looks for data in the form of "out_dir/ids_tag.hdf5"
 
     Args:
       host_halo (bool): Whether or not to include halo data for tracked particles during the tracking process.
@@ -97,7 +97,7 @@ class ParticleTracker( object ):
       setattr( self, key, f[key][...] )
 
     # Make sure our simulation directory matches up
-    assert self.kwargs['sdir'] == f.attrs['sdir']
+    assert os.path.samefile( self.kwargs['sdir'], f.attrs['sdir'] )
 
   ########################################################################
 
