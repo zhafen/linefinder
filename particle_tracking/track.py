@@ -96,6 +96,10 @@ class ParticleTracker( object ):
     for key in f.keys():
       setattr( self, key, f[key][...] )
 
+    # If there aren't target child IDs, make note of that
+    if 'target_child_ids' not in f.keys():
+      self.target_child_ids = None
+
     # Make sure our simulation directory matches up
     assert os.path.samefile( self.kwargs['sdir'], f.attrs['sdir'] )
 
