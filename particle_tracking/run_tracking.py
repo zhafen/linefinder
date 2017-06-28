@@ -7,8 +7,8 @@
 #SBATCH --ntasks=1
 ##SBATCH --ntasks-per-node=4
 #SBATCH --time=0:05:00
-#SBATCH --output=tracking_jobs/tracking_job%j.txt
-#SBATCH --error=tracking_jobs/tracking_job_e%j.txt
+#SBATCH --output=tracking_jobs/%j.out
+#SBATCH --error=tracking_jobs/%j.err
 #SBATCH --mail-user=zhafen@u.northwestern.edu
 #SBATCH --mail-type=begin
 #SBATCH --mail-type=fail
@@ -17,6 +17,8 @@
 ##SBATCH --begin=now+48hour
 
 '''Script for tracking particles.
+This can be submitted as a batch job using: sbatch run_tracking.py
+Or it can simply be run in an interactive session with: ./run_tracking.py
 
 @author: Zach Hafen
 @contact: zachary.h.hafen@gmail.com
@@ -25,8 +27,8 @@
 
 import numpy as np
 
-import galaxy_find
-import track
+from particle_tracking import galaxy_find
+from particle_tracking import track
 
 ########################################################################
 # Input Parameters
