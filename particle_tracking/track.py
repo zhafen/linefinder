@@ -311,19 +311,20 @@ class IDFinder( object ):
       if 'rho' in P:
           rho = P['rho']
       else:
-          rho = [0,]*pnum
+          rho = [0.,]*pnum
 
       if 'sfr' in P:
           sfr = P['sfr']
       else:
-          sfr = [0,]*pnum
+          sfr = [0.,]*pnum
 
       if 'u' in P:
           T = readsnap.gas_temperature(P['u'],P['ne'])
       else:
-          T = [0,]*pnum
+          T = [0.,]*pnum
 
-      thistype = np.zeros(pnum,dtype='int8'); thistype.fill(p_type)
+      thistype = np.zeros(pnum,dtype='int8')
+      thistype.fill(p_type)
 
       full_snap_data['id'].append( P['id'] )
       full_snap_data['Ptype'].append( thistype )
@@ -349,7 +350,7 @@ class IDFinder( object ):
 
     # Convert to numpy arrays
     for key in full_snap_data.keys():
-      full_snap_data[key] = np.array( full_snap_data[key] ).flatten()
+      full_snap_data[key] = np.concatenate( full_snap_data[key] )
 
     # Save the redshift
     self.redshift = P['redshift']
