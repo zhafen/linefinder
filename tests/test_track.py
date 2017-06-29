@@ -43,11 +43,22 @@ star_data_p = {
   'tag' : 'test_star',
 }
 
+early_star_data_p = {
+  'sdir' : './tests/test_data/stars_included_test_data',
+  'types' : [0,4],
+  'snap_ini' : 10,
+  'snap_end' : 11,
+  'snap_step' : 1,
+
+  'outdir' : './tests/test_data/tracking_output',
+  'tag' : 'test_star_early',
+}
+
 fire1_data_p = copy.deepcopy( star_data_p )
 fire1_data_p['tag'] = 'test_fire1'
 
 # Make sure that the ids sdir attribute resembles what would happen if it was generated.
-for data_p in [ default_data_p, star_data_p, fire1_data_p ]:
+for data_p in [ default_data_p, star_data_p, early_star_data_p, fire1_data_p, ]:
   id_filename = './tests/test_data/tracking_output/ids_{}.hdf5'.format( data_p['tag'] )
   ids_file = h5py.File( id_filename, 'a' )
   ids_file.attrs['sdir'] = os.path.abspath( data_p['sdir'] )
@@ -313,6 +324,24 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     npt.assert_allclose( expected_ptype_p0, actual_ptype_p0 )
 
     assert 'child_id' in f.keys()
+
+  ########################################################################
+
+  def test_works_with_stars_early_on( self ):
+    '''Test this works even in early snapshots, when there are no stars.'''
+
+    self.particle_tracker = track.ParticleTracker( **early_star_data_p )
+    self.particle_tracker.save_particle_tracks()
+
+    f = h5py.File( 'tests/test_data/tracking_output/ptrack_test_star_early.hdf5', 'r' )
+    
+    expected_snum = np.array([ 11, 10 ])
+    actual_snum = f['snum'][...]
+    npt.assert_allclose( expected_snum, actual_snum )
+
+    expected_id = np.array([2040268, 7909745, 8961984])
+    actual_id = f['id'][...]
+    npt.assert_allclose( expected_id, actual_id )
 
   ########################################################################
 

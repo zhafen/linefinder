@@ -115,8 +115,7 @@ class ParticleTracker( object ):
     self.snaps = np.arange( self.kwargs['snap_end'], self.kwargs['snap_ini']-1, -self.kwargs['snap_step'] )
     nsnap = self.snaps.size       # number of redshift snapshots that we follow back
 
-    # Legacy of something Daniel encountered. Don't know what.
-    #myfloat = 'float64' 
+    # Choose between single or double precision.
     myfloat = 'float32'
 
     self.ntrack = self.target_ids.size
@@ -297,13 +296,31 @@ class IDFinder( object ):
     else:
       load_additional_ids = False
 
-    for p_type in self.types:
 
-      P = readsnap.readsnap( self.sdir, self.snum, p_type, load_additional_ids=load_additional_ids, cosmological=1, skip_bh=1, header_only=0)
+    # Flag for saving header info
+    saved_header_info = False
+
+    for i, p_type in enumerate( self.types ):
+
+      P = readsnap.readsnap( self.sdir, self.snum, p_type, load_additional_ids=load_additional_ids, cosmological=1, skip_bh=1, header_only=0 )
 
       if P['k'] < 0:
          continue
       pnum = P['id'].size
+
+      # On the first time through, save global information
+      if not saved_header_info:
+
+        # Save the redshift
+        self.redshift = P['redshift']
+
+        # Store the attributes to be used in the final data file.
+        attrs_keys = [ 'omega_matter', 'omega_lambda', 'hubble' ]
+        self.attrs = {}
+        for key in attrs_keys:
+          self.attrs[key] = P[key]
+
+        saved_header_info = True
 
       if verbose:
         print '       ...  ', pnum, '   type', p_type , ' particles'
@@ -351,15 +368,6 @@ class IDFinder( object ):
     # Convert to numpy arrays
     for key in full_snap_data.keys():
       full_snap_data[key] = np.concatenate( full_snap_data[key] )
-
-    # Save the redshift
-    self.redshift = P['redshift']
-
-    # Store the attributes to be used in the final data file.
-    attrs_keys = [ 'omega_matter', 'omega_lambda', 'hubble' ]
-    self.attrs = {}
-    for key in attrs_keys:
-      self.attrs[key] = P[key]
 
     self.full_snap_data = full_snap_data
 
