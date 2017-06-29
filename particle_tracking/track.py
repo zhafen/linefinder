@@ -261,7 +261,10 @@ class IDFinder( object ):
   ########################################################################
 
   def concatenate_particle_data(self, verbose=False):
-    '''Get all the particle data for the snapshot in one big array. (Daniel must use this format somehow...)
+    '''Get all the particle data for the snapshot in one big array, to allow searching through it.
+
+    Args:
+      verbose (bool): If True, print additional information.
 
     Modifies:
       self.full_snap_data (dict): A dictionary of the concatenated particle data.
@@ -269,7 +272,6 @@ class IDFinder( object ):
 
     if verbose:
       print 'Reading data...'
-
 
     full_snap_data = {
       'id' : [],
@@ -311,6 +313,11 @@ class IDFinder( object ):
       else:
           rho = [0,]*pnum
 
+      if 'sfr' in P:
+          sfr = P['sfr']
+      else:
+          sfr = [0,]*pnum
+
       if 'u' in P:
           T = readsnap.gas_temperature(P['u'],P['ne'])
       else:
@@ -321,7 +328,7 @@ class IDFinder( object ):
       full_snap_data['id'].append( P['id'] )
       full_snap_data['Ptype'].append( thistype )
       full_snap_data['rho'].append( rho )
-      full_snap_data['sfr'].append( P['sfr'] )
+      full_snap_data['sfr'].append( sfr )
       full_snap_data['T'].append( T )
       full_snap_data['z'].append( P['z'][:,0] )
       full_snap_data['m'].append( P['m'] )
