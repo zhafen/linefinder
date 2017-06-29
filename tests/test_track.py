@@ -238,12 +238,12 @@ class TestFindIds( unittest.TestCase ):
     target_child_ids = None
 
     # My knowledge, by hand
-    target_inds = [ 0, 2, 4, ]
-    P = readsnap.readsnap( sdir, snum, 0, True, cosmological=True )
+    target_inds = [ 1, 0, 5, ]
+    target_ptype = [ 0, 0, 4, ]
 
     expected = {
       'id' : target_ids,
-      'rho' : np.array([ P['rho'][ind] for ind in target_inds ]),
+      'rho' : np.array([ 3.12611002e-08,   2.98729116e-09, 0. ])
     }
 
     dfid, redshift, attrs = self.fn( sdir, snum, types, target_ids, \
@@ -304,7 +304,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     actual_id = f['id'][...]
     npt.assert_allclose( expected_id, actual_id )
 
-    expected_rho_500 = np.array([ 8.95081308e-04,   2.98729116e-09,   3.12611002e-08,   1.94556549e-09])
+    expected_rho_500 = np.array([ 2.98729116e-09,   3.12611002e-08,   8.95081308e-04, 0. ])
     actual_rho_500 = f['rho'][...][:,-1]
     npt.assert_allclose( expected_rho_500, actual_rho_500 )
 
@@ -331,15 +331,13 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     actual_id = f['id'][...]
     npt.assert_allclose( expected_id, actual_id )
 
-    expected_rho_500 = np.array([ 8.95081308e-04,   2.98729116e-09,   3.12611002e-08,   1.94556549e-09])
+    expected_rho_500 = np.array([ 2.98729116e-09,   3.12611002e-08,   8.95081308e-04, 0. ])
     actual_rho_500 = f['rho'][...][:,-1]
     npt.assert_allclose( expected_rho_500, actual_rho_500 )
 
     expected_ptype_p0 = np.array([ 4, 0, 0 ])
     actual_ptype_p0 = f['Ptype'][...][0]
     npt.assert_allclose( expected_ptype_p0, actual_ptype_p0 )
-
-    assert 'child_id' in f.keys()
 
   ########################################################################
 

@@ -141,8 +141,8 @@ class ParticleTracker( object ):
       ptrack['HaloID'] = np.zeros(self.ntrack,dtype=('int32',(nsnap,)))
       ptrack['SubHaloID'] = np.zeros(self.ntrack,dtype=('int32',(nsnap,)))
 
+    ptrack['id'] = self.target_ids
     if self.target_child_ids is not None:
-      ptrack['id'] = self.target_ids
       ptrack['child_id'] = self.target_child_ids
 
     j = 0
