@@ -63,11 +63,15 @@ class ParticleTrackGalaxyFinder( object ):
         'mtree_halos_index' : self.kwargs['mtree_halos_index'],
       }
 
-      print 'Snapshot {:>3} | redshift {:>7.3g}'.format( kwargs['snum'], kwargs['redshift'], )
+      time_start = time.time()
 
       # Find the galaxy for a given snapshot
       galaxy_finder = GalaxyFinder( particle_positions, ahf_reader=self.ahf_reader, **kwargs )
       galaxy_and_halo_ids = galaxy_finder.find_ids( ids_to_return=self.ids_to_return, galaxy_cut=self.galaxy_cut )
+
+      time_end = time.time()
+
+      print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'.format( kwargs['snum'], kwargs['redshift'], time_end - time_start )
 
       # Make the arrays to store the data in
       if not hasattr( self, 'ptrack_gal_ids' ):
