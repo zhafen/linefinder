@@ -6,6 +6,7 @@
 @status: Development
 '''
 
+import copy
 import h5py
 import numpy as np
 import numpy.testing as npt
@@ -42,8 +43,11 @@ star_data_p = {
   'tag' : 'test_star',
 }
 
+fire1_data_p = copy.deepcopy( star_data_p )
+fire1_data_p['tag'] = 'test_fire1'
+
 # Make sure that the ids sdir attribute resembles what would happen if it was generated.
-for data_p in [ default_data_p, star_data_p ]:
+for data_p in [ default_data_p, star_data_p, fire1_data_p ]:
   id_filename = './tests/test_data/tracking_output/ids_{}.hdf5'.format( data_p['tag'] )
   ids_file = h5py.File( id_filename, 'a' )
   ids_file.attrs['sdir'] = os.path.abspath( data_p['sdir'] )
@@ -222,6 +226,32 @@ class TestFindIds( unittest.TestCase ):
     # Make sure the redshift's right too
     npt.assert_allclose( redshift, 0. )
 
+  ########################################################################
+
+  def test_no_child_ids( self ):
+
+    # Input
+    sdir = './tests/test_data/stars_included_test_data'
+    snum = 500
+    types = [ 0, 4,]
+    target_ids = np.array([ 24079833, 24565150, 14147322, ])
+    target_child_ids = None
+
+    # My knowledge, by hand
+    target_inds = [ 0, 2, 4, ]
+    P = readsnap.readsnap( sdir, snum, 0, True, cosmological=True )
+
+    expected = {
+      'id' : target_ids,
+      'rho' : np.array([ P['rho'][ind] for ind in target_inds ]),
+    }
+
+    dfid, redshift, attrs = self.fn( sdir, snum, types, target_ids, \
+                              target_child_ids=target_child_ids)
+
+    for key in expected.keys():
+      npt.assert_allclose( dfid[key], expected[key] )
+
 ########################################################################
 
 class TestSaveTargetedParticles( unittest.TestCase ):
@@ -265,6 +295,33 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     self.particle_tracker.save_particle_tracks()
 
     f = h5py.File( 'tests/test_data/tracking_output/ptrack_test_star.hdf5', 'r' )
+    
+    expected_snum = np.arange(600, 490, -50)
+    actual_snum = f['snum'][...]
+    npt.assert_allclose( expected_snum, actual_snum )
+
+    expected_id = np.array([24565150, 24079833, 13109563, 14147322])
+    actual_id = f['id'][...]
+    npt.assert_allclose( expected_id, actual_id )
+
+    expected_rho_500 = np.array([ 8.95081308e-04,   2.98729116e-09,   3.12611002e-08,   1.94556549e-09])
+    actual_rho_500 = f['rho'][...][:,-1]
+    npt.assert_allclose( expected_rho_500, actual_rho_500 )
+
+    expected_ptype_p0 = np.array([ 4, 0, 0 ])
+    actual_ptype_p0 = f['Ptype'][...][0]
+    npt.assert_allclose( expected_ptype_p0, actual_ptype_p0 )
+
+    assert 'child_id' in f.keys()
+
+  ########################################################################
+
+  def test_works_fire1( self ):
+
+    self.particle_tracker = track.ParticleTracker( **fire1_data_p )
+    self.particle_tracker.save_particle_tracks()
+
+    f = h5py.File( 'tests/test_data/tracking_output/ptrack_test_fire1.hdf5', 'r' )
     
     expected_snum = np.arange(600, 490, -50)
     actual_snum = f['snum'][...]

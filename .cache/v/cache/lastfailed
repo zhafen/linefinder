@@ -1,1 +1,3 @@
-{}
+{
+  "tests/test_track.py::TestSaveTargetedParticles::test_works_fire1": true
+}
