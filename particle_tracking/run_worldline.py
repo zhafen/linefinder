@@ -1,24 +1,22 @@
 #!/usr/bin/env python
 
-#SBATCH --job-name=tracking
-#SBATCH --partition=development
+#SBATCH --job-name=worldline
+#SBATCH --partition=normal
 ## Stampede node has 16 processors & 32 GB
 #SBATCH --nodes=1
 #SBATCH --ntasks=16
-##SBATCH --ntasks-per-node=4
 #SBATCH --time=0:05:00
-#SBATCH --output=tracking_jobs/%j.out
-#SBATCH --error=tracking_jobs/%j.err
+#SBATCH --output=worldline_jobs/%j.out
+#SBATCH --error=worldline_jobs/%j.err
 #SBATCH --mail-user=zhafen@u.northwestern.edu
 #SBATCH --mail-type=begin
 #SBATCH --mail-type=fail
 #SBATCH --mail-type=end
 #SBATCH --account=TG-AST140023
-##SBATCH --begin=now+48hour
 
-'''Script for tracking particles.
-This can be submitted as a batch job using: sbatch run_tracking.py
-Or it can simply be run in an interactive session with: ./run_tracking.py
+'''Script for tracking and classifying particles.
+This can be submitted as a batch job using: sbatch run_worldline.py
+Or it can simply be run in an interactive session with: ./run_worldline.py
 
 @author: Zach Hafen
 @contact: zachary.h.hafen@gmail.com
