@@ -390,6 +390,7 @@ class IDFinder( object ):
   ########################################################################
 
   def add_environment_data(self):
+    #TODO: Remove.
 
     AHFile = glob( sdir + '/snap' + g.snap_ext(snum) + 'Rpep..z*.AHF_particles')[0]
 
@@ -428,6 +429,7 @@ class IDFinder( object ):
 ########################################################################
 
 def read_ahf_particles(filename):
+  # TODO: Remove
   '''Read a *.AHF_particles file. See http://popia.ft.uam.es/AHF/files/AHF.pdf,
   pg 171 for documentation for such a file.
 
