@@ -9,11 +9,16 @@
 import h5py
 import numpy as np
 import numpy.testing as npt
+import os
 import pdb
 import unittest
 
 from particle_tracking import track
 from particle_tracking import readsnap
+
+########################################################################
+# Global Setup
+########################################################################
 
 default_data_p = {
   'sdir' : './tests/test_data/test_data_with_new_id_scheme',
@@ -25,6 +30,24 @@ default_data_p = {
   'outdir' : './tests/test_data/tracking_output',
   'tag' : 'test',
 }
+
+star_data_p = {
+  'sdir' : './tests/test_data/stars_included_test_data',
+  'types' : [0,4],
+  'snap_ini' : 500,
+  'snap_end' : 600,
+  'snap_step' : 50,
+
+  'outdir' : './tests/test_data/tracking_output',
+  'tag' : 'test_star',
+}
+
+# Make sure that the ids sdir attribute resembles what would happen if it was generated.
+for data_p in [ default_data_p, star_data_p ]:
+  id_filename = './tests/test_data/tracking_output/ids_{}.hdf5'.format( data_p['tag'] )
+  ids_file = h5py.File( id_filename, 'a' )
+  ids_file.attrs['sdir'] = os.path.abspath( data_p['sdir'] )
+  ids_file.close()
 
 ########################################################################
 
@@ -55,6 +78,30 @@ class TestConcatenateParticleData( unittest.TestCase ):
     expected = {
       'id' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235]),
       'child_id' : np.array([1945060136, 0, 0, 938428052, 893109954, 0]),
+      }
+
+    for key in expected.keys():
+      npt.assert_allclose( actual[key], expected[key] )
+
+  ########################################################################
+
+  def test_works_for_stars( self ):
+
+    # Input
+    self.id_finder.sdir = './tests/test_data/test_data_with_new_id_scheme'
+    self.id_finder.snum = 600
+    self.id_finder.types = [0,4]
+    self.id_finder.target_ids = np.array([24565150, 24079833, 13109563, 14147322, ])
+    self.id_finder.target_child_ids = np.array([ 0, 0, 0, 0 ])
+
+    self.id_finder.concatenate_particle_data()
+    actual = self.id_finder.full_snap_data
+
+    expected = {
+      'id' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235,
+                       24565150, 24079833, 13109563, 14147322, 28067645, 10259537]),
+      'child_id' : np.array([1945060136, 0, 0, 938428052, 893109954, 0,
+                             0, 0, 0, 0, 0, 0]),
       }
 
     for key in expected.keys():
@@ -204,13 +251,36 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     actual_snum = f['snum'][...]
     npt.assert_allclose( expected_snum, actual_snum )
 
-    #expected_rho_p0 =  np.array([  1.70068894e-08,   4.28708110e-09,   2.23610355e-09,
-    #     5.92078259e-09,   6.38462647e-10,   6.44416458e-08,
-    #     2.44035180e-06,   8.35424314e-09,   8.27433162e-10,
-    #     2.15146115e-09,   1.94556549e-09])
     expected_rho_p0 =  np.array([  1.70068894e-08, 6.44416458e-08, 1.94556549e-09])
     actual_rho_p0 = f['rho'][...][0]
     npt.assert_allclose( expected_rho_p0, actual_rho_p0 )
+
+    assert 'child_id' in f.keys()
+
+  ########################################################################
+
+  def test_works_with_stars( self ):
+
+    self.particle_tracker = track.ParticleTracker( **star_data_p )
+    self.particle_tracker.save_particle_tracks()
+
+    f = h5py.File( 'tests/test_data/tracking_output/ptrack_test_star.hdf5', 'r' )
+    
+    expected_snum = np.arange(600, 490, -50)
+    actual_snum = f['snum'][...]
+    npt.assert_allclose( expected_snum, actual_snum )
+
+    expected_id = np.array([24565150, 24079833, 13109563, 14147322])
+    actual_id = f['id'][...]
+    npt.assert_allclose( expected_id, actual_id )
+
+    expected_rho_500 = np.array([ 8.95081308e-04,   2.98729116e-09,   3.12611002e-08,   1.94556549e-09])
+    actual_rho_500 = f['rho'][...][:,-1]
+    npt.assert_allclose( expected_rho_500, actual_rho_500 )
+
+    expected_ptype_p0 = np.array([ 4, 0, 0 ])
+    actual_ptype_p0 = f['Ptype'][...][0]
+    npt.assert_allclose( expected_ptype_p0, actual_ptype_p0 )
 
     assert 'child_id' in f.keys()
 
