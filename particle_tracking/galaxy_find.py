@@ -211,6 +211,9 @@ class GalaxyFinder( object ):
           galaxy_and_halo_ids[id_type].fill( -2. )
 
         return galaxy_and_halo_ids
+
+      else:
+        raise KeyError( 'AHF data not found for snum {} in {}'.format( self.kwargs['snum'], self.kwargs['sdir'] ) )
     
     # Actually get the data
     for id_type in ids_to_return:
@@ -250,8 +253,15 @@ class GalaxyFinder( object ):
     # Get the halo ID
     halo_id = self.find_halo_id( radial_cut_fraction )
 
+    ahf_host_id =  self.ahf_reader.ahf_halos['hostHalo']
+
+    # Handle the case where we have an empty ahf_halos, because there are no halos at that redshift.
+    # In this case, the ID will be -2 throughout
+    if ahf_host_id.size == 0:
+      return halo_id
+
     # Get the host halo ID
-    host_id = self.ahf_reader.ahf_halos['hostHalo'][ halo_id ]
+    host_id = ahf_host_id[ halo_id ]
 
     # Fix the invalid values (which come from not being associated with any halo)
     host_id_fixed = np.ma.fix_invalid( host_id, fill_value=-2 )
@@ -279,13 +289,20 @@ class GalaxyFinder( object ):
     # Choose parameters of the rest of the function based on what type of halo ID we're using
     if type_of_halo_id == 'halo_id':
 
+      # Get the virial masses. It's okay to leave in comoving, since we're just finding the minimum
+      m_vir = self.ahf_reader.ahf_halos['Mvir']
+
+      # Handle the case where we have an empty ahf_halos, because there are no halos at that redshift.
+      # In this case, the halo ID will be -2 throughout
+      if m_vir.size == 0:
+        halo_id = np.empty( self.n_particles )
+        halo_id.fill( -2. )
+        return halo_id
+
       # Functions that change.
       find_containing_halos_fn = self.find_containing_halos
       arg_extremum_fn = np.argmin
       extremum_fn = np.min
-
-      # Get the virial masses. It's okay to leave in comoving, since we're just finding the minimum
-      m_vir = self.ahf_reader.ahf_halos['Mvir']
 
     elif type_of_halo_id == 'mt_halo_id':
 
