@@ -26,13 +26,13 @@ class ParticleTrackGalaxyFinder( object ):
     Args:
       galaxy_cut (float, optional): Anything within galaxy_cut*R_vir is counted as being inside the virial radius.
       ids_to_return (list of strs, optional): The types of id you want to get out.
-      mtree_halos_index: The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
-                        snapshot number, but see AHFReader.get_mtree_halos's documentation.
 
     Keyword Args:
       sdir (str): Directory the AHF data is in.
       tracking_dir (str): Directory the ptrack data is in.
       tag (str): Identifying tag for the ptrack data
+      mtree_halos_index (str or int) : The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
+                        snapshot number, but see AHFReader.get_mtree_halos's documentation.
     '''
 
     self.kwargs = kwargs
@@ -160,6 +160,8 @@ class GalaxyFinder( object ):
       snum (int): Snapshot the particles correspond to.
       hubble (float): Cosmological hubble parameter (little h)
       sdir (str): Directory the AHF data is in.
+      mtree_halos_index (str or int) : The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
+                        snapshot number, but see AHFReader.get_mtree_halos's documentation.
     '''
 
     self.kwargs = kwargs
@@ -361,22 +363,29 @@ class GalaxyFinder( object ):
     for halo_id in self.ahf_reader.mtree_halos.keys():
       mtree_halo = self.ahf_reader.mtree_halos[ halo_id ]
 
-      # Get the halo position
-      halo_pos_comov = np.array([ mtree_halo['Xc'][ self.kwargs['snum'] ], mtree_halo['Yc'][ self.kwargs['snum'] ], mtree_halo['Zc'][ self.kwargs['snum'] ] ])
-      halo_pos = halo_pos_comov/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
+      # Usual case
+      if self.kwargs['snum'] >= mtree_halo.index.min():
 
-      # Make halo_pos 2D for compatibility with cdist
-      halo_pos = halo_pos[np.newaxis]
+        # Get the halo position
+        halo_pos_comov = np.array([ mtree_halo['Xc'][ self.kwargs['snum'] ], mtree_halo['Yc'][ self.kwargs['snum'] ], mtree_halo['Zc'][ self.kwargs['snum'] ] ])
+        halo_pos = halo_pos_comov/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
 
-      # Get the distances
-      dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
+        # Make halo_pos 2D for compatibility with cdist
+        halo_pos = halo_pos[np.newaxis]
 
-      # Get the radial distance
-      r_vir_pkpc = mtree_halo['Rvir'][ self.kwargs['snum'] ]/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
-      radial_cut = radial_cut_fraction*r_vir_pkpc
-      
-      # Find if our particles are part of this halo
-      part_of_this_halo = dist < radial_cut
+        # Get the distances
+        dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
+
+        # Get the radial distance
+        r_vir_pkpc = mtree_halo['Rvir'][ self.kwargs['snum'] ]/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
+        radial_cut = radial_cut_fraction*r_vir_pkpc
+        
+        # Find if our particles are part of this halo
+        part_of_this_halo = dist < radial_cut
+
+      # Case where there isn't a main halo at that redshift.
+      else:
+        part_of_this_halo = np.zeros( (self.n_particles, 1) ).astype( bool )
 
       part_of_halo.append( part_of_this_halo )
 
