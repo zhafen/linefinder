@@ -195,11 +195,22 @@ class GalaxyFinder( object ):
         host_gal_id (np.array of ints): ID of the host galaxy the particle is part of.
     '''
 
-    # Load the ahf data
-    self.ahf_reader.get_halos( self.kwargs['snum'] )
-
     # Dictionary to store the data in.
     galaxy_and_halo_ids = {}
+
+    try:
+      # Load the ahf data
+      self.ahf_reader.get_halos( self.kwargs['snum'] )
+
+    # Typically halo files aren't created for the first snapshot.
+    # Account for this.
+    except KeyError:
+      if self.kwargs['snum'] == 0:
+        for id_type in ids_to_return:
+          galaxy_and_halo_ids[id_type] = np.empty( self.n_particles )
+          galaxy_and_halo_ids[id_type].fill( -2. )
+
+        return galaxy_and_halo_ids
     
     # Actually get the data
     for id_type in ids_to_return:

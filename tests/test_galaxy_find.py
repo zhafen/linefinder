@@ -6,6 +6,7 @@
 @status: Development
 '''
 
+import copy
 import h5py
 import numpy as np
 import numpy.testing as npt
@@ -238,6 +239,38 @@ class TestGalaxyFinder( unittest.TestCase ):
 
     # Do the actual calculation
     galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **self.kwargs )
+    actual = galaxy_finder.find_ids()
+
+    for key in expected.keys():
+      print key
+      npt.assert_allclose( expected[key], actual[key] )
+
+  ########################################################################
+
+  def test_find_ids_snap0( self ):
+
+    particle_positions = np.array([
+      [ 29414.96458784,  30856.75007114,  32325.90901812], # Halo 0, host halo 0
+      [ 30068.5541178 ,  32596.72758226,  32928.1115097 ], # Halo 10, host halo 1
+      [ 29459.32290246,  30768.32556725,  32357.26078864], # Halo 3783, host halo 3610
+      ])
+    particle_positions *= 1./(1. + self.redshift)/self.hubble
+
+    expected = {
+      'host_halo_id' : np.array( [-2, -2, -2] ),
+      'halo_id' : np.array( [-2, -2, -2] ),
+      'host_gal_id' : np.array( [-2, -2, -2] ),
+      'gal_id' : np.array( [-2, -2, -2] ),
+      'mt_gal_id' : np.array( [-2, -2, -2] ),
+      'mt_halo_id' : np.array( [-2, -2, -2] ),
+    }
+
+    # Setup the input parameters
+    snap0_kwargs = copy.deepcopy( self.kwargs )
+    snap0_kwargs['snum'] = 0
+
+    # Do the actual calculation
+    galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **snap0_kwargs )
     actual = galaxy_finder.find_ids()
 
     for key in expected.keys():
