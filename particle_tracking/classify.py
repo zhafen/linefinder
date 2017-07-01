@@ -127,8 +127,14 @@ class Classifier( object ):
 
       f.close()
 
+    # Get the tag for particle tracking.
+    if 'ptrack_tag' in self.kwargs:
+      ptrack_tag = self.kwargs['ptrack_tag']
+    else:
+      ptrack_tag = self.kwargs['tag']
+
     # Load Particle Tracking and Galaxy Finding Data
-    ptrack_filename =  'ptrack_{}.hdf5'.format( self.kwargs['tag'] )
+    ptrack_filename =  'ptrack_{}.hdf5'.format( ptrack_tag )
     galfind_filename =  'galfind_{}.hdf5'.format( self.kwargs['tag'] )
     load_data_into_ptrack( ptrack_filename )
     load_data_into_ptrack( galfind_filename )

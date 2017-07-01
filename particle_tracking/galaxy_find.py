@@ -105,8 +105,14 @@ class ParticleTrackGalaxyFinder( object ):
   ########################################################################
 
   def read_data( self ):
-    '''Read the input data.'''
+    '''Read the input data.
 
+    Modifies:
+      self.ptrack (h5py file) : Loaded tracked particle data.
+      self.ahf_reader (AHFReader instance): For the ahf data.
+    '''
+
+    # Get the tag for particle tracking.
     if 'ptrack_tag' in self.kwargs:
       ptrack_tag = self.kwargs['ptrack_tag']
     else:
