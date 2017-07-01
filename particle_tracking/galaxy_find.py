@@ -45,7 +45,16 @@ class ParticleTrackGalaxyFinder( object ):
   def find_galaxies_for_particle_tracks( self ):
     '''Main function.'''
 
-    self.start_data_processing()
+    self.time_start = time.time()
+
+    print "########################################################################"
+    print "Starting Adding Galaxy and Halo IDs!"
+    print "########################################################################"
+    print "Using AHF data from this directory:\n    {}".format( self.kwargs['sdir'] )
+    print "Data will be saved here:\n    {}".format( self.kwargs['tracking_dir'] )
+
+
+    self.read_data()
 
     # Loop over each included snapshot.
     n_snaps = self.ptrack['snum'][...].size
@@ -83,23 +92,28 @@ class ParticleTrackGalaxyFinder( object ):
       for key in galaxy_and_halo_ids.keys():
         self.ptrack_gal_ids[key][ :, i ] = galaxy_and_halo_ids[key]
 
-    self.finish_data_processing()
+    self.write_galaxy_identifications()
+
+    time_end = time.time()
+
+    print "########################################################################"
+    print "Done Adding Galaxy and Halo IDs!"
+    print "########################################################################"
+    print "The following particle track file was updated:\n    {}".format( self.ptrack_filepath )
+    print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format( time_end - self.time_start, (time_end - self.time_start) / self.n_particles )
 
   ########################################################################
 
-  def start_data_processing( self ):
-    '''Open up the ptrack file and print out information.'''
+  def read_data( self ):
+    '''Read the input data.'''
 
-    self.time_start = time.time()
-
-    print "########################################################################"
-    print "Starting Adding Galaxy and Halo IDs!"
-    print "########################################################################"
-    print "Using AHF data from this directory:\n    {}".format( self.kwargs['sdir'] )
-    print "Data will be saved here:\n    {}".format( self.kwargs['tracking_dir'] )
+    if 'ptrack_tag' in self.kwargs:
+      ptrack_tag = self.kwargs['ptrack_tag']
+    else:
+      ptrack_tag = self.kwargs['tag']
 
     # Load the particle track data
-    ptrack_filename = 'ptrack_{}.hdf5'.format( self.kwargs['tag'] )
+    ptrack_filename = 'ptrack_{}.hdf5'.format( ptrack_tag )
     self.ptrack_filepath = os.path.join( self.kwargs['tracking_dir'], ptrack_filename )
     self.ptrack = h5py.File( self.ptrack_filepath, 'a' )
 
@@ -108,11 +122,11 @@ class ParticleTrackGalaxyFinder( object ):
 
   ########################################################################
 
-  def finish_data_processing( self ):
+  def write_galaxy_identifications( self ):
     '''Write the data, close the file, and print out information.'''
 
     # Get the number of particles, for use in reporting the time
-    n_particles = self.ptrack[ 'rho' ][...].shape[0]
+    self.n_particles = self.ptrack[ 'rho' ][...].shape[0]
 
     # Close the old dataset
     self.ptrack.close()
@@ -134,13 +148,6 @@ class ParticleTrackGalaxyFinder( object ):
       f.attrs[key] = self.kwargs[key]
 
     f.close()
-
-    time_end = time.time()
-    print "########################################################################"
-    print "Done Adding Galaxy and Halo IDs!"
-    print "########################################################################"
-    print "The following particle track file was updated:\n    {}".format( self.ptrack_filepath )
-    print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format( time_end - self.time_start, (time_end - self.time_start) / n_particles )
 
 ########################################################################
 ########################################################################
