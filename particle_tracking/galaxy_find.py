@@ -121,7 +121,7 @@ class ParticleTrackGalaxyFinder( object ):
     # Load the particle track data
     ptrack_filename = 'ptrack_{}.hdf5'.format( ptrack_tag )
     self.ptrack_filepath = os.path.join( self.kwargs['tracking_dir'], ptrack_filename )
-    self.ptrack = h5py.File( self.ptrack_filepath, 'a' )
+    self.ptrack = h5py.File( self.ptrack_filepath, 'r' )
 
     # Load the ahf data
     self.ahf_reader = galaxy_diver.read_ahf.AHFReader( self.kwargs['sdir'] )
