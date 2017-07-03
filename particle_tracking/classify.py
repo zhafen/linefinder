@@ -36,7 +36,10 @@ class Classifier( object ):
       Data Parameters:
         sdir (str): Data directory for AHF data.
         tracking_dir (str): Data directory for tracked particle data.
+        galfind_tag
         tag (str): Identifying tag. Currently must be put in manually.
+        ptrack_tag (str,optional): Identifying tag for the ptrack data. Defaults to 'tag'.
+        galfind_tag (str,optional): Identifying tag for the galaxy_finder data. Defaults to 'tag'.
         mtree_halos_index: The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
                           snapshot number, but see AHFReader.get_mtree_halos's documentation.
 
@@ -140,9 +143,15 @@ class Classifier( object ):
     else:
       ptrack_tag = self.kwargs['tag']
 
+    # Get the tag for galaxy finding.
+    if 'galfind_tag' in self.kwargs:
+      galfind_tag = self.kwargs['galfind_tag']
+    else:
+      galfind_tag = self.kwargs['tag']
+
     # Load Particle Tracking and Galaxy Finding Data
     ptrack_filename =  'ptrack_{}.hdf5'.format( ptrack_tag )
-    galfind_filename =  'galfind_{}.hdf5'.format( self.kwargs['tag'] )
+    galfind_filename =  'galfind_{}.hdf5'.format( galfind_tag )
     load_data_into_ptrack( ptrack_filename )
     load_data_into_ptrack( galfind_filename )
 

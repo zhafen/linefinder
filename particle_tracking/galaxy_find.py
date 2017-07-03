@@ -30,7 +30,8 @@ class ParticleTrackGalaxyFinder( object ):
     Keyword Args:
       sdir (str): Directory the AHF data is in.
       tracking_dir (str): Directory the ptrack data is in.
-      tag (str): Identifying tag for the ptrack data
+      tag (str): Identifying tag.
+      ptrack_tag (str,optional): Identifying tag for the ptrack data. Defaults to 'tag'.
       mtree_halos_index (str or int) : The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
                         snapshot number, but see AHFReader.get_mtree_halos's documentation.
     '''
