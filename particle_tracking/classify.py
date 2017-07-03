@@ -24,8 +24,13 @@ class Classifier( object ):
   '''Loads the tracked particle data, and uses that to classify the particles into different categories.
   '''
 
-  def __init__( self, **kwargs ):
+  def __init__( self, not_in_main_gal_key='gal_id', **kwargs ):
     '''Setup the ID Finder.
+
+    Args:
+      not_in_main_gal_key (str): The galaxy_finder data key used to identify when not in a main galaxy.
+        'gal_id' is the default, meaning if a particle is in the main galaxy and isn't inside another galaxy then it's counted as in part of the main galaxy.
+        Another good option is 'halo_id'.
 
     Keyword Args:
       Data Parameters:
@@ -44,6 +49,8 @@ class Classifier( object ):
         time_interval_fac (float): Externally-processed mass is required to spend at least time_min during the
                                    interval time_interval_fac x time_min prior to accretion to qualify as a *merger*.
     '''
+
+    self.not_in_main_gal_key = not_in_main_gal_key
 
     self.kwargs = kwargs
 
@@ -171,6 +178,9 @@ class Classifier( object ):
     for key in self.kwargs.keys():
       f.attrs[key] = self.kwargs[key]
 
+    # Save the arguments
+    f.attrs['not_in_main_gal_key'] = self.not_in_main_gal_key
+
     f.close()
 
   ########################################################################
@@ -277,9 +287,9 @@ class Classifier( object ):
     main_halo_id = main_mtree_halo[ 'ID' ][ self.ptrack[ 'snum' ] ]
     main_halo_id_tiled = np.tile( main_halo_id, ( self.n_particle, 1 ) )
 
-    # Check if we're inside a galaxy other than the main galaxy
+    # Check if we're inside the galaxy/halo other than the main galaxy
     # This step is necessary, and the inverse of it is not redundant, because it removes anything that's in the main halo *and* that's the least massive galaxy it's in.
-    is_not_in_main_gal = ( self.ptrack['gal_id'] != main_halo_id_tiled )
+    is_not_in_main_gal = ( self.ptrack[self.not_in_main_gal_key] != main_halo_id_tiled )
     is_in_gal = ( self.ptrack['gal_id'] >= 0 )
 
     is_in_other_gal =  ( is_in_gal & is_not_in_main_gal )
