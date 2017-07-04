@@ -154,6 +154,9 @@ class ParticleTrackGalaxyFinder( object ):
     for key in self.kwargs.keys():
       f.attrs[key] = self.kwargs[key]
 
+    # Save the arguments (that aren't already obvious somewhere else in the output).
+    f.attrs['galaxy_cut'] = self.galaxy_cut
+
     f.close()
 
 ########################################################################
