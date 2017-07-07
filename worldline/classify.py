@@ -14,8 +14,9 @@ import sys
 import time
 
 import galaxy_diver.read_data.ahf as read_ahf
+import galaxy_diver.utils.constants as constants
+
 import astro_tools
-import constants
 
 ########################################################################
 ########################################################################
