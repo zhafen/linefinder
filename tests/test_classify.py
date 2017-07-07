@@ -13,7 +13,7 @@ import os
 import pdb
 import unittest
 
-from galaxy_diver import read_ahf
+import galaxy_diver.read_data.ahf as read_ahf
 from particle_tracking import classify
 
 ########################################################################
