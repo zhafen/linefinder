@@ -14,7 +14,7 @@ import pandas as pd
 import sys
 import time
 
-import readsnap
+import galaxy_diver.read_data.snapshot as readsnap
 
 ########################################################################
 ########################################################################
