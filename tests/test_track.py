@@ -14,8 +14,8 @@ import os
 import pdb
 import unittest
 
-from particle_tracking import track
-from particle_tracking import readsnap
+from worldline import track
+import galaxy_diver.read_data.snapshot as readsnap
 
 ########################################################################
 # Global Setup

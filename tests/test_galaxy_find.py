@@ -15,7 +15,7 @@ import pdb
 import unittest
 
 import galaxy_diver.read_data.ahf as read_ahf
-from particle_tracking import galaxy_find
+from worldline import galaxy_find
 
 ########################################################################
 # Useful global test variables
