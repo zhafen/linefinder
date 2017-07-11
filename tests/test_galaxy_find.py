@@ -92,6 +92,21 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
+  def test_find_containing_halos_r_scale( self ):
+    '''Test that this works for using r_scale.'''
+
+    # Set the length scale
+    self.galaxy_finder.length_scale = 'r_scale'
+
+    self.galaxy_finder.particle_positions = np.array([
+      [ 29414.96458784,  30856.75007114,  32325.90901812], # Right in the middle of mt halo 0 at snap 500
+      [ 29414.96458784 + ,  30856.75007114,  32325.90901812], # Just outside the scale radius of mt halo 0 at snap 500.
+      ])
+
+    result = self.galaxy_finder.find_containing_halos( 0.0001 )
+
+  ########################################################################
+
   def test_find_mt_containing_halos( self ):
     
     self.galaxy_finder.particle_positions = np.array([
@@ -113,6 +128,12 @@ class TestGalaxyFinder( unittest.TestCase ):
     expected[ 2, -1 ] = True
 
     npt.assert_allclose( actual, expected )
+
+  ########################################################################
+
+  def test_find_mt_containing_halos_r_scale( self ):
+
+    assert False, "Need to do."
 
   ########################################################################
 
