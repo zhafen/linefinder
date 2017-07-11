@@ -100,17 +100,17 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''Test that this works for using r_scale.'''
 
     # Set the length scale
+    self.galaxy_finder.galaxy_cut = 1.
     self.galaxy_finder.length_scale = 'r_scale'
 
     r_scale_500 = 21.113602882685832
     self.galaxy_finder.particle_positions = np.array([
       [ 29414.96458784,  30856.75007114,  32325.90901812], # Right in the middle of mt halo 0 at snap 500
       [ 29414.96458784 + r_scale_500*1.01,  30856.75007114,  32325.90901812], # Just outside the scale radius of mt halo 0 at snap 500.
-                                                           # (It will be. It currently isn't.)
+      [ 29414.96458784 + r_scale_500*0.99,  30856.75007114,  32325.90901812], # Just inside the scale radius of mt halo 0 at snap 500.
       ])
     self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble
-
-    
+    self.galaxy_finder.n_particles = 3
 
     actual = self.galaxy_finder.find_containing_halos( 1. )
 
@@ -119,6 +119,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     expected = np.zeros( (self.galaxy_finder.particle_positions.shape[0], n_halos) ).astype( bool )
     expected[ 0, 0 ] = True
     expected[ 1, 0 ] = False
+    expected[ 2, 0 ] = True
 
     npt.assert_allclose( actual, expected )
 
@@ -149,8 +150,32 @@ class TestGalaxyFinder( unittest.TestCase ):
   ########################################################################
 
   def test_find_mt_containing_halos_r_scale( self ):
+    '''Test that this works for using r_scale.'''
 
-    assert False, "Need to do."
+    # Set the length scale
+    self.galaxy_finder.galaxy_cut = 1.
+    self.galaxy_finder.length_scale = 'r_scale'
+
+    r_scale_500 = 21.113602882685832
+    self.galaxy_finder.particle_positions = np.array([
+      [ 29414.96458784,  30856.75007114,  32325.90901812], # Right in the middle of mt halo 0 at snap 500
+      [ 29414.96458784 + r_scale_500*1.01,  30856.75007114,  32325.90901812], # Just outside the scale radius of mt halo 0 at snap 500.
+      [ 29414.96458784 + r_scale_500*0.99,  30856.75007114,  32325.90901812], # Just inside the scale radius of mt halo 0 at snap 500.
+                                                           # (It will be. It currently isn't.)
+      ])
+    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble
+    self.galaxy_finder.n_particles = 3
+
+    actual = self.galaxy_finder.find_mt_containing_halos( 1. )
+
+    # Build the expected output
+    n_halos = len( self.galaxy_finder.ahf_reader.mtree_halos )
+    expected = np.zeros( (self.galaxy_finder.particle_positions.shape[0], n_halos) ).astype( bool )
+    expected[ 0, 0 ] = True
+    expected[ 1, 0 ] = False
+    expected[ 2, 0 ] = True
+
+    npt.assert_allclose( actual, expected )
 
   ########################################################################
 
@@ -412,6 +437,9 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
   @slow
   def test_find_galaxies_for_particle_tracks( self ):
 
+    #DEBUG
+    import pdb; pdb.set_trace()
+
     particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder( **ptrack_gal_finder_kwargs )
     particle_track_gal_finder.find_galaxies_for_particle_tracks()
 
@@ -437,4 +465,3 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
     for key in ptrack_gal_finder_kwargs.keys():
       assert ptrack_gal_finder_kwargs[key] == f.attrs[key]
 
-    f.close()

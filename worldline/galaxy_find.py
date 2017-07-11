@@ -393,14 +393,12 @@ class GalaxyFinder( object ):
     if self.length_scale == 'R_vir':
       length_scale = self.ahf_reader.ahf_halos['Rvir']
     elif self.length_scale == 'r_scale':
-      
       # Get the files containing the concentration (counts on it being already calculated beforehand)
       self.ahf_reader.get_halos_add( self.ahf_reader.ahf_halos_snum )
 
       # Get the scale radius
       r_vir = self.ahf_reader.ahf_halos['Rvir']
       length_scale = r_vir/self.ahf_reader.ahf_halos_add['cAnalytic']
-
     else:
       raise KeyError( "Unspecified length scale" )
     length_scale_pkpc = length_scale/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
@@ -449,9 +447,19 @@ class GalaxyFinder( object ):
         # Get the distances
         dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
 
+        # Get the relevant length scale
+        if self.length_scale == 'R_vir':
+          length_scale = mtree_halo['Rvir'][ self.kwargs['snum'] ]
+        elif self.length_scale == 'r_scale':
+          # Get the scale radius
+          r_vir = mtree_halo['Rvir'][ self.kwargs['snum'] ]
+          length_scale = r_vir/mtree_halo['cAnalytic'][ self.kwargs['snum'] ]
+        else:
+          raise KeyError( "Unspecified length scale" )
+        length_scale_pkpc = length_scale/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
+
         # Get the radial distance
-        r_vir_pkpc = mtree_halo['Rvir'][ self.kwargs['snum'] ]/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
-        radial_cut = radial_cut_fraction*r_vir_pkpc
+        radial_cut = radial_cut_fraction*length_scale_pkpc
         
         # Find if our particles are part of this halo
         part_of_this_halo = dist < radial_cut
