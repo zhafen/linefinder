@@ -73,8 +73,9 @@ class ParticleTrackGalaxyFinder( object ):
       # Get the data parameters to pass to GalaxyFinder
       kwargs = {
         'ahf_reader' : self.ahf_reader,
-        'ids_to_return' : self.ids_to_return,
         'galaxy_cut' : self.galaxy_cut,
+        'length_scale' : self.length_scale,
+        'ids_to_return' : self.ids_to_return,
 
         'redshift' : self.ptrack['redshift'][...][ i ],
         'snum' : self.ptrack['snum'][...][ i ],
