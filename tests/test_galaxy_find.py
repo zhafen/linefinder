@@ -38,6 +38,14 @@ ptrack_gal_finder_kwargs = {
 
 ########################################################################
 
+# Decorator for skipping slow tests
+slow = pytest.mark.skipif(
+    not pytest.config.getoption("--runslow"),
+    reason="need --runslow option to run"
+)
+
+########################################################################
+
 class TestGalaxyFinder( unittest.TestCase ):
 
   def setUp( self ):
@@ -362,6 +370,7 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
+  @slow
   def test_find_galaxies_for_particle_tracks( self ):
 
     particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder( **ptrack_gal_finder_kwargs )
