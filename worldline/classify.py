@@ -70,18 +70,21 @@ class Classifier( object ):
     print "Using tracked particle data from this directory:\n    {}".format( self.kwargs['tracking_dir'] )
     print "Using AHF data from this directory:\n    {}".format( self.kwargs['sdir'] )
     print "Data will be saved here:\n    {}".format( self.kwargs['tracking_dir'] )
+    sys.stdout.flush()
 
     # Get the data files out
     self.read_data_files()
 
     # Do the auxiliary calculations
     print "Calculating radial velocity, circular velocity, and dt..."
+    sys.stdout.flush()
     self.v_r = self.get_radial_velocity()
     self.v_c = self.get_circular_velocity()
     self.dt = self.get_time_difference()
 
     # Do the first wave of classifications
     print "Identifying accretion, ejection, etc..."
+    sys.stdout.flush()
     self.is_in_other_gal = self.identify_is_in_other_gal()
     self.is_in_main_gal = self.identify_is_in_main_gal()
     self.gal_event_id = self.calc_gal_event_id()
@@ -90,12 +93,14 @@ class Classifier( object ):
 
     # Information on what happens before accretion.
     print "Figuring out what happens before first accretion..."
+    sys.stdout.flush()
     self.is_before_first_acc = self.identify_is_before_first_acc()
     self.time_in_other_gal_before_acc = self.get_time_in_other_gal_before_acc()
     self.time_in_other_gal_before_acc_during_interval = self.get_time_in_other_gal_before_acc_during_interval()
 
     # Get the primary classifications
     print "Performing the main classifications..."
+    sys.stdout.flush()
     self.is_pristine = self.identify_pristine()
     self.is_preprocessed = self.identify_preprocessed()
     self.is_mass_transfer = self.identify_mass_transfer()
@@ -119,6 +124,7 @@ class Classifier( object ):
     '''Read the relevant data files, and store the data in a dictionary for easy access later on.'''
 
     print "Reading data..."
+    sys.stdout.flush()
 
     self.ptrack = {}
     self.ptrack_attrs = {}

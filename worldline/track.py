@@ -53,6 +53,7 @@ class ParticleTracker( object ):
     print "########################################################################"
     print "Tracking particle data from this directory:\n    {}".format( self.kwargs['sdir'] )
     print "Data will be saved here:\n    {}".format( self.kwargs['outdir'] )
+    sys.stdout.flush()
 
     # Get the target ids
     self.get_target_ids()
@@ -115,6 +116,7 @@ class ParticleTracker( object ):
     self.ntrack = self.target_ids.size
 
     print "Tracking {} particles...".format( self.ntrack )
+    sys.stdout.flush()
 
     ptrack = {
       'redshift':np.zeros( nsnap, dtype=myfloat ), 
@@ -252,6 +254,7 @@ class IDFinder( object ):
 
     if verbose:
       print 'Reading data...'
+      sys.stdout.flush()
 
     full_snap_data = {
       'id' : [],

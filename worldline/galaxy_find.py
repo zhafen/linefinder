@@ -10,6 +10,7 @@ import h5py
 import numpy as np
 import os
 import scipy.spatial
+import sys
 import time
 
 import galaxy_diver.read_data.ahf as read_ahf
@@ -59,7 +60,7 @@ class ParticleTrackGalaxyFinder( object ):
     print "########################################################################"
     print "Using AHF data from this directory:\n    {}".format( self.kwargs['sdir'] )
     print "Data will be saved here:\n    {}".format( self.kwargs['tracking_dir'] )
-
+    sys.stdout.flush()
 
     self.read_data()
 
@@ -93,6 +94,7 @@ class ParticleTrackGalaxyFinder( object ):
       time_end = time.time()
 
       print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'.format( kwargs['snum'], kwargs['redshift'], time_end - time_start )
+      sys.stdout.flush()
 
       # Make the arrays to store the data in
       if not hasattr( self, 'ptrack_gal_ids' ):
@@ -278,7 +280,7 @@ class GalaxyFinder( object ):
       host_halo (np.array of ints): Shape ( n_particles, ). 
         The ID of the least massive substructure the particle's part of.
         If it's -1, then the halo ID is the host ID.
-        If it's -2, then that particle is not part of any halo, within radial_cut_fraction*Rvir .
+        If it's -2, then that particle is not part of any halo, within radial_cut_fraction*length_scale .
     '''
 
     # Get the halo ID
@@ -314,7 +316,7 @@ class GalaxyFinder( object ):
       halo_id (np.array of ints): Shape ( n_particles, ). 
         The ID of the least massive substructure the particle's part of.
         In the case of using the 'mt_halo_id', this is the ID of the most massive merger tree halo the particle's part of.
-        If it's -2, then that particle is not part of any halo, within radial_cut_fraction*Rvir .
+        If it's -2, then that particle is not part of any halo, within radial_cut_fraction*length_scale .
     '''
 
     # Choose parameters of the rest of the function based on what type of halo ID we're using
