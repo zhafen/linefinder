@@ -20,11 +20,16 @@ import galaxy_diver.read_data.ahf as read_ahf
 class ParticleTrackGalaxyFinder( object ):
   '''Find the association with galaxies for entire particle tracks.'''
 
-  def __init__( self, galaxy_cut=0.1, ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ], **kwargs ):
+  def __init__( self,
+                galaxy_cut=0.1,
+                length_scale='r_scale',
+                ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
+                **kwargs ):
     '''Initialize.
 
     Args:
-      galaxy_cut (float, optional): Anything within galaxy_cut*R_vir is counted as being inside the virial radius.
+      galaxy_cut (float, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy
+      length_scale (str, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
       ids_to_return (list of strs, optional): The types of id you want to get out.
 
     Keyword Args:
@@ -39,6 +44,7 @@ class ParticleTrackGalaxyFinder( object ):
     self.kwargs = kwargs
 
     self.galaxy_cut = galaxy_cut
+    self.length_scale = length_scale
     self.ids_to_return = ids_to_return
 
   ########################################################################
@@ -66,6 +72,10 @@ class ParticleTrackGalaxyFinder( object ):
       
       # Get the data parameters to pass to GalaxyFinder
       kwargs = {
+        'ahf_reader' : self.ahf_reader,
+        'ids_to_return' : self.ids_to_return,
+        'galaxy_cut' : self.galaxy_cut,
+
         'redshift' : self.ptrack['redshift'][...][ i ],
         'snum' : self.ptrack['snum'][...][ i ],
         'hubble' : self.ptrack.attrs['hubble'],
@@ -76,8 +86,8 @@ class ParticleTrackGalaxyFinder( object ):
       time_start = time.time()
 
       # Find the galaxy for a given snapshot
-      galaxy_finder = GalaxyFinder( particle_positions, ahf_reader=self.ahf_reader, **kwargs )
-      galaxy_and_halo_ids = galaxy_finder.find_ids( ids_to_return=self.ids_to_return, galaxy_cut=self.galaxy_cut )
+      galaxy_finder = GalaxyFinder( particle_positions, **kwargs )
+      galaxy_and_halo_ids = galaxy_finder.find_ids()
 
       time_end = time.time()
 
@@ -156,6 +166,7 @@ class ParticleTrackGalaxyFinder( object ):
 
     # Save the arguments (that aren't already obvious somewhere else in the output).
     f.attrs['galaxy_cut'] = self.galaxy_cut
+    f.attrs['length_scale'] = self.length_scale
 
     f.close()
 
@@ -165,12 +176,15 @@ class ParticleTrackGalaxyFinder( object ):
 class GalaxyFinder( object ):
   '''Find the association with galaxies and halos for a given set of particles at a given redshift.'''
 
-  def __init__( self, particle_positions, ahf_reader=None, **kwargs ):
+  def __init__( self, particle_positions, ahf_reader=None, galaxy_cut=0.1, length_scale='r_scale', ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id'], **kwargs ):
     '''Initialize.
 
     Args:
       particle_positions (np.array): Positions with dimensions (n_particles, 3).
       ahf_reader (read_ahf object, optional): An instance of an object that reads in the AHF data. If not given initiate one using the sdir in kwargs
+      galaxy_cut (float): The fraction of the length scale a particle must be inside to be counted as part of a galaxy.
+      length_scale (str, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
+      ids_to_return (list of strs): The types of id you want to get out.
 
     Keyword Args:
       redshift (float): Redshift the particles are at.
@@ -184,6 +198,9 @@ class GalaxyFinder( object ):
     self.kwargs = kwargs
 
     self.particle_positions = particle_positions
+    self.galaxy_cut = galaxy_cut
+    self.length_scale = length_scale
+    self.ids_to_return = ids_to_return
 
     # Setup the default ahf_reader
     if ahf_reader is not None:
@@ -196,12 +213,8 @@ class GalaxyFinder( object ):
 
   ########################################################################
 
-  def find_ids( self, ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id'], galaxy_cut=0.1 ):
+  def find_ids( self ):
     '''Find relevant halo and galaxy IDs.
-
-    Args:
-      ids_to_return (list of strs): The types of id you want to get out.
-      galaxy_cut (float): The fraction of the virial radius a particle must be inside to be counted as part of a galaxy.
 
     Returns:
       galaxy_and_halo_ids (dict): Keys are...
@@ -223,7 +236,7 @@ class GalaxyFinder( object ):
     # Account for this.
     except KeyError:
       if self.kwargs['snum'] == 0:
-        for id_type in ids_to_return:
+        for id_type in self.ids_to_return:
           galaxy_and_halo_ids[id_type] = np.empty( self.n_particles )
           galaxy_and_halo_ids[id_type].fill( -2. )
 
@@ -233,19 +246,19 @@ class GalaxyFinder( object ):
         raise KeyError( 'AHF data not found for snum {} in {}'.format( self.kwargs['snum'], self.kwargs['sdir'] ) )
     
     # Actually get the data
-    for id_type in ids_to_return:
+    for id_type in self.ids_to_return:
       if id_type == 'halo_id':
         galaxy_and_halo_ids['halo_id'] = self.find_halo_id()
       elif id_type == 'host_halo_id':
         galaxy_and_halo_ids['host_halo_id'] = self.find_host_id()
       elif id_type == 'gal_id':
-        galaxy_and_halo_ids['gal_id'] = self.find_halo_id( galaxy_cut )
+        galaxy_and_halo_ids['gal_id'] = self.find_halo_id( self.galaxy_cut )
       elif id_type == 'host_gal_id':
-        galaxy_and_halo_ids['host_gal_id'] = self.find_host_id( galaxy_cut )
+        galaxy_and_halo_ids['host_gal_id'] = self.find_host_id( self.galaxy_cut )
       elif id_type == 'mt_halo_id':
         galaxy_and_halo_ids['mt_halo_id'] = self.find_halo_id( type_of_halo_id='mt_halo_id' )
       elif id_type == 'mt_gal_id':
-        galaxy_and_halo_ids['mt_gal_id'] = self.find_halo_id( galaxy_cut, type_of_halo_id='mt_halo_id' )
+        galaxy_and_halo_ids['mt_gal_id'] = self.find_halo_id( self.galaxy_cut, type_of_halo_id='mt_halo_id' )
       else:
         raise Exception( "Unrecognized id_type" )
     
@@ -376,9 +389,24 @@ class GalaxyFinder( object ):
     # Output is ordered such that dist[:,0] is the distance to the center of halo 0 for each particle
     dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
 
-    # Get the radial distance
-    r_vir_pkpc = self.ahf_reader.ahf_halos['Rvir']/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
-    radial_cut = radial_cut_fraction*r_vir_pkpc
+    # Get the relevant length scale
+    if self.length_scale == 'R_vir':
+      length_scale = self.ahf_reader.ahf_halos['Rvir']
+    elif self.length_scale == 'r_scale':
+      
+      # Get the files containing the concentration (counts on it being already calculated beforehand)
+      self.ahf_reader.get_halos_add( self.ahf_reader.ahf_halos_snum )
+
+      # Get the scale radius
+      r_vir = self.ahf_reader.ahf_halos['Rvir']
+      length_scale = r_vir/self.ahf_reader.ahf_halos_add['cAnalytic']
+
+    else:
+      raise KeyError( "Unspecified length scale" )
+    length_scale_pkpc = length_scale/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
+
+    # Get the radial cut
+    radial_cut = radial_cut_fraction*length_scale_pkpc
 
     # Tile the radial cut to allow comparison with dist
     tiled_cut = np.tile( radial_cut, ( self.n_particles, 1 ) )

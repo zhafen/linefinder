@@ -23,6 +23,8 @@ from worldline import galaxy_find
 ########################################################################
 
 gal_finder_kwargs = {
+  'length_scale' : 'R_vir',
+
   'redshift' : 0.16946003,
   'snum' : 500,
   'hubble' : 0.70199999999999996,
@@ -31,6 +33,8 @@ gal_finder_kwargs = {
 }
 
 ptrack_gal_finder_kwargs = {
+  'length_scale' : 'R_vir',
+
   'sdir' : './tests/test_data/ahf_test_data',
   'tracking_dir' : './tests/test_data/tracking_output',
   'tag' : 'test',
@@ -98,12 +102,25 @@ class TestGalaxyFinder( unittest.TestCase ):
     # Set the length scale
     self.galaxy_finder.length_scale = 'r_scale'
 
+    r_scale_500 = 21.113602882685832
     self.galaxy_finder.particle_positions = np.array([
       [ 29414.96458784,  30856.75007114,  32325.90901812], # Right in the middle of mt halo 0 at snap 500
-      [ 29414.96458784 + ,  30856.75007114,  32325.90901812], # Just outside the scale radius of mt halo 0 at snap 500.
+      [ 29414.96458784 + r_scale_500*1.01,  30856.75007114,  32325.90901812], # Just outside the scale radius of mt halo 0 at snap 500.
+                                                           # (It will be. It currently isn't.)
       ])
+    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble
 
-    result = self.galaxy_finder.find_containing_halos( 1. )
+    
+
+    actual = self.galaxy_finder.find_containing_halos( 1. )
+
+    # Build the expected output
+    n_halos = self.galaxy_finder.ahf_reader.ahf_halos.index.size
+    expected = np.zeros( (self.galaxy_finder.particle_positions.shape[0], n_halos) ).astype( bool )
+    expected[ 0, 0 ] = True
+    expected[ 1, 0 ] = False
+
+    npt.assert_allclose( actual, expected )
 
   ########################################################################
 

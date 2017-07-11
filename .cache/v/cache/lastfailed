@@ -1,3 +1,4 @@
 {
-  "tests/test_galaxy_find.py::TestGalaxyFinder::test_find_mt_containing_halos_r_scale": true
+  "tests/test_galaxy_find.py::TestGalaxyFinder::test_find_mt_containing_halos_r_scale": true, 
+  "tests/test_galaxy_find.py::TestParticleTrackGalaxyFinder::test_find_galaxies_for_particle_tracks": true
 }
