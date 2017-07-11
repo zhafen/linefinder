@@ -103,7 +103,7 @@ class TestGalaxyFinder( unittest.TestCase ):
       [ 29414.96458784 + ,  30856.75007114,  32325.90901812], # Just outside the scale radius of mt halo 0 at snap 500.
       ])
 
-    result = self.galaxy_finder.find_containing_halos( 0.0001 )
+    result = self.galaxy_finder.find_containing_halos( 1. )
 
   ########################################################################
 
