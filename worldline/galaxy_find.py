@@ -177,7 +177,7 @@ class ParticleTrackGalaxyFinder( object ):
     f.attrs['minimum_stellar_mass'] = self.minimum_stellar_mass
 
     # Save the location this was saved to, and the location the ptrack data was in
-    f.attrs['ptrack_filename'] = self.ptrack_filename
+    f.attrs['ptrack_filepath'] = self.ptrack_filepath
     f.attrs['save_filepath'] = save_filepath
 
     f.close()
