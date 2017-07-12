@@ -1,3 +1,9 @@
 {
-  "tests/test_galaxy_find.py::TestGalaxyFinderMinimumStellarMass::test_find_mt_containing_halos": true
+  "tests/test_galaxy_find.py::TestGalaxyFinder::test_find_containing_halos_strict": true, 
+  "tests/test_galaxy_find.py::TestGalaxyFinder::test_find_host_id": true, 
+  "tests/test_galaxy_find.py::TestGalaxyFinder::test_find_ids": true, 
+  "tests/test_galaxy_find.py::TestGalaxyFinder::test_find_mt_containing_halos": true, 
+  "tests/test_galaxy_find.py::TestGalaxyFinder::test_find_mt_halo_id": true, 
+  "tests/test_galaxy_find.py::TestGalaxyFinder::test_find_smallest_host_halo": true, 
+  "tests/test_galaxy_find.py::TestGalaxyFinder::test_pass_ahf_reader": true
 }

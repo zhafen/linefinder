@@ -460,8 +460,18 @@ class GalaxyFinder( object ):
     for halo_id in self.ahf_reader.mtree_halos.keys():
       mtree_halo = self.ahf_reader.mtree_halos[ halo_id ]
 
+      # Only try to get the data if we're in the range we actually have the halos for.
+      above_minimum_snap = self.kwargs['snum'] >= mtree_halo.index.min()
+
+      # Only try to get the data if we have the minimum stellar mass
+      if above_minimum_snap:
+        has_minimum_stellar_mass = mtree_halo['M_star'][ self.kwargs['snum'] ]/self.kwargs['hubble'] > self.minimum_stellar_mass
+      else:
+        # If it's not at the point where it can be traced, it definitely doesn't have the minimum stellar mass.
+        has_minimum_stellar_mass = False
+
       # Usual case
-      if self.kwargs['snum'] >= mtree_halo.index.min():
+      if above_minimum_snap and has_minimum_stellar_mass:
 
         # Get the halo position
         halo_pos_comov = np.array([ mtree_halo['Xc'][ self.kwargs['snum'] ], mtree_halo['Yc'][ self.kwargs['snum'] ], mtree_halo['Zc'][ self.kwargs['snum'] ] ])
