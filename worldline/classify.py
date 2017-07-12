@@ -10,6 +10,7 @@ import h5py
 import numpy as np
 import os
 import scipy.spatial
+import subprocess
 import sys
 import time
 
@@ -156,10 +157,10 @@ class Classifier( object ):
       galfind_tag = self.kwargs['tag']
 
     # Load Particle Tracking and Galaxy Finding Data
-    ptrack_filename =  'ptrack_{}.hdf5'.format( ptrack_tag )
-    galfind_filename =  'galfind_{}.hdf5'.format( galfind_tag )
-    load_data_into_ptrack( ptrack_filename )
-    load_data_into_ptrack( galfind_filename )
+    self.ptrack_filename =  'ptrack_{}.hdf5'.format( ptrack_tag )
+    self.galfind_filename =  'galfind_{}.hdf5'.format( galfind_tag )
+    load_data_into_ptrack( self.ptrack_filename )
+    load_data_into_ptrack( self.galfind_filename )
 
     # Set useful state variables
     self.n_snap = self.ptrack['redshift'].size
@@ -195,6 +196,13 @@ class Classifier( object ):
 
     # Save the arguments
     f.attrs['not_in_main_gal_key'] = self.not_in_main_gal_key
+
+    # Save the filenames of the files used for classification
+    f.attrs['ptrack_filename'] = self.ptrack_filename
+    f.attrs['galfind_filename'] = self.galfind_filename
+
+    # Save the current code version
+    f.attrs['worldline_version'] = subprocess.check_output( [ 'git', 'describe', '--always'] )
 
     f.close()
 

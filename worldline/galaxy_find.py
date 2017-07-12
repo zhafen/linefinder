@@ -10,6 +10,7 @@ import h5py
 import numpy as np
 import os
 import scipy.spatial
+import subprocess
 import sys
 import time
 
@@ -187,6 +188,9 @@ class ParticleTrackGalaxyFinder( object ):
     # Save the location this was saved to, and the location the ptrack data was in
     f.attrs['ptrack_filepath'] = self.ptrack_filepath
     f.attrs['save_filepath'] = save_filepath
+
+    # Save the current code version
+    f.attrs['worldline_version'] = subprocess.check_output( [ 'git', 'describe', '--always'] )
 
     f.close()
 

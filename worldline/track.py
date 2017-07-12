@@ -11,6 +11,7 @@ import h5py
 import numpy as np
 import os
 import pandas as pd
+import subprocess
 import sys
 import time
 
@@ -83,9 +84,9 @@ class ParticleTracker( object ):
     '''
 
     id_filename = 'ids_{}.hdf5'.format( self.kwargs['tag'] )
-    id_filepath = os.path.join( self.kwargs['outdir'], id_filename )
+    self.id_filepath = os.path.join( self.kwargs['outdir'], id_filename )
 
-    f = h5py.File( id_filepath, 'r' )
+    f = h5py.File( self.id_filepath, 'r' )
 
     # Load in the data
     for key in f.keys():
@@ -194,6 +195,12 @@ class ParticleTracker( object ):
     # Save the data parameters (kwargs) to the attributes too.
     for key in self.kwargs.keys():
       f.attrs[key] = self.kwargs[key]
+
+    # Save the path to the ID file
+    f.attrs['id_filepath'] = self.id_filepath
+
+    # Save the current code version
+    f.attrs['worldline_version'] = subprocess.check_output( [ 'git', 'describe', '--always'] )
 
     f.close()
 
