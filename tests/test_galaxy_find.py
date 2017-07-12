@@ -30,6 +30,7 @@ gal_finder_kwargs = {
   'hubble' : 0.70199999999999996,
   'sdir' : './tests/test_data/ahf_test_data',
   'mtree_halos_index' : 600,
+  'minimum_stellar_mass' : 0.,
 }
 
 ptrack_gal_finder_kwargs = {
@@ -39,6 +40,7 @@ ptrack_gal_finder_kwargs = {
   'tracking_dir' : './tests/test_data/tracking_output',
   'tag' : 'test',
   'mtree_halos_index' : 600,
+  'minimum_stellar_mass' : 0.,
 }
 
 ########################################################################

@@ -435,7 +435,7 @@ class GalaxyFinder( object ):
     part_of_halo = dist < radial_cut[np.newaxis,:]
 
     # Now apply a cut on stellar mass
-    has_minimum_stellar_mass = self.ahf_reader.ahf_halos['M_star']/self.kwargs['hubble'] > self.minimum_stellar_mass
+    has_minimum_stellar_mass = self.ahf_reader.ahf_halos['M_star']/self.kwargs['hubble'] >= self.minimum_stellar_mass
     part_of_halo = part_of_halo & has_minimum_stellar_mass[np.newaxis,:]
 
     return part_of_halo
@@ -465,7 +465,7 @@ class GalaxyFinder( object ):
 
       # Only try to get the data if we have the minimum stellar mass
       if above_minimum_snap:
-        has_minimum_stellar_mass = mtree_halo['M_star'][ self.kwargs['snum'] ]/self.kwargs['hubble'] > self.minimum_stellar_mass
+        has_minimum_stellar_mass = mtree_halo['M_star'][ self.kwargs['snum'] ]/self.kwargs['hubble'] >= self.minimum_stellar_mass
       else:
         # If it's not at the point where it can be traced, it definitely doesn't have the minimum stellar mass.
         has_minimum_stellar_mass = False
