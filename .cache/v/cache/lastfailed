@@ -1,1 +1,3 @@
-{}
+{
+  "tests/test_galaxy_find.py::TestGalaxyFinderMinimumStellarMass::test_find_mt_containing_halos": true
+}

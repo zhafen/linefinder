@@ -25,6 +25,7 @@ class ParticleTrackGalaxyFinder( object ):
                 galaxy_cut=0.1,
                 length_scale='r_scale',
                 ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
+                minimum_stellar_mass=1e6,
                 **kwargs ):
     '''Initialize.
 
@@ -32,14 +33,15 @@ class ParticleTrackGalaxyFinder( object ):
       galaxy_cut (float, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy
       length_scale (str, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
       ids_to_return (list of strs, optional): The types of id you want to get out.
+      minimum_stellar_mass (float): The minimum stellar mass a halo must contain to count as containing a galaxy.
 
     Keyword Args:
-      sdir (str): Directory the AHF data is in.
-      tracking_dir (str): Directory the ptrack data is in.
-      tag (str): Identifying tag.
-      ptrack_tag (str,optional): Identifying tag for the ptrack data. Defaults to 'tag'.
-      mtree_halos_index (str or int) : The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
+      sdir (str, required): Directory the AHF data is in.
+      tracking_dir (str, required): Directory the ptrack data is in.
+      tag (str, required): Identifying tag.
+      mtree_halos_index (str or int, required) : The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
                         snapshot number, but see AHFReader.get_mtree_halos's documentation.
+      ptrack_tag (str, optional): Identifying tag for the ptrack data. Defaults to 'tag'.
     '''
 
     self.kwargs = kwargs
@@ -47,6 +49,7 @@ class ParticleTrackGalaxyFinder( object ):
     self.galaxy_cut = galaxy_cut
     self.length_scale = length_scale
     self.ids_to_return = ids_to_return
+    self.minimum_stellar_mass = minimum_stellar_mass
 
   ########################################################################
 
@@ -77,6 +80,7 @@ class ParticleTrackGalaxyFinder( object ):
         'galaxy_cut' : self.galaxy_cut,
         'length_scale' : self.length_scale,
         'ids_to_return' : self.ids_to_return,
+        'minimum_stellar_mass' : self.minimum_stellar_mass,
 
         'redshift' : self.ptrack['redshift'][...][ i ],
         'snum' : self.ptrack['snum'][...][ i ],
@@ -170,6 +174,11 @@ class ParticleTrackGalaxyFinder( object ):
     # Save the arguments (that aren't already obvious somewhere else in the output).
     f.attrs['galaxy_cut'] = self.galaxy_cut
     f.attrs['length_scale'] = self.length_scale
+    f.attrs['minimum_stellar_mass'] = self.minimum_stellar_mass
+
+    # Save the location this was saved to, and the location the ptrack data was in
+    f.attrs['ptrack_filename'] = self.ptrack_filename
+    f.attrs['save_filepath'] = save_filepath
 
     f.close()
 
@@ -179,7 +188,14 @@ class ParticleTrackGalaxyFinder( object ):
 class GalaxyFinder( object ):
   '''Find the association with galaxies and halos for a given set of particles at a given redshift.'''
 
-  def __init__( self, particle_positions, ahf_reader=None, galaxy_cut=0.1, length_scale='r_scale', ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id'], **kwargs ):
+  def __init__( self,
+                particle_positions,
+                ahf_reader=None,
+                galaxy_cut=0.1,
+                length_scale='r_scale',
+                ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id'],
+                minimum_stellar_mass=1e6,
+                **kwargs ):
     '''Initialize.
 
     Args:
@@ -188,13 +204,14 @@ class GalaxyFinder( object ):
       galaxy_cut (float): The fraction of the length scale a particle must be inside to be counted as part of a galaxy.
       length_scale (str, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
       ids_to_return (list of strs): The types of id you want to get out.
+      minimum_stellar_mass (float): The minimum stellar mass a halo must contain to count as containing a galaxy.
 
     Keyword Args:
-      redshift (float): Redshift the particles are at.
-      snum (int): Snapshot the particles correspond to.
-      hubble (float): Cosmological hubble parameter (little h)
-      sdir (str): Directory the AHF data is in.
-      mtree_halos_index (str or int) : The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
+      redshift (float, required): Redshift the particles are at.
+      snum (int, required): Snapshot the particles correspond to.
+      hubble (float, required): Cosmological hubble parameter (little h)
+      sdir (str, required): Directory the AHF data is in.
+      mtree_halos_index (str or int, required) : The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
                         snapshot number, but see AHFReader.get_mtree_halos's documentation.
     '''
 
@@ -204,6 +221,7 @@ class GalaxyFinder( object ):
     self.galaxy_cut = galaxy_cut
     self.length_scale = length_scale
     self.ids_to_return = ids_to_return
+    self.minimum_stellar_mass = minimum_stellar_mass
 
     # Setup the default ahf_reader
     if ahf_reader is not None:
@@ -274,7 +292,7 @@ class GalaxyFinder( object ):
     This is the host ID at a given snapshot, and is not the same as the merger tree halo ID.
 
     Args:
-      radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*R_vir from the center.
+      radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*length_scale from the center.
 
     Returns:
       host_halo (np.array of ints): Shape ( n_particles, ). 
@@ -308,7 +326,7 @@ class GalaxyFinder( object ):
     In the case of using MT halo ID, we actually find the most massive our particles are inside some radial cut of.
 
     Args:
-      radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*R_vir from the center.
+      radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*length_scale from the center.
       type_of_halo_id (str): If 'halo_id' then this is the halo_id at a given snapshot.
                              If 'mt_halo_id' then this is the halo_id according to the merger tree.
 
@@ -377,11 +395,11 @@ class GalaxyFinder( object ):
     '''Find which halos our particles are inside of some radial cut of.
 
     Args:
-      radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*R_vir from the center.
+      radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*length_scale from the center.
 
     Returns:
       part_of_halo (np.array of bools): Shape (n_particles, n_halos). 
-        If index [i, j] is True, then particle i is inside radial_cut_fraction*R_vir of the jth halo.
+        If index [i, j] is True, then particle i is inside radial_cut_fraction*length_scale of the jth halo.
     '''
 
     # Get the halo positions
@@ -409,11 +427,16 @@ class GalaxyFinder( object ):
     # Get the radial cut
     radial_cut = radial_cut_fraction*length_scale_pkpc
 
+    # TODO: Delete once I'm sure that np.newaxis works
     # Tile the radial cut to allow comparison with dist
-    tiled_cut = np.tile( radial_cut, ( self.n_particles, 1 ) )
+    #tiled_cut = np.tile( radial_cut, ( self.n_particles, 1 ) )
 
     # Find the halos that our particles are part of 
-    part_of_halo = dist < tiled_cut
+    part_of_halo = dist < radial_cut[np.newaxis,:]
+
+    # Now apply a cut on stellar mass
+    has_minimum_stellar_mass = self.ahf_reader.ahf_halos['M_star']/self.kwargs['hubble'] > self.minimum_stellar_mass
+    part_of_halo = part_of_halo & has_minimum_stellar_mass[np.newaxis,:]
 
     return part_of_halo
 
@@ -423,11 +446,11 @@ class GalaxyFinder( object ):
     '''Find which MergerTrace halos our particles are inside of some radial cut of.
 
     Args:
-      radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*R_vir from the center.
+      radial_cut_fraction (float): A particle is in a halo if it's in radial_cut_fraction*length_scale from the center.
 
     Returns:
       part_of_halo (np.array of bools): Shape (n_particles, n_halos). 
-        If index [i, j] is True, then particle i is inside radial_cut_fraction*R_vir of the jth halo, defined via the MergerTrace ID.
+        If index [i, j] is True, then particle i is inside radial_cut_fraction*length_scale of the jth halo, defined via the MergerTrace ID.
     '''
 
     # Load up the merger tree data
