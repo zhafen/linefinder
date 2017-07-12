@@ -25,7 +25,8 @@ class ParticleTrackGalaxyFinder( object ):
                 galaxy_cut=0.1,
                 length_scale='r_scale',
                 ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
-                minimum_stellar_mass=1e6,
+                minimum_criteria='n_star',
+                minimum_value=10,
                 **kwargs ):
     '''Initialize.
 
@@ -33,7 +34,10 @@ class ParticleTrackGalaxyFinder( object ):
       galaxy_cut (float, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy
       length_scale (str, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
       ids_to_return (list of strs, optional): The types of id you want to get out.
-      minimum_stellar_mass (float): The minimum stellar mass a halo must contain to count as containing a galaxy.
+      minimum_criteria (str, optional): Options...
+        'n_star' -- halos must contain a minimum number of stars to count as containing a galaxy.
+        'M_star' -- halos must contain a minimum stellar mass to count as containing a galaxy.
+      minimum_value (int or float, optional): The minimum amount of something (specified in minimum criteria) in order for a galaxy to count as hosting a halo.
 
     Keyword Args:
       sdir (str, required): Directory the AHF data is in.
@@ -46,10 +50,12 @@ class ParticleTrackGalaxyFinder( object ):
 
     self.kwargs = kwargs
 
+    # Store Args
     self.galaxy_cut = galaxy_cut
     self.length_scale = length_scale
     self.ids_to_return = ids_to_return
-    self.minimum_stellar_mass = minimum_stellar_mass
+    self.minimum_criteria = minimum_criteria
+    self.minimum_value = minimum_value
 
   ########################################################################
 
@@ -80,7 +86,8 @@ class ParticleTrackGalaxyFinder( object ):
         'galaxy_cut' : self.galaxy_cut,
         'length_scale' : self.length_scale,
         'ids_to_return' : self.ids_to_return,
-        'minimum_stellar_mass' : self.minimum_stellar_mass,
+        'minimum_criteria' : self.minimum_criteria,
+        'minimum_value' : self.minimum_value,
 
         'redshift' : self.ptrack['redshift'][...][ i ],
         'snum' : self.ptrack['snum'][...][ i ],
@@ -174,7 +181,8 @@ class ParticleTrackGalaxyFinder( object ):
     # Save the arguments (that aren't already obvious somewhere else in the output).
     f.attrs['galaxy_cut'] = self.galaxy_cut
     f.attrs['length_scale'] = self.length_scale
-    f.attrs['minimum_stellar_mass'] = self.minimum_stellar_mass
+    f.attrs['minimum_criteria'] = self.minimum_criteria
+    f.attrs['minimum_value'] = self.minimum_value
 
     # Save the location this was saved to, and the location the ptrack data was in
     f.attrs['ptrack_filepath'] = self.ptrack_filepath
@@ -207,11 +215,12 @@ class GalaxyFinder( object ):
                         snapshot number, but see AHFReader.get_mtree_halos's documentation.
 
       
-      The following will most likely be passed from ParticleTrackGalaxyFinder.
+      The following will most likely be passed from ParticleTrackGalaxyFinder....
       galaxy_cut (float, required): The fraction of the length scale a particle must be inside to be counted as part of a galaxy.
       length_scale (str, required): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
       ids_to_return (list of strs, required): The types of id you want to get out.
-      minimum_stellar_mass (float, required): The minimum stellar mass a halo must contain to count as containing a galaxy.
+      minimum_stellar_mass (float, required if no minimum_num_stars): The minimum stellar mass a halo must contain to count as containing a galaxy.
+      minimum_num_stars (int, required if no minimum_stellar_mass): The minimum number of stars a halo must contain to count as containing a galaxy.
     '''
 
     self.kwargs = kwargs
@@ -223,6 +232,12 @@ class GalaxyFinder( object ):
       self.ahf_reader = ahf_reader
     else:
       self.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
+
+    # In the case of a minimum stellar mass, we need to divide it by 1/h when getting its values out.
+    if self.kwargs['minimum_criteria'] == 'M_star':
+      self.min_conversion_factor = self.kwargs['hubble'] 
+    else:
+      self.min_conversion_factor = 1
 
     # Derived properties
     self.n_particles = self.particle_positions.shape[0]
@@ -426,8 +441,8 @@ class GalaxyFinder( object ):
     part_of_halo = dist < radial_cut[np.newaxis,:]
 
     # Now apply a cut on stellar mass
-    has_minimum_stellar_mass = self.ahf_reader.ahf_halos['M_star']/self.kwargs['hubble'] >= self.kwargs['minimum_stellar_mass']
-    part_of_halo = part_of_halo & has_minimum_stellar_mass[np.newaxis,:]
+    has_minimum_value = self.ahf_reader.ahf_halos[ self.kwargs['minimum_criteria'] ]/self.min_conversion_factor >= self.kwargs['minimum_value']
+    part_of_halo = part_of_halo & has_minimum_value[np.newaxis,:]
 
     return part_of_halo
 
@@ -456,13 +471,13 @@ class GalaxyFinder( object ):
 
       # Only try to get the data if we have the minimum stellar mass
       if above_minimum_snap:
-        has_minimum_stellar_mass = mtree_halo['M_star'][ self.kwargs['snum'] ]/self.kwargs['hubble'] >= self.kwargs['minimum_stellar_mass']
+        has_minimum_value = mtree_halo[ self.kwargs['minimum_criteria'] ][ self.kwargs['snum'] ]/self.min_conversion_factor >= self.kwargs['minimum_value']
       else:
         # If it's not at the point where it can be traced, it definitely doesn't have the minimum stellar mass.
-        has_minimum_stellar_mass = False
+        has_minimum_value = False
 
       # Usual case
-      if above_minimum_snap and has_minimum_stellar_mass:
+      if above_minimum_snap and has_minimum_value:
 
         # Get the halo position
         halo_pos_comov = np.array([ mtree_halo['Xc'][ self.kwargs['snum'] ], mtree_halo['Yc'][ self.kwargs['snum'] ], mtree_halo['Zc'][ self.kwargs['snum'] ] ])

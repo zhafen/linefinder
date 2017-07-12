@@ -33,7 +33,8 @@ gal_finder_kwargs = {
 
   'galaxy_cut' : 0.1,
   'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
-  'minimum_stellar_mass' : 0.,
+  'minimum_criteria' : 'n_star',
+  'minimum_value' : 0,
 }
 
 ptrack_gal_finder_kwargs = {
@@ -43,7 +44,6 @@ ptrack_gal_finder_kwargs = {
   'tracking_dir' : './tests/test_data/tracking_output',
   'tag' : 'test',
   'mtree_halos_index' : 600,
-  'minimum_stellar_mass' : 0.,
 }
 
 ########################################################################
@@ -431,7 +431,8 @@ class TestGalaxyFinderMinimumStellarMass( unittest.TestCase ):
 
     gal_finder_kwargs_min_mstar = {
       'length_scale' : 'r_scale',
-      'minimum_stellar_mass' : 1e6,
+      'minimum_criteria' : 'M_star',
+      'minimum_value' : 1e6,
 
       'redshift' : 6.1627907799999999,
       'snum' : 50,
@@ -454,6 +455,74 @@ class TestGalaxyFinderMinimumStellarMass( unittest.TestCase ):
 
     # Make the necessary kwargs
     self.kwargs = gal_finder_kwargs_min_mstar
+
+    self.galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **self.kwargs ) 
+
+    # Get the necessary reader.
+    self.galaxy_finder.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
+    
+    # Get the full needed ahf info.
+    self.galaxy_finder.ahf_reader.get_halos( 50 )
+
+  ########################################################################
+
+  def test_find_containing_halos( self ):
+
+    actual = self.galaxy_finder.find_containing_halos( 1. )
+
+    # Build the expected output
+    n_halos = self.galaxy_finder.ahf_reader.ahf_halos.index.size
+    expected = np.zeros( (self.galaxy_finder.particle_positions.shape[0], n_halos) ).astype( bool )
+    expected[ 0, 3 ] = True # Should only be in the galaxy with sufficient stellar mass.
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_find_mt_containing_halos( self ):
+
+    actual = self.galaxy_finder.find_mt_containing_halos( 1. )
+
+    # Build the expected output
+    n_halos = len( self.galaxy_finder.ahf_reader.mtree_halos )
+    expected = np.zeros( (self.galaxy_finder.particle_positions.shape[0], n_halos) ).astype( bool )
+    expected[ 0, 0 ] = True # Should only be in the galaxy with sufficient stellar gas.
+
+    npt.assert_allclose( expected, actual )
+
+########################################################################
+
+class TestGalaxyFinderMinimumNumStars( unittest.TestCase ):
+  '''Test that we're properly applying a minimum number of stars for a halo to be counted as containing a galaxy.'''
+
+  def setUp( self ):
+
+    gal_finder_kwargs_min_nstar = {
+      'length_scale' : 'r_scale',
+      'minimum_criteria' : 'n_star',
+      'minimum_value' : 10,
+
+      'redshift' : 6.1627907799999999,
+      'snum' : 50,
+      'hubble' : 0.70199999999999996,
+      'sdir' : './tests/test_data/ahf_test_data',
+      'mtree_halos_index' : 600,
+    }
+
+    # Get input data
+    comoving_particle_positions = np.array([
+      [ 30252.60118534,  29483.51635481,  31011.17715464], # Right in the middle of mt halo 0 (AHF halo id 3) at snum 50.
+                                                           # This halo contains a galaxy with 1e6.7 Msun of stars at this redshift.
+      [ 28651.1193359,  29938.7253038,  32168.1380575], # Right in the middle of mt halo 19 (AHF halo id 374) at snum 50
+                                                           # This halo no stars at this redshift.
+    ])
+
+    self.redshift = gal_finder_kwargs_min_nstar['redshift']
+    self.hubble = gal_finder_kwargs_min_nstar['hubble']
+    particle_positions = comoving_particle_positions/(1. + self.redshift)/self.hubble
+
+    # Make the necessary kwargs
+    self.kwargs = gal_finder_kwargs_min_nstar
 
     self.galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **self.kwargs ) 
 
