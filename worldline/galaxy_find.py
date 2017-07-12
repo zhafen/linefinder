@@ -191,20 +191,12 @@ class GalaxyFinder( object ):
   def __init__( self,
                 particle_positions,
                 ahf_reader=None,
-                galaxy_cut=0.1,
-                length_scale='r_scale',
-                ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id'],
-                minimum_stellar_mass=1e6,
                 **kwargs ):
     '''Initialize.
 
     Args:
       particle_positions (np.array): Positions with dimensions (n_particles, 3).
       ahf_reader (read_ahf object, optional): An instance of an object that reads in the AHF data. If not given initiate one using the sdir in kwargs
-      galaxy_cut (float): The fraction of the length scale a particle must be inside to be counted as part of a galaxy.
-      length_scale (str, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
-      ids_to_return (list of strs): The types of id you want to get out.
-      minimum_stellar_mass (float): The minimum stellar mass a halo must contain to count as containing a galaxy.
 
     Keyword Args:
       redshift (float, required): Redshift the particles are at.
@@ -213,15 +205,18 @@ class GalaxyFinder( object ):
       sdir (str, required): Directory the AHF data is in.
       mtree_halos_index (str or int, required) : The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
                         snapshot number, but see AHFReader.get_mtree_halos's documentation.
+
+      
+      The following will most likely be passed from ParticleTrackGalaxyFinder.
+      galaxy_cut (float, required): The fraction of the length scale a particle must be inside to be counted as part of a galaxy.
+      length_scale (str, required): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
+      ids_to_return (list of strs, required): The types of id you want to get out.
+      minimum_stellar_mass (float, required): The minimum stellar mass a halo must contain to count as containing a galaxy.
     '''
 
     self.kwargs = kwargs
 
     self.particle_positions = particle_positions
-    self.galaxy_cut = galaxy_cut
-    self.length_scale = length_scale
-    self.ids_to_return = ids_to_return
-    self.minimum_stellar_mass = minimum_stellar_mass
 
     # Setup the default ahf_reader
     if ahf_reader is not None:
@@ -257,7 +252,7 @@ class GalaxyFinder( object ):
     # Account for this.
     except KeyError:
       if self.kwargs['snum'] == 0:
-        for id_type in self.ids_to_return:
+        for id_type in self.kwargs['ids_to_return']:
           galaxy_and_halo_ids[id_type] = np.empty( self.n_particles )
           galaxy_and_halo_ids[id_type].fill( -2. )
 
@@ -267,19 +262,19 @@ class GalaxyFinder( object ):
         raise KeyError( 'AHF data not found for snum {} in {}'.format( self.kwargs['snum'], self.kwargs['sdir'] ) )
     
     # Actually get the data
-    for id_type in self.ids_to_return:
+    for id_type in self.kwargs['ids_to_return']:
       if id_type == 'halo_id':
         galaxy_and_halo_ids['halo_id'] = self.find_halo_id()
       elif id_type == 'host_halo_id':
         galaxy_and_halo_ids['host_halo_id'] = self.find_host_id()
       elif id_type == 'gal_id':
-        galaxy_and_halo_ids['gal_id'] = self.find_halo_id( self.galaxy_cut )
+        galaxy_and_halo_ids['gal_id'] = self.find_halo_id( self.kwargs['galaxy_cut'] )
       elif id_type == 'host_gal_id':
-        galaxy_and_halo_ids['host_gal_id'] = self.find_host_id( self.galaxy_cut )
+        galaxy_and_halo_ids['host_gal_id'] = self.find_host_id( self.kwargs['galaxy_cut'] )
       elif id_type == 'mt_halo_id':
         galaxy_and_halo_ids['mt_halo_id'] = self.find_halo_id( type_of_halo_id='mt_halo_id' )
       elif id_type == 'mt_gal_id':
-        galaxy_and_halo_ids['mt_gal_id'] = self.find_halo_id( self.galaxy_cut, type_of_halo_id='mt_halo_id' )
+        galaxy_and_halo_ids['mt_gal_id'] = self.find_halo_id( self.kwargs['galaxy_cut'], type_of_halo_id='mt_halo_id' )
       else:
         raise Exception( "Unrecognized id_type" )
     
@@ -411,9 +406,9 @@ class GalaxyFinder( object ):
     dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
 
     # Get the relevant length scale
-    if self.length_scale == 'R_vir':
+    if self.kwargs['length_scale'] == 'R_vir':
       length_scale = self.ahf_reader.ahf_halos['Rvir']
-    elif self.length_scale == 'r_scale':
+    elif self.kwargs['length_scale'] == 'r_scale':
       # Get the files containing the concentration (counts on it being already calculated beforehand)
       self.ahf_reader.get_halos_add( self.ahf_reader.ahf_halos_snum )
 
@@ -427,15 +422,11 @@ class GalaxyFinder( object ):
     # Get the radial cut
     radial_cut = radial_cut_fraction*length_scale_pkpc
 
-    # TODO: Delete once I'm sure that np.newaxis works
-    # Tile the radial cut to allow comparison with dist
-    #tiled_cut = np.tile( radial_cut, ( self.n_particles, 1 ) )
-
     # Find the halos that our particles are part of 
     part_of_halo = dist < radial_cut[np.newaxis,:]
 
     # Now apply a cut on stellar mass
-    has_minimum_stellar_mass = self.ahf_reader.ahf_halos['M_star']/self.kwargs['hubble'] >= self.minimum_stellar_mass
+    has_minimum_stellar_mass = self.ahf_reader.ahf_halos['M_star']/self.kwargs['hubble'] >= self.kwargs['minimum_stellar_mass']
     part_of_halo = part_of_halo & has_minimum_stellar_mass[np.newaxis,:]
 
     return part_of_halo
@@ -465,7 +456,7 @@ class GalaxyFinder( object ):
 
       # Only try to get the data if we have the minimum stellar mass
       if above_minimum_snap:
-        has_minimum_stellar_mass = mtree_halo['M_star'][ self.kwargs['snum'] ]/self.kwargs['hubble'] >= self.minimum_stellar_mass
+        has_minimum_stellar_mass = mtree_halo['M_star'][ self.kwargs['snum'] ]/self.kwargs['hubble'] >= self.kwargs['minimum_stellar_mass']
       else:
         # If it's not at the point where it can be traced, it definitely doesn't have the minimum stellar mass.
         has_minimum_stellar_mass = False
@@ -484,9 +475,9 @@ class GalaxyFinder( object ):
         dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
 
         # Get the relevant length scale
-        if self.length_scale == 'R_vir':
+        if self.kwargs['length_scale'] == 'R_vir':
           length_scale = mtree_halo['Rvir'][ self.kwargs['snum'] ]
-        elif self.length_scale == 'r_scale':
+        elif self.kwargs['length_scale'] == 'r_scale':
           # Get the scale radius
           r_vir = mtree_halo['Rvir'][ self.kwargs['snum'] ]
           length_scale = r_vir/mtree_halo['cAnalytic'][ self.kwargs['snum'] ]

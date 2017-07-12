@@ -30,6 +30,9 @@ gal_finder_kwargs = {
   'hubble' : 0.70199999999999996,
   'sdir' : './tests/test_data/ahf_test_data',
   'mtree_halos_index' : 600,
+
+  'galaxy_cut' : 0.1,
+  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
   'minimum_stellar_mass' : 0.,
 }
 
@@ -102,8 +105,8 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''Test that this works for using r_scale.'''
 
     # Set the length scale
-    self.galaxy_finder.galaxy_cut = 1.
-    self.galaxy_finder.length_scale = 'r_scale'
+    self.galaxy_finder.kwargs['galaxy_cut'] = 1.
+    self.galaxy_finder.kwargs['length_scale'] = 'r_scale'
 
     r_scale_500 = 21.113602882685832
     self.galaxy_finder.particle_positions = np.array([
@@ -155,8 +158,8 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''Test that this works for using r_scale.'''
 
     # Set the length scale
-    self.galaxy_finder.galaxy_cut = 1.
-    self.galaxy_finder.length_scale = 'r_scale'
+    self.galaxy_finder.kwargs['galaxy_cut'] = 1.
+    self.galaxy_finder.kwargs['length_scale'] = 'r_scale'
 
     r_scale_500 = 21.113602882685832
     self.galaxy_finder.particle_positions = np.array([
@@ -428,6 +431,7 @@ class TestGalaxyFinderMinimumStellarMass( unittest.TestCase ):
 
     gal_finder_kwargs_min_mstar = {
       'length_scale' : 'r_scale',
+      'minimum_stellar_mass' : 1e6,
 
       'redshift' : 6.1627907799999999,
       'snum' : 50,
