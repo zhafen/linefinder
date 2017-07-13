@@ -39,8 +39,9 @@ class ParticleTracker( object ):
         outdir (str): Output data directory. Also the directory for the file the ids to track should be in.
     '''
 
-    # Save the kwargs
-    self.kwargs = kwargs
+    # Store the arguments
+    for arg in locals().keys():
+      setattr( self, arg, locals()[arg] )
 
   ########################################################################
 

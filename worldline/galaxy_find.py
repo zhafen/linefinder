@@ -49,14 +49,9 @@ class ParticleTrackGalaxyFinder( object ):
       ptrack_tag (str, optional): Identifying tag for the ptrack data. Defaults to 'tag'.
     '''
 
-    self.kwargs = kwargs
-
-    # Store Args
-    self.galaxy_cut = galaxy_cut
-    self.length_scale = length_scale
-    self.ids_to_return = ids_to_return
-    self.minimum_criteria = minimum_criteria
-    self.minimum_value = minimum_value
+    # Store the arguments
+    for arg in locals().keys():
+      setattr( self, arg, locals()[arg] )
 
   ########################################################################
 
@@ -227,14 +222,12 @@ class GalaxyFinder( object ):
       minimum_num_stars (int, required if no minimum_stellar_mass): The minimum number of stars a halo must contain to count as containing a galaxy.
     '''
 
-    self.kwargs = kwargs
-
-    self.particle_positions = particle_positions
+    # Store the arguments
+    for arg in locals().keys():
+      setattr( self, arg, locals()[arg] )
 
     # Setup the default ahf_reader
-    if ahf_reader is not None:
-      self.ahf_reader = ahf_reader
-    else:
+    if ahf_reader is None:
       self.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
 
     # In the case of a minimum stellar mass, we need to divide it by 1/h when getting its values out.

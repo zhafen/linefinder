@@ -568,6 +568,10 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
   def test_save_classifications( self ):
 
+    # Give it filenames to save.
+    self.classifier.ptrack_filename = 'test_ptrack_filename'
+    self.classifier.galfind_filename = 'test_galfind_filename'
+
     # Prerequisites
     self.classifier.is_pristine = np.array([
       0,    # Merger, except in early snapshots

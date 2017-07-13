@@ -54,9 +54,9 @@ class Classifier( object ):
                                    interval time_interval_fac x time_min prior to accretion to qualify as a *merger*.
     '''
 
-    self.not_in_main_gal_key = not_in_main_gal_key
-
-    self.kwargs = kwargs
+    # Store the arguments
+    for arg in locals().keys():
+      setattr( self, arg, locals()[arg] )
 
   ########################################################################
 
