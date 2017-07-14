@@ -50,8 +50,11 @@ class ClassifiedData( object ):
 
   ########################################################################
 
-  def calc_base_fractions( self ):
+  def calc_base_fractions( self, return_or_store='return' ):
     '''Get first order results of the classified data, in the form of fractions of each main type of classified data, relative to the total.
+
+    Args:
+      return_or_store (str) : Whether to return base_fractions or store it as an attribute
 
     Returns:
       base_fractions (dict) : Contains the fractions for each main type of classified data, evaluated at the final snapshot
@@ -69,4 +72,27 @@ class ClassifiedData( object ):
     # For wind, only evaluate at the last snapshot
     base_fractions['wind'] = float( self.data['is_wind'][:,0].sum() )/n_classified
 
-    return base_fractions
+    if return_or_store == 'return':
+      return base_fractions
+    else:
+      self.base_fractions = base_fractions
+
+  ########################################################################
+
+  def get_data( self, data_key, mask=None ):
+    '''Get the data from the data dictionary. Useful (over just accessing the array) when applying additional functions onto it.
+
+    Args:
+      data_key (str) : Key for the relevant data.
+      mask (np.array of bools) : What mask to apply to the data, if any
+
+    Returns:
+      data_arr (np.array) : Array of the requested data
+    '''
+
+    data_arr = self.data[data_key]
+
+    if mask is not None:
+      data_arr = np.ma.masked_array( data_arr, mask=mask ).compressed()
+
+    return data_arr

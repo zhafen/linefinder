@@ -56,3 +56,24 @@ class TestClassifiedData( unittest.TestCase ):
 
     for key in actual.keys():
       npt.assert_allclose( expected[key], actual[key] )
+
+  ########################################################################
+
+  def test_get_data( self ):
+
+    actual = self.classified_data.get_data( 'is_pristine' )
+  
+    expected = self.classified_data.data['is_pristine']
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_data_mask( self ):
+
+    mask = np.array( [ 1, 0, 1, 0, ] ).astype( bool )
+    actual = self.classified_data.get_data( 'is_mass_transfer', mask=mask )
+
+    expected = np.array( [ 1, 0, ] ).astype( bool )
+
+    npt.assert_allclose( expected, actual )
