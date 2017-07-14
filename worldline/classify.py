@@ -17,6 +17,7 @@ import time
 import galaxy_diver.read_data.ahf as read_ahf
 import galaxy_diver.utils.astro as astro_tools
 import galaxy_diver.utils.constants as constants
+import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
 ########################################################################
@@ -201,8 +202,9 @@ class Classifier( object ):
     f.attrs['ptrack_filename'] = self.ptrack_filename
     f.attrs['galfind_filename'] = self.galfind_filename
 
-    # Save the current code version
-    f.attrs['worldline_version'] = subprocess.check_output( [ 'git', 'describe', '--always'] )
+    # Save the current code versions
+    f.attrs['worldline_version'] = utilities.get_code_version( self )
+    f.attrs['galaxy_diver_version'] = utilities.get_code_version( read_ahf, instance_type='module' )
 
     f.close()
 

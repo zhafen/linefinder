@@ -15,6 +15,7 @@ import sys
 import time
 
 import galaxy_diver.read_data.ahf as read_ahf
+import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
 ########################################################################
@@ -185,7 +186,8 @@ class ParticleTrackGalaxyFinder( object ):
     f.attrs['save_filepath'] = save_filepath
 
     # Save the current code version
-    f.attrs['worldline_version'] = subprocess.check_output( [ 'git', 'describe', '--always'] )
+    f.attrs['worldline_version'] = utilities.get_code_version( self )
+    f.attrs['galaxy_diver_version'] = utilities.get_code_version( read_ahf, instance_type='module' )
 
     f.close()
 

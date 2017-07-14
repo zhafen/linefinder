@@ -575,7 +575,6 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
-  @slow
   def test_find_galaxies_for_particle_tracks( self ):
 
     particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder( **ptrack_gal_finder_kwargs )

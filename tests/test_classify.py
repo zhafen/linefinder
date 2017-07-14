@@ -572,6 +572,8 @@ class TestFullClassifierPipeline( unittest.TestCase ):
     self.classifier.ptrack_filename = 'test_ptrack_filename'
     self.classifier.galfind_filename = 'test_galfind_filename'
 
+    self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['sdir'] )
+
     # Prerequisites
     self.classifier.is_pristine = np.array([
       0,    # Merger, except in early snapshots

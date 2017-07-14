@@ -15,7 +15,8 @@ import subprocess
 import sys
 import time
 
-import galaxy_diver.read_data.snapshot as readsnap
+import galaxy_diver.read_data.snapshot as read_snapshot
+import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
 ########################################################################
@@ -201,7 +202,9 @@ class ParticleTracker( object ):
     f.attrs['id_filepath'] = self.id_filepath
 
     # Save the current code version
-    f.attrs['worldline_version'] = subprocess.check_output( [ 'git', 'describe', '--always'] )
+    f.attrs['worldline_version'] = utilities.get_code_version( self )
+    f.attrs['galaxy_diver_version'] = utilities.get_code_version( read_snapshot, instance_type='module' )
+
 
     f.close()
 
@@ -294,7 +297,7 @@ class IDFinder( object ):
 
     for i, p_type in enumerate( self.types ):
 
-      P = readsnap.readsnap( self.sdir, self.snum, p_type, load_additional_ids=load_additional_ids, cosmological=1, skip_bh=1, header_only=0 )
+      P = read_snapshot.readsnap( self.sdir, self.snum, p_type, load_additional_ids=load_additional_ids, cosmological=1, skip_bh=1, header_only=0 )
 
       if P['k'] < 0:
          continue
@@ -328,7 +331,7 @@ class IDFinder( object ):
           sfr = [0.,]*pnum
 
       if 'u' in P:
-          T = readsnap.gas_temperature(P['u'],P['ne'])
+          T = read_snapshot.gas_temperature(P['u'],P['ne'])
       else:
           T = [0.,]*pnum
 
