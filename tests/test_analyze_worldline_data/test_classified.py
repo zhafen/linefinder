@@ -33,4 +33,26 @@ class TestClassifiedDataStartup( unittest.TestCase ):
 
     assert classified_data.data_attrs['tag'] == tag
 
-    
+########################################################################
+
+class TestClassifiedData( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.classified_data = classified.ClassifiedData( tracking_dir, tag )
+
+  ########################################################################
+
+  def test_calc_base_fractions( self ):
+
+    actual = self.classified_data.calc_base_fractions()
+
+    expected = {
+      'fresh accretion' : 0.25,
+      'merger' : 0.5,
+      'intergalactic transfer' : 0.25,
+      'wind' : 0.5,
+    }
+
+    for key in actual.keys():
+      npt.assert_allclose( expected[key], actual[key] )
