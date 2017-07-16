@@ -415,9 +415,17 @@ class GalaxyFinder( object ):
     halo_pos_comov = np.array([ self.ahf_reader.ahf_halos['Xc'], self.ahf_reader.ahf_halos['Yc'], self.ahf_reader.ahf_halos['Zc'] ]).transpose()
     halo_pos = halo_pos_comov/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
 
+    # Apply a cut on containing a minimum amount of stars
+    min_criteria = self.ahf_reader.ahf_halos[ self.kwargs['minimum_criteria'] ]
+    has_minimum_value = min_criteria/self.min_conversion_factor >= self.kwargs['minimum_value']
+
+    # Figure out which indices satisfy the criteria and choose only those halos
+    success_inds = np.where( has_minimum_value )[0]
+    halo_pos_selected = halo_pos[success_inds]
+
     # Get the distances
     # Output is ordered such that dist[:,0] is the distance to the center of halo 0 for each particle
-    dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos )
+    dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos_selected )
 
     # Get the relevant length scale
     if self.kwargs['length_scale'] == 'R_vir':
@@ -434,14 +442,14 @@ class GalaxyFinder( object ):
     length_scale_pkpc = length_scale/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
 
     # Get the radial cut
-    radial_cut = radial_cut_fraction*length_scale_pkpc
+    radial_cut = radial_cut_fraction*length_scale_pkpc[success_inds]
 
-    # Find the halos that our particles are part of 
-    part_of_halo = dist < radial_cut[np.newaxis,:]
+    # Find the halos that our particles are part of (provided they passed the minimum cut)
+    part_of_halo_success = dist < radial_cut[np.newaxis,:]
 
-    # Now apply a cut on stellar mass
-    has_minimum_value = self.ahf_reader.ahf_halos[ self.kwargs['minimum_criteria'] ]/self.min_conversion_factor >= self.kwargs['minimum_value']
-    part_of_halo = part_of_halo & has_minimum_value[np.newaxis,:]
+    # Get the full array out
+    part_of_halo = np.zeros( (self.n_particles, length_scale_pkpc.size) ).astype( bool )
+    part_of_halo[:,success_inds] = part_of_halo_success
 
     return part_of_halo
 
@@ -476,7 +484,7 @@ class GalaxyFinder( object ):
         has_minimum_value = False
 
       # Usual case
-      if above_minimum_snap and has_minimum_value:
+      if has_minimum_value:
 
         # Get the halo position
         halo_pos_comov = np.array([ mtree_halo['Xc'][ self.kwargs['snum'] ], mtree_halo['Yc'][ self.kwargs['snum'] ], mtree_halo['Zc'][ self.kwargs['snum'] ] ])
