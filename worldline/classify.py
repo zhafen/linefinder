@@ -32,7 +32,7 @@ class Classifier( object ):
     Args:
       not_in_main_gal_key (str): The galaxy_finder data key used to identify when not in a main galaxy.
         'gal_id' is the default, meaning if a particle is in the main galaxy and isn't inside another galaxy then it's counted as in part of the main galaxy.
-        Another good option is 'halo_id'.
+        Another potential option is 'halo_id'.
 
     Keyword Args:
       Data Parameters:

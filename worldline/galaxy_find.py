@@ -26,7 +26,7 @@ class ParticleTrackGalaxyFinder( object ):
   def __init__( self,
                 galaxy_cut=0.1,
                 length_scale='r_scale',
-                ids_to_return=[ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
+                ids_to_return=[ 'gal_id', 'mt_gal_id' ],
                 minimum_criteria='n_star',
                 minimum_value=10,
                 **kwargs ):
@@ -167,7 +167,7 @@ class ParticleTrackGalaxyFinder( object ):
     for key in self.ptrack_gal_ids.keys():
       f.create_dataset( key, data=self.ptrack_gal_ids[key] )
 
-    # Store the main mt halo id
+    # Store the main mt halo id (as identified by the larges value at the lowest redshift)
     indice = self.ahf_reader.mtree_halos[0].index.max()
     m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=indice, index=self.kwargs['mtree_halos_index'], tag='smooth' )
     f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
