@@ -168,7 +168,8 @@ class ParticleTrackGalaxyFinder( object ):
       f.create_dataset( key, data=self.ptrack_gal_ids[key] )
 
     # Store the main mt halo id
-    m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=600, index=self.kwargs['mtree_halos_index'], tag='smooth' )
+    indice = self.ahf_reader.mtree_halos[0].index.max()
+    m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=indice, index=self.kwargs['mtree_halos_index'], tag='smooth' )
     f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
 
     # Save the data parameters
