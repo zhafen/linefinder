@@ -238,8 +238,8 @@ class Classifier( object ):
       r_i = scipy.spatial.distance.cdist( self.ptrack[ 'p' ][:,i], main_mt_halo_p[i][np.newaxis] ).flatten()
 
       # Add the hubble flow.
-      hubble_factor = astro_tools.hubble_z( self.ptrack['redshift'][i], h=self.ptrack_attrs['hubble'], \
-                                            omega_matter=self.ptrack_attrs['omega_matter'], omega_lambda=self.ptrack_attrs['omega_lambda'] )
+      hubble_factor = astro_tools.hubble_parameter( self.ptrack['redshift'][i], h=self.ptrack_attrs['hubble'], \
+                                            omega_matter=self.ptrack_attrs['omega_matter'], omega_lambda=self.ptrack_attrs['omega_lambda'], units='1/s' )
       v_r_i += hubble_factor * r_i * constants.UNITLENGTH_IN_CM  / constants.UNITVELOCITY_IN_CM_PER_S  
 
       v_r.append( v_r_i )
