@@ -39,6 +39,7 @@ gal_finder_kwargs = {
 
 ptrack_gal_finder_kwargs = {
   'length_scale' : 'R_vir',
+  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
 
   'sdir' : './tests/test_data/ahf_test_data',
   'tracking_dir' : './tests/test_data/tracking_output',
@@ -600,6 +601,7 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
     # Make sure we have stored the data parameters too.
     for key in ptrack_gal_finder_kwargs.keys():
-      assert ptrack_gal_finder_kwargs[key] == f.attrs[key]
+      if key != 'ids_to_return':
+        assert ptrack_gal_finder_kwargs[key] == f.attrs[key]
 
 

@@ -32,7 +32,7 @@ class Classifier( object ):
     Args:
       not_in_main_gal_key (str): The galaxy_finder data key used to identify when not in a main galaxy.
         'gal_id' is the default, meaning if a particle is in the main galaxy and isn't inside another galaxy then it's counted as in part of the main galaxy.
-        Another good option is 'halo_id'.
+        Another potential option is 'halo_id'.
 
     Keyword Args:
       Data Parameters:
@@ -261,20 +261,12 @@ class Classifier( object ):
     # Get the virial radius and mass of the main galaxy
     r_vir_kpc = self.ahf_reader.mtree_halos[0]['Rvir'][ self.ptrack[ 'snum' ] ]
     m_vir_msun = self.ahf_reader.mtree_halos[0]['Mvir'][ self.ptrack[ 'snum' ] ]
-    
+
     # Convert r_vir and m_vir to physical units
     r_vir_kpc *= 1./( 1. + self.ptrack['redshift'] )/self.ptrack_attrs['hubble']
     m_vir_msun /= self.ptrack_attrs['hubble']
 
-    # Convert r_vir and m_vir to cgs
-    r_vir_cgs = r_vir_kpc*constants.CM_PER_KPC
-    m_vir_cgs = m_vir_msun*constants.MSUN
-
-    # Get v_c
-    v_c_cgs = np.sqrt( constants.G_UNIV * m_vir_cgs / r_vir_cgs )
-
-    # Convert to km/s
-    v_c = v_c_cgs / constants.CM_PER_KM
+    v_c = astro_tools.circular_velocity( r_vir_kpc, m_vir_msun )
 
     return v_c
 
