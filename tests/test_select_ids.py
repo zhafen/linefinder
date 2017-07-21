@@ -25,11 +25,15 @@ default_kwargs = {
   'snum_end' : 600,
   'snum_step' : 100,
   'ptypes' : [0, 4],
+  'out_dir' : './tests/data/tracking_output',
+  'tag' : 'test',
 
-  'sdir' : './tests/data/stars_included_test_data',
-  'load_additional_ids' : True,
-  'ahf_index' : 600,
-  'analysis_dir' : './tests/data/ahf_test_data',
+  'snapshot_kwargs' : {
+    'sdir' : './tests/data/stars_included_test_data',
+    'load_additional_ids' : True,
+    'ahf_index' : 600,
+    'analysis_dir' : './tests/data/ahf_test_data',
+    },
 }
 
 # For SnapshotIDSelector
@@ -234,6 +238,42 @@ class TestIDSelector( unittest.TestCase ):
     for i in range( 2 ):
       npt.assert_allclose( expected[i], actual[i] )
 
+  ########################################################################
+
+  def test_save_selected_ids( self ):
+
+    # Make sure there's nothing in our way, bwahahaah
+    ids_filepath = './tests/data/tracking_output/ids_full_test.hdf5'
+    if os.path.isfile( ids_filepath ):
+      os.system( 'rm {}'.format( ids_filepath ) )
+
+    # The function itself
+    self.id_selector.save_selected_ids( ( self.selected_ids_formatted, self.selected_child_ids_formatted ) )
+
+    filepath = os.path.join( default_kwargs['out_dir'], 'ids_full_test.hdf5' )
+    g = h5py.File( filepath, 'r' )
+
+    expected = self.selected_ids_formatted
+    actual = g['target_ids'][...]
+    npt.assert_allclose( expected, actual )
+
+    expected = self.selected_child_ids_formatted
+    actual = g['target_child_ids'][...]
+    npt.assert_allclose( expected, actual )
+
+    for key in default_kwargs.keys():
+      if key == 'snapshot_kwargs':
+        snapshot_kwargs = default_kwargs[key]
+        for key2 in snapshot_kwargs.keys():
+          assert snapshot_kwargs[key2] == g['parameters/snapshot_parameters'].attrs[key2]
+      elif key == 'ptypes':
+        continue
+      else:
+        assert default_kwargs[key] == g['parameters'].attrs[key]
+
+    assert g.attrs['worldline_version'] is not None
+    assert g.attrs['galaxy_diver_version'] is not None
+
 ########################################################################
     
 class TestIDSelectorNoChildIDs( unittest.TestCase ):
@@ -290,6 +330,37 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
     # Sort the arrays, because the order doesn't really matter anyways for the single ID case
     npt.assert_allclose( np.sort( expected ), np.sort( actual ) )
     
+  ########################################################################
+
+  def test_save_selected_ids( self ):
+
+    # Make sure there's nothing in our way, bwahahaah
+    ids_filepath = './tests/data/tracking_output/ids_full_test.hdf5'
+    if os.path.isfile( ids_filepath ):
+      os.system( 'rm {}'.format( ids_filepath ) )
+
+    # The function itself
+    self.id_selector.save_selected_ids( self.selected_ids_formatted, )
+
+    filepath = os.path.join( default_kwargs['out_dir'], 'ids_full_test.hdf5' )
+    g = h5py.File( filepath, 'r' )
+
+    expected = self.selected_ids_formatted
+    actual = g['target_ids'][...]
+    npt.assert_allclose( expected, actual )
+
+    for key in default_kwargs.keys():
+      if key == 'snapshot_kwargs':
+        snapshot_kwargs = default_kwargs[key]
+        for key2 in snapshot_kwargs.keys():
+          assert snapshot_kwargs[key2] == g['parameters/snapshot_parameters'].attrs[key2]
+      elif key == 'ptypes':
+        continue
+      else:
+        assert default_kwargs[key] == g['parameters'].attrs[key]
+
+    assert g.attrs['worldline_version'] is not None
+    assert g.attrs['galaxy_diver_version'] is not None
 
 
 

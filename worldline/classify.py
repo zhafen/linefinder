@@ -181,7 +181,7 @@ class Classifier( object ):
     '''
 
     # Open up the file to save the data in.
-    classification_filename =  'classified_' + self.kwargs['tag'] + '.hdf5'
+    classification_filename =  'classified_{}.hdf5'.format( self.kwargs['tag'] )
     self.classification_filepath = os.path.join( self.kwargs['tracking_dir'], classification_filename )
     f = h5py.File( self.classification_filepath, 'a' )
 

@@ -7,7 +7,9 @@
 '''
 
 import copy
+import h5py
 import numpy as np
+import os
 
 import galaxy_diver.analyze_data.particle_data as particle_data
 import galaxy_diver.utils.utilities as utilities
@@ -17,14 +19,19 @@ import galaxy_diver.utils.utilities as utilities
 
 class IDSelector( object ):
 
-  def __init__( self, ptypes=None, snum_start=None, snum_end=None, snum_step=None, **kwargs ):
+  def __init__( self, snapshot_kwargs=None, **kwargs ):
     '''
     Args:
+      snapshot_kwargs (dict) : Arguments to pass to SnapshotIDSelector. Can be the full range of arguments passed to
+        particle_data.ParticleData
+
+    Keyword Args:
       snum_start (int) : Starting snapshot number.
       snum_end (int) : Ending snapshot number.
       snum_step (int) : Snapshot step.
-
       ptypes (list of ints) : Types of particles to search through.
+      out_dir (str) : Where to store the data.
+      tag (str) : Tag to give the filename.
     '''
 
     # Store the arguments
@@ -38,7 +45,7 @@ class IDSelector( object ):
       if getattr( self, attr ) == None:
         raise Exception( '{} not specified'.format( attr ) )
 
-    self.snums = range( snum_start, snum_end + 1, snum_step )
+    self.snums = range( self.kwargs['snum_start'], self.kwargs['snum_end'] + 1, self.kwargs['snum_step'] )
 
   ########################################################################
 
@@ -47,7 +54,9 @@ class IDSelector( object ):
 
     selected_ids = self.get_selected_ids()
 
-    self.save_selected_ids()
+    selected_ids_formatted = self.format_selected_ids( selected_ids )
+
+    self.save_selected_ids( selected_ids_formatted )
 
   ########################################################################
 
@@ -64,9 +73,9 @@ class IDSelector( object ):
     selected_ids = set()
 
     for snum in self.snums:
-      for ptype in self.ptypes:
+      for ptype in self.kwargs['ptypes']:
 
-        kwargs = copy.deepcopy( self.kwargs )
+        kwargs = copy.deepcopy( self.snapshot_kwargs )
         kwargs['snum'] = snum
         kwargs['ptype'] = ptype
 
@@ -95,6 +104,43 @@ class IDSelector( object ):
 
     else:
       return ids_arr
+
+  ########################################################################
+
+  def save_selected_ids( self, selected_ids_formatted ):
+
+    # Open up the file to save the data in.
+    ids_filename =  'ids_full_{}.hdf5'.format( self.kwargs['tag'] )
+    self.ids_filepath = os.path.join( self.kwargs['out_dir'], ids_filename )
+    f = h5py.File( self.ids_filepath, 'a' )
+
+    # Save the data
+    if isinstance( selected_ids_formatted, tuple ):
+      ids, child_ids = selected_ids_formatted
+      f.create_dataset( 'target_ids', data=ids )
+      f.create_dataset( 'target_child_ids', data=child_ids )
+
+    else:
+      ids = selected_ids_formatted
+      f.create_dataset( 'target_ids', data=ids )
+
+    # Create groups for the parameters
+    grp = f.create_group('parameters')
+    subgrp = f.create_group('parameters/snapshot_parameters')
+
+    # Save the data parameters
+    for key in self.kwargs.keys():
+      grp.attrs[key] = self.kwargs[key]
+
+    # Save the snapshot parameters too
+    for key in self.snapshot_kwargs.keys():
+      subgrp.attrs[key] = self.snapshot_kwargs[key]
+
+    # Save the current code versions
+    f.attrs['worldline_version'] = utilities.get_code_version( self )
+    f.attrs['galaxy_diver_version'] = utilities.get_code_version( particle_data, instance_type='module' )
+
+    f.close()
 
 ########################################################################
 ########################################################################
