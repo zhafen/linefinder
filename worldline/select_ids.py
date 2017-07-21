@@ -63,7 +63,9 @@ class SnapshotIDSelector( particle_data.ParticleData ):
 
     selected_ids = self.get_ids()
 
-    self.format_ids( selected_ids )
+    ids_set = self.format_ids( selected_ids )
+
+    return ids_set
 
   ########################################################################
 
@@ -108,7 +110,7 @@ class SnapshotIDSelector( particle_data.ParticleData ):
     '''
 
     # When not loading IDs
-    if not isinstance( selected_ids, list ):
+    if not isinstance( selected_ids, tuple ):
       return set( selected_ids )
 
     else:

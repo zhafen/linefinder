@@ -98,7 +98,17 @@ class TestSnapshotIDSelector( unittest.TestCase ):
 
     actual = self.snapshot_id_selector.format_ids( np.array( [ 10952235, 36091289, ] ) )
 
-    assert actual == expected
+    assert expected == actual
+
+  ########################################################################
+
+  def test_select_ids_snapshot( self ):
+
+    expected = set( [ 10952235, 36091289, ] )
+
+    actual = self.snapshot_id_selector.select_ids_snapshot( default_data_filters )
+
+    assert expected == actual
 
 ########################################################################
 ########################################################################
@@ -113,7 +123,9 @@ class TestWithChildIDs( unittest.TestCase ):
     self.snapshot_id_selector.data['R'] = np.array( [ 0.5, 1.2, 0.75, 0.1, 0.3, 1.5 ] )*self.snapshot_id_selector.length_scale
     self.snapshot_id_selector.data['T'] = np.array( [ 1e2, 1.1e4, 1e7, 1e5, 0.5e6, 0.5e5 ] )
 
-    self.selected_ids = [ np.array( [ 10952235, 36091289, ] ), np.array( [ 0, 893109954, ] ) ]
+    self.selected_ids = ( np.array( [ 10952235, 36091289, ] ), np.array( [ 0, 893109954, ] ) )
+
+    self.ids_set = set( [ (10952235, 0), (36091289, 893109954) ] )
 
   ########################################################################
 
@@ -133,8 +145,18 @@ class TestWithChildIDs( unittest.TestCase ):
 
   def test_format_ids( self ):
 
-    expected = set( [ (10952235, 0), (36091289, 893109954) ] )
+    expected = self.ids_set
 
     actual = self.snapshot_id_selector.format_ids( self.selected_ids )
+
+    assert expected == actual
+
+  ########################################################################
+
+  def test_select_ids_snapshot( self ):
+
+    expected = self.ids_set
+
+    actual = self.snapshot_id_selector.select_ids_snapshot( default_data_filters )
 
     assert expected == actual
