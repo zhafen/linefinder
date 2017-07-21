@@ -50,9 +50,14 @@ class IDSelector( object ):
   ########################################################################
 
   @utilities.print_timer( 'Selecting all ids took' )
-  def select_ids( self ):
+  def select_ids( self, data_filters ):
+    '''Save a set of all ids that match a set of data filters to a file.
+    
+    Args:
+      data_filters (list of dicts): The data filters to apply.
+    '''
 
-    selected_ids = self.get_selected_ids()
+    selected_ids = self.get_selected_ids( data_filters )
 
     selected_ids_formatted = self.format_selected_ids( selected_ids )
 
@@ -78,6 +83,8 @@ class IDSelector( object ):
         kwargs = copy.deepcopy( self.snapshot_kwargs )
         kwargs['snum'] = snum
         kwargs['ptype'] = ptype
+
+        print( "Selecting ids in snapshot {}".format( snum ) )
 
         snapshot_id_selector = SnapshotIDSelector( **kwargs )
         selected_ids_snapshot = snapshot_id_selector.select_ids_snapshot( data_filters )

@@ -274,6 +274,60 @@ class TestIDSelector( unittest.TestCase ):
     assert g.attrs['worldline_version'] is not None
     assert g.attrs['galaxy_diver_version'] is not None
 
+  ########################################################################
+
+  @patch( 'worldline.select_ids.SnapshotIDSelector.__init__' )
+  @patch( 'worldline.select_ids.SnapshotIDSelector.select_ids_snapshot' )
+  def test_select_ids( self, mock_select_ids_snapshot, mock_constructor, ):
+
+    # Make sure there's nothing in our way, bwahahaah
+    ids_filepath = './tests/data/tracking_output/ids_full_test.hdf5'
+    if os.path.isfile( ids_filepath ):
+      os.system( 'rm {}'.format( ids_filepath ) )
+
+    # Mock setup
+    mock_constructor.side_effect = [ None, ]*4
+    mock_select_ids_snapshot.side_effect = self.side_effects
+
+    call_kwargs = [ copy.deepcopy( newids_snap_kwargs ) for i in range(4) ]
+    call_kwargs[0]['snum'] = 500
+    call_kwargs[1]['snum'] = 500
+    call_kwargs[2]['snum'] = 600
+    call_kwargs[3]['snum'] = 600
+    call_kwargs[0]['ptype'] = 0
+    call_kwargs[1]['ptype'] = 4
+    call_kwargs[2]['ptype'] = 0
+    call_kwargs[3]['ptype'] = 4
+    calls = [ call( **call_kwarg ) for call_kwarg in call_kwargs ]
+
+    # Actually run it
+    self.id_selector.select_ids( default_data_filters )
+
+    mock_constructor.assert_has_calls( calls )
+
+    # Do the same tests as saving the data at the end
+    filepath = os.path.join( default_kwargs['out_dir'], 'ids_full_test.hdf5' )
+    g = h5py.File( filepath, 'r' )
+
+    expected = self.selected_ids
+    actual_ids = g['target_ids'][...]
+    actual_child_ids = g['target_child_ids'][...]
+    actual = set( zip( actual_ids, actual_child_ids ) )
+    assert expected == actual
+
+    for key in default_kwargs.keys():
+      if key == 'snapshot_kwargs':
+        snapshot_kwargs = default_kwargs[key]
+        for key2 in snapshot_kwargs.keys():
+          assert snapshot_kwargs[key2] == g['parameters/snapshot_parameters'].attrs[key2]
+      elif key == 'ptypes':
+        continue
+      else:
+        assert default_kwargs[key] == g['parameters'].attrs[key]
+
+    assert g.attrs['worldline_version'] is not None
+    assert g.attrs['galaxy_diver_version'] is not None
+
 ########################################################################
     
 class TestIDSelectorNoChildIDs( unittest.TestCase ):
@@ -362,6 +416,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
     assert g.attrs['worldline_version'] is not None
     assert g.attrs['galaxy_diver_version'] is not None
 
+  ########################################################################
 
 
 
