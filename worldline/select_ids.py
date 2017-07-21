@@ -57,11 +57,18 @@ class IDSelector( object ):
       data_filters (list of dicts): The data filters to apply.
     '''
 
+    print( "########################################################################" )
+    print( "Selecting IDs" )
+    print( "########################################################################" )
+
     selected_ids = self.get_selected_ids( data_filters )
 
     selected_ids_formatted = self.format_selected_ids( selected_ids )
 
     self.save_selected_ids( selected_ids_formatted )
+
+    print( "########################################################################" )
+    print( "Done!" )
 
   ########################################################################
 
@@ -84,7 +91,7 @@ class IDSelector( object ):
         kwargs['snum'] = snum
         kwargs['ptype'] = ptype
 
-        print( "Selecting ids in snapshot {}".format( snum ) )
+        print( "Snapshot {}:".format( snum ) )
 
         snapshot_id_selector = SnapshotIDSelector( **kwargs )
         selected_ids_snapshot = snapshot_id_selector.select_ids_snapshot( data_filters )
@@ -166,7 +173,7 @@ class SnapshotIDSelector( particle_data.ParticleData ):
 
   ########################################################################
 
-  @utilities.print_timer( 'Selecting ids in a snapshot took' )
+  @utilities.print_timer( "Took" )
   def select_ids_snapshot( self, data_filters ):
     '''Select the IDs that match specified conditions in a given snapshot.
     
