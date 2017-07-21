@@ -7,6 +7,7 @@
 '''
 
 import copy
+import numpy as np
 
 import galaxy_diver.analyze_data.particle_data as particle_data
 import galaxy_diver.utils.utilities as utilities
@@ -75,6 +76,25 @@ class IDSelector( object ):
         selected_ids = selected_ids | selected_ids_snapshot
 
     return selected_ids
+
+  ########################################################################
+
+  def format_selected_ids( self, selected_ids ):
+    '''Format the data back into arrays.
+
+    Returns:
+      ids (np.array): Array of selected IDs
+      child_ids (np.array, optional) : Array of selected child IDS
+    '''
+
+    ids_arr = np.array( list( selected_ids ) )
+
+    if len( ids_arr.shape ) > 1:
+      ids, child_ids = ids_arr.transpose()
+      return ids, child_ids
+
+    else:
+      return ids_arr
 
 ########################################################################
 ########################################################################

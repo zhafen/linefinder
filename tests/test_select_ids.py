@@ -186,11 +186,15 @@ class TestIDSelector( unittest.TestCase ):
     self.side_effects = [
       set( [ (10952235, 0), (36091289, 893109954) ] ),
       set( [ (10952235, 0), (123456, 35) ] ),
-      set( [ (1573, 0), (12, 35) ] ),
-      set( [ (15, 4), (0, 0) ] ),
+      set( [ (1573, 0), (12, 35), (15, 4), (0, 0) ] ),
+      set(),
     ]
 
     self.id_selector = select_ids.IDSelector( **default_kwargs )
+
+    self.selected_ids = set( [ (10952235, 0), (36091289, 893109954), (123456, 35), (1573, 0), (12, 35), (15, 4), (0, 0) ])
+    self.selected_ids_formatted = np.array([ 0, 10952235, 15, 1573, 36091289, 123456, 12 ])
+    self.selected_child_ids_formatted = np.array([ 0, 0, 4, 0, 893109954, 35, 35 ])
 
   ########################################################################
 
@@ -215,7 +219,106 @@ class TestIDSelector( unittest.TestCase ):
 
     # Actually run the thing
     actual = self.id_selector.get_selected_ids( default_data_filters )
-    expected = set( [ (10952235, 0), (36091289, 893109954), (123456, 35), (1573, 0), (12, 35), (15, 4), (0, 0) ])
+    expected = self.selected_ids
     assert expected == actual
 
     mock_constructor.assert_has_calls( calls )
+
+  ########################################################################
+
+  def test_format_selected_ids( self ):
+
+    actual = self.id_selector.format_selected_ids( self.selected_ids )
+    expected = [ self.selected_ids_formatted, self.selected_child_ids_formatted ]
+
+    for i in range( 2 ):
+      npt.assert_allclose( expected[i], actual[i] )
+
+########################################################################
+    
+class TestIDSelectorNoChildIDs( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.side_effects = [
+      set( [ 10952235, 36091289, ] ),
+      set( [ 10952235, 123456,  ] ),
+      set( [ 1573, 12, 15, 0, ] ),
+      set(),
+    ]
+
+    self.id_selector = select_ids.IDSelector( **default_kwargs )
+
+    self.selected_ids = set( [ 10952235, 36091289, 123456, 1573, 12, 15, 0, ])
+    self.selected_ids_formatted = np.array([ 0, 10952235, 15, 1573, 36091289, 123456, 12 ])
+
+  ########################################################################
+
+  @patch( 'worldline.select_ids.SnapshotIDSelector.__init__' )
+  @patch( 'worldline.select_ids.SnapshotIDSelector.select_ids_snapshot' )
+  def test_get_selected_ids( self, mock_select_ids_snapshot, mock_constructor, ):
+
+    # Mock setup
+    mock_constructor.side_effect = [ None, ]*4
+    mock_select_ids_snapshot.side_effect = self.side_effects
+
+    call_kwargs = [ copy.deepcopy( newids_snap_kwargs ) for i in range(4) ]
+    call_kwargs[0]['snum'] = 500
+    call_kwargs[1]['snum'] = 500
+    call_kwargs[2]['snum'] = 600
+    call_kwargs[3]['snum'] = 600
+    call_kwargs[0]['ptype'] = 0
+    call_kwargs[1]['ptype'] = 4
+    call_kwargs[2]['ptype'] = 0
+    call_kwargs[3]['ptype'] = 4
+    calls = [ call( **call_kwarg ) for call_kwarg in call_kwargs ]
+
+    # Actually run the thing
+    actual = self.id_selector.get_selected_ids( default_data_filters )
+    expected = self.selected_ids
+    assert expected == actual
+
+    mock_constructor.assert_has_calls( calls )
+
+  ########################################################################
+
+  def test_format_selected_ids( self ):
+
+    actual = self.id_selector.format_selected_ids( copy.copy( self.selected_ids ) )
+    expected = self.selected_ids_formatted
+
+    # Sort the arrays, because the order doesn't really matter anyways for the single ID case
+    npt.assert_allclose( np.sort( expected ), np.sort( actual ) )
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
