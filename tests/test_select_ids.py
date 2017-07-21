@@ -8,6 +8,7 @@
 
 import copy
 import h5py
+from mock import call, patch
 import numpy as np
 import numpy.testing as npt
 import os
@@ -18,6 +19,20 @@ from worldline import select_ids
 
 ########################################################################
 
+# For IDSelector
+default_kwargs = {
+  'snum_start' : 500,
+  'snum_end' : 600,
+  'snum_step' : 100,
+  'ptypes' : [0, 4],
+
+  'sdir' : './tests/data/stars_included_test_data',
+  'load_additional_ids' : True,
+  'ahf_index' : 600,
+  'analysis_dir' : './tests/data/ahf_test_data',
+}
+
+# For SnapshotIDSelector
 default_snap_kwargs = {
   'sdir' : './tests/data/stars_included_test_data',
   'snum' : 500,
@@ -160,3 +175,47 @@ class TestWithChildIDs( unittest.TestCase ):
     actual = self.snapshot_id_selector.select_ids_snapshot( default_data_filters )
 
     assert expected == actual
+
+########################################################################
+########################################################################
+
+class TestIDSelector( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.side_effects = [
+      set( [ (10952235, 0), (36091289, 893109954) ] ),
+      set( [ (10952235, 0), (123456, 35) ] ),
+      set( [ (1573, 0), (12, 35) ] ),
+      set( [ (15, 4), (0, 0) ] ),
+    ]
+
+    self.id_selector = select_ids.IDSelector( **default_kwargs )
+
+  ########################################################################
+
+  @patch( 'worldline.select_ids.SnapshotIDSelector.__init__' )
+  @patch( 'worldline.select_ids.SnapshotIDSelector.select_ids_snapshot' )
+  def test_get_selected_ids( self, mock_select_ids_snapshot, mock_constructor, ):
+
+    # Mock setup
+    mock_constructor.side_effect = [ None, ]*4
+    mock_select_ids_snapshot.side_effect = self.side_effects
+
+    call_kwargs = [ copy.deepcopy( newids_snap_kwargs ) for i in range(4) ]
+    call_kwargs[0]['snum'] = 500
+    call_kwargs[1]['snum'] = 500
+    call_kwargs[2]['snum'] = 600
+    call_kwargs[3]['snum'] = 600
+    call_kwargs[0]['ptype'] = 0
+    call_kwargs[1]['ptype'] = 4
+    call_kwargs[2]['ptype'] = 0
+    call_kwargs[3]['ptype'] = 4
+    calls = [ call( **call_kwarg ) for call_kwarg in call_kwargs ]
+
+    # Actually run the thing
+    actual = self.id_selector.get_selected_ids( default_data_filters )
+    expected = set( [ (10952235, 0), (36091289, 893109954), (123456, 35), (1573, 0), (12, 35), (15, 4), (0, 0) ])
+    assert expected == actual
+
+    mock_constructor.assert_has_calls( calls )

@@ -1,1 +1,3 @@
-{}
+{
+  "tests/test_select_ids.py::TestIDSelector::test_get_selected_ids": true
+}

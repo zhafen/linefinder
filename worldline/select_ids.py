@@ -6,6 +6,8 @@
 @status: Development
 '''
 
+import copy
+
 import galaxy_diver.analyze_data.particle_data as particle_data
 import galaxy_diver.utils.utilities as utilities
 
@@ -14,25 +16,65 @@ import galaxy_diver.utils.utilities as utilities
 
 class IDSelector( object ):
 
-  def __init__( self, ):
+  def __init__( self, ptypes=None, snum_start=None, snum_end=None, snum_step=None, **kwargs ):
+    '''
+    Args:
+      snum_start (int) : Starting snapshot number.
+      snum_end (int) : Ending snapshot number.
+      snum_step (int) : Snapshot step.
 
-    pass
+      ptypes (list of ints) : Types of particles to search through.
+    '''
+
+    # Store the arguments
+    for arg in locals().keys():
+      setattr( self, arg, locals()[arg] )
+
+    # Make sure that all the arguments have been specified.
+    for attr in vars( self ).keys():
+      if attr == 'kwargs':
+        continue
+      if getattr( self, attr ) == None:
+        raise Exception( '{} not specified'.format( attr ) )
+
+    self.snums = range( snum_start, snum_end + 1, snum_step )
 
   ########################################################################
 
   @utilities.print_timer( 'Selecting all ids took' )
   def select_ids( self ):
 
-    self.all_ids = set()
-    for snum in snap_range:
-
-      for ptype in ptypes:
-        snapshot_id_selector = SnapshotIDSelector( **kwargs )
-        selected_ids = snapshot_id_selector.select_ids_snapshot()
-
-        self.all_ids = self.all_ids | selected_ids
+    selected_ids = self.get_selected_ids()
 
     self.save_selected_ids()
+
+  ########################################################################
+
+  def get_selected_ids( self, data_filters ):
+    '''Get a set of all ids that match a set of data filters.
+    
+    Args:
+      data_filters (list of dicts): The data filters to apply.
+
+    Returns:
+      selected_ids (set): Set of selected ids.
+    '''
+
+    selected_ids = set()
+
+    for snum in self.snums:
+      for ptype in self.ptypes:
+
+        kwargs = copy.deepcopy( self.kwargs )
+        kwargs['snum'] = snum
+        kwargs['ptype'] = ptype
+
+        snapshot_id_selector = SnapshotIDSelector( **kwargs )
+        selected_ids_snapshot = snapshot_id_selector.select_ids_snapshot( data_filters )
+
+        selected_ids = selected_ids | selected_ids_snapshot
+
+    return selected_ids
 
 ########################################################################
 ########################################################################
