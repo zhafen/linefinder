@@ -107,7 +107,20 @@ class SnapshotIDSelector( object ):
   ########################################################################
 
   def format_ids( self, selected_ids ):
-    '''Turns the ids into a set to be passed back.'''
+    '''Turns the ids into a set to be passed back.
+    
+    Args:
+      selected_ids (np.array or tuple of np.arrays) : IDs to format into a set.
+    
+    Returns:
+      ids_set (set) : IDs as a set.
+    '''
+
+    if isinstance( selected_ids, tuple ):
+      return
+
+    else:
+      return set( selected_ids )
 
 
 

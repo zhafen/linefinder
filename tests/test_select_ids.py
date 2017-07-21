@@ -97,7 +97,7 @@ class TestSnapshotIDSelector( unittest.TestCase ):
 
     expected = set( [ 10952235, 36091289, ] )
 
-    actual = self.snapshot_id_selector.format_ids( selected_ids )
+    actual = self.snapshot_id_selector.format_ids( np.array( [ 10952235, 36091289, ] ) )
 
     assert actual == expected
 
