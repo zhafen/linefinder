@@ -60,7 +60,7 @@ class SnapshotIDSelector( object ):
 
   ########################################################################
 
-  @utilities.print_timer( 'Selecting ids in the snapshot took' )
+  @utilities.print_timer( 'Selecting ids in a snapshot took' )
   def select_ids_snapshot( self, data_filters ):
     '''Select the IDs that match specified conditions in a given snapshot.
     
@@ -68,11 +68,11 @@ class SnapshotIDSelector( object ):
       data_filters (list of dicts): The data filters to apply.
     '''
 
-    self.filter_data()
+    self.filter_data( data_filters )
 
-    self.get_ids()
+    selected_ids = self.get_ids()
 
-    self.format_ids()
+    self.format_ids( selected_ids )
 
   ########################################################################
 
@@ -86,7 +86,28 @@ class SnapshotIDSelector( object ):
     for data_filter in data_filters:
       self.p_data.data_masker.mask_data( data_filter['data_key'], data_filter['data_min'], data_filter['data_max'] )
 
+  ########################################################################
 
+  def get_ids( self ):
+    '''
+    Returns:
+      ids : IDs for particles that match the filtered requirements.
+      child_ids (optional) : Child IDs for the particles that match the filtered requirements.
+    '''
+
+    ids = self.p_data.data_masker.get_masked_data( 'ID' )
+
+    if not self.kwargs['load_additional_ids']:
+      return ids
+
+    else:
+      child_ids = self.p_data.data_masker.get_masked_data( 'ChildID' )
+      return ids, child_ids
+
+  ########################################################################
+
+  def format_ids( self, selected_ids ):
+    '''Turns the ids into a set to be passed back.'''
 
 
 
