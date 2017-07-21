@@ -101,18 +101,18 @@ class SnapshotIDSelector( particle_data.ParticleData ):
     '''Turns the ids into a set to be passed back.
     
     Args:
-      selected_ids (np.array or tuple of np.arrays) : IDs to format into a set.
+      selected_ids (np.array or list of np.arrays) : IDs to format into a set.
     
     Returns:
       ids_set (set) : IDs as a set.
     '''
 
-    if isinstance( selected_ids, tuple ):
-      return
-
-    else:
+    # When not loading IDs
+    if not isinstance( selected_ids, list ):
       return set( selected_ids )
 
+    else:
+      return set( zip( *selected_ids ) )
 
 
 
