@@ -28,7 +28,7 @@ gal_finder_kwargs = {
   'redshift' : 0.16946003,
   'snum' : 500,
   'hubble' : 0.70199999999999996,
-  'sdir' : './tests/test_data/ahf_test_data',
+  'sdir' : './tests/data/ahf_test_data',
   'mtree_halos_index' : 600,
 
   'galaxy_cut' : 0.1,
@@ -41,8 +41,8 @@ ptrack_gal_finder_kwargs = {
   'length_scale' : 'R_vir',
   'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
 
-  'sdir' : './tests/test_data/ahf_test_data',
-  'tracking_dir' : './tests/test_data/tracking_output',
+  'sdir' : './tests/data/ahf_test_data',
+  'tracking_dir' : './tests/data/tracking_output',
   'tag' : 'test',
   'mtree_halos_index' : 600,
 }
@@ -438,7 +438,7 @@ class TestGalaxyFinderMinimumStellarMass( unittest.TestCase ):
       'redshift' : 6.1627907799999999,
       'snum' : 50,
       'hubble' : 0.70199999999999996,
-      'sdir' : './tests/test_data/ahf_test_data',
+      'sdir' : './tests/data/ahf_test_data',
       'mtree_halos_index' : 600,
     }
 
@@ -506,7 +506,7 @@ class TestGalaxyFinderMinimumNumStars( unittest.TestCase ):
       'redshift' : 6.1627907799999999,
       'snum' : 50,
       'hubble' : 0.70199999999999996,
-      'sdir' : './tests/test_data/ahf_test_data',
+      'sdir' : './tests/data/ahf_test_data',
       'mtree_halos_index' : 600,
     }
 
@@ -565,8 +565,8 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.originalfile = './tests/test_data/tracking_output/ptrack_test.hdf5'
-    self.savefile = './tests/test_data/tracking_output/galfind_test.hdf5'
+    self.originalfile = './tests/data/tracking_output/ptrack_test.hdf5'
+    self.savefile = './tests/data/tracking_output/galfind_test.hdf5'
 
   ########################################################################
 

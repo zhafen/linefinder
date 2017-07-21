@@ -20,7 +20,7 @@ import worldline.analyze_worldline_data.classified as classified
 ########################################################################
 # Commonly useful input variables
 
-tracking_dir = './tests/test_data/tracking_output_for_analysis'
+tracking_dir = './tests/data/tracking_output_for_analysis'
 tag = 'analyze'
 
 ########################################################################

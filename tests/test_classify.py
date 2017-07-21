@@ -21,8 +21,8 @@ from worldline import classify
 ########################################################################
 
 default_kwargs = {
-  'sdir' : './tests/test_data/ahf_test_data',
-  'tracking_dir' : './tests/test_data/tracking_output',
+  'sdir' : './tests/data/ahf_test_data',
+  'tracking_dir' : './tests/data/tracking_output',
   'tag' : 'test_classify',
   'neg' : 1,
   'mtree_halos_index' : 600,
@@ -552,7 +552,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
     self.classifier = classify.Classifier( **default_kwargs )
 
-    self.savefile = './tests/test_data/tracking_output/classified_test_classify.hdf5'
+    self.savefile = './tests/data/tracking_output/classified_test_classify.hdf5'
 
     if os.path.isfile( self.savefile ):
       os.system( 'rm {}'.format( self.savefile ) )

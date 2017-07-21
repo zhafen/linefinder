@@ -22,35 +22,35 @@ import galaxy_diver.read_data.snapshot as readsnap
 ########################################################################
 
 default_data_p = {
-  'sdir' : './tests/test_data/test_data_with_new_id_scheme',
+  'sdir' : './tests/data/test_data_with_new_id_scheme',
   'types' : [0,],
   'snap_ini' : 500,
   'snap_end' : 600,
   'snap_step' : 50,
 
-  'outdir' : './tests/test_data/tracking_output',
+  'outdir' : './tests/data/tracking_output',
   'tag' : 'test',
 }
 
 star_data_p = {
-  'sdir' : './tests/test_data/stars_included_test_data',
+  'sdir' : './tests/data/stars_included_test_data',
   'types' : [0,4],
   'snap_ini' : 500,
   'snap_end' : 600,
   'snap_step' : 50,
 
-  'outdir' : './tests/test_data/tracking_output',
+  'outdir' : './tests/data/tracking_output',
   'tag' : 'test_star',
 }
 
 early_star_data_p = {
-  'sdir' : './tests/test_data/stars_included_test_data',
+  'sdir' : './tests/data/stars_included_test_data',
   'types' : [0,4],
   'snap_ini' : 10,
   'snap_end' : 11,
   'snap_step' : 1,
 
-  'outdir' : './tests/test_data/tracking_output',
+  'outdir' : './tests/data/tracking_output',
   'tag' : 'test_star_early',
 }
 
@@ -59,7 +59,7 @@ fire1_data_p['tag'] = 'test_fire1'
 
 # Make sure that the ids sdir attribute resembles what would happen if it was generated.
 for data_p in [ default_data_p, star_data_p, early_star_data_p, fire1_data_p, ]:
-  id_filename = './tests/test_data/tracking_output/ids_{}.hdf5'.format( data_p['tag'] )
+  id_filename = './tests/data/tracking_output/ids_{}.hdf5'.format( data_p['tag'] )
   ids_file = h5py.File( id_filename, 'a' )
   ids_file.attrs['sdir'] = os.path.abspath( data_p['sdir'] )
   ids_file.close()
@@ -81,7 +81,7 @@ class TestConcatenateParticleData( unittest.TestCase ):
     '''Basically, does it work?'''
 
     # Input
-    self.id_finder.sdir = './tests/test_data/test_data_with_new_id_scheme'
+    self.id_finder.sdir = './tests/data/test_data_with_new_id_scheme'
     self.id_finder.snum = 600
     self.id_finder.types = [0,]
     self.id_finder.target_ids = np.array([ 36091289, 36091289, 3211791, 10952235 ])
@@ -103,7 +103,7 @@ class TestConcatenateParticleData( unittest.TestCase ):
   def test_works_for_stars( self ):
 
     # Input
-    self.id_finder.sdir = './tests/test_data/test_data_with_new_id_scheme'
+    self.id_finder.sdir = './tests/data/test_data_with_new_id_scheme'
     self.id_finder.snum = 600
     self.id_finder.types = [0,4]
     self.id_finder.target_ids = np.array([24565150, 24079833, 13109563, 14147322, ])
@@ -212,7 +212,7 @@ class TestFindIds( unittest.TestCase ):
     '''Basically, does it work?.'''
 
     # Input
-    sdir = './tests/test_data/test_data_with_new_id_scheme'
+    sdir = './tests/data/test_data_with_new_id_scheme'
     snum = 600
     types = [0,]
     target_ids = np.array([ 36091289, 36091289, 3211791, 10952235 ])
@@ -242,7 +242,7 @@ class TestFindIds( unittest.TestCase ):
   def test_no_child_ids( self ):
 
     # Input
-    sdir = './tests/test_data/stars_included_test_data'
+    sdir = './tests/data/stars_included_test_data'
     snum = 500
     types = [ 0, 4,]
     target_ids = np.array([ 24079833, 24565150, 14147322, ])
@@ -286,7 +286,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
     self.fn()
 
-    f = h5py.File( 'tests/test_data/tracking_output/ptrack_test.hdf5', 'r' )
+    f = h5py.File( 'tests/data/tracking_output/ptrack_test.hdf5', 'r' )
     
     expected_snum = np.arange(600, 490, -50)
     actual_snum = f['snum'][...]
@@ -305,7 +305,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     self.particle_tracker = track.ParticleTracker( **star_data_p )
     self.particle_tracker.save_particle_tracks()
 
-    f = h5py.File( 'tests/test_data/tracking_output/ptrack_test_star.hdf5', 'r' )
+    f = h5py.File( 'tests/data/tracking_output/ptrack_test_star.hdf5', 'r' )
     
     expected_snum = np.arange(600, 490, -50)
     actual_snum = f['snum'][...]
@@ -333,7 +333,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     self.particle_tracker = track.ParticleTracker( **early_star_data_p )
     self.particle_tracker.save_particle_tracks()
 
-    f = h5py.File( 'tests/test_data/tracking_output/ptrack_test_star_early.hdf5', 'r' )
+    f = h5py.File( 'tests/data/tracking_output/ptrack_test_star_early.hdf5', 'r' )
     
     expected_snum = np.array([ 11, 10 ])
     actual_snum = f['snum'][...]
@@ -350,7 +350,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     self.particle_tracker = track.ParticleTracker( **fire1_data_p )
     self.particle_tracker.save_particle_tracks()
 
-    f = h5py.File( 'tests/test_data/tracking_output/ptrack_test_fire1.hdf5', 'r' )
+    f = h5py.File( 'tests/data/tracking_output/ptrack_test_fire1.hdf5', 'r' )
     
     expected_snum = np.arange(600, 490, -50)
     actual_snum = f['snum'][...]
@@ -374,10 +374,10 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     
     self.fn()
 
-    f = h5py.File( 'tests/test_data/tracking_output/ptrack_test.hdf5', 'r' )
+    f = h5py.File( 'tests/data/tracking_output/ptrack_test.hdf5', 'r' )
 
     # Load one of the original snapshots to compare
-    P = readsnap.readsnap( 'tests/test_data/test_data_with_new_id_scheme', 600, 0, True, cosmological=True )
+    P = readsnap.readsnap( 'tests/data/test_data_with_new_id_scheme', 600, 0, True, cosmological=True )
     
     compare_keys = [ 'omega_matter', 'omega_lambda', 'hubble' ]
 
