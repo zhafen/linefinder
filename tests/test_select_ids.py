@@ -45,15 +45,15 @@ class TestSnapshotIDSelector( unittest.TestCase ):
     self.snapshot_id_selector = select_ids.SnapshotIDSelector( **default_snap_kwargs )
 
     # Setup some test data with a range of values useful to us.
-    self.snapshot_id_selector.p_data.data['R'] = np.array( [ 0.5, 1.2, 0.75, 0.1, 0.3, 1.5 ] )*self.snapshot_id_selector.p_data.length_scale
-    self.snapshot_id_selector.p_data.data['T'] = np.array( [ 1e2, 1.1e4, 1e7, 1e5, 0.5e6, 0.5e5 ] )
+    self.snapshot_id_selector.data['R'] = np.array( [ 0.5, 1.2, 0.75, 0.1, 0.3, 1.5 ] )*self.snapshot_id_selector.length_scale
+    self.snapshot_id_selector.data['T'] = np.array( [ 1e2, 1.1e4, 1e7, 1e5, 0.5e6, 0.5e5 ] )
 
   ########################################################################
 
   def test_default( self ):
 
     expected = 0.16946
-    actual = self.snapshot_id_selector.p_data.redshift
+    actual = self.snapshot_id_selector.redshift
     npt.assert_allclose( expected, actual, atol=1e-5 )
 
   ########################################################################
@@ -69,7 +69,7 @@ class TestSnapshotIDSelector( unittest.TestCase ):
     # Apply the filters.
     self.snapshot_id_selector.filter_data( default_data_filters )
 
-    masks = self.snapshot_id_selector.p_data.data_masker.masks
+    masks = self.snapshot_id_selector.data_masker.masks
     assert len(masks) == 2
 
     # Check the results
@@ -82,11 +82,10 @@ class TestSnapshotIDSelector( unittest.TestCase ):
 
   def test_get_ids( self ):
 
-    # Make masks
+    # Make masks (easiest just to use the function I just tested, even if it's not perfect unit testing....)
     self.snapshot_id_selector.filter_data( default_data_filters )
 
     expected = np.array( [ 10952235, 36091289, ] )
-
     actual = self.snapshot_id_selector.get_ids()
 
     npt.assert_allclose( expected, actual )
@@ -111,8 +110,8 @@ class TestWithChildIDs( unittest.TestCase ):
     self.snapshot_id_selector = select_ids.SnapshotIDSelector( **newids_snap_kwargs )
 
     # Setup some test data with a range of values useful to us.
-    self.snapshot_id_selector.p_data.data['R'] = np.array( [ 0.5, 1.2, 0.75, 0.1, 0.3, 1.5 ] )*self.snapshot_id_selector.p_data.length_scale
-    self.snapshot_id_selector.p_data.data['T'] = np.array( [ 1e2, 1.1e4, 1e7, 1e5, 0.5e6, 0.5e5 ] )
+    self.snapshot_id_selector.data['R'] = np.array( [ 0.5, 1.2, 0.75, 0.1, 0.3, 1.5 ] )*self.snapshot_id_selector.length_scale
+    self.snapshot_id_selector.data['T'] = np.array( [ 1e2, 1.1e4, 1e7, 1e5, 0.5e6, 0.5e5 ] )
 
   ########################################################################
 

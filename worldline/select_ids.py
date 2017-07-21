@@ -37,26 +37,17 @@ class IDSelector( object ):
 ########################################################################
 ########################################################################
 
-class SnapshotIDSelector( object ):
+class SnapshotIDSelector( particle_data.ParticleData ):
 
   def __init__( self, **kwargs ):
-    '''Select IDs satisfying certain conditions in a specified snapshot.
-    Extra keyword arguments are passed to ParticleData()
+    '''Class for selecting all the IDs that would go in a particular snapshot.
+    Built on ParticleData.
 
     Keyword Args:
-      sdir (str, required) : Directory containing the data.
-      snum (int, required) : Snapshot number.
-      ptype (int, required) : Particle type to search.
-      load_additional_ids (bool, required) : Whether or not to also include the child IDs, if they are included.
-      analysis_dir (str, required) : What directory the analysis data (e.g. AHF data) is stored in.
-      ahf_index (int, required) : What index to use for the AHF data.
+      All the usual requirements that would go into particle_data.ParticleData
     '''
 
-    # Store the arguments
-    for arg in locals().keys():
-      setattr( self, arg, locals()[arg] )
-
-    self.p_data = particle_data.ParticleData( **kwargs )
+    super( SnapshotIDSelector, self ).__init__( **kwargs )
 
   ########################################################################
 
@@ -84,7 +75,7 @@ class SnapshotIDSelector( object ):
     '''
 
     for data_filter in data_filters:
-      self.p_data.data_masker.mask_data( data_filter['data_key'], data_filter['data_min'], data_filter['data_max'] )
+      self.data_masker.mask_data( data_filter['data_key'], data_filter['data_min'], data_filter['data_max'] )
 
   ########################################################################
 
@@ -95,13 +86,13 @@ class SnapshotIDSelector( object ):
       child_ids (optional) : Child IDs for the particles that match the filtered requirements.
     '''
 
-    ids = self.p_data.data_masker.get_masked_data( 'ID' )
+    ids = self.data_masker.get_masked_data( 'ID' )
 
-    if not self.kwargs['load_additional_ids']:
+    if not self.load_additional_ids:
       return ids
 
     else:
-      child_ids = self.p_data.data_masker.get_masked_data( 'ChildID' )
+      child_ids = self.data_masker.get_masked_data( 'ChildID' )
       return ids, child_ids
 
   ########################################################################
