@@ -602,6 +602,6 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
     # Make sure we have stored the data parameters too.
     for key in ptrack_gal_finder_kwargs.keys():
       if key != 'ids_to_return':
-        assert ptrack_gal_finder_kwargs[key] == f.attrs[key]
+        assert ptrack_gal_finder_kwargs[key] == f['parameters'].attrs[key]
 
 

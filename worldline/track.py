@@ -194,12 +194,10 @@ class ParticleTracker( object ):
     for key in self.attrs.keys():
       f.attrs[key] = self.attrs[key]
 
-    # Save the data parameters (kwargs) to the attributes too.
+    # Save the data parameters too, as part of a group
+    grp = f.create_group('parameters')
     for key in self.kwargs.keys():
-      f.attrs[key] = self.kwargs[key]
-
-    # Save the path to the ID file
-    f.attrs['id_filepath'] = self.id_filepath
+      grp.attrs[key] = self.kwargs[key]
 
     # Save the current code version
     f.attrs['worldline_version'] = utilities.get_code_version( self )

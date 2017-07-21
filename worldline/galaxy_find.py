@@ -160,7 +160,6 @@ class ParticleTrackGalaxyFinder( object ):
     self.ptrack.close()
 
     # Save the data.
-    # Load the particle track data
     save_filename = 'galfind_{}.hdf5'.format( self.kwargs['tag'] )
     save_filepath = os.path.join( self.kwargs['tracking_dir'], save_filename )
     f = h5py.File( save_filepath )
@@ -173,18 +172,15 @@ class ParticleTrackGalaxyFinder( object ):
     f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
 
     # Save the data parameters
+    grp = f.create_group('parameters')
     for key in self.kwargs.keys():
-      f.attrs[key] = self.kwargs[key]
+      grp.attrs[key] = self.kwargs[key]
 
     # Save the arguments (that aren't already obvious somewhere else in the output).
-    f.attrs['galaxy_cut'] = self.galaxy_cut
-    f.attrs['length_scale'] = self.length_scale
-    f.attrs['minimum_criteria'] = self.minimum_criteria
-    f.attrs['minimum_value'] = self.minimum_value
-
-    # Save the location this was saved to, and the location the ptrack data was in
-    f.attrs['ptrack_filepath'] = self.ptrack_filepath
-    f.attrs['save_filepath'] = save_filepath
+    grp.attrs['galaxy_cut'] = self.galaxy_cut
+    grp.attrs['length_scale'] = self.length_scale
+    grp.attrs['minimum_criteria'] = self.minimum_criteria
+    grp.attrs['minimum_value'] = self.minimum_value
 
     # Save the current code version
     f.attrs['worldline_version'] = utilities.get_code_version( self )

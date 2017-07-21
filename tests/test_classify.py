@@ -634,4 +634,4 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
     # Make sure that we've saved our input arguments
     for key in default_kwargs.keys():
-      assert default_kwargs[key] == f.attrs[key]
+      assert default_kwargs[key] == f['parameters'].attrs[key]

@@ -192,15 +192,12 @@ class Classifier( object ):
       f.create_dataset( classification, data=data )
 
     # Save the data parameters
+    grp = f.create_group('parameters')
     for key in self.kwargs.keys():
-      f.attrs[key] = self.kwargs[key]
+      grp.attrs[key] = self.kwargs[key]
 
     # Save the arguments
-    f.attrs['not_in_main_gal_key'] = self.not_in_main_gal_key
-
-    # Save the filenames of the files used for classification
-    f.attrs['ptrack_filename'] = self.ptrack_filename
-    f.attrs['galfind_filename'] = self.galfind_filename
+    grp.attrs['not_in_main_gal_key'] = self.not_in_main_gal_key
 
     # Save the current code versions
     f.attrs['worldline_version'] = utilities.get_code_version( self )
