@@ -61,9 +61,12 @@ class SnapshotIDSelector( object ):
   ########################################################################
 
   @utilities.print_timer( 'Selecting ids in the snapshot took' )
-  def select_ids_snapshot( self ):
-
-    self.create_data_container()
+  def select_ids_snapshot( self, data_filters ):
+    '''Select the IDs that match specified conditions in a given snapshot.
+    
+    Args:
+      data_filters (list of dicts): The data filters to apply.
+    '''
 
     self.filter_data()
 
@@ -72,3 +75,30 @@ class SnapshotIDSelector( object ):
     self.format_ids()
 
   ########################################################################
+
+  def filter_data( self, data_filters ):
+    '''Put the filters on the dataset
+    
+    Args:
+      data_filters (list of dicts): The data filters to apply.
+    '''
+
+    for data_filter in data_filters:
+      self.p_data.data_masker.mask_data( data_filter['data_key'], data_filter['data_min'], data_filter['data_max'] )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
