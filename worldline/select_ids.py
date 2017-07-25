@@ -7,6 +7,7 @@
 '''
 
 import copy
+import gc
 import h5py
 import numpy as np
 import os
@@ -87,11 +88,11 @@ class IDSelector( object ):
     for snum in self.snums:
       for ptype in self.kwargs['ptypes']:
 
-        kwargs = copy.deepcopy( self.snapshot_kwargs )
+        kwargs = dict( self.snapshot_kwargs )
         kwargs['snum'] = snum
         kwargs['ptype'] = ptype
 
-        print( "Snapshot {}:".format( snum ) )
+        print( "Ptype {}, Snapshot {}:".format( ptype, snum ) )
 
         snapshot_id_selector = SnapshotIDSelector( **kwargs )
         selected_ids_snapshot = snapshot_id_selector.select_ids_snapshot( data_filters )
