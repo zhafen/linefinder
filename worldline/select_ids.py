@@ -99,6 +99,13 @@ class IDSelector( object ):
 
         selected_ids = selected_ids | selected_ids_snapshot
 
+        # Vain effort to free memory (that, stunningly, actually works!!)
+        # Python is supposed to take care of this by itself, but in this case it didn't.
+        del kwargs
+        del snapshot_id_selector
+        del selected_ids_snapshot
+        gc.collect()
+
     return selected_ids
 
   ########################################################################
