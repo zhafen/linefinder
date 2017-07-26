@@ -6,6 +6,7 @@
 @status: Development
 '''
 
+import gc
 import h5py
 import numpy as np
 import os
@@ -114,6 +115,12 @@ class ParticleTrackGalaxyFinder( object ):
       # Store the data in the primary array
       for key in galaxy_and_halo_ids.keys():
         self.ptrack_gal_ids[key][ :, i ] = galaxy_and_halo_ids[key]
+
+      # Try clearing up memory again, in case galaxy_finder is hanging around...
+      del kwargs
+      del galaxy_finder
+      del galaxy_and_halo_ids
+      gc.collect()
 
     self.write_galaxy_identifications()
 
