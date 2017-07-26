@@ -103,7 +103,9 @@ class ParticleTrackGalaxyFinder( object ):
 
       time_end = time.time()
 
-      print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'.format( kwargs['snum'], kwargs['redshift'], time_end - time_start )
+      print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'.format( kwargs['snum'],
+                                                                                  kwargs['redshift'],
+                                                                                  time_end - time_start )
       sys.stdout.flush()
 
       # Make the arrays to store the data in
@@ -130,7 +132,8 @@ class ParticleTrackGalaxyFinder( object ):
     print "Done Adding Galaxy and Halo IDs!"
     print "########################################################################"
     print "The following particle track file was updated:\n    {}".format( self.ptrack_filepath )
-    print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format( time_end - self.time_start, (time_end - self.time_start) / self.n_particles )
+    print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format( time_end - self.time_start,
+                                                                      (time_end - self.time_start) / self.n_particles )
 
   ########################################################################
 

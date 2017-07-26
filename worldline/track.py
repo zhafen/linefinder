@@ -16,6 +16,7 @@ import sys
 import time
 
 import galaxy_diver.read_data.snapshot as read_snapshot
+import galaxy_diver.utils.constants as constants
 import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
@@ -318,7 +319,7 @@ class IDFinder( object ):
         print '       ...  ', pnum, '   type', p_type , ' particles'
 
       if 'rho' in P:
-          rho = P['rho']
+          rho = P['rho']*constants.UNITDENSITY_IN_NUMDEN
       else:
           rho = [0.,]*pnum
 
@@ -328,7 +329,7 @@ class IDFinder( object ):
           sfr = [0.,]*pnum
 
       if 'u' in P:
-          T = read_snapshot.gas_temperature(P['u'],P['ne'])
+          T = read_snapshot.gas_temperature( P['u'], P['ne'] )
       else:
           T = [0.,]*pnum
 
@@ -340,8 +341,8 @@ class IDFinder( object ):
       full_snap_data['rho'].append( rho )
       full_snap_data['sfr'].append( sfr )
       full_snap_data['T'].append( T )
-      full_snap_data['z'].append( P['z'][:,0] )
-      full_snap_data['m'].append( P['m'] )
+      full_snap_data['z'].append( P['z'][:,0]*constants.Z_MASSFRAC_SUN )
+      full_snap_data['m'].append( P['m']*constants.UNITMASS_IN_MSUN )
       full_snap_data['x0'].append( P['p'][:,0] )
       full_snap_data['x1'].append( P['p'][:,1] )
       full_snap_data['x2'].append( P['p'][:,2] )
