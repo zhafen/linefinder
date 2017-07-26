@@ -195,6 +195,35 @@ class TestSelectIDs( unittest.TestCase ):
     for key in dfid.keys():
       npt.assert_allclose( dfid[key], expected[key] )
 
+  ########################################################################
+
+  def test_child_id_not_found( self ):
+    '''Sometimes particles can stop existing. This occurs when the particle is a split particle,
+    coming from some parent. In such a case, we want to stop tracking the particle. It's probably not worth it to
+    track the parent, because that parent accumulated at least as much mass as itself in order to split,
+    and as such we can't easily tell where that mass is coming from.
+    '''
+
+    self.id_finder.target_ids = np.array([ 36091289, 36091289, 3211791, 10952235 ])
+    self.id_finder.target_child_ids = np.array([ 893109954, 15, 0, 0 ]) # The second ID here doesn't exist
+    self.id_finder.full_snap_data = {
+      'id' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235]),
+      'child_id' : np.array([1945060136, 0, 0, 938428052, 893109954, 0]),
+      'rho' : np.array([  3.80374093e-10,   6.80917722e-09,   3.02682572e-08, 1.07385445e-09,   3.45104532e-08,   1.54667816e-08]),
+    }
+        
+    dfid = self.fn()
+
+    expected = {
+      'id' : self.id_finder.target_ids,
+      'child_id' : self.id_finder.target_child_ids,
+      'rho' : np.array([ 3.45104532e-08, np.nan, 6.80917722e-09, 1.54667816e-08 ]),
+    }
+
+    for key in dfid.keys():
+      npt.assert_allclose( dfid[key], expected[key] )
+
+
 ########################################################################
 
 class TestFindIds( unittest.TestCase ):

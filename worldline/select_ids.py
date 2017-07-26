@@ -11,6 +11,7 @@ import gc
 import h5py
 import numpy as np
 import os
+import time
 
 import galaxy_diver.analyze_data.particle_data as particle_data
 import galaxy_diver.utils.utilities as utilities
@@ -92,15 +93,18 @@ class IDSelector( object ):
         kwargs['snum'] = snum
         kwargs['ptype'] = ptype
 
-        print( "Ptype {}, Snapshot {}:".format( ptype, snum ) )
+        time_start = time.time()
 
         snapshot_id_selector = SnapshotIDSelector( **kwargs )
         selected_ids_snapshot = snapshot_id_selector.select_ids_snapshot( data_filters )
 
+        time_end = time.time()
+
+        print( "Ptype {}, Snapshot {}, took {:.3g} seconds".format( ptype, snum, time_end - time_start ) )
+
         selected_ids = selected_ids | selected_ids_snapshot
 
         # Vain effort to free memory (that, stunningly, actually works!!)
-        # Python is supposed to take care of this by itself, but in this case it didn't.
         del kwargs
         del snapshot_id_selector
         del selected_ids_snapshot
@@ -181,7 +185,6 @@ class SnapshotIDSelector( particle_data.ParticleData ):
 
   ########################################################################
 
-  @utilities.print_timer( "Took" )
   def select_ids_snapshot( self, data_filters ):
     '''Select the IDs that match specified conditions in a given snapshot.
     

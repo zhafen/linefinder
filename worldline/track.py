@@ -386,5 +386,11 @@ class IDFinder( object ):
     # Make a data frame selecting only the target ids
     dfid = df.loc[ target_selection ]
 
+    # When particle IDs can't be found the values are automatically replaced by NaNs. This is very good, but
+    # we want to preserve the ids and child ids for the particles we couldn't find.
+    if hasattr( self, 'target_child_ids' ):
+      dfid['id'] = dfid.index.get_level_values( 0 )
+      dfid['child_id'] = dfid.index.get_level_values( 1 )
+
     return dfid
 
