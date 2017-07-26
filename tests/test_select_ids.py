@@ -187,6 +187,11 @@ class TestIDSelector( unittest.TestCase ):
 
   def setUp( self ):
 
+    # Mock the code version so we don't repeatedly change test data
+    patcher = patch( 'galaxy_diver.utils.utilities.get_code_version' )
+    self.addCleanup( patcher.stop )
+    self.mock_code_version = patcher.start()
+
     self.side_effects = [
       set( [ (10952235, 0), (36091289, 893109954) ] ),
       set( [ (10952235, 0), (123456, 35) ] ),
@@ -333,6 +338,11 @@ class TestIDSelector( unittest.TestCase ):
 class TestIDSelectorNoChildIDs( unittest.TestCase ):
 
   def setUp( self ):
+
+    # Mock the code version so we don't repeatedly change test data
+    patcher = patch( 'galaxy_diver.utils.utilities.get_code_version' )
+    self.addCleanup( patcher.stop )
+    self.mock_code_version = patcher.start()
 
     self.side_effects = [
       set( [ 10952235, 36091289, ] ),

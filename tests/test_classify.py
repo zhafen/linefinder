@@ -7,6 +7,7 @@
 '''
 
 import h5py
+from mock import patch
 import numpy as np
 import numpy.testing as npt
 import os
@@ -549,6 +550,10 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 class TestFullClassifierPipeline( unittest.TestCase ):
 
   def setUp( self ):
+    # Mock the code version so we don't repeatedly change test data
+    patcher = patch( 'galaxy_diver.utils.utilities.get_code_version' )
+    self.addCleanup( patcher.stop )
+    self.mock_code_version = patcher.start()
 
     self.classifier = classify.Classifier( **default_kwargs )
 

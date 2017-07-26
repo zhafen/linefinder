@@ -8,6 +8,7 @@
 
 import copy
 import h5py
+from mock import patch
 import numpy as np
 import numpy.testing as npt
 import os
@@ -606,6 +607,11 @@ class TestGalaxyFinderMinimumNumStars( unittest.TestCase ):
 class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
   def setUp( self ):
+
+    # Mock the code version so we don't repeatedly change test data
+    patcher = patch( 'galaxy_diver.utils.utilities.get_code_version' )
+    self.addCleanup( patcher.stop )
+    self.mock_code_version = patcher.start()
 
     self.originalfile = './tests/data/tracking_output/ptrack_test.hdf5'
     self.savefile = './tests/data/tracking_output/galfind_test.hdf5'

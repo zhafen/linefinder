@@ -8,6 +8,7 @@
 
 import copy
 import h5py
+from mock import patch
 import numpy as np
 import numpy.testing as npt
 import os
@@ -297,6 +298,11 @@ class TestFindIds( unittest.TestCase ):
 class TestSaveTargetedParticles( unittest.TestCase ):
 
   def setUp( self ):
+
+    # Mock the code version so we don't repeatedly change test data
+    patcher = patch( 'galaxy_diver.utils.utilities.get_code_version' )
+    self.addCleanup( patcher.stop )
+    self.mock_code_version = patcher.start()
 
     self.particle_tracker = track.ParticleTracker( **default_data_p )
 
