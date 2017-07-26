@@ -39,14 +39,15 @@ class ParticleTrackGalaxyFinder( object ):
       minimum_criteria (str, optional): Options...
         'n_star' -- halos must contain a minimum number of stars to count as containing a galaxy.
         'M_star' -- halos must contain a minimum stellar mass to count as containing a galaxy.
-      minimum_value (int or float, optional): The minimum amount of something (specified in minimum criteria) in order for a galaxy to count as hosting a halo.
+      minimum_value (int or float, optional): The minimum amount of something (specified in minimum criteria)
+        in order for a galaxy to count as hosting a halo.
 
     Keyword Args:
       sdir (str, required): Directory the AHF data is in.
       tracking_dir (str, required): Directory the ptrack data is in.
       tag (str, required): Identifying tag.
-      mtree_halos_index (str or int, required) : The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
-                        snapshot number, but see AHFReader.get_mtree_halos's documentation.
+      mtree_halos_index (str or int, required) : The index argument to pass to AHFReader.get_mtree_halos().
+        For most cases this should be the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
       ptrack_tag (str, optional): Identifying tag for the ptrack data. Defaults to 'tag'.
     '''
 

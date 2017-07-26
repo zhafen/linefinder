@@ -92,7 +92,8 @@ class TestGalaxyFinder( unittest.TestCase ):
   ########################################################################
 
   def test_find_containing_halos_strict( self ):
-    '''Here I'll restrict the fraction to a very small fraction of the virial radius, such that the sum of the results should be two.
+    '''Here I'll restrict the fraction to a very small fraction of the virial radius,
+    such that the sum of the results should be two.
     '''
 
     result = self.galaxy_finder.find_containing_halos( 0.0001 )
@@ -126,6 +127,26 @@ class TestGalaxyFinder( unittest.TestCase ):
     expected[ 0, 0 ] = True
     expected[ 1, 0 ] = False
     expected[ 2, 0 ] = True
+
+    npt.assert_allclose( actual, expected )
+
+  ########################################################################
+
+  def test_find_containing_halos_nan_particle( self ):
+    # Anywhere the particle data has NaN values, we want that to read as False
+
+    self.galaxy_finder.particle_positions = np.array([
+      [ 29414.96458784,  30856.75007114,  32325.90901812], # Right in the middle of mt halo 0 at snap 500
+      [ np.nan, np.nan, np.nan ], # Invalid values, because a particle with that ID didn't exist
+      ])
+    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble
+    self.galaxy_finder.n_particles = 2
+      
+    actual = self.galaxy_finder.find_containing_halos()
+
+    n_halos = self.galaxy_finder.ahf_reader.ahf_halos.index.size
+    expected = np.zeros( (self.galaxy_finder.particle_positions.shape[0], n_halos) ).astype( bool )
+    expected[ 0, 0 ] = True
 
     npt.assert_allclose( actual, expected )
 
@@ -180,6 +201,27 @@ class TestGalaxyFinder( unittest.TestCase ):
     expected[ 0, 0 ] = True
     expected[ 1, 0 ] = False
     expected[ 2, 0 ] = True
+
+    npt.assert_allclose( actual, expected )
+
+  ########################################################################
+
+  def test_find_mt_containing_halos_nan_particles( self ):
+    '''Test that this works for using r_scale.'''
+
+    self.galaxy_finder.particle_positions = np.array([
+      [ 29414.96458784,  30856.75007114,  32325.90901812], # Right in the middle of mt halo 0 at snap 500
+      [ np.nan, np.nan, np.nan, ], # Just outside the scale radius of mt halo 0 at snap 500.
+      ])
+    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble
+    self.galaxy_finder.n_particles = 2
+
+    actual = self.galaxy_finder.find_mt_containing_halos( 1. )
+
+    # Build the expected output
+    n_halos = len( self.galaxy_finder.ahf_reader.mtree_halos )
+    expected = np.zeros( (self.galaxy_finder.particle_positions.shape[0], n_halos) ).astype( bool )
+    expected[ 0, 0 ] = True
 
     npt.assert_allclose( actual, expected )
 
