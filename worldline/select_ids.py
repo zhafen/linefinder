@@ -359,22 +359,24 @@ class IDSampler( object ):
       self.sample_inds (np.array of ints) : Indices of the target IDs to sample.
     '''
 
-    inds = range( self.f['target_ids'][...].size )
+    inds = np.array( range( self.f['target_ids'][...].size ) )
 
     if self.ignore_split_particles:
-      not_split = np.where( self.f['target_child_ids'] == 0 )
+      not_split = np.where( self.f['target_child_ids'][...] == 0 )[0]
       viable_inds = inds[not_split]
 
     else:
       viable_inds = inds
 
-    self.sample_inds = np.random.choice( viable_inds, self.n_samples )
+    self.sample_inds = np.random.choice( viable_inds, self.n_samples, replace=False )
 
   ########################################################################
 
   def save_sampled_ids( self ):
 
     self.f['parameters'].attrs['n_samples'] = self.n_samples
+    self.f['parameters'].attrs['ignore_split_particles'] = self.ignore_split_particles
+    self.f['parameters'].attrs['sampled_from_full_id_list'] = True
 
 
 

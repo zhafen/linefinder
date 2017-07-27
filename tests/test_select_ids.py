@@ -478,7 +478,7 @@ class TestIDSampler( unittest.TestCase ):
 
     self.id_sampler.choose_sample_inds()
 
-    expected = np.array([ 3, 6, 5, ])
+    expected = np.array([ 2, 1, 6, ])
     actual = self.id_sampler.sample_inds
     npt.assert_allclose( expected, actual )
     
@@ -489,11 +489,11 @@ class TestIDSampler( unittest.TestCase ):
     self.id_sampler.ignore_split_particles = True
 
     # Create some child ids
-    self.id_sampler.f['target_child_id'] = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
+    self.id_sampler.f['target_child_ids'] = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
 
     self.id_sampler.choose_sample_inds()
     
-    expected = np.array([ 3, 5, 4 ])
+    expected = np.array([ 1, 2, 4, ])
     actual = self.id_sampler.sample_inds
     npt.assert_allclose( expected, actual )
 
