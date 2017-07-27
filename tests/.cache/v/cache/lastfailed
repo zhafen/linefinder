@@ -1,1 +1,3 @@
-{}
+{
+  "test_select_ids.py::TestIDSampler::test_choose_sample_inds_no_split": true
+}

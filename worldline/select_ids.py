@@ -11,6 +11,7 @@ import gc
 import h5py
 import numpy as np
 import os
+import shutil
 import time
 
 import galaxy_diver.analyze_data.particle_data as particle_data
@@ -311,6 +312,69 @@ class SnapshotIDSelector( particle_data.ParticleData ):
     else:
       return set( zip( *selected_ids ) )
 
+########################################################################
+########################################################################
+
+class IDSampler( object ):
+
+  def __init__( self, sdir, tag, n_samples=100000, ignore_split_particles=False  ):
+
+    # Store the arguments
+    for arg in locals().keys():
+      setattr( self, arg, locals()[arg] )
+
+  ########################################################################
+
+  def sample_ids( self ):
+
+    self.sample_full_ids()
+
+    self.save_sampled_ids()
+
+  ########################################################################
+
+  def copy_and_open_full_ids( self ):
+    '''Copy the full id file and save them.
+
+    Modifies:
+      self.f (h5py file) : Opens and creates the file.
+    '''
+
+    full_id_filename = 'ids_full_{}.hdf5'.format( self.tag )
+    id_filename = 'ids_{}.hdf5'.format( self.tag )
+
+    full_id_filepath = os.path.join( self.sdir, full_id_filename )
+    id_filepath = os.path.join( self.sdir, id_filename )
+  
+    shutil.copyfile( full_id_filepath, id_filepath )
+
+    self.f = h5py.File( id_filepath, 'a' )
+
+  ########################################################################
+
+  def choose_sample_inds( self ):
+    '''Select the indices of the target IDs to sample.
+
+    Modifies:
+      self.sample_inds (np.array of ints) : Indices of the target IDs to sample.
+    '''
+
+    inds = range( self.f['target_ids'][...].size )
+
+    if self.ignore_split_particles:
+      not_split = np.where( self.f['target_child_ids'] == 0 )
+      viable_inds = inds[not_split]
+
+    else:
+      viable_inds = inds
+
+    self.sample_inds = np.random.choice( viable_inds, self.n_samples )
+
+  ########################################################################
+
+  def save_sampled_ids( self ):
+
+    self.f['parameters'].attrs['n_samples'] = self.n_samples
 
 
 

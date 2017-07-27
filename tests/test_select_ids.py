@@ -426,7 +426,77 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
     assert g.attrs['worldline_version'] is not None
     assert g.attrs['galaxy_diver_version'] is not None
 
+########################################################################
+########################################################################
+
+class TestIDSamplerSetUp( unittest.TestCase ):
+
+  def setUp( self ):
+
+    sdir = './tests/data/tracking_output_for_analysis'
+    self.filepath = os.path.join( sdir, 'ids_test.hdf5' )
+    self.id_sampler = select_ids.IDSampler( sdir, 'test', 3 )
+
+    if os.path.isfile( self.filepath ):
+      os.remove( self.filepath )
+
   ########################################################################
+
+  def test_copy_and_open_full_ids( self ):
+
+    self.id_sampler.copy_and_open_full_ids()
+
+    expected = np.array([       0, 10952235,       15,     1573, 36091289,   123456,       12])
+    actual = self.id_sampler.f['target_ids'][...]
+    npt.assert_allclose( expected, actual )
+
+    expected = self.filepath
+    actual = self.id_sampler.f.filename
+    assert os.path.samefile( expected, actual )
+
+########################################################################
+########################################################################
+
+class TestIDSampler( unittest.TestCase ):
+
+  def setUp( self ):
+
+    sdir = './tests/data/tracking_output_for_analysis'
+    self.filepath = os.path.join( sdir, 'ids_test.hdf5' )
+    self.id_sampler = select_ids.IDSampler( sdir, 'test', 3 )
+
+    np.random.seed( 1234 )
+
+    if os.path.isfile( self.filepath ):
+      os.remove( self.filepath )
+
+    self.id_sampler.copy_and_open_full_ids()
+
+  ########################################################################
+
+  def test_choose_sample_inds( self ):
+
+    self.id_sampler.choose_sample_inds()
+
+    expected = np.array([ 3, 6, 5, ])
+    actual = self.id_sampler.sample_inds
+    npt.assert_allclose( expected, actual )
+    
+  ########################################################################
+
+  def test_choose_sample_inds_no_split( self ):
+
+    self.id_sampler.ignore_split_particles = True
+
+    # Create some child ids
+    self.id_sampler.f['target_child_id'] = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
+
+    self.id_sampler.choose_sample_inds()
+    
+    expected = np.array([ 3, 5, 4 ])
+    actual = self.id_sampler.sample_inds
+    npt.assert_allclose( expected, actual )
+
 
 
 
