@@ -341,7 +341,7 @@ class IDFinder( object ):
       full_snap_data['rho'].append( rho )
       full_snap_data['sfr'].append( sfr )
       full_snap_data['T'].append( T )
-      full_snap_data['z'].append( P['z'][:,0]*constants.Z_MASSFRAC_SUN )
+      full_snap_data['z'].append( P['z'][:,0]/constants.Z_MASSFRAC_SUN )
       full_snap_data['m'].append( P['m']*constants.UNITMASS_IN_MSUN )
       full_snap_data['x0'].append( P['p'][:,0] )
       full_snap_data['x1'].append( P['p'][:,1] )
