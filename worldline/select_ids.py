@@ -14,6 +14,7 @@ import os
 import time
 
 import galaxy_diver.analyze_data.particle_data as particle_data
+import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
@@ -21,11 +22,13 @@ import galaxy_diver.utils.utilities as utilities
 
 class IDSelector( object ):
 
-  def __init__( self, snapshot_kwargs=None, **kwargs ):
+  def __init__( self, snapshot_kwargs=None, n_proc=1, **kwargs ):
     '''
     Args:
       snapshot_kwargs (dict) : Arguments to pass to SnapshotIDSelector. Can be the full range of arguments passed to
         particle_data.ParticleData
+      n_proc (int) : The number of processers to run the ID selector with. Parallelizes by opening multiple snapshots
+        at once (that's the most time-consumptive part of the code), so requires a large memory node, most likely.
 
     Keyword Args:
       snum_start (int) : Starting snapshot number.
@@ -63,7 +66,10 @@ class IDSelector( object ):
     print( "Selecting IDs" )
     print( "########################################################################" )
 
-    selected_ids = self.get_selected_ids( data_filters )
+    if self.n_proc > 1:
+      selected_ids = self.get_selected_ids_parallel( data_filters )
+    else:
+      selected_ids = self.get_selected_ids( data_filters )
 
     selected_ids_formatted = self.format_selected_ids( selected_ids )
 
@@ -109,6 +115,59 @@ class IDSelector( object ):
         del snapshot_id_selector
         del selected_ids_snapshot
         gc.collect()
+
+    return selected_ids
+
+  ########################################################################
+
+  def get_selected_ids_parallel( self, data_filters ):
+    '''Parallel version of self.get_selected_ids(). Requires a lot of memory, because it will have multiple 
+    snapshots open at once.
+    
+    Args:
+      data_filters (list of dicts): The data filters to apply.
+
+    Returns:
+      selected_ids (set): Set of selected ids.
+    '''
+
+    selected_ids = set()
+
+    def get_selected_ids_snapshot( args ):
+
+      data_filters, kwargs = args
+
+      time_start = time.time()
+
+      snapshot_id_selector = SnapshotIDSelector( **kwargs )
+      selected_ids_snapshot = snapshot_id_selector.select_ids_snapshot( data_filters )
+
+      time_end = time.time()
+
+      print( "Ptype {}, Snapshot {}, took {:.3g} seconds".format( kwargs['ptype'], kwargs['snum'],
+                                                                  time_end - time_start ) )
+
+      # Vain effort to free memory (that, stunningly, actually works!!)
+      # Though I haven't checked if it works in multiprocessing
+      del kwargs
+      del snapshot_id_selector
+      gc.collect()
+
+      return selected_ids_snapshot
+
+    args = []
+    for snum in self.snums:
+      for ptype in self.kwargs['ptypes']:
+
+        kwargs = dict( self.snapshot_kwargs )
+        kwargs['snum'] = snum
+        kwargs['ptype'] = ptype
+
+        args.append( ( data_filters, kwargs ) )
+
+    results = mp_utils.parmap( get_selected_ids_snapshot, args, self.n_proc )
+
+    selected_ids = set.union( *results )
 
     return selected_ids
 
@@ -161,6 +220,9 @@ class IDSelector( object ):
     # Save the snapshot parameters too
     for key in self.snapshot_kwargs.keys():
       subgrp.attrs[key] = self.snapshot_kwargs[key]
+
+    # Save how many processors we used.
+    grp.attrs['n_proc'] = self.n_proc
 
     # Save the current code versions
     f.attrs['worldline_version'] = utilities.get_code_version( self )
