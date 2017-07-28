@@ -318,6 +318,7 @@ class SnapshotIDSelector( particle_data.ParticleData ):
 class IDSampler( object ):
 
   def __init__( self, sdir, tag, n_samples=100000, ignore_split_particles=False  ):
+    '''TODO: This documentation.'''
 
     # Store the arguments
     for arg in locals().keys():
