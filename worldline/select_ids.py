@@ -325,15 +325,26 @@ class IDSampler( object ):
 
   ########################################################################
 
+  @utilities.print_timer( 'Sampling ids took' )
   def sample_ids( self ):
     '''Sample a saved ID file for a subset, which can then be run through particle tracking.
     '''
 
+    print( "########################################################################" )
+    print( "Sampling IDs" )
+    print( "########################################################################" )
+
+    print( "Copying and opening full ids" )
     self.copy_and_open_full_ids()
 
+    print( "Choosing sample indices" )
     self.choose_sample_inds()
 
+    print( "Saving data" )
     self.save_sampled_ids()
+
+    print( "########################################################################" )
+    print( "Done!" )
 
   ########################################################################
 

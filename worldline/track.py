@@ -93,14 +93,15 @@ class ParticleTracker( object ):
 
     # Load in the data
     for key in f.keys():
-      setattr( self, key, f[key][...] )
+      if key != 'parameters':
+        setattr( self, key, f[key][...] )
 
     # If there aren't target child IDs, make note of that
     if 'target_child_ids' not in f.keys():
       self.target_child_ids = None
 
     # Make sure our simulation directory matches up
-    assert os.path.samefile( self.kwargs['sdir'], f.attrs['sdir'] )
+    assert os.path.samefile( self.kwargs['sdir'], f['parameters/snapshot_parameters'].attrs['sdir'] )
 
   ########################################################################
 
