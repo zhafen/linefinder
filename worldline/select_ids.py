@@ -326,8 +326,12 @@ class IDSampler( object ):
   ########################################################################
 
   def sample_ids( self ):
+    '''Sample a saved ID file for a subset, which can then be run through particle tracking.
+    '''
 
-    self.sample_full_ids()
+    self.copy_and_open_full_ids()
+
+    self.choose_sample_inds()
 
     self.save_sampled_ids()
 
@@ -373,6 +377,20 @@ class IDSampler( object ):
   ########################################################################
 
   def save_sampled_ids( self ):
+    '''Save the IDs, now that we have the indices of the IDs we want sampled.
+
+    Modifies:
+      self.f (h5py file) : Replaces target_ids and target_child_ids with sampled versions.
+    '''
+
+    target_ids_to_save = self.f['target_ids'][...][self.sample_inds]
+    del self.f['target_ids']
+    self.f['target_ids'] = target_ids_to_save
+
+    if 'target_child_ids' in self.f.keys():
+      target_child_ids_to_save = self.f['target_child_ids'][...][self.sample_inds]
+      del self.f['target_child_ids']
+      self.f['target_child_ids'] = target_child_ids_to_save
 
     self.f['parameters'].attrs['n_samples'] = self.n_samples
     self.f['parameters'].attrs['ignore_split_particles'] = self.ignore_split_particles

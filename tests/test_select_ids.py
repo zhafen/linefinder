@@ -429,7 +429,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
 ########################################################################
 ########################################################################
 
-class TestIDSamplerSetUp( unittest.TestCase ):
+class TestIDSamplerNoSetUp( unittest.TestCase ):
 
   def setUp( self ):
 
@@ -453,6 +453,24 @@ class TestIDSamplerSetUp( unittest.TestCase ):
     expected = self.filepath
     actual = self.id_sampler.f.filename
     assert os.path.samefile( expected, actual )
+
+  ########################################################################
+
+  def test_sample_ids( self ):
+
+    np.random.seed( 1234 )
+
+    self.id_sampler.sample_ids()
+
+    g = h5py.File( self.filepath, 'r' )
+    
+    expected = np.array([      15, 10952235,       12])
+    actual = g['target_ids']
+    npt.assert_allclose( expected, actual )
+
+    assert g['parameters'].attrs['n_samples'] == 3
+    assert g['parameters'].attrs['ignore_split_particles'] == False
+    assert g['parameters'].attrs['sampled_from_full_id_list']
 
 ########################################################################
 ########################################################################
@@ -496,6 +514,50 @@ class TestIDSampler( unittest.TestCase ):
     expected = np.array([ 1, 2, 4, ])
     actual = self.id_sampler.sample_inds
     npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_save_sampled_ids( self ):
+
+    self.id_sampler.sample_inds =  np.array([ 1, 2, 4, ])
+
+    self.id_sampler.save_sampled_ids()
+
+    g = h5py.File( self.filepath, 'r' )
+    
+    expected = np.array([10952235,       15, 36091289])   
+    actual = g['target_ids']
+    npt.assert_allclose( expected, actual )
+
+    assert g['parameters'].attrs['n_samples'] == 3
+    assert g['parameters'].attrs['ignore_split_particles'] == False
+    assert g['parameters'].attrs['sampled_from_full_id_list']
+
+  ########################################################################
+
+  def test_save_sampled_ids_child_ids( self ):
+
+    self.id_sampler.f['target_child_ids'] = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
+    self.id_sampler.sample_inds =  np.array([ 0, 1, 4, ])
+
+    self.id_sampler.save_sampled_ids()
+
+    g = h5py.File( self.filepath, 'r' )
+    
+    expected = np.array([       0, 10952235, 36091289])   
+    actual = g['target_ids']
+    npt.assert_allclose( expected, actual )
+
+    expected = np.array([ 4, 0, 0, ])   
+    actual = g['target_child_ids']
+    npt.assert_allclose( expected, actual )
+
+    assert g['parameters'].attrs['n_samples'] == 3
+    assert g['parameters'].attrs['ignore_split_particles'] == False
+    assert g['parameters'].attrs['sampled_from_full_id_list']
+
+  ########################################################################
+
 
 
 

@@ -1,1 +1,3 @@
-{}
+{
+  "tests/test_select_ids.py": true
+}
