@@ -449,4 +449,40 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     for key in expected.keys():
       npt.assert_allclose( getattr( self.particle_tracker, key ), expected[key] )
 
+########################################################################
+########################################################################
 
+class TestSaveTargetedParticlesParallel( unittest.TestCase ):
+
+  def setUp( self ):
+
+    # Mock the code version so we don't repeatedly change test data
+    patcher = patch( 'galaxy_diver.utils.utilities.get_code_version' )
+    self.addCleanup( patcher.stop )
+    self.mock_code_version = patcher.start()
+
+    kwargs = dict( default_data_p )
+    kwargs['n_proc'] = 2
+
+    self.particle_tracker = track.ParticleTracker( **kwargs )
+
+    # The name of the function.
+    self.fn = self.particle_tracker.save_particle_tracks
+
+  ########################################################################
+
+  def test_basic( self ):
+
+    self.fn()
+
+    f = h5py.File( 'tests/data/tracking_output/ptrack_test.hdf5', 'r' )
+    
+    expected_snum = np.arange(600, 490, -50)
+    actual_snum = f['snum'][...]
+    npt.assert_allclose( expected_snum, actual_snum )
+
+    expected_rho_p0 =  np.array([  1.70068894e-08, 6.44416458e-08, 1.94556549e-09])*constants.UNITDENSITY_IN_NUMDEN
+    actual_rho_p0 = f['rho'][...][0]
+    npt.assert_allclose( expected_rho_p0, actual_rho_p0 )
+
+    assert 'child_id' in f.keys()

@@ -25,8 +25,11 @@ import galaxy_diver.utils.utilities as utilities
 class ParticleTracker( object ):
   '''Searches IDs across snapshots, then saves the results.'''
 
-  def __init__( self,  **kwargs ):
+  def __init__( self, n_processors=1,  **kwargs ):
     '''Setup the ID Finder. Looks for data in the form of "out_dir/ids_tag.hdf5"
+
+    Args:
+      n_processors (int) : Number of processors to use.
 
     Keyword Args:
       Input Data Parameters:
@@ -63,7 +66,10 @@ class ParticleTracker( object ):
     self.get_target_ids()
 
     # Loop overall redshift snapshots and get the data out
-    self.ptrack = self.get_tracked_data()
+    if self.n_processors > 1:
+      self.ptrack = self.get_tracked_data_parallel()
+    else:
+      self.ptrack = self.get_tracked_data()
 
     # Write particle data to the file
     self.write_tracked_data()
@@ -175,6 +181,66 @@ class ParticleTracker( object ):
 
   ########################################################################
 
+  def get_tracked_data_parallel( self ):
+    '''Loop overall redshift snapshots, and get the data.
+
+    Returns:
+      ptrack (dict): Structure to hold particle tracks.
+                     Structure is... ptrack ['varname'] [particle i, snap j, k component]
+    '''
+    self.snaps = np.arange( self.kwargs['snap_end'], self.kwargs['snap_ini']-1, -self.kwargs['snap_step'] )
+    nsnap = self.snaps.size       # number of redshift snapshots that we follow back
+
+    # Choose between single or double precision.
+    myfloat = 'float32'
+
+    self.ntrack = self.target_ids.size
+
+    print "Tracking {} particles...".format( self.ntrack )
+    sys.stdout.flush()
+
+    def get_tracked_data_snapshot( snum ):
+
+      time_1 = time.time()
+
+      id_finder = IDFinder()
+      dfid, redshift, attrs = id_finder.find_ids( self.kwargs['sdir'], snum, self.kwargs['types'], self.target_ids, \
+                                           target_child_ids=self.target_child_ids, )
+
+      time_2 = time.time()
+
+      # Print output information.
+      print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'.format(  snum, redshift, time_2 - time_1 )
+      sys.stdout.flush()
+
+      return dfid, redshift, attrs
+
+    ptrack = {
+      'redshift':np.zeros( nsnap, dtype=myfloat ), 
+      'snum':np.zeros( nsnap, dtype='int16' ),
+      'id':np.zeros( self.ntrack, dtype='int64' ), 
+      'Ptype':np.zeros( self.ntrack, dtype=('int8',(nsnap,)) ),
+      'rho':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ), 
+      'sfr':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'T':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'z':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'm':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'p':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
+      'v':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ), 
+    }
+
+    ptrack['id'] = self.target_ids
+    if self.target_child_ids is not None:
+      ptrack['child_id'] = self.target_child_ids
+
+    j = 0
+
+
+
+    return ptrack
+
+  ########################################################################
+
   def write_tracked_data( self ):
     '''Write tracks to a file.'''
 
@@ -201,9 +267,12 @@ class ParticleTracker( object ):
     for key in self.kwargs.keys():
       grp.attrs[key] = self.kwargs[key]
 
+    # Save the number of processors
+    grp.attrs['n_processors'] = self.n_processors
+
     # Save the current code version
-    f.attrs['worldline_version'] = utilities.get_code_version( self )
-    f.attrs['galaxy_diver_version'] = utilities.get_code_version( read_snapshot, instance_type='module' )
+    grp.attrs['worldline_version'] = utilities.get_code_version( self )
+    grp.attrs['galaxy_diver_version'] = utilities.get_code_version( read_snapshot, instance_type='module' )
 
     f.close()
 
