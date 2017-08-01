@@ -462,7 +462,7 @@ class TestSaveTargetedParticlesParallel( unittest.TestCase ):
     self.mock_code_version = patcher.start()
 
     kwargs = dict( default_data_p )
-    kwargs['n_proc'] = 2
+    kwargs['n_processors'] = 2
 
     self.particle_tracker = track.ParticleTracker( **kwargs )
 

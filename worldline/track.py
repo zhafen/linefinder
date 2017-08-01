@@ -8,6 +8,7 @@
 
 import gc
 import h5py
+import multiprocessing as mp
 import numpy as np
 import os
 import pandas as pd
@@ -17,6 +18,7 @@ import time
 
 import galaxy_diver.read_data.snapshot as read_snapshot
 import galaxy_diver.utils.constants as constants
+import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
@@ -118,6 +120,7 @@ class ParticleTracker( object ):
       ptrack (dict): Structure to hold particle tracks.
                      Structure is... ptrack ['varname'] [particle i, snap j, k component]
     '''
+
     self.snaps = np.arange( self.kwargs['snap_end'], self.kwargs['snap_ini']-1, -self.kwargs['snap_step'] )
     nsnap = self.snaps.size       # number of redshift snapshots that we follow back
 
@@ -182,12 +185,13 @@ class ParticleTracker( object ):
   ########################################################################
 
   def get_tracked_data_parallel( self ):
-    '''Loop overall redshift snapshots, and get the data.
+    '''Loop overall redshift snapshots, and get the data. This is the parallelized version.
 
     Returns:
       ptrack (dict): Structure to hold particle tracks.
                      Structure is... ptrack ['varname'] [particle i, snap j, k component]
     '''
+
     self.snaps = np.arange( self.kwargs['snap_end'], self.kwargs['snap_ini']-1, -self.kwargs['snap_step'] )
     nsnap = self.snaps.size       # number of redshift snapshots that we follow back
 
@@ -195,11 +199,12 @@ class ParticleTracker( object ):
     myfloat = 'float32'
 
     self.ntrack = self.target_ids.size
-
     print "Tracking {} particles...".format( self.ntrack )
     sys.stdout.flush()
 
-    def get_tracked_data_snapshot( snum ):
+    def get_tracked_data_snapshot( args ):
+
+      i, snum = args
 
       time_1 = time.time()
 
@@ -207,35 +212,51 @@ class ParticleTracker( object ):
       dfid, redshift, attrs = id_finder.find_ids( self.kwargs['sdir'], snum, self.kwargs['types'], self.target_ids, \
                                            target_child_ids=self.target_child_ids, )
 
+      gc.collect()          # helps stop leaking memory ?
       time_2 = time.time()
 
       # Print output information.
-      print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'.format(  snum, redshift, time_2 - time_1 )
+      print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'.format( snum, redshift, time_2 - time_1 )
       sys.stdout.flush()
 
-      return dfid, redshift, attrs
+      return i, dfid, redshift, attrs, snum
+
+    all_args = [ arg for arg in enumerate( self.snaps ) ]
+
+    tracked_data_snapshots = mp_utils.parmap( get_tracked_data_snapshot, all_args, self.n_processors )
 
     ptrack = {
-      'redshift':np.zeros( nsnap, dtype=myfloat ), 
-      'snum':np.zeros( nsnap, dtype='int16' ),
-      'id':np.zeros( self.ntrack, dtype='int64' ), 
-      'Ptype':np.zeros( self.ntrack, dtype=('int8',(nsnap,)) ),
-      'rho':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ), 
-      'sfr':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-      'T':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-      'z':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-      'm':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-      'p':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
-      'v':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ), 
+      'redshift' : np.zeros( nsnap, dtype=myfloat ), 
+      'snum' : np.zeros( nsnap, dtype='int16' ),
+      'id' : np.zeros( self.ntrack, dtype='int64' ), 
+      'Ptype' : np.zeros( self.ntrack, dtype=('int8',(nsnap,)) ),
+      'rho' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ), 
+      'sfr' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'T' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'z' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'm' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'p' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
+      'v' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ), 
     }
 
     ptrack['id'] = self.target_ids
     if self.target_child_ids is not None:
       ptrack['child_id'] = self.target_child_ids
 
-    j = 0
+    for tracked_data_snapshot in tracked_data_snapshots:
 
+      j, dfid, redshift, self.attrs, snum = tracked_data_snapshot
 
+      ptrack['redshift'][j] = redshift
+      ptrack['snum'][j] = snum
+      ptrack['Ptype'][:,j] = dfid['Ptype'].values
+      ptrack['rho'][:,j] = dfid['rho'].values                                                           # cm^(-3)
+      ptrack['sfr'][:,j] = dfid['sfr'].values                                                           # Msun / year   (stellar Age in Myr for star particles)
+      ptrack['T'][:,j] = dfid['T'].values                                                               # Kelvin
+      ptrack['z'][:,j] = dfid['z'].values                                                               # Zsun (metal mass fraction in Solar units)
+      ptrack['m'][:,j] = dfid['m'].values                                                               # Msun (particle mass in solar masses)
+      ptrack['p'][:,j,:] = np.array( [ dfid['x0'].values, dfid['x1'].values, dfid['x2'].values ] ).T    # kpc (physical)
+      ptrack['v'][:,j,:] = np.array( [ dfid['v0'].values, dfid['v1'].values, dfid['v2'].values ] ).T    # km/s (peculiar - need to add H(a)*r contribution)
 
     return ptrack
 
