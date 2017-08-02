@@ -616,11 +616,8 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
     self.originalfile = './tests/data/tracking_output/ptrack_test.hdf5'
     self.savefile = './tests/data/tracking_output/galfind_test.hdf5'
 
-  ########################################################################
-
-  def tearDown( self ):
-
-    os.system( 'rm {}'.format( self.savefile ) )
+    if os.path.isfile( self.savefile ):
+      os.system( 'rm {}'.format( self.savefile ) )
 
   ########################################################################
 
@@ -630,19 +627,24 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
     particle_track_gal_finder.find_galaxies_for_particle_tracks()
 
     f = h5py.File( self.savefile, 'r' )
+    g = h5py.File( self.originalfile, 'r' )
 
     # What we expect (calculated using the positions of the particles in snum 500 )
-    particle_positions = np.array([
-       [ 34463.765625  ,  37409.45703125,  38694.92578125],
-       [ 35956.61328125,  38051.79296875,  39601.91796875],
-       [ 34972.05078125,  39093.890625  ,  39445.94921875],
-       [ 35722.984375  ,  38222.14453125,  39245.52734375],
-    ])
+    particle_positions = g['P'][...][:,-1]
     galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **gal_finder_kwargs )
     expected = galaxy_finder.find_ids()
-
     for key in expected.keys():
       npt.assert_allclose( expected[key], f[key][...][:,-1] )
+
+    # What we expect (calculated using the positions of the particles in snum 550 )
+    gal_finder_kwargs_copy = dict( gal_finder_kwargs )
+    gal_finder_kwargs_copy['snum'] = g['snum'][1]
+    gal_finder_kwargs_copy['redshift'] = g['redshift'][1]
+    particle_positions = g['P'][...][:,1]
+    galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **gal_finder_kwargs_copy )
+    expected = galaxy_finder.find_ids()
+    for key in expected.keys():
+      npt.assert_allclose( expected[key], f[key][...][:,1] )
 
     # Make sure the main MT halo ID is the one we expect.
     assert f.attrs['main_mt_halo_id'] == 0
@@ -652,4 +654,40 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
       if key != 'ids_to_return':
         assert ptrack_gal_finder_kwargs[key] == f['parameters'].attrs[key]
 
+########################################################################
+
+class TestParticleTrackGalaxyFinderParallel( unittest.TestCase ):
+
+  def setUp( self ):
+
+    # Mock the code version so we don't repeatedly change test data
+    patcher = patch( 'galaxy_diver.utils.utilities.get_code_version' )
+    self.addCleanup( patcher.stop )
+    self.mock_code_version = patcher.start()
+
+    self.originalfile = './tests/data/tracking_output/ptrack_test.hdf5'
+    self.savefile = './tests/data/tracking_output/galfind_test_parallel.hdf5'
+
+    if os.path.isfile( self.savefile ):
+      os.system( 'rm {}'.format( self.savefile ) )
+
+  ########################################################################
+
+  def TODO_test_find_galaxies_for_particle_tracks_parallel( self ):
+
+    parallel_kwargs = dict( ptrack_gal_finder_kwargs )
+    parallel_kwargs['ptrack_tag'] = 'test'
+    parallel_kwargs['tag'] = 'test_parallel'
+    parallel_kwargs['n_processors'] = 2
+    parallel_kwargs['force_mp'] = True
+
+    particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder( **parallel_kwargs )
+    particle_track_gal_finder.find_galaxies_for_particle_tracks()
+
+    expected = h5py.File( './tests/data/tracking_output/galfind_test.hdf5', 'r' )
+    actual = h5py.File( self.savefile, 'r' )
+
+    for key in expected.keys():
+      if key != 'parameters':
+        npt.assert_allclose( expected[key], actual[key] )
 
