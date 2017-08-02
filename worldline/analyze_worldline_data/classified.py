@@ -41,7 +41,8 @@ class ClassifiedData( object ):
     # Store the data
     self.data = {}
     for key in f.keys():
-      self.data[key] = f[key][...]
+      if key != 'parameters':
+        self.data[key] = f[key][...]
 
     # Store the data attributes
     self.data_attrs = {}

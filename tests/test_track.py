@@ -26,9 +26,9 @@ import galaxy_diver.utils.constants as constants
 default_data_p = {
   'sdir' : './tests/data/test_data_with_new_id_scheme',
   'types' : [0,],
-  'snap_ini' : 500,
-  'snap_end' : 600,
-  'snap_step' : 50,
+  'snum_start' : 500,
+  'snum_end' : 600,
+  'snum_step' : 50,
 
   'outdir' : './tests/data/tracking_output',
   'tag' : 'test',
@@ -37,9 +37,9 @@ default_data_p = {
 star_data_p = {
   'sdir' : './tests/data/stars_included_test_data',
   'types' : [0,4],
-  'snap_ini' : 500,
-  'snap_end' : 600,
-  'snap_step' : 50,
+  'snum_start' : 500,
+  'snum_end' : 600,
+  'snum_step' : 50,
 
   'outdir' : './tests/data/tracking_output',
   'tag' : 'test_star',
@@ -48,9 +48,9 @@ star_data_p = {
 early_star_data_p = {
   'sdir' : './tests/data/stars_included_test_data',
   'types' : [0,4],
-  'snap_ini' : 10,
-  'snap_end' : 11,
-  'snap_step' : 1,
+  'snum_start' : 10,
+  'snum_end' : 11,
+  'snum_step' : 1,
 
   'outdir' : './tests/data/tracking_output',
   'tag' : 'test_star_early',
@@ -93,8 +93,8 @@ class TestConcatenateParticleData( unittest.TestCase ):
     actual = self.id_finder.full_snap_data
 
     expected = {
-      'id' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235]),
-      'child_id' : np.array([1945060136, 0, 0, 938428052, 893109954, 0]),
+      'ID' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235]),
+      'ChildID' : np.array([1945060136, 0, 0, 938428052, 893109954, 0]),
       }
 
     for key in expected.keys():
@@ -115,9 +115,9 @@ class TestConcatenateParticleData( unittest.TestCase ):
     actual = self.id_finder.full_snap_data
 
     expected = {
-      'id' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235,
+      'ID' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235,
                        24565150, 24079833, 13109563, 14147322, 28067645, 10259537]),
-      'child_id' : np.array([1945060136, 0, 0, 938428052, 893109954, 0,
+      'ChildID' : np.array([1945060136, 0, 0, 938428052, 893109954, 0,
                              0, 0, 0, 0, 0, 0]),
       }
 
@@ -143,10 +143,10 @@ class TestSelectIDs( unittest.TestCase ):
     # Dummy data set
     self.id_finder.target_ids = np.array([ 38913508, 3211791, 10952235 ])
     self.id_finder.full_snap_data = {
-      'id' : np.array([56037496,  3211791, 41221636, 63924292, 38913508, 10952235]),
-      'rho' : np.array([  3.80374093e-10,   6.80917722e-09,   3.02682572e-08, 1.07385445e-09,   3.45104532e-08,   1.54667816e-08]),
+      'ID' : np.array([56037496,  3211791, 41221636, 63924292, 38913508, 10952235]),
+      'Den' : np.array([  3.80374093e-10,   6.80917722e-09,   3.02682572e-08, 1.07385445e-09,   3.45104532e-08,   1.54667816e-08]),
     }
-    self.id_finder.full_snap_data['rho'] *= constants.UNITDENSITY_IN_NUMDEN
+    self.id_finder.full_snap_data['Den'] *= constants.UNITDENSITY_IN_NUMDEN
 
     self.fn()
 
@@ -160,18 +160,18 @@ class TestSelectIDs( unittest.TestCase ):
     # Dummy data set
     self.id_finder.target_ids = np.array([ 38913508, 3211791, 10952235 ])
     self.id_finder.full_snap_data = {
-      'id' : np.array([56037496,  3211791, 41221636, 63924292, 38913508, 10952235]),
-      'rho' : np.array([  3.80374093e-10,   6.80917722e-09,   3.02682572e-08, 1.07385445e-09,   3.45104532e-08,   1.54667816e-08]),
+      'ID' : np.array([56037496,  3211791, 41221636, 63924292, 38913508, 10952235]),
+      'Den' : np.array([  3.80374093e-10,   6.80917722e-09,   3.02682572e-08, 1.07385445e-09,   3.45104532e-08,   1.54667816e-08]),
     }
-    self.id_finder.full_snap_data['rho'] *= constants.UNITDENSITY_IN_NUMDEN
+    self.id_finder.full_snap_data['Den'] *= constants.UNITDENSITY_IN_NUMDEN
 
     dfid = self.fn()
 
     expected = {
-      'id' : np.array([ 38913508, 3211791, 10952235 ]),
-      'rho' : np.array([ 3.45104532e-08,  6.80917722e-09, 1.54667816e-08 ]),
+      'ID' : np.array([ 38913508, 3211791, 10952235 ]),
+      'Den' : np.array([ 3.45104532e-08,  6.80917722e-09, 1.54667816e-08 ]),
     }
-    expected['rho'] *= constants.UNITDENSITY_IN_NUMDEN
+    expected['Den'] *= constants.UNITDENSITY_IN_NUMDEN
 
     for key in dfid.keys():
       npt.assert_allclose( dfid[key], expected[key] )
@@ -184,20 +184,20 @@ class TestSelectIDs( unittest.TestCase ):
     self.id_finder.target_ids = np.array([ 36091289, 36091289, 3211791, 10952235 ])
     self.id_finder.target_child_ids = np.array([ 893109954, 1945060136, 0, 0 ])
     self.id_finder.full_snap_data = {
-      'id' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235]),
-      'child_id' : np.array([1945060136, 0, 0, 938428052, 893109954, 0]),
-      'rho' : np.array([  3.80374093e-10,   6.80917722e-09,   3.02682572e-08, 1.07385445e-09,   3.45104532e-08,   1.54667816e-08]),
+      'ID' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235]),
+      'ChildID' : np.array([1945060136, 0, 0, 938428052, 893109954, 0]),
+      'Den' : np.array([  3.80374093e-10,   6.80917722e-09,   3.02682572e-08, 1.07385445e-09,   3.45104532e-08,   1.54667816e-08]),
     }
-    self.id_finder.full_snap_data['rho'] *= constants.UNITDENSITY_IN_NUMDEN
+    self.id_finder.full_snap_data['Den'] *= constants.UNITDENSITY_IN_NUMDEN
 
     dfid = self.fn()
 
     expected = {
-      'id' : self.id_finder.target_ids,
-      'child_id' : self.id_finder.target_child_ids,
-      'rho' : np.array([ 3.45104532e-08, 3.80374093e-10, 6.80917722e-09, 1.54667816e-08 ]),
+      'ID' : self.id_finder.target_ids,
+      'ChildID' : self.id_finder.target_child_ids,
+      'Den' : np.array([ 3.45104532e-08, 3.80374093e-10, 6.80917722e-09, 1.54667816e-08 ]),
     }
-    expected['rho'] *= constants.UNITDENSITY_IN_NUMDEN
+    expected['Den'] *= constants.UNITDENSITY_IN_NUMDEN
 
     for key in dfid.keys():
       npt.assert_allclose( dfid[key], expected[key] )
@@ -214,20 +214,20 @@ class TestSelectIDs( unittest.TestCase ):
     self.id_finder.target_ids = np.array([ 36091289, 36091289, 3211791, 10952235 ])
     self.id_finder.target_child_ids = np.array([ 893109954, 15, 0, 0 ]) # The second ID here doesn't exist
     self.id_finder.full_snap_data = {
-      'id' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235]),
-      'child_id' : np.array([1945060136, 0, 0, 938428052, 893109954, 0]),
-      'rho' : np.array([  3.80374093e-10,   6.80917722e-09,   3.02682572e-08, 1.07385445e-09,   3.45104532e-08,   1.54667816e-08]),
+      'ID' : np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235]),
+      'ChildID' : np.array([1945060136, 0, 0, 938428052, 893109954, 0]),
+      'Den' : np.array([  3.80374093e-10,   6.80917722e-09,   3.02682572e-08, 1.07385445e-09,   3.45104532e-08,   1.54667816e-08]),
     }
-    self.id_finder.full_snap_data['rho'] *= constants.UNITDENSITY_IN_NUMDEN
+    self.id_finder.full_snap_data['Den'] *= constants.UNITDENSITY_IN_NUMDEN
         
     dfid = self.fn()
 
     expected = {
-      'id' : self.id_finder.target_ids,
-      'child_id' : self.id_finder.target_child_ids,
-      'rho' : np.array([ 3.45104532e-08, np.nan, 6.80917722e-09, 1.54667816e-08 ]),
+      'ID' : self.id_finder.target_ids,
+      'ChildID' : self.id_finder.target_child_ids,
+      'Den' : np.array([ 3.45104532e-08, np.nan, 6.80917722e-09, 1.54667816e-08 ]),
     }
-    expected['rho'] *= constants.UNITDENSITY_IN_NUMDEN
+    expected['Den'] *= constants.UNITDENSITY_IN_NUMDEN
 
     for key in dfid.keys():
       npt.assert_allclose( dfid[key], expected[key] )
@@ -261,9 +261,9 @@ class TestFindIds( unittest.TestCase ):
     P = readsnap.readsnap( sdir, snum, 0, True, cosmological=True )
 
     expected = {
-      'id' : target_ids,
-      'child_id' : target_child_ids,
-      'rho' : np.array([ P['rho'][ind]*constants.UNITDENSITY_IN_NUMDEN for ind in target_inds ]),
+      'ID' : target_ids,
+      'ChildID' : target_child_ids,
+      'Den' : np.array([ P['rho'][ind]*constants.UNITDENSITY_IN_NUMDEN for ind in target_inds ]),
     }
 
     dfid, redshift, attrs = self.fn( sdir, snum, types, target_ids, \
@@ -291,8 +291,8 @@ class TestFindIds( unittest.TestCase ):
     target_ptype = [ 0, 0, 4, ]
 
     expected = {
-      'id' : target_ids,
-      'rho' : np.array([ 3.12611002e-08,   2.98729116e-09, 0. ])*constants.UNITDENSITY_IN_NUMDEN
+      'ID' : target_ids,
+      'Den' : np.array([ 3.12611002e-08,   2.98729116e-09, 0. ])*constants.UNITDENSITY_IN_NUMDEN
     }
 
     dfid, redshift, attrs = self.fn( sdir, snum, types, target_ids, \
@@ -336,10 +336,10 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     npt.assert_allclose( expected_snum, actual_snum )
 
     expected_rho_p0 =  np.array([  1.70068894e-08, 6.44416458e-08, 1.94556549e-09])*constants.UNITDENSITY_IN_NUMDEN
-    actual_rho_p0 = f['rho'][...][0]
+    actual_rho_p0 = f['Den'][...][0]
     npt.assert_allclose( expected_rho_p0, actual_rho_p0 )
 
-    assert 'child_id' in f.keys()
+    assert 'ChildID' in f.keys()
 
   ########################################################################
 
@@ -355,18 +355,18 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     npt.assert_allclose( expected_snum, actual_snum )
 
     expected_id = np.array([24565150, 24079833, 13109563, 14147322])
-    actual_id = f['id'][...]
+    actual_id = f['ID'][...]
     npt.assert_allclose( expected_id, actual_id )
 
     expected_rho_500 = np.array([ 2.98729116e-09,   3.12611002e-08,   8.95081308e-04, 0. ])*constants.UNITDENSITY_IN_NUMDEN
-    actual_rho_500 = f['rho'][...][:,-1]
+    actual_rho_500 = f['Den'][...][:,-1]
     npt.assert_allclose( expected_rho_500, actual_rho_500 )
 
     expected_ptype_p0 = np.array([ 4, 0, 0 ])
-    actual_ptype_p0 = f['Ptype'][...][0]
+    actual_ptype_p0 = f['PType'][...][0]
     npt.assert_allclose( expected_ptype_p0, actual_ptype_p0 )
 
-    assert 'child_id' in f.keys()
+    assert 'ChildID' in f.keys()
 
   ########################################################################
 
@@ -383,7 +383,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     npt.assert_allclose( expected_snum, actual_snum )
 
     expected_id = np.array([2040268, 7909745, 8961984])
-    actual_id = f['id'][...]
+    actual_id = f['ID'][...]
     npt.assert_allclose( expected_id, actual_id )
 
   ########################################################################
@@ -400,15 +400,15 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     npt.assert_allclose( expected_snum, actual_snum )
 
     expected_id = np.array([24565150, 24079833, 13109563, 14147322])
-    actual_id = f['id'][...]
+    actual_id = f['ID'][...]
     npt.assert_allclose( expected_id, actual_id )
 
     expected_rho_500 = np.array([ 2.98729116e-09,   3.12611002e-08,   8.95081308e-04, 0. ])*constants.UNITDENSITY_IN_NUMDEN
-    actual_rho_500 = f['rho'][...][:,-1]
+    actual_rho_500 = f['Den'][...][:,-1]
     npt.assert_allclose( expected_rho_500, actual_rho_500 )
 
     expected_ptype_p0 = np.array([ 4, 0, 0 ])
-    actual_ptype_p0 = f['Ptype'][...][0]
+    actual_ptype_p0 = f['PType'][...][0]
     npt.assert_allclose( expected_ptype_p0, actual_ptype_p0 )
 
   ########################################################################
@@ -482,7 +482,7 @@ class TestSaveTargetedParticlesParallel( unittest.TestCase ):
     npt.assert_allclose( expected_snum, actual_snum )
 
     expected_rho_p0 =  np.array([  1.70068894e-08, 6.44416458e-08, 1.94556549e-09])*constants.UNITDENSITY_IN_NUMDEN
-    actual_rho_p0 = f['rho'][...][0]
+    actual_rho_p0 = f['Den'][...][0]
     npt.assert_allclose( expected_rho_p0, actual_rho_p0 )
 
-    assert 'child_id' in f.keys()
+    assert 'ChildID' in f.keys()

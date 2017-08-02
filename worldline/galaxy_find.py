@@ -77,7 +77,7 @@ class ParticleTrackGalaxyFinder( object ):
     for i in range( n_snaps ):
 
       # Get the particle positions
-      particle_positions = self.ptrack['p'][...][ :, i ]
+      particle_positions = self.ptrack['P'][...][ :, i ]
       
       # Get the data parameters to pass to GalaxyFinder
       kwargs = {
@@ -165,7 +165,7 @@ class ParticleTrackGalaxyFinder( object ):
     '''Write the data, close the file, and print out information.'''
 
     # Get the number of particles, for use in reporting the time
-    self.n_particles = self.ptrack[ 'rho' ][...].shape[0]
+    self.n_particles = self.ptrack[ 'Den' ][...].shape[0]
 
     # Close the old dataset
     self.ptrack.close()

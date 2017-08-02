@@ -44,12 +44,12 @@ default_ptrack = {
     [  0,  0,  0,  0, 10, ], # Always part of main galaxy
     [ -2,  0, -2, -2, -2, ], # CGM -> main galaxy -> CGM
     ]),
-  'Ptype' : np.array([
+  'PType' : np.array([
     [  4,  4,  0,  0,  0, ], # Merger, except in early snapshots
     [  4,  0,  0,  0,  0, ], # Always part of main galaxy
     [  0,  0,  0,  0,  0, ], # CGM -> main galaxy -> CGM
     ]),
-  'p' : np.array([
+  'P' : np.array([
     [ [ 41792.1633    ,  44131.2309735 ,  46267.67030708 ], # Merger, except in early snapshots
       [ 38198.04856455,  42852.63974461,  43220.86278364 ],
       [ 34972.28497249,  39095.17772698,  39446.83170768 ],
@@ -66,7 +66,7 @@ default_ptrack = {
       [             0.,              0.,              0. ],
       [             0.,              0.,              0. ], ],
     ]),
-  'v' : np.array([
+  'V' : np.array([
     [ [-48.53,  72.1 ,  96.12], # Merger, except in early snapshots
       [-23.75,  91.13,  80.57],
       [-20.92,  92.55,  75.86],
@@ -111,7 +111,7 @@ class TestReadPTrack( unittest.TestCase ):
     self.classifier.read_data_files()
 
     expected = 1.700689e-08
-    actual = self.classifier.ptrack['rho'][0,0]
+    actual = self.classifier.ptrack['Den'][0,0]
     npt.assert_allclose( expected, actual )
 
   ########################################################################
@@ -131,15 +131,15 @@ class TestDerivedFunctions( unittest.TestCase ):
     # Set the second particle at snapshot 550 to be at the center of the main halo at that redshift
     # Also set the velocity of the second particle at snapshot 550 to the velocity of the main halo at that redshift
     # This should result in an identically 0 radial velocity
-    self.classifier.ptrack[ 'p' ][ 1, 1 ] = np.array([ 29372.26565053,  30929.16894187,  32415.81701217 ])
-    self.classifier.ptrack[ 'p' ][ 1, 1 ] *= 1./(1. + self.classifier.ptrack['redshift'][ 1 ])/self.classifier.ptrack_attrs['hubble']
-    self.classifier.ptrack[ 'v' ][ 1, 1 ] = np.array([ -49.05,  72.73,  96.86 ])
+    self.classifier.ptrack[ 'P' ][ 1, 1 ] = np.array([ 29372.26565053,  30929.16894187,  32415.81701217 ])
+    self.classifier.ptrack[ 'P' ][ 1, 1 ] *= 1./(1. + self.classifier.ptrack['redshift'][ 1 ])/self.classifier.ptrack_attrs['hubble']
+    self.classifier.ptrack[ 'V' ][ 1, 1 ] = np.array([ -49.05,  72.73,  96.86 ])
 
     # Get the result
     result = self.classifier.get_radial_velocity()
 
     # Make sure we have the right shape.
-    assert result.shape == self.classifier.ptrack[ 'rho' ].shape
+    assert result.shape == self.classifier.ptrack[ 'Den' ].shape
 
     # Make sure that we have 0 radial velocity when we should
     npt.assert_allclose( result[ 1, 1 ], 0., atol=1e-3 )

@@ -57,9 +57,9 @@ tag = 'test'
 tracker_kwargs = {
   'sdir' : sdir,
   'types' : types,
-  'snap_ini' : snap_ini,
-  'snap_end' : snap_end,
-  'snap_step' : snap_step,
+  'snum_start' : snap_ini,
+  'snum_end' : snap_end,
+  'snum_step' : snap_step,
 
   'outdir' : outdir,
   'tag' : tag,

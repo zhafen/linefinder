@@ -166,7 +166,7 @@ class Classifier( object ):
 
     # Set useful state variables
     self.n_snap = self.ptrack['redshift'].size
-    self.n_particle = self.ptrack['id'].size
+    self.n_particle = self.ptrack['ID'].size
 
     # Load the ahf data
     self.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
@@ -230,14 +230,15 @@ class Classifier( object ):
     for i in range(self.n_snap):
 
       # Get the radial velocity of the particles
-      v_r_i = scipy.spatial.distance.cdist( self.ptrack[ 'v' ][:,i], main_mt_halo_v[i][np.newaxis] ).flatten()
+      v_r_i = scipy.spatial.distance.cdist( self.ptrack[ 'V' ][:,i], main_mt_halo_v[i][np.newaxis] ).flatten()
 
       # Get the radial distance of the particles for the hubble flow.
-      r_i = scipy.spatial.distance.cdist( self.ptrack[ 'p' ][:,i], main_mt_halo_p[i][np.newaxis] ).flatten()
+      r_i = scipy.spatial.distance.cdist( self.ptrack[ 'P' ][:,i], main_mt_halo_p[i][np.newaxis] ).flatten()
 
       # Add the hubble flow.
-      hubble_factor = astro_tools.hubble_parameter( self.ptrack['redshift'][i], h=self.ptrack_attrs['hubble'], \
-                                            omega_matter=self.ptrack_attrs['omega_matter'], omega_lambda=self.ptrack_attrs['omega_lambda'], units='1/s' )
+      hubble_factor = astro_tools.hubble_parameter( self.ptrack['redshift'][i], h=self.ptrack_attrs['hubble'],
+                                            omega_matter=self.ptrack_attrs['omega_matter'],
+                                            omega_lambda=self.ptrack_attrs['omega_lambda'], units='1/s' )
       v_r_i += hubble_factor * r_i * constants.UNITLENGTH_IN_CM  / constants.UNITVELOCITY_IN_CM_PER_S  
 
       v_r.append( v_r_i )
@@ -281,7 +282,8 @@ class Classifier( object ):
     redshift = np.tile( self.ptrack['redshift'][0:self.n_snap], (self.n_particle,1) )   
 
     # Age of the universe in Myr
-    time = 1e3 * astro_tools.age_of_universe( redshift, h=self.ptrack_attrs['hubble'], omega_matter=self.ptrack_attrs['omega_matter'] )
+    time = 1e3 * astro_tools.age_of_universe( redshift, h=self.ptrack_attrs['hubble'],
+                                              omega_matter=self.ptrack_attrs['omega_matter'] )
     dt = time[:,:-1] - time[:,1:] 
 
     return dt
@@ -294,16 +296,19 @@ class Classifier( object ):
     '''Identify what particles are in a galaxy besides the main galaxy.
 
     Returns:
-      is_in_main_gal ( [n_particle, n_snap-1] np.array of bools) : True if in a galaxy other than the main galaxy at that redshift.
+      is_in_main_gal ( [n_particle, n_snap-1] np.array of bools) : True if in a galaxy other than the main galaxy at
+        that redshift.
     '''
 
-    # Get the ID of the main halo for a given snapshot (remember that the mtree halo ID isn't the same as the ID at a given snapshot).
+    # Get the ID of the main halo for a given snapshot
+    # (remember that the mtree halo ID isn't the same as the ID at a given snapshot).
     main_mtree_halo = self.ahf_reader.mtree_halos[ self.ptrack_attrs['main_mt_halo_id'] ]
     main_halo_id = main_mtree_halo[ 'ID' ][ self.ptrack[ 'snum' ] ]
     main_halo_id_tiled = np.tile( main_halo_id, ( self.n_particle, 1 ) )
 
     # Check if we're inside the galaxy/halo other than the main galaxy
-    # This step is necessary, and the inverse of it is not redundant, because it removes anything that's in the main halo *and* that's the least massive galaxy it's in.
+    # This step is necessary, and the inverse of it is not redundant, because it removes anything that's in the
+    # main halo *and* that's the least massive galaxy it's in.
     is_not_in_main_gal = ( self.ptrack[self.not_in_main_gal_key] != main_halo_id_tiled )
     is_in_gal = ( self.ptrack['gal_id'] >= 0 )
 
@@ -314,10 +319,12 @@ class Classifier( object ):
   ########################################################################
 
   def identify_is_in_main_gal( self ):
-    '''Identify what particles are in a main galaxy. They must be in the main galaxy *and* not inside any other galaxy at that redshift, even a subhalo galaxy.
+    '''Identify what particles are in a main galaxy. They must be in the main galaxy *and* not inside any other galaxy
+    at that redshift, even a subhalo galaxy.
 
     Returns:
-      is_in_main_gal ( [n_particle, n_snap-1] np.array of bools) : True if in the main galaxy (and not any other galaxy) at that redshift.
+      is_in_main_gal ( [n_particle, n_snap-1] np.array of bools) : True if in the main galaxy
+        (and not any other galaxy) at that redshift.
     '''
 
     is_not_in_other_gal = np.invert( self.is_in_other_gal )
@@ -336,18 +343,21 @@ class Classifier( object ):
     '''Identify potential accretion/ejection events relative to main galaxy at each redshift
 
     Returns:
-      gal_event_id ( [n_particle, n_snap-1] np.array of ints) : GalEvent = 0 (no change), 1 (entering galaxy), -1 (leaving galaxy) at that redshift
+      gal_event_id ( [n_particle, n_snap-1] np.array of ints) : GalEvent = 0 (no change), 1 (entering galaxy),
+        -1 (leaving galaxy) at that redshift
     '''
 
     # Find when the particles enter and exit the galaxy
-    gal_event_id = self.is_in_main_gal[:,0:self.n_snap-1].astype( int ) - self.is_in_main_gal[:,1:self.n_snap].astype( int )
+    gal_event_id = self.is_in_main_gal[:,0:self.n_snap-1].astype( int ) - \
+                   self.is_in_main_gal[:,1:self.n_snap].astype( int )
 
     return gal_event_id
 
   ########################################################################
 
   def identify_accretion( self ):
-    '''Identify ALL gas/star accretion events, i.e. whether or not a particle was outside the galaxy at one redshift, and inside at the next'''
+    '''Identify ALL gas/star accretion events, i.e. whether or not a particle was outside the galaxy at one redshift,
+    and inside at the next'''
 
     is_accreted = ( self.gal_event_id == 1 )
 
@@ -362,7 +372,8 @@ class Classifier( object ):
     '''Identify ALL gas wind ejection events.
       These conditions must be met to identify as ejection:
         1. Inside the main galaxy at one snapshot, and not at the previous snapshot.
-        2. Radial velocity of the particle relative to the main galaxy must be greater than some fraction of the circular velocity of the main galaxy.
+        2. Radial velocity of the particle relative to the main galaxy must be greater than some fraction of the
+             circular velocity of the main galaxy.
         3. Radial velocity of the particle relative to the main galaxy must be greater than some base speed.
         4. The particle must be a gas particle.
         5. The particle must be outside any other galaxy.
@@ -379,7 +390,7 @@ class Classifier( object ):
     is_outside_before_inside_after = ( self.gal_event_id == -1 ) # Condition 1
     has_minimum_vr_in_vc = ( v_r[:,0:self.n_snap-1] > self.kwargs['wind_vel_min_vc']*v_c_tiled[:,0:self.n_snap-1] ) # Condition 2
     has_minimum_vr = ( v_r[:,0:self.n_snap-1] > self.kwargs['wind_vel_min'] ) # Condition 3
-    is_gas = ( self.ptrack['Ptype'][:,0:self.n_snap-1] == 0 ) # Condition 4
+    is_gas = ( self.ptrack['PType'][:,0:self.n_snap-1] == 0 ) # Condition 4
     is_outside_any_gal = ( self.ptrack['gal_id'][:,0:self.n_snap-1] < 0 ) # Condition 5
 
     is_ejected = ( 

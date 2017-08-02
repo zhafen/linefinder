@@ -39,12 +39,13 @@ class ParticleTracker( object ):
       Input Data Parameters:
         sdir (str): Simulation data directory.
         types (list of ints): The particle data types to include.
-        snap_ini (int): Starting snapshot
-        snap_end (int): End snapshot
-        snap_step (int): How many snapshots to jump over?
+        snum_start (int): Starting snapshot
+        snum_end (int): End snapshot
+        snum_step (int): How many snapshots to jump over?
 
       Analysis Parameters:
-        tag (str): Identifying tag. Currently must be put in manually. Should be the same for all stages of the pipeline.
+        tag (str): Identifying tag. Currently must be put in manually. Should be the same for all stages of the
+          pipeline.
         outdir (str): Output data directory. Also the directory for the file the ids to track should be in.
     '''
 
@@ -124,7 +125,7 @@ class ParticleTracker( object ):
                      Structure is... ptrack ['varname'] [particle i, snap j, k component]
     '''
 
-    self.snaps = np.arange( self.kwargs['snap_end'], self.kwargs['snap_ini']-1, -self.kwargs['snap_step'] )
+    self.snaps = np.arange( self.kwargs['snum_end'], self.kwargs['snum_start']-1, -self.kwargs['snum_step'] )
     nsnap = self.snaps.size       # number of redshift snapshots that we follow back
 
     # Choose between single or double precision.
@@ -138,20 +139,20 @@ class ParticleTracker( object ):
     ptrack = {
       'redshift':np.zeros( nsnap, dtype=myfloat ), 
       'snum':np.zeros( nsnap, dtype='int16' ),
-      'id':np.zeros( self.ntrack, dtype='int64' ), 
-      'Ptype':np.zeros( self.ntrack, dtype=('int8',(nsnap,)) ),
-      'rho':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ), 
-      'sfr':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'ID':np.zeros( self.ntrack, dtype='int64' ), 
+      'PType':np.zeros( self.ntrack, dtype=('int8',(nsnap,)) ),
+      'Den':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ), 
+      'SFR':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
       'T':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-      'z':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-      'm':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-      'p':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
-      'v':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ), 
+      'Z':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'M':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'P':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
+      'V':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ), 
     }
 
-    ptrack['id'] = self.target_ids
+    ptrack['ID'] = self.target_ids
     if self.target_child_ids is not None:
-      ptrack['child_id'] = self.target_child_ids
+      ptrack['ChildID'] = self.target_child_ids
 
     j = 0
 
@@ -165,14 +166,14 @@ class ParticleTracker( object ):
 
       ptrack['redshift'][j] = redshift
       ptrack['snum'][j] = snum
-      ptrack['Ptype'][:,j] = dfid['Ptype'].values
-      ptrack['rho'][:,j] = dfid['rho'].values                                                           # cm^(-3)
-      ptrack['sfr'][:,j] = dfid['sfr'].values                                                           # Msun / year   (stellar Age in Myr for star particles)
+      ptrack['PType'][:,j] = dfid['PType'].values
+      ptrack['Den'][:,j] = dfid['Den'].values                                                           # cm^(-3)
+      ptrack['SFR'][:,j] = dfid['SFR'].values                                                           # Msun / year   (stellar Age in Myr for star particles)
       ptrack['T'][:,j] = dfid['T'].values                                                               # Kelvin
-      ptrack['z'][:,j] = dfid['z'].values                                                               # Zsun (metal mass fraction in Solar units)
-      ptrack['m'][:,j] = dfid['m'].values                                                               # Msun (particle mass in solar masses)
-      ptrack['p'][:,j,:] = np.array( [ dfid['x0'].values, dfid['x1'].values, dfid['x2'].values ] ).T    # kpc (physical)
-      ptrack['v'][:,j,:] = np.array( [ dfid['v0'].values, dfid['v1'].values, dfid['v2'].values ] ).T    # km/s (peculiar - need to add H(a)*r contribution)
+      ptrack['Z'][:,j] = dfid['Z'].values                                                               # Zsun (metal mass fraction in Solar units)
+      ptrack['M'][:,j] = dfid['M'].values                                                               # Msun (particle mass in solar masses)
+      ptrack['P'][:,j,:] = np.array( [ dfid['P0'].values, dfid['P1'].values, dfid['P2'].values ] ).T    # kpc (physical)
+      ptrack['V'][:,j,:] = np.array( [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ] ).T    # km/s (peculiar - need to add H(a)*r contribution)
 
       j += 1
 
@@ -195,7 +196,7 @@ class ParticleTracker( object ):
                      Structure is... ptrack ['varname'] [particle i, snap j, k component]
     '''
 
-    self.snaps = np.arange( self.kwargs['snap_end'], self.kwargs['snap_ini']-1, -self.kwargs['snap_step'] )
+    self.snaps = np.arange( self.kwargs['snum_end'], self.kwargs['snum_start']-1, -self.kwargs['snum_step'] )
     nsnap = self.snaps.size       # number of redshift snapshots that we follow back
 
     # Choose between single or double precision.
@@ -234,20 +235,20 @@ class ParticleTracker( object ):
     ptrack = {
       'redshift' : np.zeros( nsnap, dtype=myfloat ), 
       'snum' : np.zeros( nsnap, dtype='int16' ),
-      'id' : np.zeros( self.ntrack, dtype='int64' ), 
-      'Ptype' : np.zeros( self.ntrack, dtype=('int8',(nsnap,)) ),
-      'rho' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ), 
-      'sfr' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'ID' : np.zeros( self.ntrack, dtype='int64' ), 
+      'PType' : np.zeros( self.ntrack, dtype=('int8',(nsnap,)) ),
+      'Den' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ), 
+      'SFR' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
       'T' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-      'z' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-      'm' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-      'p' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
-      'v' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ), 
+      'Z' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'M' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
+      'P' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
+      'V' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ), 
     }
 
-    ptrack['id'] = self.target_ids
+    ptrack['ID'] = self.target_ids
     if self.target_child_ids is not None:
-      ptrack['child_id'] = self.target_child_ids
+      ptrack['ChildID'] = self.target_child_ids
 
     assert len( tracked_data_snapshots ) == self.snaps.size,\
       "Unequal sizes, snapshot likely skipped, likely due to a MemoryError!"
@@ -258,14 +259,14 @@ class ParticleTracker( object ):
 
       ptrack['redshift'][j] = redshift
       ptrack['snum'][j] = snum
-      ptrack['Ptype'][:,j] = dfid['Ptype'].values
-      ptrack['rho'][:,j] = dfid['rho'].values                                                           # cm^(-3)
-      ptrack['sfr'][:,j] = dfid['sfr'].values                                                           # Msun / year   (stellar Age in Myr for star particles)
+      ptrack['PType'][:,j] = dfid['PType'].values
+      ptrack['Den'][:,j] = dfid['Den'].values                                                           # cm^(-3)
+      ptrack['SFR'][:,j] = dfid['SFR'].values                                                           # Msun / year   (stellar Age in Myr for star particles)
       ptrack['T'][:,j] = dfid['T'].values                                                               # Kelvin
-      ptrack['z'][:,j] = dfid['z'].values                                                               # Zsun (metal mass fraction in Solar units)
-      ptrack['m'][:,j] = dfid['m'].values                                                               # Msun (particle mass in solar masses)
-      ptrack['p'][:,j,:] = np.array( [ dfid['x0'].values, dfid['x1'].values, dfid['x2'].values ] ).T    # kpc (physical)
-      ptrack['v'][:,j,:] = np.array( [ dfid['v0'].values, dfid['v1'].values, dfid['v2'].values ] ).T    # km/s (peculiar - need to add H(a)*r contribution)
+      ptrack['Z'][:,j] = dfid['Z'].values                                                               # Zsun (metal mass fraction in Solar units)
+      ptrack['M'][:,j] = dfid['M'].values                                                               # Msun (particle mass in solar masses)
+      ptrack['P'][:,j,:] = np.array( [ dfid['P0'].values, dfid['P1'].values, dfid['P2'].values ] ).T    # kpc (physical)
+      ptrack['V'][:,j,:] = np.array( [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ] ).T    # km/s (peculiar - need to add H(a)*r contribution)
 
     return ptrack
 
@@ -366,26 +367,26 @@ class IDFinder( object ):
       sys.stdout.flush()
 
     full_snap_data = {
-      'id' : [],
-      'Ptype' : [],
-      'rho' : [],
-      'sfr' : [],
+      'ID' : [],
+      'PType' : [],
+      'Den' : [],
+      'SFR' : [],
       'T' : [],
-      'z' : [],
-      'm' : [],
-      'x0' : [],
-      'x1' : [],
-      'x2' : [],
-      'v0' : [],
-      'v1' : [],
-      'v2' : [],
+      'Z' : [],
+      'M' : [],
+      'P0' : [],
+      'P1' : [],
+      'P2' : [],
+      'V0' : [],
+      'V1' : [],
+      'V2' : [],
       }
 
     time_start = time.time()
 
     if hasattr( self, 'target_child_ids' ):
       load_additional_ids = True
-      full_snap_data['child_id'] = []
+      full_snap_data['ChildID'] = []
     else:
       load_additional_ids = False
 
@@ -419,9 +420,9 @@ class IDFinder( object ):
         print '       ...  ', pnum, '   type', p_type , ' particles'
 
       if 'rho' in P:
-          rho = P['rho']*constants.UNITDENSITY_IN_NUMDEN
+          Den = P['rho']*constants.UNITDENSITY_IN_NUMDEN
       else:
-          rho = [0.,]*pnum
+          Den = [0.,]*pnum
 
       if 'sfr' in P:
           sfr = P['sfr']
@@ -436,22 +437,22 @@ class IDFinder( object ):
       thistype = np.zeros(pnum,dtype='int8')
       thistype.fill(p_type)
 
-      full_snap_data['id'].append( P['id'] )
-      full_snap_data['Ptype'].append( thistype )
-      full_snap_data['rho'].append( rho )
-      full_snap_data['sfr'].append( sfr )
+      full_snap_data['ID'].append( P['id'] )
+      full_snap_data['PType'].append( thistype )
+      full_snap_data['Den'].append( Den )
+      full_snap_data['SFR'].append( sfr )
       full_snap_data['T'].append( T )
-      full_snap_data['z'].append( P['z'][:,0]/constants.Z_MASSFRAC_SUN )
-      full_snap_data['m'].append( P['m']*constants.UNITMASS_IN_MSUN )
-      full_snap_data['x0'].append( P['p'][:,0] )
-      full_snap_data['x1'].append( P['p'][:,1] )
-      full_snap_data['x2'].append( P['p'][:,2] )
-      full_snap_data['v0'].append( P['v'][:,0] )
-      full_snap_data['v1'].append( P['v'][:,1] )
-      full_snap_data['v2'].append( P['v'][:,2] )
+      full_snap_data['Z'].append( P['z'][:,0]/constants.Z_MASSFRAC_SUN )
+      full_snap_data['M'].append( P['m']*constants.UNITMASS_IN_MSUN )
+      full_snap_data['P0'].append( P['p'][:,0] )
+      full_snap_data['P1'].append( P['p'][:,1] )
+      full_snap_data['P2'].append( P['p'][:,2] )
+      full_snap_data['V0'].append( P['v'][:,0] )
+      full_snap_data['V1'].append( P['v'][:,1] )
+      full_snap_data['V2'].append( P['v'][:,2] )
 
       if hasattr( self, 'target_child_ids' ):
-        full_snap_data['child_id'].append( P['child_id'] )
+        full_snap_data['ChildID'].append( P['child_id'] )
 
     time_end = time.time()
 
@@ -471,10 +472,10 @@ class IDFinder( object ):
 
     # Setup the index and the way to select the targeted ids
     if hasattr( self, 'target_child_ids' ):
-      index = [ self.full_snap_data['id'], self.full_snap_data['child_id'] ]
+      index = [ self.full_snap_data['ID'], self.full_snap_data['ChildID'] ]
       target_selection = list( zip( *[ self.target_ids, self.target_child_ids ] ) )
     else:
-      index = self.full_snap_data['id']
+      index = self.full_snap_data['ID']
       target_selection = self.target_ids
 
     # Make a data frame.
@@ -489,8 +490,8 @@ class IDFinder( object ):
     # When particle IDs can't be found the values are automatically replaced by NaNs. This is very good, but
     # we want to preserve the ids and child ids for the particles we couldn't find.
     if hasattr( self, 'target_child_ids' ):
-      dfid['id'] = dfid.index.get_level_values( 0 )
-      dfid['child_id'] = dfid.index.get_level_values( 1 )
+      dfid['ID'] = dfid.index.get_level_values( 0 )
+      dfid['ChildID'] = dfid.index.get_level_values( 1 )
 
     return dfid
 
