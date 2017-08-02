@@ -194,8 +194,8 @@ class ParticleTrackGalaxyFinder( object ):
     grp.attrs['minimum_value'] = self.minimum_value
 
     # Save the current code version
-    f.attrs['worldline_version'] = utilities.get_code_version( self )
-    f.attrs['galaxy_diver_version'] = utilities.get_code_version( read_ahf, instance_type='module' )
+    grp.attrs['worldline_version'] = utilities.get_code_version( self )
+    grp.attrs['galaxy_diver_version'] = utilities.get_code_version( read_ahf, instance_type='module' )
 
     f.close()
 
