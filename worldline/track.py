@@ -212,7 +212,10 @@ class ParticleTracker( object ):
       dfid, redshift, attrs = id_finder.find_ids( self.kwargs['sdir'], snum, self.kwargs['types'], self.target_ids, \
                                            target_child_ids=self.target_child_ids, )
 
-      gc.collect()          # helps stop leaking memory ?
+      # Maybe helps stop leaking memory
+      del id_finder
+      gc.collect()
+
       time_2 = time.time()
 
       # Print output information.
@@ -242,6 +245,9 @@ class ParticleTracker( object ):
     ptrack['id'] = self.target_ids
     if self.target_child_ids is not None:
       ptrack['child_id'] = self.target_child_ids
+
+    assert len( tracked_data_snapshots ) == self.snaps.size,\
+      "Unequal sizes, snapshot likely skipped, likely due to a MemoryError!"
 
     for tracked_data_snapshot in tracked_data_snapshots:
 
