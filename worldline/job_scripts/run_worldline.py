@@ -39,8 +39,8 @@ run_galaxy_finding = True
 run_classifying = True
 
 # Information about the input data
-sdir = '../../tests/test_data/test_data_with_new_id_scheme'
-ahf_sdir = '../../tests/test_data/ahf_test_data'
+sdir = '../../tests/data/test_data_with_new_id_scheme'
+ahf_sdir = '../../tests/data/ahf_test_data'
 types = [ 0, 4, ]
 snap_ini = 500
 snap_end = 600
@@ -50,7 +50,7 @@ snap_step = 50
 mtree_halos_index = snap_end
 
 # Information about what the output data should be called.
-outdir =  '../../tests/test_data/tracking_output'
+outdir =  '../../tests/data/tracking_output'
 tag = 'test'
 
 # Tracking Parameters
@@ -63,6 +63,8 @@ tracker_kwargs = {
 
   'outdir' : outdir,
   'tag' : tag,
+
+  'check_same_sdir' : False,
 }
 
 # Galaxy Finding Parameters

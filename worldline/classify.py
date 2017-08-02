@@ -137,7 +137,8 @@ class Classifier( object ):
 
       # Store the particle track data in a dictionary
       for key in f.keys():
-        self.ptrack[ key ] = f[ key ][...]
+        if key != 'parameters':
+          self.ptrack[ key ] = f[ key ][...]
 
       # Store the ptrack attributes
       for key in f.attrs.keys():

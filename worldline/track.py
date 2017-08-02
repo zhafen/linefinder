@@ -27,11 +27,13 @@ import galaxy_diver.utils.utilities as utilities
 class ParticleTracker( object ):
   '''Searches IDs across snapshots, then saves the results.'''
 
-  def __init__( self, n_processors=1,  **kwargs ):
+  def __init__( self, n_processors=1, check_same_sdir=True, **kwargs ):
     '''Setup the ID Finder. Looks for data in the form of "out_dir/ids_tag.hdf5"
 
     Args:
       n_processors (int) : Number of processors to use.
+      check_same_sdir (bool) : Whether or not to assert that the sdir stored in the IDs file is the same as the one
+        we use.
 
     Keyword Args:
       Input Data Parameters:
@@ -109,7 +111,8 @@ class ParticleTracker( object ):
       self.target_child_ids = None
 
     # Make sure our simulation directory matches up
-    assert os.path.samefile( self.kwargs['sdir'], f['parameters/snapshot_parameters'].attrs['sdir'] )
+    if self.check_same_sdir:
+      assert os.path.samefile( self.kwargs['sdir'], f['parameters/snapshot_parameters'].attrs['sdir'] )
 
   ########################################################################
 
