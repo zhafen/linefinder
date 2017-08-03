@@ -12,6 +12,7 @@ import h5py
 import numpy as np
 import os
 import shutil
+import sys
 import time
 
 import galaxy_diver.analyze_data.particle_data as particle_data
@@ -66,6 +67,7 @@ class IDSelector( object ):
     print( "########################################################################" )
     print( "Selecting IDs" )
     print( "########################################################################" )
+    sys.stdout.flush()
 
     if self.n_processors > 1:
       selected_ids = self.get_selected_ids_parallel( data_filters )
@@ -78,6 +80,7 @@ class IDSelector( object ):
 
     print( "########################################################################" )
     print( "Done!" )
+    sys.stdout.flush()
 
   ########################################################################
 
@@ -108,6 +111,7 @@ class IDSelector( object ):
         time_end = time.time()
 
         print( "Ptype {}, Snapshot {}, took {:.3g} seconds".format( ptype, snum, time_end - time_start ) )
+        sys.stdout.flush()
 
         selected_ids = selected_ids | selected_ids_snapshot
 
@@ -334,18 +338,23 @@ class IDSampler( object ):
     print( "########################################################################" )
     print( "Sampling IDs" )
     print( "########################################################################" )
+    sys.stdout.flush()
 
     print( "Copying and opening full ids" )
+    sys.stdout.flush()
     self.copy_and_open_full_ids()
 
     print( "Choosing sample indices" )
+    sys.stdout.flush()
     self.choose_sample_inds()
 
     print( "Saving data" )
+    sys.stdout.flush()
     self.save_sampled_ids()
 
     print( "########################################################################" )
     print( "Done!" )
+    sys.stdout.flush()
 
   ########################################################################
 
