@@ -245,6 +245,7 @@ class ParticleTrackGalaxyFinder( object ):
 
     # Store the results
     for i, galaxy_and_halo_ids in enumerate( galaxy_and_halo_ids_all ):
+
       # Make the arrays to store the data in
       if not hasattr( self, 'ptrack_gal_ids' ):
         self.ptrack_gal_ids = {}

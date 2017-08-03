@@ -23,12 +23,12 @@ import galaxy_diver.utils.utilities as utilities
 
 class IDSelector( object ):
 
-  def __init__( self, snapshot_kwargs=None, n_proc=1, **kwargs ):
+  def __init__( self, snapshot_kwargs=None, n_processors=1, **kwargs ):
     '''
     Args:
       snapshot_kwargs (dict) : Arguments to pass to SnapshotIDSelector. Can be the full range of arguments passed to
         particle_data.ParticleData
-      n_proc (int) : The number of processers to run the ID selector with. Parallelizes by opening multiple snapshots
+      n_processors (int) : The number of processers to run the ID selector with. Parallelizes by opening multiple snapshots
         at once (that's the most time-consumptive part of the code), so requires a large memory node, most likely.
 
     Keyword Args:
@@ -67,7 +67,7 @@ class IDSelector( object ):
     print( "Selecting IDs" )
     print( "########################################################################" )
 
-    if self.n_proc > 1:
+    if self.n_processors > 1:
       selected_ids = self.get_selected_ids_parallel( data_filters )
     else:
       selected_ids = self.get_selected_ids( data_filters )
@@ -166,7 +166,7 @@ class IDSelector( object ):
 
         args.append( ( data_filters, kwargs ) )
 
-    results = mp_utils.parmap( get_selected_ids_snapshot, args, self.n_proc )
+    results = mp_utils.parmap( get_selected_ids_snapshot, args, self.n_processors )
 
     selected_ids = set.union( *results )
 
@@ -223,7 +223,7 @@ class IDSelector( object ):
       subgrp.attrs[key] = self.snapshot_kwargs[key]
 
     # Save how many processors we used.
-    grp.attrs['n_proc'] = self.n_proc
+    grp.attrs['n_processors'] = self.n_processors
 
     # Save the current code versions
     f.attrs['worldline_version'] = utilities.get_code_version( self )
