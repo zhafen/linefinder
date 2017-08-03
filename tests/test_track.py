@@ -32,6 +32,7 @@ default_data_p = {
 
   'outdir' : './tests/data/tracking_output',
   'tag' : 'test',
+  'check_same_sdir' : False,
 }
 
 star_data_p = {
@@ -43,6 +44,7 @@ star_data_p = {
 
   'outdir' : './tests/data/tracking_output',
   'tag' : 'test_star',
+  'check_same_sdir' : False,
 }
 
 early_star_data_p = {
@@ -54,6 +56,7 @@ early_star_data_p = {
 
   'outdir' : './tests/data/tracking_output',
   'tag' : 'test_star_early',
+  'check_same_sdir' : False,
 }
 
 fire1_data_p = copy.deepcopy( star_data_p )
@@ -428,8 +431,8 @@ class TestSaveTargetedParticles( unittest.TestCase ):
       npt.assert_allclose( P[key], f.attrs[key] )
 
     for key in default_data_p.keys():
-      #npt.assert_allclose( default_data_p[key], f.attrs[key] )
-      assert default_data_p[key] == f['parameters'].attrs[key] 
+      if key != 'check_same_sdir':
+        assert default_data_p[key] == f['parameters'].attrs[key] 
 
   ########################################################################
 

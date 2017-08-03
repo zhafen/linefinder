@@ -469,7 +469,7 @@ class TestIDSamplerNoSetUp( unittest.TestCase ):
     npt.assert_allclose( expected, actual )
 
     assert g['parameters'].attrs['n_samples'] == 3
-    assert g['parameters'].attrs['ignore_split_particles'] == False
+    assert g['parameters'].attrs['ignore_child_particles'] == False
     assert g['parameters'].attrs['sampled_from_full_id_list']
 
 ########################################################################
@@ -504,7 +504,7 @@ class TestIDSampler( unittest.TestCase ):
 
   def test_choose_sample_inds_no_split( self ):
 
-    self.id_sampler.ignore_split_particles = True
+    self.id_sampler.ignore_child_particles = True
 
     # Create some child ids
     self.id_sampler.f['target_child_ids'] = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
@@ -530,7 +530,7 @@ class TestIDSampler( unittest.TestCase ):
     npt.assert_allclose( expected, actual )
 
     assert g['parameters'].attrs['n_samples'] == 3
-    assert g['parameters'].attrs['ignore_split_particles'] == False
+    assert g['parameters'].attrs['ignore_child_particles'] == False
     assert g['parameters'].attrs['sampled_from_full_id_list']
 
   ########################################################################
@@ -553,7 +553,7 @@ class TestIDSampler( unittest.TestCase ):
     npt.assert_allclose( expected, actual )
 
     assert g['parameters'].attrs['n_samples'] == 3
-    assert g['parameters'].attrs['ignore_split_particles'] == False
+    assert g['parameters'].attrs['ignore_child_particles'] == False
     assert g['parameters'].attrs['sampled_from_full_id_list']
 
   ########################################################################

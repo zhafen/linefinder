@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Testing for tracking.py
+'''Testing for classify.py
 
 @author: Zach Hafen
 @contact: zachary.h.hafen@gmail.com
