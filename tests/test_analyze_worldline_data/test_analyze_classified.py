@@ -15,7 +15,7 @@ import pdb
 import pytest
 import unittest
 
-import worldline.analyze_worldline_data.classified as classified
+import worldline.analyze_worldline_data.analyze_classified as analyze_classified
 
 ########################################################################
 # Commonly useful input variables
@@ -29,7 +29,7 @@ class TestClassifiedDataStartup( unittest.TestCase ):
 
   def test_init( self ):
 
-    classified_data = classified.ClassifiedData( tracking_dir, tag )
+    classified_data = analyze_classified.ClassifiedData( tracking_dir, tag )
 
     assert classified_data.data_attrs['tag'] == tag
 
@@ -39,7 +39,7 @@ class TestClassifiedData( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classified_data = classified.ClassifiedData( tracking_dir, tag )
+    self.classified_data = analyze_classified.ClassifiedData( tracking_dir, tag )
 
   ########################################################################
 
@@ -79,7 +79,7 @@ class TestCalcBaseFractions( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classified_data = classified.ClassifiedData( tracking_dir, tag )
+    self.classified_data = analyze_classified.ClassifiedData( tracking_dir, tag )
 
   ########################################################################
 
