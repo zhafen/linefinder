@@ -321,8 +321,16 @@ class SnapshotIDSelector( particle_data.ParticleData ):
 
 class IDSampler( object ):
 
-  def __init__( self, sdir, tag, n_samples=100000, ignore_split_particles=False  ):
-    '''TODO: This documentation.'''
+  def __init__( self, sdir, tag, n_samples=100000, ignore_child_particles=False  ):
+    '''Sample an ID file to obtain and save a subset of size n_samples.
+    Assumes the full set of IDs are saved as ids_full_tag.hdf5, and will save the sampled IDs as ids_tag.hdf5.
+
+    Args:
+      sdir (str, required) : Directory the IDs are in, as well as the directory the sampled IDs will be saved in.
+      tag (str, required) : Identifying string for the ID file.
+      n_samples (int, optional) : Number of samples to sample.
+      ignore_child_particles (bool, optional) : Whether or not to ignore particles with non-zero child ID when sampling
+    '''
 
     # Store the arguments
     for arg in locals().keys():
@@ -386,7 +394,7 @@ class IDSampler( object ):
 
     inds = np.array( range( self.f['target_ids'][...].size ) )
 
-    if self.ignore_split_particles:
+    if self.ignore_child_particles:
       not_split = np.where( self.f['target_child_ids'][...] == 0 )[0]
       viable_inds = inds[not_split]
 
@@ -414,7 +422,7 @@ class IDSampler( object ):
       self.f['target_child_ids'] = target_child_ids_to_save
 
     self.f['parameters'].attrs['n_samples'] = self.n_samples
-    self.f['parameters'].attrs['ignore_split_particles'] = self.ignore_split_particles
+    self.f['parameters'].attrs['ignore_child_particles'] = self.ignore_child_particles
     self.f['parameters'].attrs['sampled_from_full_id_list'] = True
 
 
