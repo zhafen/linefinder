@@ -1,14 +1,1 @@
-{
-  "test_analyze_classified.py::TestCalcBaseFractions::test_calc_base_fractions": true, 
-  "test_analyze_classified.py::TestCalcBaseFractions::test_calc_base_fractions_mask": true, 
-  "test_analyze_classified.py::TestClassifiedData::test_get_data": true, 
-  "test_analyze_classified.py::TestClassifiedData::test_get_data_mask": true, 
-  "test_analyze_classified.py::TestClassifiedData::test_get_data_slice": true, 
-  "test_analyze_classified.py::TestClassifiedDataStartup::test_init": true, 
-  "test_analyze_worldline.py::TestCalcBaseFractions::test_calc_base_fractions": true, 
-  "test_analyze_worldline.py::TestCalcBaseFractions::test_calc_base_fractions_mask": true, 
-  "test_analyze_worldline.py::TestClassifiedData::test_get_data": true, 
-  "test_analyze_worldline.py::TestClassifiedData::test_get_data_mask": true, 
-  "test_analyze_worldline.py::TestClassifiedData::test_get_data_slice": true, 
-  "test_analyze_worldline.py::TestClassifiedDataStartup::test_init": true
-}
+{}

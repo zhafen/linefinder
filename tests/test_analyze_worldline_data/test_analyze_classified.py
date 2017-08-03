@@ -31,7 +31,7 @@ class TestClassifiedDataStartup( unittest.TestCase ):
 
     classified_data = analyze_classified.ClassifiedData( tracking_dir, tag )
 
-    assert classified_data.data_attrs['tag'] == tag
+    assert classified_data.parameters['tag'] == tag
 
 ########################################################################
 
