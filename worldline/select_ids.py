@@ -138,28 +138,6 @@ class IDSelector( object ):
 
     selected_ids = set()
 
-    def get_selected_ids_snapshot( args ):
-
-      data_filters, kwargs = args
-
-      time_start = time.time()
-
-      snapshot_id_selector = SnapshotIDSelector( **kwargs )
-      selected_ids_snapshot = snapshot_id_selector.select_ids_snapshot( data_filters )
-
-      time_end = time.time()
-
-      print( "Ptype {}, Snapshot {}, took {:.3g} seconds".format( kwargs['ptype'], kwargs['snum'],
-                                                                  time_end - time_start ) )
-
-      # Vain effort to free memory (that, stunningly, actually works!!)
-      # Though I haven't checked if it works in multiprocessing
-      del kwargs
-      del snapshot_id_selector
-      gc.collect()
-
-      return selected_ids_snapshot
-
     args = []
     for snum in self.snums:
       for ptype in self.kwargs['ptypes']:
@@ -170,11 +148,42 @@ class IDSelector( object ):
 
         args.append( ( data_filters, kwargs ) )
 
-    results = mp_utils.parmap( get_selected_ids_snapshot, args, self.n_processors )
+    results = mp_utils.parmap( self.get_selected_ids_snapshot, args, self.n_processors )
 
     selected_ids = set.union( *results )
 
     return selected_ids
+
+  def get_selected_ids_snapshot( self, args ):
+    '''Get the IDs for a particular snapshot. Formatted this way primarily for parallelization.
+
+    Args:
+      args (data_filters, kwargs) : Information needed to get the IDs out for a snapshot.
+
+    Returns:
+      selected_ids_snapshot (set) : The IDs in a snapshot that fit the required condition.
+    '''
+
+    data_filters, kwargs = args
+
+    time_start = time.time()
+
+    snapshot_id_selector = SnapshotIDSelector( **kwargs )
+    selected_ids_snapshot = snapshot_id_selector.select_ids_snapshot( data_filters )
+
+    time_end = time.time()
+
+    print( "Ptype {}, Snapshot {}, took {:.3g} seconds".format( kwargs['ptype'], kwargs['snum'],
+                                                                time_end - time_start ) )
+
+    # Vain effort to free memory (that, stunningly, actually works!!)
+    # Though I haven't checked if it works in multiprocessing
+    del kwargs
+    del snapshot_id_selector
+    gc.collect()
+
+    return selected_ids_snapshot
+
 
   ########################################################################
 

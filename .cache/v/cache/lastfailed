@@ -1,4 +1,1 @@
-{
-  "tests/test_analyze_worldline_data/test_analyze_classified.py::TestClassifiedDataStartup::test_init": true, 
-  "tests/test_analyze_worldline_data/test_analyze_worldline.py::TestClassifiedDataStartup::test_init": true
-}
+{}
