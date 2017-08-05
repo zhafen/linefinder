@@ -378,7 +378,7 @@ class GalaxyFinder( object ):
 
     # Typically halo files aren't created for the first snapshot.
     # Account for this.
-    except KeyError:
+    except NameError:
       if self.kwargs['snum'] == 0:
         for id_type in self.kwargs['ids_to_return']:
           galaxy_and_halo_ids[id_type] = np.empty( self.n_particles )

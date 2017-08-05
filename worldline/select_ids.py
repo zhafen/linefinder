@@ -148,7 +148,7 @@ class IDSelector( object ):
 
         args.append( ( data_filters, kwargs ) )
 
-    results = mp_utils.parmap( self.get_selected_ids_snapshot, args, self.n_processors )
+    results = mp_utils.parmap( self.get_selected_ids_snapshot, args, self.n_processors, set_case=True )
 
     selected_ids = set.union( *results )
 
@@ -183,7 +183,6 @@ class IDSelector( object ):
     gc.collect()
 
     return selected_ids_snapshot
-
 
   ########################################################################
 
