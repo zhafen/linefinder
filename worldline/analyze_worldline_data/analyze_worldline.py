@@ -8,6 +8,10 @@
 
 import numpy as np
 
+import analyze_ptrack
+import analyze_galfind
+import analyze_classified
+
 ########################################################################
 ########################################################################
 
@@ -26,7 +30,36 @@ class WorldlineData( object ):
     for arg in locals().keys():
       setattr( self, arg, locals()[arg] )
 
-    # Load the data
-    self.ptrack_data = analyze_ptrack.PTrackData( tracking_dir, tag )
-    self.galfind_data = analyze_galfind.GalFindData( tracking_dir, tag )
-    self.classified_data = analyze_classified.ClassifiedData( tracking_dir, tag )
+  ########################################################################
+
+  @property
+  def ptrack_data( self ):
+
+    if not hasattr( self, '_ptrack_data' ):
+      self._ptrack_data = analyze_ptrack.PtrackData( self.tracking_dir, self.tag )
+
+    return self._ptrack_data
+
+  ########################################################################
+
+  @property
+  def galfind_data( self ):
+
+    if not hasattr( self, '_galfind_data' ):
+      self._galfind_data = analyze_galfind.GalfindData( self.tracking_dir, self.tag )
+
+    return self._galfind_data
+
+  ########################################################################
+
+  @property
+  def classified_data( self ):
+
+    if not hasattr( self, '_classified_data' ):
+      self._classified_data = analyze_classified.ClassifiedData( self.tracking_dir, self.tag )
+
+    return self._classified_data
+
+  ########################################################################
+
+
