@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Testing for select_ids.py
+'''Testing for select.py
 
 @author: Zach Hafen
 @contact: zachary.h.hafen@gmail.com
@@ -15,7 +15,7 @@ import os
 import pdb
 import unittest
 
-from worldline import select_ids
+from worldline import select
 
 ########################################################################
 
@@ -61,7 +61,7 @@ class TestSnapshotIDSelector( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.snapshot_id_selector = select_ids.SnapshotIDSelector( **default_snap_kwargs )
+    self.snapshot_id_selector = select.SnapshotIDSelector( **default_snap_kwargs )
 
     # Setup some test data with a range of values useful to us.
     self.snapshot_id_selector.data['R'] = np.array( [ 0.5, 1.2, 0.75, 0.1, 0.3, 1.5 ] )*self.snapshot_id_selector.length_scale
@@ -136,7 +136,7 @@ class TestWithChildIDs( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.snapshot_id_selector = select_ids.SnapshotIDSelector( **newids_snap_kwargs )
+    self.snapshot_id_selector = select.SnapshotIDSelector( **newids_snap_kwargs )
 
     # Setup some test data with a range of values useful to us.
     self.snapshot_id_selector.data['R'] = np.array( [ 0.5, 1.2, 0.75, 0.1, 0.3, 1.5 ] )*self.snapshot_id_selector.length_scale
@@ -199,7 +199,7 @@ class TestIDSelector( unittest.TestCase ):
       set(),
     ]
 
-    self.id_selector = select_ids.IDSelector( **default_kwargs )
+    self.id_selector = select.IDSelector( **default_kwargs )
 
     self.selected_ids = set( [ (10952235, 0), (36091289, 893109954), (123456, 35), (1573, 0), (12, 35), (15, 4), (0, 0) ])
     self.selected_ids_formatted = np.array([ 0, 10952235, 15, 1573, 36091289, 123456, 12 ])
@@ -207,8 +207,8 @@ class TestIDSelector( unittest.TestCase ):
 
   ########################################################################
 
-  @patch( 'worldline.select_ids.SnapshotIDSelector.__init__' )
-  @patch( 'worldline.select_ids.SnapshotIDSelector.select_ids_snapshot' )
+  @patch( 'worldline.select.SnapshotIDSelector.__init__' )
+  @patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
   def test_get_selected_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
     # Mock setup
@@ -235,8 +235,8 @@ class TestIDSelector( unittest.TestCase ):
 
   ########################################################################
 
-  @patch( 'worldline.select_ids.SnapshotIDSelector.__init__' )
-  @patch( 'worldline.select_ids.IDSelector.get_selected_ids_snapshot' )
+  @patch( 'worldline.select.SnapshotIDSelector.__init__' )
+  @patch( 'worldline.select.IDSelector.get_selected_ids_snapshot' )
   def test_get_selected_ids_parallel( self, mock_get_selected_ids_snapshot, mock_constructor, ):
 
     self.id_selector.n_processors = 2
@@ -322,8 +322,8 @@ class TestIDSelector( unittest.TestCase ):
 
   ########################################################################
 
-  @patch( 'worldline.select_ids.SnapshotIDSelector.__init__' )
-  @patch( 'worldline.select_ids.SnapshotIDSelector.select_ids_snapshot' )
+  @patch( 'worldline.select.SnapshotIDSelector.__init__' )
+  @patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
   def test_select_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
     # Make sure there's nothing in our way, bwahahaah
@@ -392,15 +392,15 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
       set(),
     ]
 
-    self.id_selector = select_ids.IDSelector( **default_kwargs )
+    self.id_selector = select.IDSelector( **default_kwargs )
 
     self.selected_ids = set( [ 10952235, 36091289, 123456, 1573, 12, 15, 0, ])
     self.selected_ids_formatted = np.array([ 0, 10952235, 15, 1573, 36091289, 123456, 12 ])
 
   ########################################################################
 
-  @patch( 'worldline.select_ids.SnapshotIDSelector.__init__' )
-  @patch( 'worldline.select_ids.SnapshotIDSelector.select_ids_snapshot' )
+  @patch( 'worldline.select.SnapshotIDSelector.__init__' )
+  @patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
   def test_get_selected_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
     # Mock setup
@@ -427,8 +427,8 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
 
   ########################################################################
 
-  @patch( 'worldline.select_ids.SnapshotIDSelector.__init__' )
-  @patch( 'worldline.select_ids.IDSelector.get_selected_ids_snapshot' )
+  @patch( 'worldline.select.SnapshotIDSelector.__init__' )
+  @patch( 'worldline.select.IDSelector.get_selected_ids_snapshot' )
   def test_get_selected_ids_parallel( self, mock_get_selected_ids_snapshot, mock_constructor, ):
 
     self.id_selector.n_processors = 2
@@ -517,7 +517,7 @@ class TestIDSamplerNoSetUp( unittest.TestCase ):
 
     sdir = './tests/data/tracking_output_for_analysis'
     self.filepath = os.path.join( sdir, 'ids_test.hdf5' )
-    self.id_sampler = select_ids.IDSampler( sdir, 'test', 3 )
+    self.id_sampler = select.IDSampler( sdir, 'test', 3 )
 
     if os.path.isfile( self.filepath ):
       os.remove( self.filepath )
@@ -563,7 +563,7 @@ class TestIDSampler( unittest.TestCase ):
 
     sdir = './tests/data/tracking_output_for_analysis'
     self.filepath = os.path.join( sdir, 'ids_test.hdf5' )
-    self.id_sampler = select_ids.IDSampler( sdir, 'test', 3 )
+    self.id_sampler = select.IDSampler( sdir, 'test', 3 )
 
     np.random.seed( 1234 )
 
