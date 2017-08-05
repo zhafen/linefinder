@@ -108,7 +108,7 @@ class ParticleTrackGalaxyFinder( object ):
       ptrack_tag = self.kwargs['tag']
 
     # Load the particle track data
-    ptrack_filename = 'ptrack_{}.hdf5'.format( ptrack_tag )
+    ptrack_filename = 'ptracks_{}.hdf5'.format( ptrack_tag )
     self.ptrack_filepath = os.path.join( self.kwargs['tracking_dir'], ptrack_filename )
     self.ptrack = h5py.File( self.ptrack_filepath, 'r' )
 
@@ -272,7 +272,7 @@ class ParticleTrackGalaxyFinder( object ):
     self.ptrack.close()
 
     # Save the data.
-    save_filename = 'galfind_{}.hdf5'.format( self.kwargs['tag'] )
+    save_filename = 'galids_{}.hdf5'.format( self.kwargs['tag'] )
     self.save_filepath = os.path.join( self.kwargs['tracking_dir'], save_filename )
     f = h5py.File( self.save_filepath )
     for key in self.ptrack_gal_ids.keys():

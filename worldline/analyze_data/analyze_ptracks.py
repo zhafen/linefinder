@@ -13,7 +13,7 @@ import os
 ########################################################################
 ########################################################################
 
-class PtrackData( object ):
+class PTracks( object ):
   '''Loads and analyzes data created by galaxy_find.py
   '''
 
@@ -29,8 +29,8 @@ class PtrackData( object ):
       setattr( self, arg, locals()[arg] )
 
     # Open the file
-    classified_data_filepath = os.path.join( tracking_dir, 'ptrack_{}.hdf5'.format( tag ) )
-    with h5py.File( classified_data_filepath, 'r' ) as f:
+    ptracks_filepath = os.path.join( tracking_dir, 'ptracks_{}.hdf5'.format( tag ) )
+    with h5py.File( ptracks_filepath, 'r' ) as f:
 
       # Store the data
       self.data = {}

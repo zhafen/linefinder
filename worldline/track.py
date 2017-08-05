@@ -279,7 +279,7 @@ class ParticleTracker( object ):
     if not os.path.exists( self.kwargs['outdir'] ):
       os.mkdir( self.kwargs['outdir'] )
 
-    self.outname = 'ptrack_{}.hdf5'.format( self.kwargs['tag'] )
+    self.outname = 'ptracks_{}.hdf5'.format( self.kwargs['tag'] )
 
     outpath =  os.path.join( self.kwargs['outdir'], self.outname )
 

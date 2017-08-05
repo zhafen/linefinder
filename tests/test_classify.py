@@ -557,7 +557,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
     self.classifier = classify.Classifier( **default_kwargs )
 
-    self.savefile = './tests/data/tracking_output/classified_test_classify.hdf5'
+    self.savefile = './tests/data/tracking_output/classifications_test_classify.hdf5'
 
     if os.path.isfile( self.savefile ):
       os.system( 'rm {}'.format( self.savefile ) )

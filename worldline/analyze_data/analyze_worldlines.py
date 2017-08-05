@@ -8,15 +8,15 @@
 
 import numpy as np
 
-import analyze_ptrack
-import analyze_galfind
-import analyze_classified
+import analyze_ptracks
+import analyze_galids
+import analyze_classifications
 
 ########################################################################
 ########################################################################
 
-class WorldlineData( object ):
-  '''Wrapper for analysis of all worldline data products.
+class Worldlines( object ):
+  '''Wrapper for analysis of all worldline data products. It loads data in on-demand.
   '''
 
   def __init__( self, tracking_dir, tag ):
@@ -31,34 +31,36 @@ class WorldlineData( object ):
       setattr( self, arg, locals()[arg] )
 
   ########################################################################
+  # Load Data
+  ########################################################################
 
   @property
-  def ptrack_data( self ):
+  def ptracks( self ):
 
-    if not hasattr( self, '_ptrack_data' ):
-      self._ptrack_data = analyze_ptrack.PtrackData( self.tracking_dir, self.tag )
+    if not hasattr( self, '_ptracks' ):
+      self._ptracks = analyze_ptracks.PTracks( self.tracking_dir, self.tag )
 
-    return self._ptrack_data
+    return self._ptracks
 
   ########################################################################
 
   @property
-  def galfind_data( self ):
+  def galids( self ):
 
-    if not hasattr( self, '_galfind_data' ):
-      self._galfind_data = analyze_galfind.GalfindData( self.tracking_dir, self.tag )
+    if not hasattr( self, '_galids' ):
+      self._galids = analyze_galids.GalIDs( self.tracking_dir, self.tag )
 
-    return self._galfind_data
+    return self._galids
 
   ########################################################################
 
   @property
-  def classified_data( self ):
+  def classifications( self ):
 
-    if not hasattr( self, '_classified_data' ):
-      self._classified_data = analyze_classified.ClassifiedData( self.tracking_dir, self.tag )
+    if not hasattr( self, '_classifications' ):
+      self._classifications = analyze_classifications.Classifications( self.tracking_dir, self.tag )
 
-    return self._classified_data
+    return self._classifications
 
   ########################################################################
 

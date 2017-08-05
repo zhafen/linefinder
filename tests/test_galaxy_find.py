@@ -613,8 +613,8 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
     self.addCleanup( patcher.stop )
     self.mock_code_version = patcher.start()
 
-    self.originalfile = './tests/data/tracking_output/ptrack_test.hdf5'
-    self.savefile = './tests/data/tracking_output/galfind_test.hdf5'
+    self.originalfile = './tests/data/tracking_output/ptracks_test.hdf5'
+    self.savefile = './tests/data/tracking_output/galids_test.hdf5'
 
     if os.path.isfile( self.savefile ):
       os.system( 'rm {}'.format( self.savefile ) )
@@ -665,8 +665,8 @@ class TestParticleTrackGalaxyFinderParallel( unittest.TestCase ):
     self.addCleanup( patcher.stop )
     self.mock_code_version = patcher.start()
 
-    self.originalfile = './tests/data/tracking_output/ptrack_test.hdf5'
-    self.savefile = './tests/data/tracking_output/galfind_test_parallel.hdf5'
+    self.originalfile = './tests/data/tracking_output/ptracks_test.hdf5'
+    self.savefile = './tests/data/tracking_output/galids_test_parallel.hdf5'
 
     if os.path.isfile( self.savefile ):
       os.system( 'rm {}'.format( self.savefile ) )
@@ -684,7 +684,7 @@ class TestParticleTrackGalaxyFinderParallel( unittest.TestCase ):
     particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder( **parallel_kwargs )
     particle_track_gal_finder.find_galaxies_for_particle_tracks()
 
-    expected = h5py.File( './tests/data/tracking_output/galfind_test.hdf5', 'r' )
+    expected = h5py.File( './tests/data/tracking_output/galids_test.hdf5', 'r' )
     actual = h5py.File( self.savefile, 'r' )
 
     for key in expected.keys():

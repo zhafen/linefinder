@@ -159,8 +159,8 @@ class Classifier( object ):
       galfind_tag = self.kwargs['tag']
 
     # Load Particle Tracking and Galaxy Finding Data
-    self.ptrack_filename =  'ptrack_{}.hdf5'.format( ptrack_tag )
-    self.galfind_filename =  'galfind_{}.hdf5'.format( galfind_tag )
+    self.ptrack_filename =  'ptracks_{}.hdf5'.format( ptrack_tag )
+    self.galfind_filename =  'galids_{}.hdf5'.format( galfind_tag )
     load_data_into_ptrack( self.ptrack_filename )
     load_data_into_ptrack( self.galfind_filename )
 
@@ -182,7 +182,7 @@ class Classifier( object ):
     '''
 
     # Open up the file to save the data in.
-    classification_filename =  'classified_{}.hdf5'.format( self.kwargs['tag'] )
+    classification_filename =  'classifications_{}.hdf5'.format( self.kwargs['tag'] )
     self.classification_filepath = os.path.join( self.kwargs['tracking_dir'], classification_filename )
     f = h5py.File( self.classification_filepath, 'a' )
 

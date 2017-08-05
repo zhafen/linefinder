@@ -15,7 +15,7 @@ import pdb
 import pytest
 import unittest
 
-import worldline.analyze_worldline_data.analyze_classified as analyze_classified
+import worldline.analyze_data.analyze_classifications as analyze_classifications
 
 ########################################################################
 # Commonly useful input variables
@@ -25,29 +25,29 @@ tag = 'analyze'
 
 ########################################################################
 
-class TestClassifiedDataStartup( unittest.TestCase ):
+class TestClassificationsStartup( unittest.TestCase ):
 
   def test_init( self ):
 
-    classified_data = analyze_classified.ClassifiedData( tracking_dir, tag )
+    classifications = analyze_classifications.Classifications( tracking_dir, tag )
 
-    assert classified_data.parameters['tag'] == tag
+    assert classifications.parameters['tag'] == tag
 
 ########################################################################
 
-class TestClassifiedData( unittest.TestCase ):
+class TestClassifications( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classified_data = analyze_classified.ClassifiedData( tracking_dir, tag )
+    self.classifications = analyze_classifications.Classifications( tracking_dir, tag )
 
   ########################################################################
 
   def test_get_data( self ):
 
-    actual = self.classified_data.get_data( 'is_pristine' )
+    actual = self.classifications.get_data( 'is_pristine' )
   
-    expected = self.classified_data.data['is_pristine']
+    expected = self.classifications.data['is_pristine']
 
     npt.assert_allclose( expected, actual )
 
@@ -56,7 +56,7 @@ class TestClassifiedData( unittest.TestCase ):
   def test_get_data_mask( self ):
 
     mask = np.array( [ 1, 0, 1, 0, ] ).astype( bool )
-    actual = self.classified_data.get_data( 'is_mass_transfer', mask=mask )
+    actual = self.classifications.get_data( 'is_mass_transfer', mask=mask )
 
     expected = np.array( [ 1, 0, ] ).astype( bool )
 
@@ -67,7 +67,7 @@ class TestClassifiedData( unittest.TestCase ):
   def test_get_data_slice( self ):
     
     mask = np.array( [ 1, 0, 0, 1, ] ).astype( bool )
-    actual = self.classified_data.get_data( 'is_wind', mask=mask, slice_index=1 )
+    actual = self.classifications.get_data( 'is_wind', mask=mask, slice_index=1 )
 
     expected = np.array( [ 1, 1, ] ).astype( bool )
 
@@ -79,13 +79,13 @@ class TestCalcBaseFractions( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.classified_data = analyze_classified.ClassifiedData( tracking_dir, tag )
+    self.classifications = analyze_classifications.Classifications( tracking_dir, tag )
 
   ########################################################################
 
   def test_calc_base_fractions( self ):
 
-    actual = self.classified_data.calc_base_fractions()
+    actual = self.classifications.calc_base_fractions()
 
     expected = {
       'fresh accretion' : 0.25,
@@ -103,7 +103,7 @@ class TestCalcBaseFractions( unittest.TestCase ):
 
     mask = np.array( [ 1, 0, 1, 0, ] ).astype( bool )
 
-    actual = self.classified_data.calc_base_fractions( mask=mask )
+    actual = self.classifications.calc_base_fractions( mask=mask )
 
     expected = {
       'fresh accretion' : 0.,

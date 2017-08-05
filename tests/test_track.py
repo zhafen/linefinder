@@ -332,7 +332,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
     self.fn()
 
-    f = h5py.File( 'tests/data/tracking_output/ptrack_test.hdf5', 'r' )
+    f = h5py.File( 'tests/data/tracking_output/ptracks_test.hdf5', 'r' )
     
     expected_snum = np.arange(600, 490, -50)
     actual_snum = f['snum'][...]
@@ -351,7 +351,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     self.particle_tracker = track.ParticleTracker( **star_data_p )
     self.particle_tracker.save_particle_tracks()
 
-    f = h5py.File( 'tests/data/tracking_output/ptrack_test_star.hdf5', 'r' )
+    f = h5py.File( 'tests/data/tracking_output/ptracks_test_star.hdf5', 'r' )
     
     expected_snum = np.arange(600, 490, -50)
     actual_snum = f['snum'][...]
@@ -379,7 +379,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     self.particle_tracker = track.ParticleTracker( **early_star_data_p )
     self.particle_tracker.save_particle_tracks()
 
-    f = h5py.File( 'tests/data/tracking_output/ptrack_test_star_early.hdf5', 'r' )
+    f = h5py.File( 'tests/data/tracking_output/ptracks_test_star_early.hdf5', 'r' )
     
     expected_snum = np.array([ 11, 10 ])
     actual_snum = f['snum'][...]
@@ -396,7 +396,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     self.particle_tracker = track.ParticleTracker( **fire1_data_p )
     self.particle_tracker.save_particle_tracks()
 
-    f = h5py.File( 'tests/data/tracking_output/ptrack_test_fire1.hdf5', 'r' )
+    f = h5py.File( 'tests/data/tracking_output/ptracks_test_fire1.hdf5', 'r' )
     
     expected_snum = np.arange(600, 490, -50)
     actual_snum = f['snum'][...]
@@ -420,7 +420,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
     
     self.fn()
 
-    f = h5py.File( 'tests/data/tracking_output/ptrack_test.hdf5', 'r' )
+    f = h5py.File( 'tests/data/tracking_output/ptracks_test.hdf5', 'r' )
 
     # Load one of the original snapshots to compare
     P = readsnap.readsnap( 'tests/data/test_data_with_new_id_scheme', 600, 0, True, cosmological=True )
@@ -478,7 +478,7 @@ class TestSaveTargetedParticlesParallel( unittest.TestCase ):
 
     self.fn()
 
-    f = h5py.File( 'tests/data/tracking_output/ptrack_test.hdf5', 'r' )
+    f = h5py.File( 'tests/data/tracking_output/ptracks_test.hdf5', 'r' )
     
     expected_snum = np.arange(600, 490, -50)
     actual_snum = f['snum'][...]

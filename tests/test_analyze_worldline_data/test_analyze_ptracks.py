@@ -15,7 +15,7 @@ import pdb
 import pytest
 import unittest
 
-import worldline.analyze_worldline_data.analyze_galfind as analyze_galfind
+import worldline.analyze_data.analyze_ptracks as analyze_ptracks
 
 ########################################################################
 # Commonly useful input variables
@@ -25,11 +25,11 @@ tag = 'analyze'
 
 ########################################################################
 
-class TestGalfindDataStartup( unittest.TestCase ):
+class TestPTracksStartup( unittest.TestCase ):
 
   def test_init( self ):
 
-    galfind_data = analyze_galfind.GalfindData( tracking_dir, tag )
+    ptracks = analyze_ptracks.PTracks( tracking_dir, tag )
 
-    assert galfind_data.parameters['tag'] == tag
+    assert ptracks.parameters['tag'] == tag
 

@@ -13,20 +13,14 @@ import os
 ########################################################################
 ########################################################################
 
-class ClassifiedData( object ):
+class Classifications( object ):
   '''Loads and analyzes data created by classify.py
-
-  There's nothing actually classified (in a TOP SECRET sense) in classified data, by the way.
-  It's just an (un)fortunate naming coincidence.
-  Classified data simply contains data that has been classified (in a scientific sense) into different categories!
-  I could call it something else, but this seems more fun.
-  What could go wrong?
   '''
 
   def __init__( self, tracking_dir, tag ):
     '''
     Args:
-      tracking_dir (str) : Data directory for the classified data
+      tracking_dir (str) : Data directory for the classifications data
       tag (str) : Identifying tag for the data to load.
     '''
 
@@ -35,8 +29,8 @@ class ClassifiedData( object ):
       setattr( self, arg, locals()[arg] )
 
     # Open the file
-    classified_data_filepath = os.path.join( tracking_dir, 'classified_{}.hdf5'.format( tag ) )
-    with h5py.File( classified_data_filepath, 'r' ) as f:
+    classifications_filepath = os.path.join( tracking_dir, 'classifications_{}.hdf5'.format( tag ) )
+    with h5py.File( classifications_filepath, 'r' ) as f:
 
       # Store the data
       self.data = {}
@@ -58,12 +52,14 @@ class ClassifiedData( object ):
   ########################################################################
 
   def get_data( self, data_key, mask=None, slice_index=None ):
-    '''Get the data from the data dictionary. Useful (over just accessing the array) when applying additional functions onto it.
+    '''Get the data from the data dictionary. Useful (over just accessing the array) when applying additional
+    functions onto it.
 
     Args:
       data_key (str) : Key for the relevant data.
       mask (np.array of bools) : What mask to apply to the data, if any
-      slice_index (int) : If getting only a particular slice (for the two dimensional arrays like 'is_wind), what slice?
+      slice_index (int) : If getting only a particular slice (for the two dimensional arrays like 'is_wind),
+        what slice?
 
     Returns:
       data_arr (np.array) : Array of the requested data
@@ -82,14 +78,16 @@ class ClassifiedData( object ):
   ########################################################################
 
   def calc_base_fractions( self, return_or_store='return', mask=None ):
-    '''Get first order results of the classified data, in the form of fractions of each main type of classified data, relative to the total.
+    '''Get first order results of the classifications data, in the form of fractions of each main type of
+    classifications data, relative to the total.
 
     Args:
       return_or_store (str) : Whether to return base_fractions or store it as an attribute
       mask (np.array of bools) : What mask to apply to the data, if any
 
     Returns:
-      base_fractions (dict) : Contains the fractions for each main type of classified data, evaluated at the final snapshot
+      base_fractions (dict) : Contains the fractions for each main type of classifications data, evaluated at the
+        final snapshot
     '''
 
     base_fractions = {}

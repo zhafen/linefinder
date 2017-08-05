@@ -15,7 +15,7 @@ import pdb
 import pytest
 import unittest
 
-import worldline.analyze_worldline_data.analyze_worldline as analyze_worldline
+import worldline.analyze_data.analyze_worldlines as analyze_worldlines
 
 ########################################################################
 # Commonly useful input variables
@@ -25,26 +25,26 @@ tag = 'analyze'
 
 ########################################################################
 
-class TestWorldlineData( unittest.TestCase ):
+class TestWorldlines( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.w_data = analyze_worldline.WorldlineData( tracking_dir, tag )
+    self.worldlines = analyze_worldlines.Worldlines( tracking_dir, tag )
 
   ########################################################################
 
-  def test_load_ptrack_data( self ):
+  def test_load_ptracks( self ):
 
-    assert self.w_data.ptrack_data.parameters['tag'] == tag
-
-  ########################################################################
-
-  def test_load_galfind_data( self ):
-
-    assert self.w_data.galfind_data.parameters['tag'] == tag
+    assert self.worldlines.ptracks.parameters['tag'] == tag
 
   ########################################################################
 
-  def test_load_classified_data( self ):
+  def test_load_galids( self ):
 
-    assert self.w_data.classified_data.parameters['tag'] == tag
+    assert self.worldlines.galids.parameters['tag'] == tag
+
+  ########################################################################
+
+  def test_load_classifications( self ):
+
+    assert self.worldlines.classifications.parameters['tag'] == tag

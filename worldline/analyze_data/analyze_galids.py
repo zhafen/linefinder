@@ -13,7 +13,7 @@ import os
 ########################################################################
 ########################################################################
 
-class GalfindData( object ):
+class GalIDs( object ):
   '''Loads and analyzes data created by galaxy_find.py
   '''
 
@@ -29,8 +29,8 @@ class GalfindData( object ):
       setattr( self, arg, locals()[arg] )
 
     # Open the file
-    classified_data_filepath = os.path.join( tracking_dir, 'galfind_{}.hdf5'.format( tag ) )
-    with h5py.File( classified_data_filepath, 'r' ) as f:
+    galids_filepath = os.path.join( tracking_dir, 'galids_{}.hdf5'.format( tag ) )
+    with h5py.File( galids_filepath, 'r' ) as f:
 
       # Store the data
       self.data = {}

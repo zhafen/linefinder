@@ -72,9 +72,9 @@ classifier_kwargs = {
   'time_interval_fac' : 5.,
 }
 
-ptrack_filename = os.path.join( outdir, 'ptrack_analyze.hdf5' )
-classified_filename = os.path.join( outdir, 'classified_analyze.hdf5' )
-galfind_filename = os.path.join( outdir, 'galfind_analyze.hdf5' )
+ptracks_filename = os.path.join( outdir, 'ptracks_analyze.hdf5' )
+classifications_filename = os.path.join( outdir, 'classifications_analyze.hdf5' )
+galids_filename = os.path.join( outdir, 'galids_analyze.hdf5' )
 
 ########################################################################
 
@@ -92,7 +92,7 @@ class TestFullWorldline( unittest.TestCase ):
 
   def setUp( self ):
 
-    for filename in [ ptrack_filename, galfind_filename, classified_filename ]:
+    for filename in [ ptracks_filename, galids_filename, classifications_filename ]:
       if os.path.isfile( filename ):
         os.remove( filename )
 
@@ -121,7 +121,7 @@ class TestCreateAnalysisData( unittest.TestCase ):
   @slow
   def test_create_classification_data( self ):
 
-    f = h5py.File( classified_filename, 'a' )
+    f = h5py.File( classifications_filename, 'a' )
 
     for key in [ 'is_mass_transfer', 'is_merger', 'is_preprocessed', 'is_pristine', 'is_wind' ]:
       del f[key]
