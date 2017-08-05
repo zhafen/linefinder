@@ -11,7 +11,7 @@ import numpy as np
 ########################################################################
 ########################################################################
 
-class WorldlinesContainer( object ):
+class WorldlinesSet( object ):
   '''Wrapper for multiple WorldlineData classes.
   '''
 
