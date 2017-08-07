@@ -52,3 +52,11 @@ class TestWorldlineSetStartUp( unittest.TestCase ):
     worldline_set = analyze_worldline_set.WorldlineSet( defaults, variations )
 
     mock_constructor.assert_has_calls( calls, any_order=True )
+
+    # Check that it behaves like a dict
+    assert len( worldline_set ) == len( variations )
+    for key in worldline_set.keys():
+      assert key in variations
+    for item in worldline_set:
+      assert item in variations
+

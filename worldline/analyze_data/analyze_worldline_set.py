@@ -6,6 +6,7 @@
 @status: Development
 '''
 
+import collections
 import numpy as np
 
 import analyze_worldlines
@@ -13,7 +14,7 @@ import analyze_worldlines
 ########################################################################
 ########################################################################
 
-class WorldlineSet( object ):
+class WorldlineSet( collections.Mapping ):
   '''Wrapper for multiple Worldlines classes.
   '''
 
@@ -24,16 +25,28 @@ class WorldlineSet( object ):
       variations (dict of dicts) : Labels and differences in arguments to be passed to Worldlines
     '''
 
-    # Store the arguments
-    for arg in locals().keys():
-      setattr( self, arg, locals()[arg] )
-
     # Load the worldline sets
-    self.worldlines = {}
+    self._worldlines = {}
     for key in variations.keys():
       
       kwargs = dict( defaults )
       for var_key in variations[key].keys():
         kwargs[var_key] = variations[key][var_key]
 
-      self.worldlines[key] = analyze_worldlines.Worldlines( **kwargs )
+      self._worldlines[key] = analyze_worldlines.Worldlines( **kwargs )
+
+  ########################################################################
+
+  def __getitem__( self, key ):
+    
+    return self._worldlines[key]
+
+  ########################################################################
+
+  def __iter__( self ):
+    return iter( self._worldlines )
+
+  ########################################################################
+
+  def __len__( self ):
+    return len( self._worldlines )
