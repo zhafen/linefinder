@@ -87,6 +87,15 @@ class TestWorldlineSet( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_attr_method( self ):
+  @mock.patch( 'worldline.analyze_data.analyze_worldlines.Worldlines.get_parameters' )
+  def test_calc( self, mock_get_params ):
 
-    assert False, "Need to do."
+    def side_effects( x ):
+      return x
+
+    mock_get_params.side_effect = side_effects
+
+    actual = self.worldline_set.calc( 'get_parameters', 1 )
+    expected = { 'a' : 1, 'b' : 1, 'c' : 1, 'd' : 1 }
+
+    self.assertEqual( actual, expected )

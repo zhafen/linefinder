@@ -36,6 +36,8 @@ class WorldlineSet( collections.Mapping ):
       self._worldlines[key] = analyze_worldlines.Worldlines( **kwargs )
 
   ########################################################################
+  # Methods for Being Dictionary-Like
+  ########################################################################
 
   def __getitem__( self, key ):
     
@@ -52,11 +54,37 @@ class WorldlineSet( collections.Mapping ):
     return len( self._worldlines )
 
   ########################################################################
+  # Methods for Getting Data from Worldlines
+  ########################################################################
 
-  def __getattr__( self, attr ):
+  def __getattr__( self, attr, ):
 
     results = {}
     for key in self.keys():
+
       results[key] = getattr( self._worldlines[key], attr )
+
+    return results
+
+  ########################################################################
+
+  def calc( self, method, *args, **kwargs ):
+    '''Generic calculation method for any method in analyze_worldlines.Worldlines.
+    This applies the chosen method across the full set of Worldlines.
+
+    Args:
+      method (str) : The method of Worldlines you want to get out.
+      *args, **kwargs : Arguments to supply to method.
+
+    Returns:
+      results (dict) : results[key] is equal to WorldlineSet[key].method( *args, **kwargs ).
+    '''
+
+    results = {}
+    for key in self.keys():
+
+      key_method = getattr( self._worldlines[key], method )
+
+      results[key] = key_method( *args, **kwargs )
 
     return results
