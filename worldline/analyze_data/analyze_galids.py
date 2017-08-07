@@ -17,10 +17,10 @@ class GalIDs( object ):
   '''Loads and analyzes data created by galaxy_find.py
   '''
 
-  def __init__( self, tracking_dir, tag ):
+  def __init__( self, data_dir, tag ):
     '''
     Args:
-      tracking_dir (str) : Data directory for the classified data
+      data_dir (str) : Data directory for the classified data
       tag (str) : Identifying tag for the data to load.
     '''
 
@@ -29,7 +29,7 @@ class GalIDs( object ):
       setattr( self, arg, locals()[arg] )
 
     # Open the file
-    galids_filepath = os.path.join( tracking_dir, 'galids_{}.hdf5'.format( tag ) )
+    galids_filepath = os.path.join( data_dir, 'galids_{}.hdf5'.format( tag ) )
     with h5py.File( galids_filepath, 'r' ) as f:
 
       # Store the data

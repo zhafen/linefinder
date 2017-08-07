@@ -17,10 +17,10 @@ class PTracks( object ):
   '''Loads and analyzes data created by galaxy_find.py
   '''
 
-  def __init__( self, tracking_dir, tag ):
+  def __init__( self, data_dir, tag ):
     '''
     Args:
-      tracking_dir (str) : Data directory for the classified data
+      data_dir (str) : Data directory for the classified data
       tag (str) : Identifying tag for the data to load.
     '''
 
@@ -29,7 +29,7 @@ class PTracks( object ):
       setattr( self, arg, locals()[arg] )
 
     # Open the file
-    ptracks_filepath = os.path.join( tracking_dir, 'ptracks_{}.hdf5'.format( tag ) )
+    ptracks_filepath = os.path.join( data_dir, 'ptracks_{}.hdf5'.format( tag ) )
     with h5py.File( ptracks_filepath, 'r' ) as f:
 
       # Store the data

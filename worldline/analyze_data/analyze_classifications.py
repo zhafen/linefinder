@@ -17,10 +17,10 @@ class Classifications( object ):
   '''Loads and analyzes data created by classify.py
   '''
 
-  def __init__( self, tracking_dir, tag ):
+  def __init__( self, data_dir, tag ):
     '''
     Args:
-      tracking_dir (str) : Data directory for the classifications data
+      data_dir (str) : Data directory for the classifications data
       tag (str) : Identifying tag for the data to load.
     '''
 
@@ -29,7 +29,7 @@ class Classifications( object ):
       setattr( self, arg, locals()[arg] )
 
     # Open the file
-    classifications_filepath = os.path.join( tracking_dir, 'classifications_{}.hdf5'.format( tag ) )
+    classifications_filepath = os.path.join( data_dir, 'classifications_{}.hdf5'.format( tag ) )
     with h5py.File( classifications_filepath, 'r' ) as f:
 
       # Store the data

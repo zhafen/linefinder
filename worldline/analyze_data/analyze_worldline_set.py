@@ -8,21 +8,32 @@
 
 import numpy as np
 
+import analyze_worldlines
+
 ########################################################################
 ########################################################################
 
-class WorldlinesSet( object ):
-  '''Wrapper for multiple WorldlineData classes.
+class WorldlineSet( object ):
+  '''Wrapper for multiple Worldlines classes.
   '''
 
-  def __init__( self, defaults, modified ):
+  def __init__( self, defaults, variations ):
     '''
     Args:
       defaults (dict) : Set of default arguments for loading worldline data.
-      differences (dict of dicts) : Differences between different sets to load.
+      variations (dict of dicts) : Labels and differences in arguments to be passed to Worldlines
     '''
 
     # Store the arguments
     for arg in locals().keys():
       setattr( self, arg, locals()[arg] )
 
+    # Load the worldline sets
+    self.worldlines = {}
+    for key in variations.keys():
+      
+      kwargs = dict( defaults )
+      for var_key in variations[key].keys():
+        kwargs[var_key] = variations[key][var_key]
+
+      self.worldlines[key] = analyze_worldlines.Worldlines( **kwargs )
