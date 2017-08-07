@@ -31,7 +31,7 @@ class Worldlines( object ):
       setattr( self, arg, locals()[arg] )
 
   ########################################################################
-  # Load Data
+  # Properties for loading data on the fly
   ########################################################################
 
   @property
@@ -63,5 +63,15 @@ class Worldlines( object ):
     return self._classifications
 
   ########################################################################
+  # Display Information
+  ########################################################################
 
+  def get_parameters( self ):
+
+    parameters = {}
+    for data in [ 'ptracks', 'galids', 'classifications' ]:
+
+      parameters[data] = getattr( self, data ).parameters
+
+    return parameters
 

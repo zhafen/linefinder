@@ -48,3 +48,23 @@ class TestWorldlines( unittest.TestCase ):
   def test_load_classifications( self ):
 
     assert self.worldlines.classifications.parameters['tag'] == tag
+
+  ########################################################################
+
+  def test_get_parameters( self ):
+
+    data_types = [ 'ptracks', 'galids', 'classifications' ]
+    expected = {}
+    for data_type in data_types:
+      filename = '{}_analyze.hdf5'.format( data_type )
+      f = h5py.File( os.path.join( tracking_dir, filename ), 'r' )
+      expected[data_type] = f['parameters']
+
+    actual = self.worldlines.get_parameters()
+
+    for data_key in actual.keys():
+      for key in actual[data_key].keys():
+        if not isinstance( actual[data_key][key], np.ndarray ):
+          self.assertEqual( actual[data_key][key], expected[data_key].attrs[key] )
+
+

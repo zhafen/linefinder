@@ -60,3 +60,33 @@ class TestWorldlineSetStartUp( unittest.TestCase ):
     for item in worldline_set:
       assert item in variations
 
+########################################################################
+########################################################################
+
+class TestWorldlineSet( unittest.TestCase ):
+
+  def setUp( self ):
+
+    variations = {
+      'a' : { 'data_dir' : 'data_dir_a' },
+      'b' : { 'data_dir' : 'data_dir_b' },
+      'c' : { 'tag' : 'tag_c' },
+      'd' : {},
+    }
+
+    self.worldline_set = analyze_worldline_set.WorldlineSet( defaults, variations )
+
+  ########################################################################
+
+  def test_get_attr( self ):
+
+    actual = self.worldline_set.data_dir 
+    expected = { 'a' : 'data_dir_a', 'b' : 'data_dir_b', 'c' : defaults['data_dir'], 'd' : defaults['data_dir'] }
+
+    self.assertEqual( expected, actual )
+
+  ########################################################################
+
+  def test_get_attr_method( self ):
+
+    assert False, "Need to do."

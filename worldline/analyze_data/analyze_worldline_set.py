@@ -15,7 +15,7 @@ import analyze_worldlines
 ########################################################################
 
 class WorldlineSet( collections.Mapping ):
-  '''Wrapper for multiple Worldlines classes.
+  '''Container for multiple Worldlines classes.
   '''
 
   def __init__( self, defaults, variations ):
@@ -50,3 +50,13 @@ class WorldlineSet( collections.Mapping ):
 
   def __len__( self ):
     return len( self._worldlines )
+
+  ########################################################################
+
+  def __getattr__( self, attr ):
+
+    results = {}
+    for key in self.keys():
+      results[key] = getattr( self._worldlines[key], attr )
+
+    return results
