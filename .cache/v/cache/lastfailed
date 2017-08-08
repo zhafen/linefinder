@@ -1,1 +1,3 @@
-{}
+{
+  "tests/test_analyze_worldline_data/test_analyze_worldline_set.py::TestWorldlineSet::test_getattr_nested": true
+}

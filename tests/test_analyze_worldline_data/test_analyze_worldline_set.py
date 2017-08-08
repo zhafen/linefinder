@@ -17,6 +17,7 @@ import pytest
 import unittest
 
 import worldline.analyze_data.analyze_worldline_set as analyze_worldline_set
+import worldline.analyze_data.analyze_classifications as analyze_classifications
 
 ########################################################################
 # Commonly useful input variables
@@ -78,7 +79,7 @@ class TestWorldlineSet( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_attr( self ):
+  def test_getattr( self ):
 
     actual = self.worldline_set.data_dir 
     expected = { 'a' : 'data_dir_a', 'b' : 'data_dir_b', 'c' : defaults['data_dir'], 'd' : defaults['data_dir'] }
@@ -87,15 +88,46 @@ class TestWorldlineSet( unittest.TestCase ):
 
   ########################################################################
 
-  @mock.patch( 'worldline.analyze_data.analyze_worldlines.Worldlines.get_parameters' )
-  def test_calc( self, mock_get_params ):
+  @mock.patch( 'worldline.analyze_data.analyze_worldlines.Worldlines.foo.bar', create=True )
+  @mock.patch( 'worldline.analyze_data.analyze_worldlines.Worldlines.foo', create=True )
+  def test_getattr_nested( self, mock_foo, mock_bar ):
+
+    mock_bar.side_effect = [ 1, ]*len( self.worldline_set )
+
+    actual = self.worldline_set.foo.bar
+    expected = { 'a' : 1, 'b' : 1, 'c' : 1, 'd' : 1 }
+
+    self.assertEqual( actual, expected )
+
+  ########################################################################
+
+  @mock.patch( 'worldline.analyze_data.analyze_worldlines.Worldlines.foo', create=True )
+  def test_get( self, mock_foo ):
 
     def side_effects( x ):
       return x
 
-    mock_get_params.side_effect = side_effects
+    mock_foo.side_effect = side_effects
 
-    actual = self.worldline_set.calc( 'get_parameters', 1 )
+    actual = self.worldline_set.get( 'foo', 1 )
+    expected = { 'a' : 1, 'b' : 1, 'c' : 1, 'd' : 1 }
+
+    self.assertEqual( actual, expected )
+
+  ########################################################################
+
+  @mock.patch( 'worldline.analyze_data.analyze_classifications.Classifications.__init__' )
+  @mock.patch( 'worldline.analyze_data.analyze_classifications.Classifications.foo', create=True )
+  def test_get_nested( self, mock_foo, mock_constructor ):
+
+    def side_effects( x, **kwargs ):
+      return x
+
+    mock_foo.side_effect = side_effects
+
+    mock_constructor.side_effect = [ None, ]*len( self.worldline_set )
+
+    actual = self.worldline_set.get( 'classifications.foo', 1, **{'t': 0} )
     expected = { 'a' : 1, 'b' : 1, 'c' : 1, 'd' : 1 }
 
     self.assertEqual( actual, expected )

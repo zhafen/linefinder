@@ -11,6 +11,8 @@ import numpy as np
 
 import analyze_worldlines
 
+import galaxy_diver.utils.utilities as utilities
+
 ########################################################################
 ########################################################################
 
@@ -58,18 +60,21 @@ class WorldlineSet( collections.Mapping ):
   ########################################################################
 
   def __getattr__( self, attr, ):
+    '''Replacement for default attribute retrieval. E.g. worldline_set.foo == worldline_set.__getattr__( 'foo' )
+    Instead returns a dictionary containing the results of the attr for each Worldlines in the set.
+    '''
 
     results = {}
     for key in self.keys():
 
-      results[key] = getattr( self._worldlines[key], attr )
+      results[key] = utilities.deepgetattr( self._worldlines[key], attr )
 
     return results
 
   ########################################################################
 
-  def calc( self, method, *args, **kwargs ):
-    '''Generic calculation method for any method in analyze_worldlines.Worldlines.
+  def get( self, method, *args, **kwargs ):
+    '''Generic getter method for any method in analyze_worldlines.Worldlines.
     This applies the chosen method across the full set of Worldlines.
 
     Args:
@@ -83,7 +88,7 @@ class WorldlineSet( collections.Mapping ):
     results = {}
     for key in self.keys():
 
-      key_method = getattr( self._worldlines[key], method )
+      key_method = utilities.deepgetattr( self._worldlines[key], method )
 
       results[key] = key_method( *args, **kwargs )
 
