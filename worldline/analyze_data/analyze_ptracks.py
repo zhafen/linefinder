@@ -10,18 +10,21 @@ import h5py
 import numpy as np
 import os
 
+import galaxy_diver.analyze_data.generic_data as generic_data
+
 ########################################################################
 ########################################################################
 
-class PTracks( object ):
+class PTracks( generic_data.TimeData ):
   '''Loads and analyzes data created by galaxy_find.py
   '''
 
-  def __init__( self, data_dir, tag ):
+  def __init__( self, data_dir, tag, ahf_index=None, *args, **kwargs ):
     '''
     Args:
       data_dir (str) : Data directory for the classified data
       tag (str) : Identifying tag for the data to load.
+      ahf_index (str or int) : Index to use for AHF data.
     '''
 
     # Store the arguments
@@ -49,3 +52,8 @@ class PTracks( object ):
       for key in param_grp.attrs.keys():
         self.parameters[key] = param_grp.attrs[key]
 
+    # Reorganize data to match with formatting in TimeData
+    self.data['P'] = np.rollaxis( self.data['P'], 2 )
+    self.data['V'] = np.rollaxis( self.data['V'], 2 )
+
+    super( PTracks, self ).__init__( data_dir, snum=self.data['snum'], ahf_index=ahf_index, *args, **kwargs )
