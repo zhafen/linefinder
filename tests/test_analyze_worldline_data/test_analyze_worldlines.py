@@ -23,13 +23,18 @@ import worldline.analyze_data.analyze_worldlines as analyze_worldlines
 tracking_dir = './tests/data/tracking_output_for_analysis'
 tag = 'analyze'
 
+kwargs = {
+  'ahf_data_dir' : './tests/data/ahf_test_data',
+  'ahf_index' : 600,
+}
+
 ########################################################################
 
 class TestWorldlines( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.worldlines = analyze_worldlines.Worldlines( tracking_dir, tag )
+    self.worldlines = analyze_worldlines.Worldlines( tracking_dir, tag, **kwargs )
 
   ########################################################################
 

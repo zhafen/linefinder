@@ -1,1 +1,10 @@
-{}
+{
+  "tests/test_select.py::TestSnapshotIDSelector::test_default": true, 
+  "tests/test_select.py::TestSnapshotIDSelector::test_filter_data": true, 
+  "tests/test_select.py::TestSnapshotIDSelector::test_format_ids": true, 
+  "tests/test_select.py::TestSnapshotIDSelector::test_get_ids": true, 
+  "tests/test_select.py::TestSnapshotIDSelector::test_select_ids_snapshot": true, 
+  "tests/test_select.py::TestWithChildIDs::test_format_ids": true, 
+  "tests/test_select.py::TestWithChildIDs::test_get_ids": true, 
+  "tests/test_select.py::TestWithChildIDs::test_select_ids_snapshot": true
+}
