@@ -32,7 +32,7 @@ default_kwargs = {
     'sdir' : './tests/data/stars_included_test_data',
     'load_additional_ids' : True,
     'ahf_index' : 600,
-    'analysis_dir' : './tests/data/ahf_test_data',
+    'ahf_data_dir' : './tests/data/ahf_test_data',
     },
 }
 
@@ -43,7 +43,7 @@ default_snap_kwargs = {
   'ptype' : 0,
   'load_additional_ids' : False,
   'ahf_index' : 600,
-  'analysis_dir' : './tests/data/ahf_test_data',
+  'ahf_data_dir' : './tests/data/ahf_test_data',
 }
 
 newids_snap_kwargs = copy.deepcopy( default_snap_kwargs )

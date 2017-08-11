@@ -44,10 +44,10 @@ class TestWorldlineSetStartUp( unittest.TestCase ):
     mock_constructor.side_effect = [ None, ]*len( variations )
 
     calls = [
-      mock.call( data_dir='data_dir_a', tag=defaults['tag'] ),
-      mock.call( data_dir='data_dir_b', tag=defaults['tag'] ),
-      mock.call( data_dir=defaults['data_dir'], tag='tag_c' ),
-      mock.call( data_dir=defaults['data_dir'], tag=defaults['tag'] ),
+      mock.call( data_dir='data_dir_a', tag=defaults['tag'], label='a' ),
+      mock.call( data_dir='data_dir_b', tag=defaults['tag'], label='b' ),
+      mock.call( data_dir=defaults['data_dir'], tag='tag_c', label='c' ),
+      mock.call( data_dir=defaults['data_dir'], tag=defaults['tag'], label='d' ),
     ]
 
     worldline_set = analyze_worldline_set.WorldlineSet( defaults, variations )

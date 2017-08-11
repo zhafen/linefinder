@@ -35,6 +35,6 @@ class WorldlineSet( utilities.SmartDict ):
       for var_key in variations[key].keys():
         kwargs[var_key] = variations[key][var_key]
 
-      worldlines_d[key] = analyze_worldlines.Worldlines( **kwargs )
+      worldlines_d[key] = analyze_worldlines.Worldlines( label=key, **kwargs )
 
     super( WorldlineSet, self ).__init__( worldlines_d )

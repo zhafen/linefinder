@@ -302,8 +302,8 @@ class ParticleTracker( object ):
     grp.attrs['n_processors'] = self.n_processors
 
     # Save the current code version
-    grp.attrs['worldline_version'] = utilities.get_code_version( self )
-    grp.attrs['galaxy_diver_version'] = utilities.get_code_version( read_snapshot, instance_type='module' )
+    f.attrs['worldline_version'] = utilities.get_code_version( self )
+    f.attrs['galaxy_diver_version'] = utilities.get_code_version( read_snapshot, instance_type='module' )
 
     f.close()
 
