@@ -174,7 +174,7 @@ class Classifier( object ):
 
   ########################################################################
 
-  def save_classifications( self, classifications_to_save=[ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind' ] ):
+  def save_classifications( self, classifications_to_save=[ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', ] ):
     '''Save the results of running the classifier.
 
     Args:
@@ -223,7 +223,6 @@ class Classifier( object ):
 
     # Apply cosmological corrections to the position of the main galaxy
     main_mt_halo_p *= 1./( 1. + self.ptrack['redshift'][:,np.newaxis] )/self.ptrack_attrs['hubble']
-    # TODO: Check if the velocity also needs to be corrected (probably easiest is to compare to the velocity of the CoM, calculated by me)
 
     # Loop over each redshift
     v_r = []
@@ -365,6 +364,15 @@ class Classifier( object ):
     is_accreted[:,-self.kwargs['neg']: ] = False
 
     return is_accreted
+
+  ########################################################################
+
+  def get_redshift_first_acc( self ):
+    '''Get the redshift of first accretion.'''
+
+    
+    
+
 
   ########################################################################
 

@@ -280,6 +280,21 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
     actual = self.classifier.identify_accretion()
 
     npt.assert_allclose( expected, actual )
+    
+  ########################################################################
+
+  def test_get_redshift_first_acc( self ):
+
+    self.classifier.is_accreted = np.array([
+      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+      [ 1, 0, 1, 0, ], # Accreted twice
+      ]).astype( bool )
+
+    expected = np.array([ 0., np.nan, 0.06984665, 0.16946003 ])
+    actual = self.classifier.get_redshift_first_acc()
+    npt.assert_allclose( expected, actual )
 
   #########################################################################
 
