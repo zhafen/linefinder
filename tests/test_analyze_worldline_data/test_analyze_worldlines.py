@@ -72,4 +72,35 @@ class TestWorldlines( unittest.TestCase ):
         if not isinstance( actual[data_key][key], np.ndarray ):
           self.assertEqual( actual[data_key][key], expected[data_key].attrs[key] )
 
+########################################################################
 
+class TestWorldlineDataMasker( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.worldlines = analyze_worldlines.Worldlines( tracking_dir, tag, **kwargs )
+
+  ########################################################################
+
+  def test_given_mask( self ):
+
+    mask = np.array( [
+      [ 1, 1, 0, ],
+      [ 0, 0, 0, ],
+      [ 1, 1, 1, ],
+      [ 1, 1, 1, ],
+    ] ).astype( bool )
+
+    actual = self.worldlines.data_masker.get_masked_data( 'T', mask )
+    expected = np.array( [ 58051.05859375, 12212.33984375,  812602.1875    ,   25435.59375 ])
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_given_mask_slice( self ):
+
+    mask = np.array( [ True, False, True, True ] )
+
+    actual = self.worldlines.data_masker.get_masked_data( 'T', mask, ( slice(None), 1 ) )
+    expected = np.array( [ 812602.1875 ])
+    npt.assert_allclose( expected, actual )

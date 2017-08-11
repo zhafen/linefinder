@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.patheffects as path_effects
 
+import galaxy_diver.analyze_data.generic_data as generic_data
 import galaxy_diver.plot_data.ahf as plot_ahf
 import galaxy_diver.plot_data.plotting as gen_plot
 import galaxy_diver.plot_data.pu_colormaps as pu_cm
@@ -81,6 +82,16 @@ class Worldlines( object ):
     return self._classifications
 
   ########################################################################
+
+  @property
+  def data_masker( self ):
+  
+    if not hasattr( self, '_data_masker' ):
+      self._data_masker = WorldlineDataMasker( self )
+
+    return self._data_masker
+
+  ########################################################################
   # Display Information
   ########################################################################
 
@@ -100,6 +111,7 @@ class Worldlines( object ):
   def plot_hist_2d( self,
                     x_key, y_key,
                     slices,
+                    mask='total',
                     x_range=default, y_range=default,
                     n_bins=128,
                     vmin=None, vmax=None,
@@ -129,8 +141,8 @@ class Worldlines( object ):
       sl = ( slice(None), slices )
 
     # Get data
-    x_data = self.ptracks.get_processed_data( x_key )[sl].flatten()
-    y_data = self.ptracks.get_processed_data( y_key )[sl].flatten()
+    x_data = self.ptracks.data_masker.get_masked_data( x_key, mask=mask, sl=sl ).flatten()
+    y_data = self.ptracks.data_masker.get_masked_data( y_key, mask=mask, sl=sl ).flatten()
 
     if x_range is default:
       x_range = [ x_data.min(), x_data.max() ]
@@ -191,9 +203,8 @@ class Worldlines( object ):
 
     # Save the file
     if out_dir is not None:
-      true_out_dir = os.path.join( out_dir, self.label )
       save_file = '{}_{:03d}.png'.format( self.label, self.ptracks.snum[slices] )
-      gen_plot.save_fig( true_out_dir, save_file, fig=fig )
+      gen_plot.save_fig( out_dir, save_file, fig=fig )
 
       plt.close()
 
@@ -229,6 +240,10 @@ class Worldlines( object ):
 
       plotting_method( out_dir=used_out_dir, *used_args, **used_kwargs )
 
+      del used_out_dir, used_args, used_kwargs
+
+      return
+
     all_process_args = []
     for iter_arg in iter_args:
       process_kwargs = dict( kwargs )
@@ -236,10 +251,24 @@ class Worldlines( object ):
       all_process_args.append( ( out_dir, args, process_kwargs ) )
 
     if n_processors > 1:
-      mp_utils.parmap( plotting_method_wrapper, all_process_args, n_processors=n_processors )
+      # For safety, make sure we've loaded the data already
+      self.ptracks, self.galids, self.classifications
+
+      mp_utils.parmap( plotting_method_wrapper, all_process_args, n_processors=n_processors, return_values=False )
     else:
       for i, iter_arg in enumerate( iter_args ):
         plotting_method_wrapper( all_process_args[i] )
 
     if make_movie:
       gen_plot.make_movie( out_dir, '{}_*.png'.format( self.label ), '{}.mp4'.format( self.label ), )
+
+########################################################################
+########################################################################
+
+class WorldlineDataMasker( generic_data.DataMasker ):
+
+  def __init__( self, worldlines ):
+
+    self.worldlines = worldlines
+
+    super( WorldlineDataMasker, self ).__init__( self.worldlines.ptracks )
