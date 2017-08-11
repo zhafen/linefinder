@@ -18,6 +18,7 @@ import matplotlib.patheffects as path_effects
 import galaxy_diver.plot_data.ahf as plot_ahf
 import galaxy_diver.plot_data.plotting as gen_plot
 import galaxy_diver.plot_data.pu_colormaps as pu_cm
+import galaxy_diver.utils.mp_utils as mp_utils
 
 import analyze_ptracks
 import analyze_galids
@@ -196,17 +197,49 @@ class Worldlines( object ):
 
       plt.close()
 
-  def multi_plot_hist_2d( self, x_key, y_key, inds, out_dir=None, make_movie=False,**kwargs ):
-    '''Plot multiple 2D histograms. kwargs are passed to plot_hist_2d
+  ########################################################################
+
+  def make_multiple_plots( self,
+                           plotting_method_str,
+                           iter_args_key,
+                           iter_args,
+                           n_processors=1,
+                           out_dir=None,
+                           make_movie=False,
+                           *args, **kwargs ):
+    '''Make multiple plots of a selected type. *args and **kwargs are passed to plotting_method_str.
 
     Args:
-      x_key, y_key (str) : Data keys to plot.
-      inds (list of ints) : Indices to plot.
-      make_movie (bool) : Turn the multiple plots into a movie, if True.
+      plotting_method_str (str) : What plotting method to use.
+      iter_args_key (str) : The name of the argument to iterate over.
+      iter_args (list) : List of argument values to change.
+      n_processors (int) : Number of processors to use. Should only be used when saving the data.
+      out_dir (str) : Where to save the data.
+      make_movie (bool) : Make a movie out of the plots, if True.
     '''
+    
+    plotting_method = getattr( self, plotting_method_str )
 
-    for ind in inds:
-      self.plot_hist_2d( x_key, y_key, ind, out_dir=out_dir, **kwargs )
+    if out_dir is not None:
+      out_dir = os.path.join( out_dir, self.label )
+
+    def plotting_method_wrapper( process_args ):
+
+      used_out_dir, used_args, used_kwargs = process_args
+
+      plotting_method( out_dir=used_out_dir, *used_args, **used_kwargs )
+
+    all_process_args = []
+    for iter_arg in iter_args:
+      process_kwargs = dict( kwargs )
+      process_kwargs[iter_args_key] = iter_arg
+      all_process_args.append( ( out_dir, args, process_kwargs ) )
+
+    if n_processors > 1:
+      mp_utils.parmap( plotting_method_wrapper, all_process_args, n_processors=n_processors )
+    else:
+      for i, iter_arg in enumerate( iter_args ):
+        plotting_method_wrapper( all_process_args[i] )
 
     if make_movie:
       gen_plot.make_movie( out_dir, '{}_*.png'.format( self.label ), '{}.mp4'.format( self.label ), )
