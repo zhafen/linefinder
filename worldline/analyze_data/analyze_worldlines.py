@@ -7,6 +7,7 @@
 '''
 
 import numpy as np
+import os
 
 import matplotlib
 matplotlib.use('PDF')
@@ -100,10 +101,12 @@ class Worldlines( object ):
                     slices,
                     x_range=default, y_range=default,
                     n_bins=128,
+                    vmin=None, vmax=None,
                     x_label=default, y_label=default,
                     plot_halos=False,
-                    label_plot=False,
-                    label_redshift=False,
+                    label_plot=True,
+                    label_redshift=True,
+                    out_dir=None,
                     ):
     '''Make a 2D histogram of the data.
     Args:
@@ -112,9 +115,13 @@ class Worldlines( object ):
       x_range, y_range ( (float, float) ) : Histogram edges. If default, all data is enclosed. If list, set manually.
         If float, is +- x_range*length scale at that snapshot.
       n_bins (int) : Number of bins in the histogram.
+      vmin, vmax (float) : Limits for the colorbar.
       x_label, ylabel_ (str) : Axes labels.
       plot_halos (bool) : Whether or not to plot merger tree halos on top of the histogram.
         Only makes sense for when dealing with positions.
+      label_plot (bool) : If True, label with self.label.
+      label_redshift (bool) : If True, add a label indicating the redshift.
+      out_dir (str) : If given, where to save the file.
     '''
 
     if isinstance( slices, int ):
@@ -145,7 +152,7 @@ class Worldlines( object ):
 
     im = ax.imshow( np.log10( hist2d ).transpose(), cmap=pu_cm.magma, interpolation='nearest',\
                     extent=[x_edges[0], x_edges[-1], y_edges[0], y_edges[-1]], \
-                    origin='low', aspect='auto' )
+                    origin='low', aspect='auto', vmin=vmin, vmax=vmax, )
 
     # Add a colorbar
     cbar = gen_plot.add_colorbar( ax, im, method='ax' )
@@ -180,3 +187,26 @@ class Worldlines( object ):
     # Limits
     ax.set_xlim( x_range )
     ax.set_ylim( y_range )
+
+    # Save the file
+    if out_dir is not None:
+      true_out_dir = os.path.join( out_dir, self.label )
+      save_file = '{}_{:03d}.png'.format( self.label, self.ptracks.snum[slices] )
+      gen_plot.save_fig( true_out_dir, save_file, fig=fig )
+
+      plt.close()
+
+  def multi_plot_hist_2d( self, x_key, y_key, inds, out_dir=None, make_movie=False,**kwargs ):
+    '''Plot multiple 2D histograms. kwargs are passed to plot_hist_2d
+
+    Args:
+      x_key, y_key (str) : Data keys to plot.
+      inds (list of ints) : Indices to plot.
+      make_movie (bool) : Turn the multiple plots into a movie, if True.
+    '''
+
+    for ind in inds:
+      self.plot_hist_2d( x_key, y_key, ind, out_dir=out_dir, **kwargs )
+
+    if make_movie:
+      gen_plot.make_movie( out_dir, '{}_*.png'.format( self.label ), '{}.mp4'.format( self.label ), )
