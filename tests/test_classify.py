@@ -324,13 +324,50 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   ########################################################################
 
-  def test_identify_is_before_first_acc( self ):
+  def test_get_cum_num_acc( self ):
 
-    # Prerequisites
     self.classifier.is_accreted = np.array([
       [ 1, 0, 0, 0, ], # Merger, except in early snapshots
       [ 0, 0, 0, 0, ], # Always part of main galaxy
       [ 0, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+      [ 1, 0, 1, 0, ], # Accreted twice
+      ]).astype( bool )
+
+    actual = self.classifier.get_cum_num_acc()
+    expected = np.array([
+      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 1, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+      [ 2, 1, 1, 0, ], # Accreted twice
+      ])
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_redshift_first_acc( self ):
+
+    self.classifier.is_before_first_acc = np.array([
+      [ 0, 1, 1, 1, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 1, 1, ], # CGM -> main galaxy -> CGM
+      [ 1, 1, 1, 1, ], # Never accreted
+      ]).astype( bool )
+    self.classifier.n_particle = 4
+
+    expected = np.array([ 0., -1., 0.06984665, -1. ])
+    actual = self.classifier.get_redshift_first_acc()
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_identify_is_before_first_acc( self ):
+
+    # Prerequisites
+    self.classifier.cum_num_acc = np.array([
+      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 1, 1, 0, 0, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
     self.classifier.is_in_main_gal = np.array([
       [ 1, 0, 0, 0, 0, ], # Merger, except in early snapshots
@@ -625,6 +662,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
       [ 1, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
       [ 1, 1, 1, 0, 0, ], # Another test case
       ]).astype( bool )
+    self.classifier.redshift_first_acc = np.array([ 0., -1., 0.06984665, -1. ])
 
     # The function itself.
     self.classifier.save_classifications()

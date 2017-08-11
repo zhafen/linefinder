@@ -26,12 +26,17 @@ class Classifier( object ):
   '''Loads the tracked particle data, and uses that to classify the particles into different categories.
   '''
 
-  def __init__( self, not_in_main_gal_key='gal_id', **kwargs ):
+  def __init__( self,
+                not_in_main_gal_key='gal_id',
+                classifications_to_save=[ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer',
+                  'is_wind', 'redshift_first_acc', ],
+                **kwargs ):
     '''Setup the ID Finder.
 
     Args:
       not_in_main_gal_key (str): The galaxy_finder data key used to identify when not in a main galaxy.
-        'gal_id' is the default, meaning if a particle is in the main galaxy and isn't inside another galaxy then it's counted as in part of the main galaxy.
+        'gal_id' is the default, meaning if a particle is in the main galaxy and isn't inside another galaxy then it's
+          counted as in part of the main galaxy.
         Another potential option is 'halo_id'.
 
     Keyword Args:
@@ -42,8 +47,8 @@ class Classifier( object ):
         tag (str): Identifying tag. Currently must be put in manually.
         ptrack_tag (str,optional): Identifying tag for the ptrack data. Defaults to 'tag'.
         galfind_tag (str,optional): Identifying tag for the galaxy_finder data. Defaults to 'tag'.
-        mtree_halos_index: The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
-                          snapshot number, but see AHFReader.get_mtree_halos's documentation.
+        mtree_halos_index: The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be 
+          the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
 
       Analysis Parameters:
         neg (int): Number of earliest indices for which we neglect accretion/ejection events.
@@ -96,7 +101,9 @@ class Classifier( object ):
     # Information on what happens before accretion.
     print "Figuring out what happens before first accretion..."
     sys.stdout.flush()
+    self.cum_num_acc = self.get_cum_num_acc()
     self.is_before_first_acc = self.identify_is_before_first_acc()
+    self.redshift_first_acc = self.get_redshift_first_acc()
     self.time_in_other_gal_before_acc = self.get_time_in_other_gal_before_acc()
     self.time_in_other_gal_before_acc_during_interval = self.get_time_in_other_gal_before_acc_during_interval()
 
@@ -174,7 +181,7 @@ class Classifier( object ):
 
   ########################################################################
 
-  def save_classifications( self, classifications_to_save=[ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', ] ):
+  def save_classifications( self,  ):
     '''Save the results of running the classifier.
 
     Args:
@@ -187,7 +194,7 @@ class Classifier( object ):
     f = h5py.File( self.classification_filepath, 'a' )
 
     # Save the data
-    for classification in classifications_to_save:
+    for classification in self.classifications_to_save:
 
       data = getattr( self, classification )
       f.create_dataset( classification, data=data )
@@ -367,15 +374,6 @@ class Classifier( object ):
 
   ########################################################################
 
-  def get_redshift_first_acc( self ):
-    '''Get the redshift of first accretion.'''
-
-    
-    
-
-
-  ########################################################################
-
   def identify_ejection( self ):
     '''Identify ALL gas wind ejection events.
       These conditions must be met to identify as ejection:
@@ -418,11 +416,11 @@ class Classifier( object ):
   # What happens before accretion?
   ########################################################################
 
-  def identify_is_before_first_acc( self ):
-    '''Identify when before a particle's first accretion event.
+  def get_cum_num_acc( self ):
+    '''Get the cumulative number of accretions so far.
 
     Returns:
-      is_before_first_acc ([n_particle, n_snap-1] np.array of bools): If True, then the first accretion event for that particle hasn't happened yet.
+      cum_num_acc ([n_particle, n_snap-1] np.array of ints): Cumulative number of accretion events for that particles.
     '''
 
     # Index to revert order of redshift snapshots
@@ -432,7 +430,37 @@ class Classifier( object ):
     reverse_cum_num_acc =  self.is_accreted[:,ind_rev].cumsum(axis=1)
     cum_num_acc = reverse_cum_num_acc[:,ind_rev]      
 
-    is_before_first_acc = ( cum_num_acc == 0 )  &  ( self.is_in_main_gal[:,0:self.n_snap-1] == 0 )
+    return cum_num_acc
+
+  ########################################################################
+
+  def get_redshift_first_acc( self ):
+    '''Get the redshift of first accretion.
+
+    Returns:
+      cum_num_acc ([n_particle,] np.array of floats): Redshift of first accretion.
+    '''
+
+    redshift_tiled = np.tile( self.ptrack['redshift'], ( self.n_particle, 1 ) )[:,0:self.n_snap-1]
+
+    redshift_first_acc = np.ma.masked_array( redshift_tiled, mask=self.is_before_first_acc ).max( axis=1 )
+    redshift_first_acc = redshift_first_acc.filled( fill_value = -1. )
+
+    # Mask the ones that were always part of the galaxy
+    always_part_of_gal = self.is_before_first_acc.sum( axis=1 ) == 0
+    redshift_first_acc[always_part_of_gal] = -1.
+
+    return redshift_first_acc
+
+  ########################################################################
+
+  def identify_is_before_first_acc( self ):
+    '''Identify when before a particle's first accretion event.
+
+    Returns:
+      is_before_first_acc ([n_particle, n_snap-1] np.array of bools): If True, then the first accretion event for that particle hasn't happened yet.
+    '''
+    is_before_first_acc = ( self.cum_num_acc == 0 )  &  ( self.is_in_main_gal[:,0:self.n_snap-1] == 0 )
 
     return is_before_first_acc
 
