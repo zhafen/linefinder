@@ -146,3 +146,14 @@ class TestWorldlineDataMasker( unittest.TestCase ):
     expected = np.array( [ 12212.33984375,   812602.1875, 4107.27490234, ] )
     npt.assert_allclose( expected, actual )
     
+  ########################################################################
+
+  def test_get_masked_data_defaults( self ):
+
+    actual = self.worldlines.get_masked_data( 'T' )
+    expected = np.array([
+      [  22864.45898438,  379941.71875   ,   58051.05859375],
+      [  12212.33984375,  812602.1875    ,   25435.59375   ],
+      [  42283.62890625,    4107.27490234,   10226.62792969],
+      [  20401.44335938,  115423.2109375 ,   39209.30859375]])
+    npt.assert_allclose( expected, actual )

@@ -150,7 +150,6 @@ class Worldlines( object ):
   def plot_hist_2d( self,
                     x_key, y_key,
                     slices,
-                    mask='total',
                     x_range=default, y_range=default,
                     n_bins=128,
                     vmin=None, vmax=None,
@@ -160,7 +159,7 @@ class Worldlines( object ):
                     label_redshift=True,
                     out_dir=None,
                     ):
-    '''Make a 2D histogram of the data.
+    '''Make a 2D histogram of the data. Extra arguments are passed to get_masked_data.
     Args:
       x_key, y_key (str) : Data keys to plot.
       slices (int or tuple of slices) : How to slices the data.
@@ -180,8 +179,8 @@ class Worldlines( object ):
       sl = ( slice(None), slices )
 
     # Get data
-    x_data = self.ptracks.data_masker.get_masked_data( x_key, mask=mask, sl=sl ).flatten()
-    y_data = self.ptracks.data_masker.get_masked_data( y_key, mask=mask, sl=sl ).flatten()
+    x_data = self.get_masked_data( x_key, sl=sl, *args, **kwargs )
+    y_data = self.get_masked_data( y_key, sl=sl, *args, **kwargs )
 
     if x_range is default:
       x_range = [ x_data.min(), x_data.max() ]
