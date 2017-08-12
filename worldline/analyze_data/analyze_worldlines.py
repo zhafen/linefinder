@@ -102,6 +102,26 @@ class Worldlines( object ):
     return self._n_snaps
 
   ########################################################################
+
+  @property
+  def n_particles( self ):
+
+    if not hasattr( self, '_n_particles' ):
+      self._n_particles = self.ptracks.base_data_shape[0]
+
+    return self._n_particles
+
+  ########################################################################
+
+  @property
+  def redshift( self ):
+
+    if not hasattr( self, '_redshift' ):
+      self._redshift = self.ptracks.redshift
+
+    return self._redshift
+
+  ########################################################################
   # Display Information
   ########################################################################
 
@@ -295,7 +315,25 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
   ########################################################################
 
-  def get_masked_data( self, data_key, mask=default, classifications_mask=None, *args, **kwargs ):
+  def get_masked_data( self,
+                       data_key,
+                       mask=default,
+                       classification=None,
+                       mask_after_first_acc=False,
+                       *args, **kwargs ):
+    '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_masked_data.
+
+    Args:
+      data_key (str) : Data to get.
+      mask (np.array) : Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to
+        empty).
+      classification (str) : If provided, only select particles that meet this classification, as given in
+        self.worldlines.classifications.data
+      mask_after_first_acc (bool) : If True, only select particles above first accretion.
+
+    Returns:
+      masked_data (np.array) : Flattened array of masked data.
+    '''
 
     used_masks = []
     if mask is default:
@@ -303,10 +341,17 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     else:
       used_masks.append( mask )
 
-    if classifications_mask is not None:
-      cl_mask = np.invert( self.worldlines.classifications.data[classifications_mask] ) 
+    if classification is not None:
+      cl_mask = np.invert( self.worldlines.classifications.data[classification] ) 
       cl_mask = np.tile( cl_mask, (self.worldlines.n_snaps, 1) ).transpose()
       used_masks.append( cl_mask )
+
+    if mask_after_first_acc:
+      redshift_tiled = np.tile( self.worldlines.redshift, (self.worldlines.n_particles, 1) )
+      redshift_first_acc_tiled = np.tile( self.worldlines.classifications.data['redshift_first_acc'],
+                                          (self.worldlines.n_snaps, 1) ).transpose()
+      after_first_acc_mask = redshift_tiled <= redshift_first_acc_tiled
+      used_masks.append( after_first_acc_mask )
 
     used_mask = np.any( used_masks, axis=0, keepdims=True )[0]
 

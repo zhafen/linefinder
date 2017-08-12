@@ -115,7 +115,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
   def test_get_masked_data_classification( self ):
 
     actual = self.worldlines.get_masked_data( 'T',
-      classifications_mask='is_mass_transfer',
+      classification='is_mass_transfer',
       sl=( slice(None), slice(0,2)  ),
       )
     expected = np.array( [ 12212.33984375, 812602.1875 ])
@@ -132,6 +132,17 @@ class TestWorldlineDataMasker( unittest.TestCase ):
       [ 1, 1, 1, ],
     ] ).astype( bool )
 
-    actual = self.worldlines.data_masker.get_masked_data( 'T', mask = mask,  classifications_mask='is_preprocessed', sl=( slice(None), slice(0,2), ) )
+    actual = self.worldlines.data_masker.get_masked_data( 'T', mask = mask,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
     expected = np.array( [ 12212.33984375,   812602.1875, 42283.62890625, ] )
     npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_masked_data_after_first_acc( self ):
+
+    self.worldlines.classifications.data['redshift_first_acc'] = np.array([ 30., -1., 0., 30. ])
+
+    actual = self.worldlines.data_masker.get_masked_data( 'T', mask_after_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
+    expected = np.array( [ 12212.33984375,   812602.1875, 4107.27490234, ] )
+    npt.assert_allclose( expected, actual )
+    
