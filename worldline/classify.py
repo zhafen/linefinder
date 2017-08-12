@@ -472,7 +472,8 @@ class Classifier( object ):
     ( age of the universe at the last snapshot where the conditions are true ), and generalizes to multiple events in other galaxies.
 
     Returns:
-      time_in_other_gal_before_acc ([ n_particle, ] np.array of floats): Time in another galaxy before being first accreted onto the main galaxy.
+      time_in_other_gal_before_acc ([ n_particle, ] np.array of floats): Time in another galaxy before being first
+        accreted onto the main galaxy.
     '''
 
     is_in_other_gal_before_first_acc = ( self.is_before_first_acc & self.is_in_other_gal[:,0:self.n_snap-1] )
@@ -483,11 +484,12 @@ class Classifier( object ):
   ########################################################################
 
   def get_time_in_other_gal_before_acc_during_interval( self ):
-    '''Get the amount of time in galaxies besides the main galaxy before being accreted, during an interval before being accreted.
+    '''Get the amount of time in galaxies besides the main galaxy before being accreted, during an interval before
+    being accreted.
 
     Returns:
-      time_in_other_gal_before_acc_during_interval ([ n_particle, ] np.array of floats): Time in another galaxy before being first accreted onto the main galaxy,
-        within some recent time interval
+      time_in_other_gal_before_acc_during_interval ([ n_particle, ] np.array of floats): Time in another galaxy before
+        being first accreted onto the main galaxy, within some recent time interval
     '''
 
     # Get the total amount of time before being accreted
@@ -501,7 +503,8 @@ class Classifier( object ):
       self.is_in_other_gal[:,0:self.n_snap-1] # Make sure we're in another galaxy at that time
       )
 
-    time_in_other_gal_before_acc_during_interval = ( self.dt * is_in_other_gal_in_time_interval_before_acc.astype( float ) ).sum(axis=1)
+    time_in_other_gal_before_acc_during_interval = ( self.dt * \
+      is_in_other_gal_in_time_interval_before_acc.astype( float ) ).sum(axis=1)
 
     return time_in_other_gal_before_acc_during_interval
 
@@ -513,7 +516,8 @@ class Classifier( object ):
     '''Identify pristine gas, or "non-externally processed" gas.
 
     Returns:
-      is_pristine ( [n_particle] np.array of bools ) : True for particle i if it has never spent some minimum amount of time in another galaxy before being accreted.
+      is_pristine ( [n_particle] np.array of bools ) : True for particle i if it has never spent some minimum amount
+        of time in another galaxy before being accreted.
     '''
 
     is_pristine = ( self.time_in_other_gal_before_acc < self.kwargs['time_min'] )
@@ -530,7 +534,8 @@ class Classifier( object ):
     '''Identify pre-proceesed gas, or "externally processed" gas.
 
     Returns:
-      is_preprocessed ( [n_particle] np.array of bools ) : True for particle i if it has spent at least some minimum amount of time in another galaxy before being accreted.
+      is_preprocessed ( [n_particle] np.array of bools ) : True for particle i if it has spent at least some minimum
+        amount of time in another galaxy before being accreted.
     '''
 
     is_preprocessed = ( self.time_in_other_gal_before_acc >= self.kwargs['time_min'] )
@@ -576,7 +581,8 @@ class Classifier( object ):
     '''Boolean for whether or not particles are from wind.
 
     Returns:
-      is_wind ( [n_particle] np.array of bools ) : True for particle i if it has been ejected at least once before snapshot n 
+      is_wind ( [n_particle] np.array of bools ) : True for particle i if it has been ejected at least once before
+        snapshot n 
     '''
 
     # Index to revert order of redshift snapshots

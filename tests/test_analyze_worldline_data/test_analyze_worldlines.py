@@ -91,7 +91,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
       [ 1, 1, 1, ],
     ] ).astype( bool )
 
-    actual = self.worldlines.data_masker.get_masked_data( 'T', mask )
+    actual = self.worldlines.data_masker.get_masked_data( 'T', mask=mask )
     expected = np.array( [ 58051.05859375, 12212.33984375,  812602.1875    ,   25435.59375 ])
     npt.assert_allclose( expected, actual )
 
@@ -101,6 +101,37 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
     mask = np.array( [ True, False, True, True ] )
 
-    actual = self.worldlines.data_masker.get_masked_data( 'T', mask, ( slice(None), 1 ) )
+    actual = self.worldlines.data_masker.get_masked_data(
+      'T',
+      mask=mask,
+      sl=( slice(None), 1 ),
+      apply_slice_to_mask=False
+    )
     expected = np.array( [ 812602.1875 ])
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_masked_data_classification( self ):
+
+    actual = self.worldlines.get_masked_data( 'T',
+      classifications_mask='is_mass_transfer',
+      sl=( slice(None), slice(0,2)  ),
+      )
+    expected = np.array( [ 12212.33984375, 812602.1875 ])
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_masked_data_classification_combined( self ):
+
+    mask = np.array( [
+      [ 0, 0, 0, ],
+      [ 0, 0, 0, ],
+      [ 0, 1, 1, ],
+      [ 1, 1, 1, ],
+    ] ).astype( bool )
+
+    actual = self.worldlines.data_masker.get_masked_data( 'T', mask = mask,  classifications_mask='is_preprocessed', sl=( slice(None), slice(0,2), ) )
+    expected = np.array( [ 12212.33984375,   812602.1875, 42283.62890625, ] )
     npt.assert_allclose( expected, actual )

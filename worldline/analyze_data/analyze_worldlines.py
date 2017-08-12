@@ -92,6 +92,16 @@ class Worldlines( object ):
     return self._data_masker
 
   ########################################################################
+
+  @property
+  def n_snaps( self ):
+
+    if not hasattr( self, '_n_snaps' ):
+      self._n_snaps = self.ptracks.base_data_shape[1]
+
+    return self._n_snaps
+
+  ########################################################################
   # Display Information
   ########################################################################
 
@@ -103,6 +113,15 @@ class Worldlines( object ):
       parameters[data] = getattr( self, data ).parameters
 
     return parameters
+
+  ########################################################################
+  # Get Data
+  ########################################################################
+
+  def get_masked_data(  self, *args, **kwargs ):
+    '''Wrapper for masking data.'''
+
+    return self.data_masker.get_masked_data( *args, **kwargs )
 
   ########################################################################
   # Plotting
@@ -266,9 +285,64 @@ class Worldlines( object ):
 ########################################################################
 
 class WorldlineDataMasker( generic_data.DataMasker ):
+  '''Data masker for worldline data.'''
 
   def __init__( self, worldlines ):
 
     self.worldlines = worldlines
 
     super( WorldlineDataMasker, self ).__init__( self.worldlines.ptracks )
+
+  ########################################################################
+
+  def get_masked_data( self, data_key, mask=default, classifications_mask=None, *args, **kwargs ):
+
+    used_masks = []
+    if mask is default:
+      used_masks += self.masks
+    else:
+      used_masks.append( mask )
+
+    if classifications_mask is not None:
+      cl_mask = np.invert( self.worldlines.classifications.data[classifications_mask] ) 
+      cl_mask = np.tile( cl_mask, (self.worldlines.n_snaps, 1) ).transpose()
+      used_masks.append( cl_mask )
+
+    used_mask = np.any( used_masks, axis=0, keepdims=True )[0]
+
+    masked_data = super( WorldlineDataMasker, self ).get_masked_data( data_key, mask=used_mask, *args, **kwargs )
+
+    return masked_data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
