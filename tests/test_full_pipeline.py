@@ -51,6 +51,7 @@ tracker_kwargs = {
 # Galaxy Finding Parameters
 gal_finder_kwargs = {
   'sdir' : ahf_sdir,
+  'main_mt_halo_id' : 0,
   'mtree_halos_index' : mtree_halos_index,
 
   'tracking_dir' : outdir,

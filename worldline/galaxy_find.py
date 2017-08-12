@@ -26,6 +26,7 @@ class ParticleTrackGalaxyFinder( object ):
   '''Find the association with galaxies for entire particle tracks.'''
 
   def __init__( self,
+                main_mt_halo_id,
                 galaxy_cut=0.1,
                 length_scale='r_scale',
                 ids_to_return=[ 'gal_id', 'mt_gal_id' ],
@@ -36,6 +37,8 @@ class ParticleTrackGalaxyFinder( object ):
     '''Initialize.
 
     Args:
+      main_mt_halo_id (int, required): What is the ID of the main halo. To automatically choose via the most massive
+        at z=0, set equal to None. HOWEVER, be warned that the most massive halo at z=0 *may not* be the main halo.
       galaxy_cut (float, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy
       length_scale (str, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
       ids_to_return (list of strs, optional): The types of id you want to get out.
@@ -279,14 +282,16 @@ class ParticleTrackGalaxyFinder( object ):
       f.create_dataset( key, data=self.ptrack_gal_ids[key] )
 
     # Store the main mt halo id (as identified by the larges value at the lowest redshift)
-    try:
-      indice = self.ahf_reader.mtree_halos[0].index.max()
-    # DEBUG: Not sure I need this around still, after I fix a different bug.
-    except AttributeError:
-      self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
-      indice = self.ahf_reader.mtree_halos[0].index.max()
-    m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=indice, index=self.kwargs['mtree_halos_index'], tag='smooth' )
-    f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
+    if self.main_mt_halo_id is None:
+      try:
+        indice = self.ahf_reader.mtree_halos[0].index.max()
+      except AttributeError:
+        self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
+        indice = self.ahf_reader.mtree_halos[0].index.max()
+      m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=indice, index=self.kwargs['mtree_halos_index'], tag='smooth' )
+      f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
+    else:
+      f.attrs['main_mt_halo_id'] = self.main_mt_halo_id
 
     # Save the data parameters
     grp = f.create_group('parameters')

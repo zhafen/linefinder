@@ -158,7 +158,7 @@ class Worldlines( object ):
                     label_plot=True,
                     label_redshift=True,
                     out_dir=None,
-                    ):
+                    *args, **kwargs ):
     '''Make a 2D histogram of the data. Extra arguments are passed to get_masked_data.
     Args:
       x_key, y_key (str) : Data keys to plot.

@@ -31,6 +31,7 @@ gal_finder_kwargs = {
   'hubble' : 0.70199999999999996,
   'sdir' : './tests/data/ahf_test_data',
   'mtree_halos_index' : 600,
+  'main_mt_halo_id' : 0,
 
   'galaxy_cut' : 0.1,
   'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
@@ -46,6 +47,7 @@ ptrack_gal_finder_kwargs = {
   'tracking_dir' : './tests/data/tracking_output',
   'tag' : 'test',
   'mtree_halos_index' : 600,
+  'main_mt_halo_id' : 0,
 }
 
 ########################################################################
@@ -651,7 +653,7 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
     # Make sure we have stored the data parameters too.
     for key in ptrack_gal_finder_kwargs.keys():
-      if key != 'ids_to_return':
+      if (key != 'ids_to_return') and (key != 'main_mt_halo_id'):
         assert ptrack_gal_finder_kwargs[key] == f['parameters'].attrs[key]
 
 ########################################################################

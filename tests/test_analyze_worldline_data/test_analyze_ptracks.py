@@ -38,7 +38,7 @@ class TestPTracksStartup( unittest.TestCase ):
 
     expected = np.array([ 0.       ,  0.0698467,  0.16946  ])
     actual = ptracks.redshift
-    npt.assert_allclose( expected, actual )
+    npt.assert_allclose( expected, actual, atol=1e-7 )
 
     expected = np.array([
       [[ 41742.828125  ,  39968.60546875,  34463.765625  ],

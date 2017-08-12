@@ -434,6 +434,18 @@ class Classifier( object ):
 
   ########################################################################
 
+  def identify_is_before_first_acc( self ):
+    '''Identify when before a particle's first accretion event.
+
+    Returns:
+      is_before_first_acc ([n_particle, n_snap-1] np.array of bools): If True, then the first accretion event for that particle hasn't happened yet.
+    '''
+    is_before_first_acc = ( self.cum_num_acc == 0 )  &  ( self.is_in_main_gal[:,0:self.n_snap-1] == 0 )
+
+    return is_before_first_acc
+
+  ########################################################################
+
   def get_redshift_first_acc( self ):
     '''Get the redshift of first accretion.
 
@@ -451,18 +463,6 @@ class Classifier( object ):
     redshift_first_acc[always_part_of_gal] = -1.
 
     return redshift_first_acc
-
-  ########################################################################
-
-  def identify_is_before_first_acc( self ):
-    '''Identify when before a particle's first accretion event.
-
-    Returns:
-      is_before_first_acc ([n_particle, n_snap-1] np.array of bools): If True, then the first accretion event for that particle hasn't happened yet.
-    '''
-    is_before_first_acc = ( self.cum_num_acc == 0 )  &  ( self.is_in_main_gal[:,0:self.n_snap-1] == 0 )
-
-    return is_before_first_acc
 
   ########################################################################
 
