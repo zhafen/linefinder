@@ -191,12 +191,22 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_masked_data_after_first_acc( self ):
+  def test_get_masked_data_before_first_acc( self ):
 
     self.worldlines.classifications.data['redshift_first_acc'] = np.array([ 30., -1., 0., 30. ])
 
     actual = self.worldlines.data_masker.get_masked_data( 'T', mask_after_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
     expected = np.array( [ 12212.33984375,   812602.1875, 4107.27490234, ] )
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_masked_data_after_first_acc( self ):
+
+    self.worldlines.classifications.data['redshift_first_acc'] = np.array([ 30., -1., 0., 30. ])
+
+    actual = self.worldlines.data_masker.get_masked_data( 'T', mask_before_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
+    expected = np.array( [ 42283.62890625,  20401.44335938,  115423.2109375, ] )
     npt.assert_allclose( expected, actual )
     
   ########################################################################

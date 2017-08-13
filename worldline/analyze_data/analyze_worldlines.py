@@ -486,6 +486,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     mask=default,
     classification=None,
     mask_after_first_acc=False,
+    mask_before_first_acc=False,
     *args, **kwargs ):
     '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_masked_data.
 
@@ -496,6 +497,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
       classification (str) : If provided, only select particles that meet this classification, as given in
         self.worldlines.classifications.data
       mask_after_first_acc (bool) : If True, only select particles above first accretion.
+      mask_before_first_acc (bool) : If True, only select particles after first accretion.
 
     Returns:
       masked_data (np.array) : Flattened array of masked data.
@@ -513,12 +515,15 @@ class WorldlineDataMasker( generic_data.DataMasker ):
         cl_mask = np.tile( cl_mask, (self.worldlines.n_snaps, 1) ).transpose()
       used_masks.append( cl_mask )
 
-    if mask_after_first_acc:
+    if mask_after_first_acc or mask_before_first_acc:
       redshift_tiled = np.tile( self.worldlines.redshift, (self.worldlines.n_particles, 1) )
       redshift_first_acc_tiled = np.tile( self.worldlines.classifications.data['redshift_first_acc'],
                                           (self.worldlines.n_snaps, 1) ).transpose()
-      after_first_acc_mask = redshift_tiled <= redshift_first_acc_tiled
-      used_masks.append( after_first_acc_mask )
+      if mask_after_first_acc:
+        first_acc_mask = redshift_tiled <= redshift_first_acc_tiled
+      if mask_before_first_acc:
+        first_acc_mask = redshift_tiled > redshift_first_acc_tiled
+      used_masks.append( first_acc_mask )
 
     used_mask = np.any( used_masks, axis=0, keepdims=True )[0]
 
