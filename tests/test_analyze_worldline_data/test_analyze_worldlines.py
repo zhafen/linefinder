@@ -83,7 +83,7 @@ class TestWorldlinesDifferentTags( unittest.TestCase ):
       'data_dir' : './tests/data/tracking_output_for_analysis',
       'tag' : 'analyze',
 
-      'ptrack_tag' : 'alt_tag1',
+      'ptracks_tag' : 'alt_tag1',
       'galids_tag' : 'alt_tag2',
       'classifications_tag' : 'alt_tag3',
 

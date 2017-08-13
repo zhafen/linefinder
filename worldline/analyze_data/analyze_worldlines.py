@@ -42,7 +42,7 @@ class Worldlines( object ):
   def __init__( self,
     data_dir,
     tag,
-    ptrack_tag = default,
+    ptracks_tag = default,
     galids_tag = default,
     classifications_tag = default,
     label = None,
@@ -51,11 +51,14 @@ class Worldlines( object ):
     Args:
       data_dir (str) : Data directory for the classified data
       tag (str) : Identifying tag for the data to load.
+      ptracks_tag (str) : Identifying tag for ptracks data.
+      galids_tag (str) : Identifying tag for galids data.
+      classifications_tag (str) : Identifying tag for classifications data.
       label (str) : Identifying label for the worldlines.
     '''
 
-    if ptrack_tag is default:
-      ptrack_tag = tag
+    if ptracks_tag is default:
+      ptracks_tag = tag
     if galids_tag is default:
       galids_tag = tag
     if classifications_tag is default:
@@ -73,7 +76,7 @@ class Worldlines( object ):
   def ptracks( self ):
 
     if not hasattr( self, '_ptracks' ):
-      self._ptracks = analyze_ptracks.PTracks( self.data_dir, self.ptrack_tag, store_ahf_reader=True, **self.kwargs )
+      self._ptracks = analyze_ptracks.PTracks( self.data_dir, self.ptracks_tag, store_ahf_reader=True, **self.kwargs )
 
     return self._ptracks
 
