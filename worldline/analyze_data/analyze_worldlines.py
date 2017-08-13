@@ -39,13 +39,27 @@ class Worldlines( object ):
   '''Wrapper for analysis of all worldline data products. It loads data in on-demand.
   '''
 
-  def __init__( self, data_dir, tag, label=None, **kwargs ):
+  def __init__( self,
+    data_dir,
+    tag,
+    ptrack_tag = default,
+    galids_tag = default,
+    classifications_tag = default,
+    label = None,
+    **kwargs ):
     '''
     Args:
       data_dir (str) : Data directory for the classified data
       tag (str) : Identifying tag for the data to load.
       label (str) : Identifying label for the worldlines.
     '''
+
+    if ptrack_tag is default:
+      ptrack_tag = tag
+    if galids_tag is default:
+      galids_tag = tag
+    if classifications_tag is default:
+      classifications_tag = tag
 
     # Store the arguments
     for arg in locals().keys():
@@ -59,7 +73,7 @@ class Worldlines( object ):
   def ptracks( self ):
 
     if not hasattr( self, '_ptracks' ):
-      self._ptracks = analyze_ptracks.PTracks( self.data_dir, self.tag, store_ahf_reader=True, **self.kwargs )
+      self._ptracks = analyze_ptracks.PTracks( self.data_dir, self.ptrack_tag, store_ahf_reader=True, **self.kwargs )
 
     return self._ptracks
 
@@ -69,7 +83,7 @@ class Worldlines( object ):
   def galids( self ):
 
     if not hasattr( self, '_galids' ):
-      self._galids = analyze_galids.GalIDs( self.data_dir, self.tag )
+      self._galids = analyze_galids.GalIDs( self.data_dir, self.galids_tag )
 
     return self._galids
 
@@ -79,7 +93,7 @@ class Worldlines( object ):
   def classifications( self ):
 
     if not hasattr( self, '_classifications' ):
-      self._classifications = analyze_classifications.Classifications( self.data_dir, self.tag )
+      self._classifications = analyze_classifications.Classifications( self.data_dir, self.classifications_tag )
 
     return self._classifications
 

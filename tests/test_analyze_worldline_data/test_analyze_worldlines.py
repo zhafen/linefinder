@@ -8,6 +8,7 @@
 
 import copy
 import h5py
+import mock
 import numpy as np
 import numpy.testing as npt
 import os
@@ -71,6 +72,58 @@ class TestWorldlines( unittest.TestCase ):
       for key in actual[data_key].keys():
         if not isinstance( actual[data_key][key], np.ndarray ):
           self.assertEqual( actual[data_key][key], expected[data_key].attrs[key] )
+
+########################################################################
+
+class TestWorldlinesDifferentTags( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.kwargs = {
+      'data_dir' : './tests/data/tracking_output_for_analysis',
+      'tag' : 'analyze',
+
+      'ptrack_tag' : 'alt_tag1',
+      'galids_tag' : 'alt_tag2',
+      'classifications_tag' : 'alt_tag3',
+
+      'ahf_data_dir' : './tests/data/ahf_test_data',
+      'ahf_index' : 600,
+    }
+        
+    self.worldlines = analyze_worldlines.Worldlines( **self.kwargs )
+
+  ########################################################################
+
+  @mock.patch( 'worldline.analyze_data.analyze_classifications.Classifications.__init__' )
+  @mock.patch( 'worldline.analyze_data.analyze_galids.GalIDs.__init__' )
+  @mock.patch( 'worldline.analyze_data.analyze_ptracks.PTracks.__init__' )
+  def test_different_tags( self, mock_ptracks, mock_galids, mock_classifications ):
+
+    mock_ptracks.side_effect = [ None, ]
+    mock_galids.side_effect = [ None, ]
+    mock_classifications.side_effect = [ None, ]
+    
+    self.worldlines.ptracks
+    ptrack_kwargs = {
+      'ahf_data_dir' : './tests/data/ahf_test_data',
+      'ahf_index' : 600,
+    }
+    mock_ptracks.assert_called_with(
+      './tests/data/tracking_output_for_analysis',
+      'alt_tag1',
+      store_ahf_reader=True,
+      **ptrack_kwargs )
+
+    self.worldlines.galids
+    mock_galids.assert_called_with(
+      './tests/data/tracking_output_for_analysis',
+      'alt_tag2' )
+
+    self.worldlines.classifications
+    mock_classifications.assert_called_with(
+      './tests/data/tracking_output_for_analysis',
+      'alt_tag3' )
 
 ########################################################################
 
