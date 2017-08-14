@@ -420,6 +420,9 @@ class IDSampler( object ):
       self.f (h5py file) : Replaces target_ids and target_child_ids with sampled versions.
     '''
 
+    # Save the total number of particles in the original
+    self.f.attrs['n_particles'] = self.f['target_ids'].size
+
     target_ids_to_save = self.f['target_ids'][...][self.sample_inds]
     del self.f['target_ids']
     self.f['target_ids'] = target_ids_to_save

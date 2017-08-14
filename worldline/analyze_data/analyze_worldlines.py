@@ -315,7 +315,7 @@ class Worldlines( object ):
     # Save the file
     if out_dir is not None:
       save_file = '{}_{:03d}.png'.format( self.label, self.ptracks.snum[slices] )
-      gen_plot.save_fig( out_dir, save_file, fig=fig )
+      gen_plot.save_fig( out_dir, save_file, fig=fig, dpi=75 )
 
       plt.close()
 
