@@ -133,6 +133,24 @@ class TestWorldlinesDifferentTags( unittest.TestCase ):
 
 ########################################################################
 
+class TestWorldlineGetData( self ):
+
+  def setUp( self ):
+
+    self.worldlines = analyze_worldlines.Worldlines( tracking_dir, tag, **kwargs )
+
+  ########################################################################
+
+  @mock.patch( 'galaxy_diver.analyze_data.generic_data.TimeData.get_data' )
+  def test_basic( self, mock_get_data ):
+
+    self.worldlines.get_data( 'Rx' )
+
+    mock_get_data.assert_called_once_with( 'Rx', sl=None )
+    
+
+########################################################################
+
 class TestWorldlineDataMasker( unittest.TestCase ):
 
   def setUp( self ):

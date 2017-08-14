@@ -188,6 +188,12 @@ class Worldlines( object ):
   # Get Data
   ########################################################################
 
+  def get_data( self, data_key, *args, **kwargs ):
+
+    pass
+
+  ########################################################################
+
   def get_masked_data(  self, *args, **kwargs ):
     '''Wrapper for masking data.'''
 
