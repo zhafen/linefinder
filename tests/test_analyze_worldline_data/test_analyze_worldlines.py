@@ -158,7 +158,8 @@ class TestWorldlineDataMasker( unittest.TestCase ):
       'T',
       mask=mask,
       sl=( slice(None), 1 ),
-      apply_slice_to_mask=False
+      apply_slice_to_mask=False,
+      preserve_mask_shape=True,
     )
     expected = np.array( [ 812602.1875 ])
     npt.assert_allclose( expected, actual )
@@ -222,3 +223,14 @@ class TestWorldlineDataMasker( unittest.TestCase ):
     npt.assert_allclose( expected, actual )
 
   ########################################################################
+
+  def test_get_mask_mismatch_dims( self ):
+
+    actual = self.worldlines.data_masker.get_mask( np.array([ True, False, True, False ]) )
+    expected = np.array([
+      [ 1, 1, 1, ],
+      [ 0, 0, 0, ],
+      [ 1, 1, 1, ],
+      [ 0, 0, 0, ],
+    ])
+    npt.assert_allclose( expected, actual )

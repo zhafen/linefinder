@@ -515,10 +515,11 @@ class WorldlineDataMasker( generic_data.DataMasker ):
   ########################################################################
 
   def get_mask( self,
-    mask=default,
-    classification=None,
-    mask_after_first_acc=False,
-    mask_before_first_acc=False,
+    mask =default,
+    classification = None,
+    mask_after_first_acc = False,
+    mask_before_first_acc = False,
+    preserve_mask_shape = False,
     *args, **kwargs ):
     '''Get a mask for the data.
 
@@ -529,6 +530,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
         self.worldlines.classifications.data
       mask_after_first_acc (bool) : If True, only select particles above first accretion.
       mask_before_first_acc (bool) : If True, only select particles after first accretion.
+      preserve_mask_shape (bool) : If True, don't tile masks that are single dimensional, and one per particle.
 
     Returns:
       mask (bool np.ndarray) : Mask from all the combinations.
@@ -538,6 +540,11 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     if mask is default:
       used_masks += self.masks
     else:
+      
+      # Tile mask if it's single-dimensional
+      if ( not preserve_mask_shape ) and ( mask.shape == ( self.worldlines.n_particles, ) ):
+        mask = np.tile( mask, (self.worldlines.n_snaps, 1 ) ).transpose()
+
       used_masks.append( mask )
 
     if classification is not None:
@@ -571,6 +578,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     classification=None,
     mask_after_first_acc=False,
     mask_before_first_acc=False,
+    preserve_mask_shape=False,
     *args, **kwargs ):
     '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_masked_data.
 
@@ -592,6 +600,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
       classification=classification,
       mask_after_first_acc=mask_after_first_acc,
       mask_before_first_acc=mask_before_first_acc,
+      preserve_mask_shape=preserve_mask_shape,
     )
 
     masked_data = super( WorldlineDataMasker, self ).get_masked_data( data_key, mask=used_mask, *args, **kwargs )
