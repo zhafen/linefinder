@@ -80,6 +80,10 @@ class Worldlines( object ):
 
     return self._ptracks
 
+  @ptracks.deleter
+  def ptracks( self ):
+    del self._ptracks
+
   ########################################################################
 
   @property
@@ -90,6 +94,10 @@ class Worldlines( object ):
 
     return self._galids
 
+  @galids.deleter
+  def galids( self ):
+    del self._galids
+
   ########################################################################
 
   @property
@@ -99,6 +107,10 @@ class Worldlines( object ):
       self._classifications = analyze_classifications.Classifications( self.data_dir, self.classifications_tag )
 
     return self._classifications
+
+  @classifications.deleter
+  def classifications( self ):
+    del self._classifications
 
   ########################################################################
 
@@ -313,6 +325,7 @@ class Worldlines( object ):
     panel_plotting_method_str,
     defaults,
     variations,
+    slices = default,
     plot_label = default,
     outline_plot_label = False,
     label_galaxy_cut = True,
@@ -320,6 +333,7 @@ class Worldlines( object ):
     label_fontsize = 24,
     subplot_label_args = { 'xy' : (0.075, 0.88), 'xycoords' : 'axes fraction', 'fontsize' : 18, 'color' : 'w',  },
     subplot_spacing_args = { 'hspace' : 0.0001, 'wspace' : 0.0001, },
+    out_dir = None,
     ):
     '''
     Make a multi panel plot of the type of your choosing.
@@ -329,6 +343,7 @@ class Worldlines( object ):
       panel_plotting_method_str (str) : What type of plot to make.
       defaults (dict) : Default arguments to pass to panel_plotting_method.
       variations (dict of dicts) : Differences in plotting arguments per subplot.
+      slices (slice) : What slices to select. By default, this doesn't pass any slices argument to panel_plotting_method
       plot_label (str or dict) : What to label the plot with. By default, uses self.label.
         Can also pass a dict of full args.
       outline_plot_label (bool) : If True, add an outline around the plot label.
@@ -338,12 +353,16 @@ class Worldlines( object ):
       subplot_label_args (dict) : Label arguments to pass to each subplot for the label for the subplot.
         The actual label string itself corresponds to the keys in variations.
       subplot_spacing_args (dict) : How to space the subplots.
+      out_dir (str) : If given, where to save the file.
     '''
 
     fig = plt.figure( figsize=(10,9), facecolor='white', )
     ax = plt.gca()
 
     fig.subplots_adjust( **subplot_spacing_args )
+
+    if slices is not default:
+      defaults['slices'] = slices
 
     plotting_kwargs = utilities.dict_from_defaults_and_variations( defaults, variations )
 
@@ -413,6 +432,13 @@ class Worldlines( object ):
       axs[1].annotate( s=info_label, xy=(1.,1.0225), xycoords='axes fraction', fontsize=label_fontsize,
         ha='right' )
 
+    # Save the file
+    if out_dir is not None:
+      save_file = '{}_{:03d}.png'.format( self.label, self.ptracks.snum[slices] )
+      gen_plot.save_fig( out_dir, save_file, fig=fig )
+
+      plt.close()
+
   ########################################################################
 
   def make_multiple_plots( self,
@@ -422,6 +448,7 @@ class Worldlines( object ):
     n_processors = 1,
     out_dir = None,
     make_movie = False,
+    clear_data = False,
     *args, **kwargs ):
     '''Make multiple plots of a selected type. *args and **kwargs are passed to plotting_method_str.
 
@@ -432,6 +459,7 @@ class Worldlines( object ):
       n_processors (int) : Number of processors to use. Should only be used when saving the data.
       out_dir (str) : Where to save the data.
       make_movie (bool) : Make a movie out of the plots, if True.
+      clear_data (bool) : If True, clear memory of the data after making the plots.
     '''
     
     plotting_method = getattr( self, plotting_method_str )
@@ -467,6 +495,11 @@ class Worldlines( object ):
     if make_movie:
       gen_plot.make_movie( out_dir, '{}_*.png'.format( self.label ), '{}.mp4'.format( self.label ), )
 
+    if clear_data:
+      del self.ptracks
+      del self.galids
+      del self.classifications
+
 ########################################################################
 ########################################################################
 
@@ -478,6 +511,57 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     self.worldlines = worldlines
 
     super( WorldlineDataMasker, self ).__init__( self.worldlines.ptracks )
+
+  ########################################################################
+
+  def get_mask( self,
+    mask=default,
+    classification=None,
+    mask_after_first_acc=False,
+    mask_before_first_acc=False,
+    *args, **kwargs ):
+    '''Get a mask for the data.
+
+    Args:
+      mask (np.array) : Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to
+        empty).
+      classification (str) : If provided, only select particles that meet this classification, as given in
+        self.worldlines.classifications.data
+      mask_after_first_acc (bool) : If True, only select particles above first accretion.
+      mask_before_first_acc (bool) : If True, only select particles after first accretion.
+
+    Returns:
+      mask (bool np.ndarray) : Mask from all the combinations.
+    '''
+
+    used_masks = []
+    if mask is default:
+      used_masks += self.masks
+    else:
+      used_masks.append( mask )
+
+    if classification is not None:
+      cl_mask = np.invert( self.worldlines.classifications.data[classification] ) 
+      if classification != 'is_wind':
+        cl_mask = np.tile( cl_mask, (self.worldlines.n_snaps, 1) ).transpose()
+      used_masks.append( cl_mask )
+
+    if mask_after_first_acc or mask_before_first_acc:
+
+      assert not ( mask_after_first_acc and mask_before_first_acc ), "Attempted to mask both before and after first acc."
+
+      redshift_tiled = np.tile( self.worldlines.redshift, (self.worldlines.n_particles, 1) )
+      redshift_first_acc_tiled = np.tile( self.worldlines.classifications.data['redshift_first_acc'],
+                                          (self.worldlines.n_snaps, 1) ).transpose()
+      if mask_after_first_acc:
+        first_acc_mask = redshift_tiled <= redshift_first_acc_tiled
+      elif mask_before_first_acc:
+        first_acc_mask = redshift_tiled > redshift_first_acc_tiled
+      used_masks.append( first_acc_mask )
+
+    mask = np.any( used_masks, axis=0, keepdims=True )[0]
+
+    return mask
 
   ########################################################################
 
@@ -503,29 +587,12 @@ class WorldlineDataMasker( generic_data.DataMasker ):
       masked_data (np.array) : Flattened array of masked data.
     '''
 
-    used_masks = []
-    if mask is default:
-      used_masks += self.masks
-    else:
-      used_masks.append( mask )
-
-    if classification is not None:
-      cl_mask = np.invert( self.worldlines.classifications.data[classification] ) 
-      if classification != 'is_wind':
-        cl_mask = np.tile( cl_mask, (self.worldlines.n_snaps, 1) ).transpose()
-      used_masks.append( cl_mask )
-
-    if mask_after_first_acc or mask_before_first_acc:
-      redshift_tiled = np.tile( self.worldlines.redshift, (self.worldlines.n_particles, 1) )
-      redshift_first_acc_tiled = np.tile( self.worldlines.classifications.data['redshift_first_acc'],
-                                          (self.worldlines.n_snaps, 1) ).transpose()
-      if mask_after_first_acc:
-        first_acc_mask = redshift_tiled <= redshift_first_acc_tiled
-      if mask_before_first_acc:
-        first_acc_mask = redshift_tiled > redshift_first_acc_tiled
-      used_masks.append( first_acc_mask )
-
-    used_mask = np.any( used_masks, axis=0, keepdims=True )[0]
+    used_mask = self.get_mask(
+      mask=mask,
+      classification=classification,
+      mask_after_first_acc=mask_after_first_acc,
+      mask_before_first_acc=mask_before_first_acc,
+    )
 
     masked_data = super( WorldlineDataMasker, self ).get_masked_data( data_key, mask=used_mask, *args, **kwargs )
 
