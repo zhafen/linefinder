@@ -23,6 +23,7 @@ import galaxy_diver.plot_data.pu_colormaps as pu_cm
 import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
 
+import analyze_ids
 import analyze_ptracks
 import analyze_galids
 import analyze_classifications
@@ -42,6 +43,7 @@ class Worldlines( object ):
   def __init__( self,
     data_dir,
     tag,
+    ids_tag = default,
     ptracks_tag = default,
     galids_tag = default,
     classifications_tag = default,
@@ -51,12 +53,15 @@ class Worldlines( object ):
     Args:
       data_dir (str) : Data directory for the classified data
       tag (str) : Identifying tag for the data to load.
+      ids_tag (str) : Identifying tag for ids data.
       ptracks_tag (str) : Identifying tag for ptracks data.
       galids_tag (str) : Identifying tag for galids data.
       classifications_tag (str) : Identifying tag for classifications data.
       label (str) : Identifying label for the worldlines.
     '''
 
+    if ids_tag is default:
+      ids_tag = tag
     if ptracks_tag is default:
       ptracks_tag = tag
     if galids_tag is default:
@@ -70,6 +75,20 @@ class Worldlines( object ):
 
   ########################################################################
   # Properties for loading data on the fly
+  ########################################################################
+
+  @property
+  def ids( self ):
+
+    if not hasattr( self, '_ids' ):
+      self._ids = analyze_ids.IDs( self.data_dir, self.ids_tag, )
+
+    return self._ids
+
+  @ids.deleter
+  def ids( self ):
+    del self._ids
+
   ########################################################################
 
   @property

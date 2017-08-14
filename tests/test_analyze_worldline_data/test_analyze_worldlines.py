@@ -39,6 +39,12 @@ class TestWorldlines( unittest.TestCase ):
 
   ########################################################################
 
+  def test_load_ids( self ):
+
+    assert self.worldlines.ids.parameters['tag'] == tag
+
+  ########################################################################
+
   def test_load_ptracks( self ):
 
     assert self.worldlines.ptracks.parameters['tag'] == tag
