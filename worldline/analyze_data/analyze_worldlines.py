@@ -36,7 +36,7 @@ default = object()
 ########################################################################
 ########################################################################
 
-class Worldlines( object ):
+class Worldlines( generic_data.GenericData ):
   '''Wrapper for analysis of all worldline data products. It loads data in on-demand.
   '''
 
@@ -73,6 +73,12 @@ class Worldlines( object ):
     for arg in locals().keys():
       setattr( self, arg, locals()[arg] )
 
+    self.ptracks_kwargs = dict( kwargs )
+
+    data_masker = WorldlineDataMasker( self )
+
+    super( Worldlines, self ).__init__( data_masker=data_masker, **kwargs )
+
   ########################################################################
   # Properties for loading data on the fly
   ########################################################################
@@ -95,7 +101,8 @@ class Worldlines( object ):
   def ptracks( self ):
 
     if not hasattr( self, '_ptracks' ):
-      self._ptracks = analyze_ptracks.PTracks( self.data_dir, self.ptracks_tag, store_ahf_reader=True, **self.kwargs )
+      self._ptracks = analyze_ptracks.PTracks( self.data_dir, self.ptracks_tag, store_ahf_reader=True,
+                                               **self.ptracks_kwargs )
 
     return self._ptracks
 
@@ -134,12 +141,9 @@ class Worldlines( object ):
   ########################################################################
 
   @property
-  def data_masker( self ):
-  
-    if not hasattr( self, '_data_masker' ):
-      self._data_masker = WorldlineDataMasker( self )
+  def base_data_shape( self ):
 
-    return self._data_masker
+    return self.ptracks.base_data_shape
 
   ########################################################################
 
@@ -189,15 +193,18 @@ class Worldlines( object ):
   ########################################################################
 
   def get_data( self, data_key, *args, **kwargs ):
+    '''Get data. Usually just get it from ptracks. args and kwargs are passed to self.ptracks.get_data()
 
-    pass
+    Args:
+      data_key (str) : What data to get?
 
-  ########################################################################
+    Returns:
+      data (np.ndarray) : Array of data.
+    '''
 
-  def get_masked_data(  self, *args, **kwargs ):
-    '''Wrapper for masking data.'''
+    data = self.ptracks.get_data( data_key, *args, **kwargs )
 
-    return self.data_masker.get_masked_data( *args, **kwargs )
+    return data
 
   ########################################################################
   # Plotting
@@ -533,9 +540,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
   def __init__( self, worldlines ):
 
-    self.worldlines = worldlines
-
-    super( WorldlineDataMasker, self ).__init__( self.worldlines.ptracks )
+    super( WorldlineDataMasker, self ).__init__( worldlines )
 
   ########################################################################
 
@@ -552,7 +557,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
       mask (np.array) : Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to
         empty).
       classification (str) : If provided, only select particles that meet this classification, as given in
-        self.worldlines.classifications.data
+        self.data_object.classifications.data
       mask_after_first_acc (bool) : If True, only select particles above first accretion.
       mask_before_first_acc (bool) : If True, only select particles after first accretion.
       preserve_mask_shape (bool) : If True, don't tile masks that are single dimensional, and one per particle.
@@ -567,24 +572,24 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     else:
       
       # Tile mask if it's single-dimensional
-      if ( not preserve_mask_shape ) and ( mask.shape == ( self.worldlines.n_particles, ) ):
-        mask = np.tile( mask, (self.worldlines.n_snaps, 1 ) ).transpose()
+      if ( not preserve_mask_shape ) and ( mask.shape == ( self.data_object.n_particles, ) ):
+        mask = np.tile( mask, (self.data_object.n_snaps, 1 ) ).transpose()
 
       used_masks.append( mask )
 
     if classification is not None:
-      cl_mask = np.invert( self.worldlines.classifications.data[classification] ) 
+      cl_mask = np.invert( self.data_object.classifications.data[classification] ) 
       if classification != 'is_wind':
-        cl_mask = np.tile( cl_mask, (self.worldlines.n_snaps, 1) ).transpose()
+        cl_mask = np.tile( cl_mask, (self.data_object.n_snaps, 1) ).transpose()
       used_masks.append( cl_mask )
 
     if mask_after_first_acc or mask_before_first_acc:
 
       assert not ( mask_after_first_acc and mask_before_first_acc ), "Attempted to mask both before and after first acc."
 
-      redshift_tiled = np.tile( self.worldlines.redshift, (self.worldlines.n_particles, 1) )
-      redshift_first_acc_tiled = np.tile( self.worldlines.classifications.data['redshift_first_acc'],
-                                          (self.worldlines.n_snaps, 1) ).transpose()
+      redshift_tiled = np.tile( self.data_object.redshift, (self.data_object.n_particles, 1) )
+      redshift_first_acc_tiled = np.tile( self.data_object.classifications.data['redshift_first_acc'],
+                                          (self.data_object.n_snaps, 1) ).transpose()
       if mask_after_first_acc:
         first_acc_mask = redshift_tiled <= redshift_first_acc_tiled
       elif mask_before_first_acc:
@@ -612,7 +617,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
       mask (np.array) : Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to
         empty).
       classification (str) : If provided, only select particles that meet this classification, as given in
-        self.worldlines.classifications.data
+        self.data_object.classifications.data
       mask_after_first_acc (bool) : If True, only select particles above first accretion.
       mask_before_first_acc (bool) : If True, only select particles after first accretion.
 

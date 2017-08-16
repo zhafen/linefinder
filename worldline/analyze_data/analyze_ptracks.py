@@ -10,12 +10,12 @@ import h5py
 import numpy as np
 import os
 
-import galaxy_diver.analyze_data.generic_data as generic_data
+import galaxy_diver.analyze_data.simulation_data as simulation_data
 
 ########################################################################
 ########################################################################
 
-class PTracks( generic_data.TimeData ):
+class PTracks( simulation_data.TimeData ):
   '''Loads and analyzes data created by galaxy_find.py
   '''
 
