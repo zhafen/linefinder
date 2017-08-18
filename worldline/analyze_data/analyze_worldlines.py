@@ -47,17 +47,17 @@ class Worldlines( generic_data.GenericData ):
     ptracks_tag = default,
     galids_tag = default,
     classifications_tag = default,
-    label = None,
+    label = default,
     **kwargs ):
     '''
     Args:
       data_dir (str) : Data directory for the classified data
       tag (str) : Identifying tag for the data to load.
-      ids_tag (str) : Identifying tag for ids data.
-      ptracks_tag (str) : Identifying tag for ptracks data.
-      galids_tag (str) : Identifying tag for galids data.
-      classifications_tag (str) : Identifying tag for classifications data.
-      label (str) : Identifying label for the worldlines.
+      ids_tag (str) : Identifying tag for ids data. Defaults to tag.
+      ptracks_tag (str) : Identifying tag for ptracks data. Defaults to tag.
+      galids_tag (str) : Identifying tag for galids data. Defaults to tag.
+      classifications_tag (str) : Identifying tag for classifications data. Defaults to tag.
+      label (str) : Identifying label for the worldlines. Defaults to tag.
     '''
 
     if ids_tag is default:
@@ -68,6 +68,9 @@ class Worldlines( generic_data.GenericData ):
       galids_tag = tag
     if classifications_tag is default:
       classifications_tag = tag
+
+    if label is default:
+      label = tag
 
     # Store the arguments
     for arg in locals().keys():
@@ -182,7 +185,7 @@ class Worldlines( generic_data.GenericData ):
   def get_parameters( self ):
 
     parameters = {}
-    for data in [ 'ptracks', 'galids', 'classifications' ]:
+    for data in [ 'ids', 'ptracks', 'galids', 'classifications' ]:
 
       parameters[data] = getattr( self, data ).parameters
 
