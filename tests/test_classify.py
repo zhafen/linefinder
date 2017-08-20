@@ -595,8 +595,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     npt.assert_allclose( expected, actual, )
 
-  #########################################################################
-
+########################################################################
 ########################################################################
 
 class TestFullClassifierPipeline( unittest.TestCase ):
@@ -610,9 +609,12 @@ class TestFullClassifierPipeline( unittest.TestCase ):
     self.classifier = classify.Classifier( **default_kwargs )
 
     self.savefile = './tests/data/tracking_output/classifications_test_classify.hdf5'
+    self.events_savefile = './tests/data/tracking_output/events_test_classify.hdf5'
 
     if os.path.isfile( self.savefile ):
       os.system( 'rm {}'.format( self.savefile ) )
+    if os.path.isfile( self.events_savefile ):
+      os.system( 'rm {}'.format( self.events_savefile ) )
 
   ########################################################################
 
@@ -620,6 +622,8 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
     if os.path.isfile( self.savefile ):
       os.system( 'rm {}'.format( self.savefile ) )
+    if os.path.isfile( self.events_savefile ):
+      os.system( 'rm {}'.format( self.events_savefile ) )
 
   ########################################################################
 
@@ -665,13 +669,41 @@ class TestFullClassifierPipeline( unittest.TestCase ):
     self.classifier.redshift_first_acc = np.array([ 0., -1., 0.06984665, -1. ])
 
     # The function itself.
-    self.classifier.save_classifications()
+    self.classifier.save_classifications( self.classifier.classifications_to_save )
 
     # Try to load the data
     f = h5py.File( self.savefile, 'r')
     
     npt.assert_allclose( self.classifier.is_pristine, f['is_pristine'][...] )
 
+  ########################################################################
+
+  def test_save_events( self ):
+
+    self.classifier.is_ejected = np.array([
+      [ 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      [ 1, 0, 1, 0, ], # Another test case
+      ]).astype( bool )
+    self.classifier.is_in_other_gal = np.array([
+      [ 0, 1, 1, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.is_in_main_gal = np.array([
+      [ 1, 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 1, 1, 1, 1, 1, ], # Always part of main galaxy
+      [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.redshift_first_acc = np.array([ 0., np.nan, 0.06984665, 0.16946003 ])
+
+    self.classifier.save_events( self.classifier.events_to_save )
+
+    f = h5py.File( self.events_savefile, 'r' )
+
+    for event_type in [ 'is_ejected', 'is_in_other_gal', 'is_in_main_gal', 'redshift_first_acc', ]:
+      assert event_type in f.keys()
 
   ########################################################################
 

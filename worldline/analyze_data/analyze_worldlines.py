@@ -27,6 +27,7 @@ import analyze_ids
 import analyze_ptracks
 import analyze_galids
 import analyze_classifications
+import analyze_events
 
 ########################################################################
 
@@ -47,6 +48,7 @@ class Worldlines( generic_data.GenericData ):
     ptracks_tag = default,
     galids_tag = default,
     classifications_tag = default,
+    events_tag = default,
     label = default,
     **kwargs ):
     '''
@@ -57,6 +59,7 @@ class Worldlines( generic_data.GenericData ):
       ptracks_tag (str) : Identifying tag for ptracks data. Defaults to tag.
       galids_tag (str) : Identifying tag for galids data. Defaults to tag.
       classifications_tag (str) : Identifying tag for classifications data. Defaults to tag.
+      events_tag (str) : Identifying tag for events data. Defaults to tag.
       label (str) : Identifying label for the worldlines. Defaults to tag.
     '''
 
@@ -68,6 +71,8 @@ class Worldlines( generic_data.GenericData ):
       galids_tag = tag
     if classifications_tag is default:
       classifications_tag = tag
+    if events_tag is default:
+      events_tag = tag
 
     if label is default:
       label = tag
@@ -140,6 +145,20 @@ class Worldlines( generic_data.GenericData ):
   @classifications.deleter
   def classifications( self ):
     del self._classifications
+
+  ########################################################################
+
+  @property
+  def events( self ):
+
+    if not hasattr( self, '_events' ):
+      self._events = analyze_events.Events( self.data_dir, self.events_tag )
+
+    return self._events
+
+  @events.deleter
+  def events( self ):
+    del self._events
 
   ########################################################################
 
@@ -591,7 +610,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
       assert not ( mask_after_first_acc and mask_before_first_acc ), "Attempted to mask both before and after first acc."
 
       redshift_tiled = np.tile( self.data_object.redshift, (self.data_object.n_particles, 1) )
-      redshift_first_acc_tiled = np.tile( self.data_object.classifications.data['redshift_first_acc'],
+      redshift_first_acc_tiled = np.tile( self.data_object.events.data['redshift_first_acc'],
                                           (self.data_object.n_snaps, 1) ).transpose()
       if mask_after_first_acc:
         first_acc_mask = redshift_tiled <= redshift_first_acc_tiled

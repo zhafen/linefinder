@@ -74,8 +74,9 @@ classifier_kwargs = {
 }
 
 ptracks_filename = os.path.join( outdir, 'ptracks_analyze.hdf5' )
-classifications_filename = os.path.join( outdir, 'classifications_analyze.hdf5' )
 galids_filename = os.path.join( outdir, 'galids_analyze.hdf5' )
+classifications_filename = os.path.join( outdir, 'classifications_analyze.hdf5' )
+events_filename = os.path.join( outdir, 'events_analyze.hdf5' )
 
 ########################################################################
 
@@ -93,7 +94,7 @@ class TestFullWorldline( unittest.TestCase ):
 
   def setUp( self ):
 
-    for filename in [ ptracks_filename, galids_filename, classifications_filename ]:
+    for filename in [ ptracks_filename, galids_filename, classifications_filename, events_filename ]:
       if os.path.isfile( filename ):
         os.remove( filename )
 

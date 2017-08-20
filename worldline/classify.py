@@ -27,17 +27,21 @@ class Classifier( object ):
   '''
 
   def __init__( self,
-                not_in_main_gal_key='gal_id',
-                classifications_to_save=[ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer',
-                  'is_wind', 'redshift_first_acc', ],
-                **kwargs ):
+    not_in_main_gal_key = 'gal_id',
+    classifications_to_save = [ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', ],
+    write_events = True,
+    events_to_save = [ 'is_in_other_gal', 'is_in_main_gal', 'is_ejected', 'redshift_first_acc' ],
+    **kwargs ):
     '''Setup the ID Finder.
 
     Args:
-      not_in_main_gal_key (str): The galaxy_finder data key used to identify when not in a main galaxy.
+      not_in_main_gal_key (str) : The galaxy_finder data key used to identify when not in a main galaxy.
         'gal_id' is the default, meaning if a particle is in the main galaxy and isn't inside another galaxy then it's
           counted as in part of the main galaxy.
         Another potential option is 'halo_id'.
+      classifications_to_save (list of strs) : What classifications to write to a file.
+      write_events (bool) : Whether or not to save events in a particle's history to a file, e.g. when it's ejected.
+      events_to_save (list of strs) : What events to write to a file.
 
     Keyword Args:
       Data Parameters:
@@ -117,7 +121,9 @@ class Classifier( object ):
     self.is_wind = self.identify_wind()
 
     # Save the results
-    self.save_classifications()
+    self.save_classifications( self.classifications_to_save )
+    if self.write_events:
+      self.save_events( self.events_to_save )
 
     # Print out end information
     time_end = time.time()
@@ -166,8 +172,8 @@ class Classifier( object ):
       galfind_tag = self.kwargs['tag']
 
     # Load Particle Tracking and Galaxy Finding Data
-    self.ptrack_filename =  'ptracks_{}.hdf5'.format( ptrack_tag )
-    self.galfind_filename =  'galids_{}.hdf5'.format( galfind_tag )
+    self.ptrack_filename = 'ptracks_{}.hdf5'.format( ptrack_tag )
+    self.galfind_filename = 'galids_{}.hdf5'.format( galfind_tag )
     load_data_into_ptrack( self.ptrack_filename )
     load_data_into_ptrack( self.galfind_filename )
 
@@ -181,11 +187,11 @@ class Classifier( object ):
 
   ########################################################################
 
-  def save_classifications( self,  ):
+  def save_classifications( self, classifications_to_save ):
     '''Save the results of running the classifier.
 
     Args:
-      classifications_to_save (list of str): A list of the attributes you want to save.
+      classifications_to_save (list of strs) : What classifications to save to the file.
     '''
 
     # Open up the file to save the data in.
@@ -194,10 +200,44 @@ class Classifier( object ):
     f = h5py.File( self.classification_filepath, 'a' )
 
     # Save the data
-    for classification in self.classifications_to_save:
+    for classification in classifications_to_save:
 
       data = getattr( self, classification )
       f.create_dataset( classification, data=data )
+
+    # Save the data parameters
+    grp = f.create_group('parameters')
+    for key in self.kwargs.keys():
+      grp.attrs[key] = self.kwargs[key]
+
+    # Save the arguments
+    grp.attrs['not_in_main_gal_key'] = self.not_in_main_gal_key
+
+    # Save the current code versions
+    f.attrs['worldline_version'] = utilities.get_code_version( self )
+    f.attrs['galaxy_diver_version'] = utilities.get_code_version( read_ahf, instance_type='module' )
+
+    f.close()
+
+  ########################################################################
+
+  def save_events( self, events_to_save ):
+    '''Save the particular events, identified during the classification process.
+
+    Args:
+      events_to_save (list of strs) : What events to save to the file.
+    '''
+
+    # Open up the file to save the data in.
+    events_filename =  'events_{}.hdf5'.format( self.kwargs['tag'] )
+    self.events_filepath = os.path.join( self.kwargs['tracking_dir'], events_filename )
+    f = h5py.File( self.events_filepath, 'a' )
+
+    # Save the data
+    for event_type in events_to_save:
+
+      data = getattr( self, event_type )
+      f.create_dataset( event_type, data=data )
 
     # Save the data parameters
     grp = f.create_group('parameters')
@@ -221,12 +261,15 @@ class Classifier( object ):
     '''Get the radial velocity of particles, relative to the main galaxy.
 
     Returns:
-      v_r ( [n_particle, n_snap] np.array ) : The radial velocity of each particle at that redshift, relative to the main galaxy.
+      v_r ( [n_particle, n_snap] np.array ) : The radial velocity of each particle at that redshift,
+        relative to the main galaxy.
     '''
 
     # Get the position and velocity of the main galaxy
-    main_mt_halo_p = self.ahf_reader.get_pos_or_vel( 'pos', self.ptrack_attrs[ 'main_mt_halo_id' ], self.ptrack[ 'snum' ] )
-    main_mt_halo_v = self.ahf_reader.get_pos_or_vel( 'vel', self.ptrack_attrs[ 'main_mt_halo_id' ], self.ptrack[ 'snum' ] )
+    main_mt_halo_p = self.ahf_reader.get_pos_or_vel( 'pos', self.ptrack_attrs[ 'main_mt_halo_id' ],
+                                                     self.ptrack[ 'snum' ] )
+    main_mt_halo_v = self.ahf_reader.get_pos_or_vel( 'vel', self.ptrack_attrs[ 'main_mt_halo_id' ],
+                                                     self.ptrack[ 'snum' ] )
 
     # Apply cosmological corrections to the position of the main galaxy
     main_mt_halo_p *= 1./( 1. + self.ptrack['redshift'][:,np.newaxis] )/self.ptrack_attrs['hubble']
@@ -243,8 +286,8 @@ class Classifier( object ):
 
       # Add the hubble flow.
       hubble_factor = astro_tools.hubble_parameter( self.ptrack['redshift'][i], h=self.ptrack_attrs['hubble'],
-                                            omega_matter=self.ptrack_attrs['omega_matter'],
-                                            omega_lambda=self.ptrack_attrs['omega_lambda'], units='1/s' )
+                                                    omega_matter=self.ptrack_attrs['omega_matter'],
+                                                    omega_lambda=self.ptrack_attrs['omega_lambda'], units='1/s' )
       v_r_i += hubble_factor * r_i * constants.UNITLENGTH_IN_CM  / constants.UNITVELOCITY_IN_CM_PER_S  
 
       v_r.append( v_r_i )
