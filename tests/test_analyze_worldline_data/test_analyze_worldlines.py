@@ -65,7 +65,7 @@ class TestWorldlines( unittest.TestCase ):
 
   def test_get_parameters( self ):
 
-    data_types = [ 'ptracks', 'galids', 'classifications' ]
+    data_types = [ 'ids', 'ptracks', 'galids', 'classifications' ]
     expected = {}
     for data_type in data_types:
       filename = '{}_analyze.hdf5'.format( data_type )
