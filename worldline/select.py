@@ -393,6 +393,17 @@ class IDSampler( object ):
 
   ########################################################################
 
+  def identify_child_particles( self ):
+
+    split = np.where( self.f['target_child_ids'][...] != 0 )[0]
+
+    split_ids = self.f['target_ids'][...][split]
+    split_child_ids = self.f['target_child_ids'][...][split]
+
+    return utilities.arrays_to_set( split_ids, split_child_ids )
+
+  ########################################################################
+
   def identify_duplicate_ids( self ):
     '''Get all IDs that have duplicates at the latest snapshot. This draws data from the same sample as the original.
     

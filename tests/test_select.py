@@ -586,6 +586,19 @@ class TestIDSampler( unittest.TestCase ):
     
   ########################################################################
 
+  def test_identify_child_particles( self ):
+
+    # Create some child ids
+    self.id_sampler.f['target_child_ids'] = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
+
+    actual = self.id_sampler.identify_child_particles()
+
+    expected = set( [ ( 0, 4, ), ( 1573, 2 ), ( 12, 8, ) ] )
+
+    self.assertEqual( expected, actual )
+
+  ########################################################################
+
   def test_choose_sample_inds_no_split( self ):
 
     self.id_sampler.ignore_child_particles = True
