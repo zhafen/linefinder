@@ -523,7 +523,7 @@ class TestIDSamplerNoSetUp( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.filepath = os.path.join( id_samper_kwargs['sdir'], 'ids_test.hdf5' )
+    self.filepath = os.path.join( id_sampler_kwargs['sdir'], 'ids_test.hdf5' )
     self.id_sampler = select.IDSampler( **id_sampler_kwargs )
 
     if os.path.isfile( self.filepath ):
@@ -721,6 +721,7 @@ class TestIDSampler( unittest.TestCase ):
 
   def test_save_sampled_ids( self ):
 
+    self.id_sampler.ids_to_sample = np.array([       0, 10952235,       15,     1573, 36091289,   123456,       12])
     self.id_sampler.sample_inds =  np.array([ 1, 2, 4, ])
 
     self.id_sampler.save_sampled_ids()
@@ -739,7 +740,9 @@ class TestIDSampler( unittest.TestCase ):
 
   def test_save_sampled_ids_child_ids( self ):
 
+    self.id_sampler.ids_to_sample = np.array([       0, 10952235,       15,     1573, 36091289,   123456,       12])
     self.id_sampler.f['target_child_ids'] = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
+    self.id_sampler.child_ids_to_sample = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
     self.id_sampler.sample_inds =  np.array([ 0, 1, 4, ])
 
     self.id_sampler.save_sampled_ids()

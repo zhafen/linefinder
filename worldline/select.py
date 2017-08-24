@@ -358,15 +358,19 @@ class IDSampler( object ):
     print( "########################################################################" )
     sys.stdout.flush()
 
-    print( "Copying and opening full ids" )
+    print( "Copying and opening full ids..." )
     sys.stdout.flush()
     self.copy_and_open_full_ids()
 
-    print( "Choosing sample indices" )
+    print( "Choosing particles to sample..." )
+    sys.stdout.flush()
+    self.choose_particles_to_sample()
+
+    print( "Choosing sample indices..." )
     sys.stdout.flush()
     self.choose_sample_inds()
 
-    print( "Saving data" )
+    print( "Saving data..." )
     sys.stdout.flush()
     self.save_sampled_ids()
 
@@ -446,26 +450,36 @@ class IDSampler( object ):
       self.child_ids_to_sample (np.ndarray, optional) : An array of the child IDs to sample.
     '''
 
-    # Get the IDs in the right format.
-    if 'target_child_ids' in self.f.keys():
-      ids_set = utilities.arrays_to_set( self.f['target_ids'][...], self.f['target_child_ids'][...] )
+    if self.ignore_duplicates or self.ignore_child_particles:
+
+      # Get the IDs in the right format.
+      if 'target_child_ids' in self.f.keys():
+        ids_set = utilities.arrays_to_set( self.f['target_ids'][...], self.f['target_child_ids'][...] )
+      else:
+        ids_set =  set( self.f['target_ids'][...] )
+
+      if self.ignore_duplicates:
+        print( "  Removing duplicate particles..." )
+        ids_set -= self.identify_duplicate_ids()
+
+      if self.ignore_child_particles:
+        print( "  Removing particles with non-zero child IDs..." )
+        ids_set -= self.identify_child_particles()
+
+      assert not ( self.ignore_child_particles and self.ignore_duplicates ), \
+        "Code currently cannot handle both ignoring child particles and ignoring duplicates."
+
+      # Store the data again
+      if 'target_child_ids' in self.f.keys():
+        self.ids_to_sample, self.child_ids_to_sample = utilities.set_to_arrays( ids_set )
+      else:
+        self.ids_to_sample = np.array( list( ids_set ) )
+
     else:
-      ids_set =  set( self.f['target_ids'][...] )
 
-    if self.ignore_duplicates:
-      ids_set -= self.identify_duplicate_ids()
-
-    if self.ignore_child_particles:
-      ids_set -= self.identify_child_particles()
-
-    assert not ( self.ignore_child_particles and self.ignore_duplicates ), \
-      "Code currently cannot handle both ignoring child particles and ignoring duplicates."
-
-    # Store the data again
-    if 'target_child_ids' in self.f.keys():
-      self.ids_to_sample, self.child_ids_to_sample = utilities.set_to_arrays( ids_set )
-    else:
-      self.ids_to_sample = np.array( list( ids_set ) )
+      self.ids_to_sample = self.f['target_ids'][...]
+      if 'target_child_ids' in self.f.keys():
+        self.child_ids_to_sample = self.f['target_child_ids'][...]
 
   ########################################################################
 
@@ -478,7 +492,7 @@ class IDSampler( object ):
 
     inds = np.array( range( self.ids_to_sample.size ) )
 
-    self.sample_inds = np.random.choice( viable_inds, self.n_samples, replace=False )
+    self.sample_inds = np.random.choice( inds, self.n_samples, replace=False )
 
   ########################################################################
 
@@ -492,12 +506,12 @@ class IDSampler( object ):
     # Save the total number of particles in the original
     self.f.attrs['n_particles'] = self.f['target_ids'].size
 
-    target_ids_to_save = self.f['target_ids'][...][self.sample_inds]
+    target_ids_to_save = self.ids_to_sample[self.sample_inds]
     del self.f['target_ids']
     self.f['target_ids'] = target_ids_to_save
 
     if 'target_child_ids' in self.f.keys():
-      target_child_ids_to_save = self.f['target_child_ids'][...][self.sample_inds]
+      target_child_ids_to_save = self.child_ids_to_sample[self.sample_inds]
       del self.f['target_child_ids']
       self.f['target_child_ids'] = target_child_ids_to_save
 
@@ -505,6 +519,8 @@ class IDSampler( object ):
     self.f['parameters'].attrs['ignore_child_particles'] = self.ignore_child_particles
     self.f['parameters'].attrs['ignore_duplicates'] = self.ignore_duplicates
     self.f['parameters'].attrs['sampled_from_full_id_list'] = True
+
+    self.f.close()
 
 
 
