@@ -8,12 +8,14 @@
 
 import copy
 import h5py
-from mock import call, patch
+import mock
 import numpy as np
 import numpy.testing as npt
 import os
 import pdb
 import unittest
+
+import galaxy_diver.analyze_data.particle_data as particle_data
 
 from worldline import select
 
@@ -188,7 +190,7 @@ class TestIDSelector( unittest.TestCase ):
   def setUp( self ):
 
     # Mock the code version so we don't repeatedly change test data
-    patcher = patch( 'galaxy_diver.utils.utilities.get_code_version' )
+    patcher = mock.patch( 'galaxy_diver.utils.utilities.get_code_version' )
     self.addCleanup( patcher.stop )
     self.mock_code_version = patcher.start()
 
@@ -207,8 +209,8 @@ class TestIDSelector( unittest.TestCase ):
 
   ########################################################################
 
-  @patch( 'worldline.select.SnapshotIDSelector.__init__' )
-  @patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
+  @mock.patch( 'worldline.select.SnapshotIDSelector.__init__' )
+  @mock.patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
   def test_get_selected_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
     # Mock setup
@@ -224,7 +226,7 @@ class TestIDSelector( unittest.TestCase ):
     call_kwargs[1]['ptype'] = 4
     call_kwargs[2]['ptype'] = 0
     call_kwargs[3]['ptype'] = 4
-    calls = [ call( **call_kwarg ) for call_kwarg in call_kwargs ]
+    calls = [ mock.call( **call_kwarg ) for call_kwarg in call_kwargs ]
 
     # Actually run the thing
     actual = self.id_selector.get_selected_ids( default_data_filters )
@@ -235,8 +237,8 @@ class TestIDSelector( unittest.TestCase ):
 
   ########################################################################
 
-  @patch( 'worldline.select.SnapshotIDSelector.__init__' )
-  @patch( 'worldline.select.IDSelector.get_selected_ids_snapshot' )
+  @mock.patch( 'worldline.select.SnapshotIDSelector.__init__' )
+  @mock.patch( 'worldline.select.IDSelector.get_selected_ids_snapshot' )
   def test_get_selected_ids_parallel( self, mock_get_selected_ids_snapshot, mock_constructor, ):
 
     self.id_selector.n_processors = 2
@@ -267,7 +269,7 @@ class TestIDSelector( unittest.TestCase ):
     call_kwargs[1]['ptype'] = 4
     call_kwargs[2]['ptype'] = 0
     call_kwargs[3]['ptype'] = 4
-    calls = [ call( **call_kwarg ) for call_kwarg in call_kwargs ]
+    calls = [ mock.call( **call_kwarg ) for call_kwarg in call_kwargs ]
 
     # Actually run the thing
     actual = self.id_selector.get_selected_ids_parallel( default_data_filters )
@@ -288,7 +290,7 @@ class TestIDSelector( unittest.TestCase ):
 
   def test_save_selected_ids( self ):
 
-    # Make sure there's nothing in our way, bwahahaah
+    # Make sure there's nothing in our way, bwahahah
     ids_filepath = './tests/data/tracking_output/ids_full_test.hdf5'
     if os.path.isfile( ids_filepath ):
       os.system( 'rm {}'.format( ids_filepath ) )
@@ -322,11 +324,11 @@ class TestIDSelector( unittest.TestCase ):
 
   ########################################################################
 
-  @patch( 'worldline.select.SnapshotIDSelector.__init__' )
-  @patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
+  @mock.patch( 'worldline.select.SnapshotIDSelector.__init__' )
+  @mock.patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
   def test_select_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
-    # Make sure there's nothing in our way, bwahahaah
+    # Make sure there's nothing in our way, bwahahah
     ids_filepath = './tests/data/tracking_output/ids_full_test.hdf5'
     if os.path.isfile( ids_filepath ):
       os.system( 'rm {}'.format( ids_filepath ) )
@@ -344,7 +346,7 @@ class TestIDSelector( unittest.TestCase ):
     call_kwargs[1]['ptype'] = 4
     call_kwargs[2]['ptype'] = 0
     call_kwargs[3]['ptype'] = 4
-    calls = [ call( **call_kwarg ) for call_kwarg in call_kwargs ]
+    calls = [ mock.call( **call_kwarg ) for call_kwarg in call_kwargs ]
 
     # Actually run it
     self.id_selector.select_ids( default_data_filters )
@@ -381,7 +383,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
   def setUp( self ):
 
     # Mock the code version so we don't repeatedly change test data
-    patcher = patch( 'galaxy_diver.utils.utilities.get_code_version' )
+    patcher = mock.patch( 'galaxy_diver.utils.utilities.get_code_version' )
     self.addCleanup( patcher.stop )
     self.mock_code_version = patcher.start()
 
@@ -399,8 +401,8 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
 
   ########################################################################
 
-  @patch( 'worldline.select.SnapshotIDSelector.__init__' )
-  @patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
+  @mock.patch( 'worldline.select.SnapshotIDSelector.__init__' )
+  @mock.patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
   def test_get_selected_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
     # Mock setup
@@ -416,7 +418,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
     call_kwargs[1]['ptype'] = 4
     call_kwargs[2]['ptype'] = 0
     call_kwargs[3]['ptype'] = 4
-    calls = [ call( **call_kwarg ) for call_kwarg in call_kwargs ]
+    calls = [ mock.call( **call_kwarg ) for call_kwarg in call_kwargs ]
 
     # Actually run the thing
     actual = self.id_selector.get_selected_ids( default_data_filters )
@@ -427,8 +429,8 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
 
   ########################################################################
 
-  @patch( 'worldline.select.SnapshotIDSelector.__init__' )
-  @patch( 'worldline.select.IDSelector.get_selected_ids_snapshot' )
+  @mock.patch( 'worldline.select.SnapshotIDSelector.__init__' )
+  @mock.patch( 'worldline.select.IDSelector.get_selected_ids_snapshot' )
   def test_get_selected_ids_parallel( self, mock_get_selected_ids_snapshot, mock_constructor, ):
 
     self.id_selector.n_processors = 2
@@ -459,7 +461,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
     call_kwargs[1]['ptype'] = 4
     call_kwargs[2]['ptype'] = 0
     call_kwargs[3]['ptype'] = 4
-    calls = [ call( **call_kwarg ) for call_kwarg in call_kwargs ]
+    calls = [ mock.call( **call_kwarg ) for call_kwarg in call_kwargs ]
 
     # Actually run the thing
     actual = self.id_selector.get_selected_ids_parallel( default_data_filters )
@@ -480,7 +482,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
 
   def test_save_selected_ids( self ):
 
-    # Make sure there's nothing in our way, bwahahaah
+    # Make sure there's nothing in our way, bwahahah
     ids_filepath = './tests/data/tracking_output/ids_full_test.hdf5'
     if os.path.isfile( ids_filepath ):
       os.system( 'rm {}'.format( ids_filepath ) )
@@ -595,6 +597,62 @@ class TestIDSampler( unittest.TestCase ):
     
     expected = np.array([ 1, 2, 4, ])
     actual = self.id_sampler.sample_inds
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
+  def test_choose_sample_inds_no_duplicates( self, mock_find_duplicate_ids ):
+  
+    self.id_sampler.ignore_duplicates = True
+
+    self.id_sampler.ref_snap_args = {
+      'sdir' : './tests/data/test_data_with_new_id_scheme/',
+      'snum' : 600,
+      'ptype' : 0,
+    }
+
+    expected = np.array([ 1, 2, 4, ])
+    actual = self.id_sampler.sample_inds
+    npt.assert_allclose( expected, actual )
+
+    assert False, "Need to do."
+
+  ########################################################################
+
+  @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.__init__' )
+  def test_identify_duplicate_ids_load_correct_data( self, mock_p_data ):
+
+    mock_p_data.side_effect = [ None, None, ]
+
+    actual = self.id_sampler.identify_duplicate_ids()
+
+    expected_kwargs = dict( default_snap_kwargs )
+    del expected_kwargs['ahf_data_dir']
+    expected_kwargs['load_additional_ids'] = True
+    expected_kwargs['snum'] = 600
+    expected_kwargs['analysis_dir'] = default_snap_kwargs['ahf_data_dir']
+
+    expected_kwargs0 = dict( expected_kwargs )
+    expected_kwargs0['ptype'] = 0
+    expected_kwargs4 = dict( expected_kwargs )
+    expected_kwargs4['ptype'] = 4
+
+    calls = [ mock.call( **expected_kwargs0 ), mock.call( **expected_kwargs4 ) ]
+
+    mock_p_data.assert_has_calls( calls )
+
+  ########################################################################
+
+  @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
+  def test_identify_duplicate_ids( self, mock_find_duplicate_ids, mock_p_data ):
+
+    mock_p_data.side_effect = [ None, None, ]
+    mock_find_duplicate_ids.side_effect = [ np.array([ 36091289, 3211791 ]), np.array([ 24565150, ])
+
+    actual = self.id_sampler.identify_duplicate_ids()
+
+    expected = np.array([ 1, 1, 0, 1, 1, 0 ]).astype( bool )
     npt.assert_allclose( expected, actual )
 
   ########################################################################

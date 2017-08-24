@@ -393,6 +393,21 @@ class IDSampler( object ):
 
   ########################################################################
 
+  def identify_duplicate_ids( self ):
+
+
+    for ptype in self.f['parameters'].attrs['ptypes']:
+
+      p_data_kwargs = dict( self.f['parameters/snapshot_parameters'].attrs )
+
+      p_data_kwargs['snum'] = 600
+
+      p_data_kwargs['ptype'] = ptype
+
+      p_data = particle_data.ParticleData( **p_data_kwargs )
+
+  ########################################################################
+
   def choose_sample_inds( self ):
     '''Select the indices of the target IDs to sample.
 
@@ -406,8 +421,15 @@ class IDSampler( object ):
       not_split = np.where( self.f['target_child_ids'][...] == 0 )[0]
       viable_inds = inds[not_split]
 
+    elif self.ignore_duplicates:
+      not_split = np.where( self.identify_duplicate_ids() )[0]
+      viable_inds = inds[not_split]
+
     else:
       viable_inds = inds
+
+    assert not ( self.ignore_child_particles and self.ignore_duplicates ), \
+      "Code currently cannot handle both ignoring child particles and ignoring duplicates."
 
     self.sample_inds = np.random.choice( viable_inds, self.n_samples, replace=False )
 
