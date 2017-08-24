@@ -394,17 +394,28 @@ class IDSampler( object ):
   ########################################################################
 
   def identify_duplicate_ids( self ):
+    '''Get all IDs that have duplicates at the latest snapshot. This draws data from the same sample as the original.
+    
+    Returns:
+      duplicate_ids (set) : A set of all IDs that have duplicates at snum_end.
+    '''
 
+    assert 'target_child_ids' not in self.f.keys(), "Identifying duplicate IDs does not work with new ID system."
 
+    duplicate_ids = set()
     for ptype in self.f['parameters'].attrs['ptypes']:
 
       p_data_kwargs = dict( self.f['parameters/snapshot_parameters'].attrs )
 
-      p_data_kwargs['snum'] = 600
+      p_data_kwargs['snum'] = self.f['parameters'].attrs['snum_end']
 
       p_data_kwargs['ptype'] = ptype
 
       p_data = particle_data.ParticleData( **p_data_kwargs )
+
+      duplicate_ids = duplicate_ids | set( p_data.find_duplicate_ids() )
+
+    return duplicate_ids
 
   ########################################################################
 

@@ -645,15 +645,15 @@ class TestIDSampler( unittest.TestCase ):
   ########################################################################
 
   @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
-  def test_identify_duplicate_ids( self, mock_find_duplicate_ids, mock_p_data ):
+  def test_identify_duplicate_ids( self, mock_find_duplicate_ids ):
 
-    mock_p_data.side_effect = [ None, None, ]
-    mock_find_duplicate_ids.side_effect = [ np.array([ 36091289, 3211791 ]), np.array([ 24565150, ])
+    mock_find_duplicate_ids.side_effect = [ np.array([ 36091289, 3211791 ]), np.array([ 24565150, ]) ]
 
     actual = self.id_sampler.identify_duplicate_ids()
 
-    expected = np.array([ 1, 1, 0, 1, 1, 0 ]).astype( bool )
-    npt.assert_allclose( expected, actual )
+    expected = set( [ 24565150, 36091289, 3211791 ] )
+
+    self.assertEqual( expected, actual )
 
   ########################################################################
 
