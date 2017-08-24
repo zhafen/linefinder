@@ -329,7 +329,7 @@ class SnapshotIDSelector( particle_data.ParticleData ):
 
 class IDSampler( object ):
 
-  def __init__( self, sdir, tag, n_samples=100000, ignore_child_particles=False  ):
+  def __init__( self, sdir, tag, n_samples=100000, ignore_child_particles=False, ignore_duplicates=False  ):
     '''Sample an ID file to obtain and save a subset of size n_samples.
     Assumes the full set of IDs are saved as ids_full_tag.hdf5, and will save the sampled IDs as ids_tag.hdf5.
 
@@ -338,6 +338,8 @@ class IDSampler( object ):
       tag (str, required) : Identifying string for the ID file.
       n_samples (int, optional) : Number of samples to sample.
       ignore_child_particles (bool, optional) : Whether or not to ignore particles with non-zero child ID when sampling
+      ignore_duplicates (bool, optional) : Whether or not to ignore particles that have duplicate IDs at the final
+        snapshot.
     '''
 
     # Store the arguments
@@ -394,6 +396,11 @@ class IDSampler( object ):
   ########################################################################
 
   def identify_child_particles( self ):
+    '''Get the IDs and Child IDs of all particles that have non-zero Child IDs.
+
+    Returns:
+      child_particles (set) : A set of all the IDs and Child IDs that have non-zero Child IDs.
+    '''
 
     split = np.where( self.f['target_child_ids'][...] != 0 )[0]
 
@@ -430,6 +437,38 @@ class IDSampler( object ):
 
   ########################################################################
 
+  def choose_particles_to_sample( self ):
+    '''Choose which particles to subsample. This is done by subtracting out any IDs that we don't want to use for some
+    reason (e.g. if we're ignoring IDs that have duplicates).
+
+    Modifies:
+      self.ids_to_sample (np.ndarray) : An array of the IDs to sample.
+      self.child_ids_to_sample (np.ndarray, optional) : An array of the child IDs to sample.
+    '''
+
+    # Get the IDs in the right format.
+    if 'target_child_ids' in self.f.keys():
+      ids_set = utilities.arrays_to_set( self.f['target_ids'][...], self.f['target_child_ids'][...] )
+    else:
+      ids_set =  set( self.f['target_ids'][...] )
+
+    if self.ignore_duplicates:
+      ids_set -= self.identify_duplicate_ids()
+
+    if self.ignore_child_particles:
+      ids_set -= self.identify_child_particles()
+
+    assert not ( self.ignore_child_particles and self.ignore_duplicates ), \
+      "Code currently cannot handle both ignoring child particles and ignoring duplicates."
+
+    # Store the data again
+    if 'target_child_ids' in self.f.keys():
+      self.ids_to_sample, self.child_ids_to_sample = utilities.set_to_arrays( ids_set )
+    else:
+      self.ids_to_sample = np.array( list( ids_set ) )
+
+  ########################################################################
+
   def choose_sample_inds( self ):
     '''Select the indices of the target IDs to sample.
 
@@ -437,21 +476,7 @@ class IDSampler( object ):
       self.sample_inds (np.array of ints) : Indices of the target IDs to sample.
     '''
 
-    inds = np.array( range( self.f['target_ids'][...].size ) )
-
-    if self.ignore_child_particles:
-      not_split = np.where( self.f['target_child_ids'][...] == 0 )[0]
-      viable_inds = inds[not_split]
-
-    elif self.ignore_duplicates:
-      not_split = np.where( self.identify_duplicate_ids() )[0]
-      viable_inds = inds[not_split]
-
-    else:
-      viable_inds = inds
-
-    assert not ( self.ignore_child_particles and self.ignore_duplicates ), \
-      "Code currently cannot handle both ignoring child particles and ignoring duplicates."
+    inds = np.array( range( self.ids_to_sample.size ) )
 
     self.sample_inds = np.random.choice( viable_inds, self.n_samples, replace=False )
 
@@ -478,6 +503,7 @@ class IDSampler( object ):
 
     self.f['parameters'].attrs['n_samples'] = self.n_samples
     self.f['parameters'].attrs['ignore_child_particles'] = self.ignore_child_particles
+    self.f['parameters'].attrs['ignore_duplicates'] = self.ignore_duplicates
     self.f['parameters'].attrs['sampled_from_full_id_list'] = True
 
 

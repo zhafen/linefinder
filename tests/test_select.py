@@ -56,6 +56,12 @@ default_data_filters = [
   { 'data_key' : 'T', 'data_min' : 1e4, 'data_max' : 1e6, },
 ]
 
+id_sampler_kwargs = {
+  'sdir' : './tests/data/tracking_output_for_analysis',
+  'tag' : 'test',
+  'n_samples' : 3,
+}
+
 ########################################################################
 ########################################################################
 
@@ -517,9 +523,8 @@ class TestIDSamplerNoSetUp( unittest.TestCase ):
 
   def setUp( self ):
 
-    sdir = './tests/data/tracking_output_for_analysis'
-    self.filepath = os.path.join( sdir, 'ids_test.hdf5' )
-    self.id_sampler = select.IDSampler( sdir, 'test', 3 )
+    self.filepath = os.path.join( id_samper_kwargs['sdir'], 'ids_test.hdf5' )
+    self.id_sampler = select.IDSampler( **id_sampler_kwargs )
 
     if os.path.isfile( self.filepath ):
       os.remove( self.filepath )
@@ -563,9 +568,8 @@ class TestIDSampler( unittest.TestCase ):
 
   def setUp( self ):
 
-    sdir = './tests/data/tracking_output_for_analysis'
-    self.filepath = os.path.join( sdir, 'ids_test.hdf5' )
-    self.id_sampler = select.IDSampler( sdir, 'test', 3 )
+    self.filepath = os.path.join( id_sampler_kwargs['sdir'], 'ids_test.hdf5' )
+    self.id_sampler = select.IDSampler( **id_sampler_kwargs )
 
     np.random.seed( 1234 )
 
@@ -576,7 +580,85 @@ class TestIDSampler( unittest.TestCase ):
 
   ########################################################################
 
+  def test_choose_particles_to_sample( self ):
+
+    self.id_sampler.choose_particles_to_sample()
+
+    actual = self.id_sampler.ids_to_sample
+    expected = np.array([       0, 10952235,       15,     1573, 36091289,   123456,       12])
+    actual.sort() ; expected.sort() # Sets can put things out of order.
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_choose_particles_to_sample_child_ids_included( self ):
+
+    # Create some child ids
+    self.id_sampler.f['target_child_ids'] = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
+
+    self.id_sampler.choose_particles_to_sample()
+
+    actual = self.id_sampler.child_ids_to_sample
+    expected = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
+    actual.sort() ; expected.sort() # Sets can put things out of order.
+    npt.assert_allclose( expected, actual )
+
+    actual = self.id_sampler.ids_to_sample
+    expected = np.array([       0, 10952235,       15,     1573, 36091289,   123456,       12])
+    actual.sort() ; expected.sort() # Sets can put things out of order.
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  @mock.patch( 'worldline.select.IDSampler.identify_duplicate_ids' )
+  def test_choose_particles_to_sample_ignore_duplicates( self, mock_identify_duplicate_ids ):
+
+    mock_identify_duplicate_ids.side_effect = [ set([ 0, 15, 12 ]), ]
+
+    self.id_sampler.ignore_duplicates = True
+    self.id_sampler.ignore_child_particles = False
+
+    self.id_sampler.choose_particles_to_sample()
+
+    mock_identify_duplicate_ids.assert_called_once()
+
+    actual = self.id_sampler.ids_to_sample
+    expected = np.array([      10952235,     1573, 36091289,   123456, ])
+    actual.sort() ; expected.sort() # Sets can put things out of order.
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  @mock.patch( 'worldline.select.IDSampler.identify_child_particles' )
+  def test_choose_particles_to_sample_ignore_child_particles( self, mock_identify_child_particles ):
+
+    # Create some child ids
+    self.id_sampler.f['target_child_ids'] = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
+
+    mock_identify_child_particles.side_effect = [ set([ ( 0, 4), ( 15, 0 ), ( 12, 8 ), ]), ]
+
+    self.id_sampler.ignore_duplicates = False
+    self.id_sampler.ignore_child_particles = True
+
+    self.id_sampler.choose_particles_to_sample()
+
+    mock_identify_child_particles.assert_called_once()
+
+    actual = self.id_sampler.ids_to_sample
+    expected = np.array([      10952235,     1573, 36091289,   123456, ])
+    actual.sort() ; expected.sort() # Sets can put things out of order.
+    npt.assert_allclose( expected, actual )
+
+    actual = self.id_sampler.child_ids_to_sample
+    expected = np.array([ 0, 2, 0, 0, ])
+    actual.sort() ; expected.sort() # Sets can put things out of order.
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
   def test_choose_sample_inds( self ):
+
+    self.id_sampler.ids_to_sample = np.array([       0, 10952235,       15,     1573, 36091289,   123456,       12])
 
     self.id_sampler.choose_sample_inds()
 
@@ -599,42 +681,9 @@ class TestIDSampler( unittest.TestCase ):
 
   ########################################################################
 
-  def test_choose_sample_inds_no_split( self ):
-
-    self.id_sampler.ignore_child_particles = True
-
-    # Create some child ids
-    self.id_sampler.f['target_child_ids'] = np.array([ 4, 0, 0, 2, 0, 0, 8 ])
-
-    self.id_sampler.choose_sample_inds()
-    
-    expected = np.array([ 1, 2, 4, ])
-    actual = self.id_sampler.sample_inds
-    npt.assert_allclose( expected, actual )
-
-  ########################################################################
-
   @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
-  def test_choose_sample_inds_no_duplicates( self, mock_find_duplicate_ids ):
-  
-    self.id_sampler.ignore_duplicates = True
-
-    self.id_sampler.ref_snap_args = {
-      'sdir' : './tests/data/test_data_with_new_id_scheme/',
-      'snum' : 600,
-      'ptype' : 0,
-    }
-
-    expected = np.array([ 1, 2, 4, ])
-    actual = self.id_sampler.sample_inds
-    npt.assert_allclose( expected, actual )
-
-    assert False, "Need to do."
-
-  ########################################################################
-
   @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.__init__' )
-  def test_identify_duplicate_ids_load_correct_data( self, mock_p_data ):
+  def test_identify_duplicate_ids_load_correct_data( self, mock_p_data, mock_find_duplicate_ids ):
 
     mock_p_data.side_effect = [ None, None, ]
 
