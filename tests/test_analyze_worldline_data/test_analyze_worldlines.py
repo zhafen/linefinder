@@ -156,6 +156,22 @@ class TestWorldlineGetData( unittest.TestCase ):
 
 ########################################################################
 
+class TestWorldlineProperties( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.worldlines = analyze_worldlines.Worldlines( tracking_dir, tag, **kwargs )
+
+  ########################################################################
+
+  def test_n_particles_snapshot( self ):
+
+    actual = self.worldlines.n_particles_snapshot
+    expected = 12
+    self.assertEqual( expected, actual )
+
+########################################################################
+
 class TestWorldlineDataMasker( unittest.TestCase ):
 
   def setUp( self ):

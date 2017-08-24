@@ -20,6 +20,7 @@ import galaxy_diver.analyze_data.generic_data as generic_data
 import galaxy_diver.plot_data.ahf as plot_ahf
 import galaxy_diver.plot_data.plotting as gen_plot
 import galaxy_diver.plot_data.pu_colormaps as pu_cm
+import galaxy_diver.read_data.snapshot as read_snapshot
 import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
 
@@ -181,11 +182,61 @@ class Worldlines( generic_data.GenericData ):
 
   @property
   def n_particles( self ):
+    '''The number of particles tracked.'''
 
     if not hasattr( self, '_n_particles' ):
       self._n_particles = self.ptracks.base_data_shape[0]
 
     return self._n_particles
+
+  ########################################################################
+
+  @property
+  def n_particles_snapshot( self ):
+    '''The number of star and gas particles in the last snapshot tracked. Should be the same throughout the simulation,
+    if there's conservation of star and gas particles.'''
+
+    return self.n_particles_snapshot_gas + self.n_particles_snapshot_star
+
+  ########################################################################
+
+  @property
+  def n_particles_snapshot_gas( self ):
+    '''The number of gas particles in the last snapshot tracked.'''
+
+    if not hasattr( self, '_n_particles_snapshot_gas' ):
+
+      snapshot_kwargs = {
+        'sdir' : self.ids.snapshot_parameters['sdir'],
+        'snum' : self.ids.parameters['snum_end'],
+        'ptype' : 0,
+        'header_only' : True,
+      }
+
+      snapshot = read_snapshot.readsnap( **snapshot_kwargs )
+      
+      self._n_particles_snapshot_gas = snapshot['npart']
+
+    return self._n_particles_snapshot_gas
+
+  @property
+  def n_particles_snapshot_star( self ):
+    '''The number of star particles in the last snapshot tracked.'''
+
+    if not hasattr( self, '_n_particles_snapshot_star' ):
+
+      snapshot_kwargs = {
+        'sdir' : self.ids.snapshot_parameters['sdir'],
+        'snum' : self.ids.parameters['snum_end'],
+        'ptype' : 4,
+        'header_only' : True,
+      }
+
+      snapshot = read_snapshot.readsnap( **snapshot_kwargs )
+      
+      self._n_particles_snapshot_star = snapshot['npart']
+
+    return self._n_particles_snapshot_star
 
   ########################################################################
 
@@ -196,6 +247,61 @@ class Worldlines( generic_data.GenericData ):
       self._redshift = self.ptracks.redshift
 
     return self._redshift
+
+  ########################################################################
+
+  @property
+  def m_tot( self ):
+    '''Total mass at the last snapshot.'''
+
+    if not hasattr( self, '_m_tot' ):
+      self._m_tot = self.get_data( 'M', sl=(slice(None),0) ).sum()
+
+    return self._m_tot
+
+  ########################################################################
+
+  @property
+  def conversion_factor( self ):
+    '''The ratio necessary to convert to the total mass from the sample mass.
+    '''
+
+    if not hasattr( self, '_conversion_factor' ):
+      self._conversion_factor = float( self.n_particles_snapshot )/float( self.n_particles )
+
+    return self._conversion_factor
+
+  ########################################################################
+
+  @property
+  def mass_totals( self ):
+    '''Get the total mass in the sample in the last snapshot in the canonical classifications.'''
+
+    if not hasattr( self, '_mass_totals' ):
+      self._mass_totals = {}
+      for mass_category in [ 'is_pristine', 'is_merger', 'is_mass_transfer', 'is_wind' ]:
+        self._mass_totals[mass_category] = self.get_masked_data( 'M', sl=(slice(None),0),
+                                                                 classification=mass_category ).sum()
+
+      self._mass_totals = utilities.SmartDict( self._mass_totals )
+
+    return self._mass_totals
+
+  ########################################################################
+
+  @property
+  def mass_fractions( self ):
+    '''Get the mass fraction in the last snapshot in the canonical classifications.'''
+
+    return self.mass_totals/self.m_tot
+
+  ########################################################################
+
+  @property
+  def real_mass_totals( self ):
+    '''Get the total mass (converted from the sample) in the last snapshot in the canonical classifications.'''
+
+    return self.mass_totals*self.conversion_factor
 
   ########################################################################
   # Display Information

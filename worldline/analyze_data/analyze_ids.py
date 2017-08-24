@@ -49,3 +49,8 @@ class IDs( object ):
       for key in param_grp.attrs.keys():
         self.parameters[key] = param_grp.attrs[key]
 
+      # Store the parameters
+      self.snapshot_parameters = {}
+      snap_param_grp = f['parameters/snapshot_parameters']
+      for key in snap_param_grp.attrs.keys():
+        self.snapshot_parameters[key] = snap_param_grp.attrs[key]
