@@ -681,9 +681,10 @@ class TestIDSampler( unittest.TestCase ):
 
   ########################################################################
 
+  @mock.patch( 'galaxy_diver.analyze_data.simulation_data.SnapshotData.get_data' )
   @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
   @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.__init__' )
-  def test_identify_duplicate_ids_load_correct_data( self, mock_p_data, mock_find_duplicate_ids ):
+  def test_identify_duplicate_ids_load_correct_data( self, mock_p_data, mock_find_duplicate_ids, mock_get_data ):
 
     mock_p_data.side_effect = [ None, None, ]
 
@@ -714,6 +715,23 @@ class TestIDSampler( unittest.TestCase ):
     actual = self.id_sampler.identify_duplicate_ids()
 
     expected = set( [ 24565150, 36091289, 3211791 ] )
+
+    self.assertEqual( expected, actual )
+
+  ########################################################################
+
+  @mock.patch( 'galaxy_diver.analyze_data.simulation_data.SnapshotData.get_data' )
+  @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
+  def test_identify_duplicate_ids_star_gas( self, mock_find_duplicate_ids, mock_get_data ):
+    '''Test we can identify duplicates when one of the particles is gas, and the other is star.
+    '''
+
+    mock_find_duplicate_ids.side_effect = [ np.array([ 36091289, 3211791 ]), np.array([ 24565150, ]) ]
+    mock_get_data.side_effect = [ np.array([ 1, 2, 3, ]), np.array([ 2, 3, 4, 5 ] ) ]
+
+    actual = self.id_sampler.identify_duplicate_ids()
+
+    expected = set( [ 24565150, 36091289, 3211791, 2, 3, ] )
 
     self.assertEqual( expected, actual )
 

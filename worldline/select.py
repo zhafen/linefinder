@@ -425,17 +425,20 @@ class IDSampler( object ):
     assert 'target_child_ids' not in self.f.keys(), "Identifying duplicate IDs does not work with new ID system."
 
     duplicate_ids = set()
+    id_sets = []
     for ptype in self.f['parameters'].attrs['ptypes']:
 
       p_data_kwargs = dict( self.f['parameters/snapshot_parameters'].attrs )
-
       p_data_kwargs['snum'] = self.f['parameters'].attrs['snum_end']
-
       p_data_kwargs['ptype'] = ptype
-
       p_data = particle_data.ParticleData( **p_data_kwargs )
 
       duplicate_ids = duplicate_ids | set( p_data.find_duplicate_ids() )
+
+      # Get the IDs out, so that we can find duplicates where the particles are of different types
+      id_sets.append( set( p_data.get_data( 'ID' ) ) )
+
+    duplicate_ids = duplicate_ids | set.intersection( *id_sets )
 
     return duplicate_ids
 
