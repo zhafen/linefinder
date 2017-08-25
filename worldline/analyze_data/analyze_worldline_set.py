@@ -8,7 +8,14 @@
 
 import numpy as np
 
-import analyze_worldlines
+import matplotlib
+matplotlib.use('PDF')
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.gridspec as gridspec
+import matplotlib.patheffects as path_effects
+
+import plot_worldlines
 
 import galaxy_diver.utils.utilities as utilities
 
@@ -35,6 +42,20 @@ class WorldlineSet( utilities.SmartDict ):
       for var_key in variations[key].keys():
         kwargs[var_key] = variations[key][var_key]
 
-      worldlines_d[key] = analyze_worldlines.Worldlines( label=key, **kwargs )
+      worldlines_d[key] = plot_worldlines.WorldlinesPlotter( label=key, **kwargs )
 
     super( WorldlineSet, self ).__init__( worldlines_d )
+
+  ########################################################################
+
+  def plot_w_set_same_axis( self,
+    plotting_method,
+    *args, **kwargs ):
+
+    fig = plt.figure( figsize=(11,5), facecolor='white' )
+    ax = plt.gca()
+
+    # The plot itself
+    getattr( self, plotting_method )( ax=ax, *args, **kwargs )
+
+    ax.legend(loc='upper center', prop={'size':14.5}, fontsize=20)
