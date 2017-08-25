@@ -493,5 +493,9 @@ class IDFinder( object ):
       dfid['ID'] = dfid.index.get_level_values( 0 )
       dfid['ChildID'] = dfid.index.get_level_values( 1 )
 
+    assert len( dfid['ID'] ) == len( self.target_ids ), \
+      "Snapshot {} failed, len( df ) = {}, len( self.target_ids ) = {}".format( self.snum, len( dfid['ID'] ),
+                                                                                len( self.target_ids ) )
+
     return dfid
 
