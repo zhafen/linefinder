@@ -186,6 +186,17 @@ class Worldlines( generic_data.GenericData ):
   ########################################################################
 
   @property
+  def n_particles_presampled( self ):
+    '''The number of particles selected, prior to sampling.'''
+
+    if not hasattr( self, '_n_particles_presampled' ):
+      self._n_particles_presampled = self.ids.parameters['n_particles']
+
+    return self._n_particles_presampled
+
+  ########################################################################
+
+  @property
   def n_particles_snapshot( self ):
     '''The number of star and gas particles in the last snapshot tracked. Should be the same throughout the simulation,
     if there's conservation of star and gas particles.'''
@@ -261,7 +272,7 @@ class Worldlines( generic_data.GenericData ):
     '''
 
     if not hasattr( self, '_conversion_factor' ):
-      self._conversion_factor = float( self.n_particles_snapshot )/float( self.n_particles )
+      self._conversion_factor = float( self.n_particles_presampled )/float( self.n_particles )
 
     return self._conversion_factor
 
