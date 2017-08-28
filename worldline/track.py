@@ -22,36 +22,42 @@ import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
+
+# For catching default values
+default = object()
+
+########################################################################
 ########################################################################
 
 class ParticleTracker( object ):
   '''Searches IDs across snapshots, then saves the results.'''
 
-  def __init__( self, n_processors=1, check_same_sdir=True, **kwargs ):
+  @utilities.store_parameters
+  def __init__( self,
+    tag,
+    out_dir,
+    sdir = default,
+    p_types = default,
+    snum_start = default,
+    snum_end = default,
+    snum_step = default,
+    n_processors = 1,
+    ):
     '''Setup the ID Finder. Looks for data in the form of "out_dir/ids_tag.hdf5"
 
     Args:
-      n_processors (int) : Number of processors to use.
-      check_same_sdir (bool) : Whether or not to assert that the sdir stored in the IDs file is the same as the one
-        we use.
-
-    Keyword Args:
-      Input Data Parameters:
-        sdir (str): Simulation data directory.
-        types (list of ints): The particle data types to include.
-        snum_start (int): Starting snapshot
-        snum_end (int): End snapshot
-        snum_step (int): How many snapshots to jump over?
-
-      Analysis Parameters:
-        tag (str): Identifying tag. Currently must be put in manually. Should be the same for all stages of the
-          pipeline.
-        outdir (str): Output data directory. Also the directory for the file the ids to track should be in.
+      tag (str) : Identifying tag. Currently must be put in manually. Should be the same for all stages of the
+        pipeline.
+      out_dir (str) : Output data directory. Also the directory for the file the ids to track should be in.
+      sdir (str, optional): Simulation data directory. Defaults to same directory the IDs are from.
+      p_types (list of ints, optional): The particle data types to include. Defaults to the values used in the IDs.
+      snum_start (int, optional): Starting snapshot. Defaults to the value used in the IDs.
+      snum_end (int, optional): End snapshot. Defaults to same directory the IDs are from.
+      snum_step (int, optional): How many snapshots to jump over? Defaults to same directory the IDs are from.
+      n_processors (int, optional) : Number of processors to use.
     '''
 
-    # Store the arguments
-    for arg in locals().keys():
-      setattr( self, arg, locals()[arg] )
+    pass
 
   ########################################################################
 
@@ -63,8 +69,8 @@ class ParticleTracker( object ):
     print "########################################################################"
     print "Starting Tracking!"
     print "########################################################################"
-    print "Tracking particle data from this directory:\n    {}".format( self.kwargs['sdir'] )
-    print "Data will be saved here:\n    {}".format( self.kwargs['outdir'] )
+    print "Tracking particle data from this directory:\n    {}".format( self.sdir )
+    print "Data will be saved here:\n    {}".format( self.out_dir )
     sys.stdout.flush()
 
     # Get the target ids
@@ -97,10 +103,24 @@ class ParticleTracker( object ):
       self.target_child_ids (np.array, optional): Fills the array, if child_ids are included.
     '''
 
-    id_filename = 'ids_{}.hdf5'.format( self.kwargs['tag'] )
-    self.id_filepath = os.path.join( self.kwargs['outdir'], id_filename )
+    id_filename = 'ids_{}.hdf5'.format( self.tag )
+    self.id_filepath = os.path.join( self.out_dir, id_filename )
 
     f = h5py.File( self.id_filepath, 'r' )
+
+    # Load in the parameters
+    def replace_default_attr( attr_name ):
+      attr = getattr( self, attr_name )
+      if attr is default:
+        if attr_name == 'sdir':
+          attr = f['parameters/snapshot_parameters'].attrs[attr_name]
+        else:
+          attr = f['parameters'].attrs[attr_name]
+    replace_default_attr( 'sdir' )
+    replace_default_attr( 'p_types' )
+    replace_default_attr( 'snum_start' )
+    replace_default_attr( 'snum_end' )
+    replace_default_attr( 'snum_step' )
 
     # Load in the data
     for key in f.keys():
@@ -110,10 +130,6 @@ class ParticleTracker( object ):
     # If there aren't target child IDs, make note of that
     if 'target_child_ids' not in f.keys():
       self.target_child_ids = None
-
-    # Make sure our simulation directory matches up
-    if self.check_same_sdir:
-      assert os.path.samefile( self.kwargs['sdir'], f['parameters/snapshot_parameters'].attrs['sdir'] )
 
   ########################################################################
 
@@ -125,7 +141,7 @@ class ParticleTracker( object ):
                      Structure is... ptrack ['varname'] [particle i, snap j, k component]
     '''
 
-    self.snaps = np.arange( self.kwargs['snum_end'], self.kwargs['snum_start']-1, -self.kwargs['snum_step'] )
+    self.snaps = np.arange( self.snum_end, self.snum_start-1, -self.snum_step )
     nsnap = self.snaps.size       # number of redshift snapshots that we follow back
 
     # Choose between single or double precision.
@@ -161,7 +177,7 @@ class ParticleTracker( object ):
       time_1 = time.time()
 
       id_finder = IDFinder()
-      dfid, redshift, self.attrs = id_finder.find_ids( self.kwargs['sdir'], snum, self.kwargs['types'], self.target_ids, \
+      dfid, redshift, self.attrs = id_finder.find_ids( self.sdir, snum, self.p_types, self.target_ids, \
                                            target_child_ids=self.target_child_ids, )
 
       ptrack['redshift'][j] = redshift
@@ -196,7 +212,7 @@ class ParticleTracker( object ):
                      Structure is... ptrack ['varname'] [particle i, snap j, k component]
     '''
 
-    self.snaps = np.arange( self.kwargs['snum_end'], self.kwargs['snum_start']-1, -self.kwargs['snum_step'] )
+    self.snaps = np.arange( self.snum_end, self.snum_start-1, -self.snum_step )
     nsnap = self.snaps.size       # number of redshift snapshots that we follow back
 
     # Choose between single or double precision.
@@ -213,7 +229,7 @@ class ParticleTracker( object ):
       time_1 = time.time()
 
       id_finder = IDFinder()
-      dfid, redshift, attrs = id_finder.find_ids( self.kwargs['sdir'], snum, self.kwargs['types'], self.target_ids, \
+      dfid, redshift, attrs = id_finder.find_ids( self.sdir, snum, self.p_types, self.target_ids, \
                                            target_child_ids=self.target_child_ids, )
 
       # Maybe helps stop leaking memory
@@ -276,12 +292,12 @@ class ParticleTracker( object ):
     '''Write tracks to a file.'''
 
     # Make sure the output location exists
-    if not os.path.exists( self.kwargs['outdir'] ):
-      os.mkdir( self.kwargs['outdir'] )
+    if not os.path.exists( self.out_dir ):
+      os.mkdir( self.out_dir )
 
-    self.outname = 'ptracks_{}.hdf5'.format( self.kwargs['tag'] )
+    self.outname = 'ptracks_{}.hdf5'.format( self.tag )
 
-    outpath =  os.path.join( self.kwargs['outdir'], self.outname )
+    outpath =  os.path.join( self.out_dir, self.outname )
 
     f = h5py.File( outpath, 'w' )
 
@@ -295,8 +311,8 @@ class ParticleTracker( object ):
 
     # Save the data parameters too, as part of a group
     grp = f.create_group('parameters')
-    for key in self.kwargs.keys():
-      grp.attrs[key] = self.kwargs[key]
+    for parameter in self.parameters_to_save:
+      grp.attrs[parameter] = getattr( self, parameter )
 
     # Save the number of processors
     grp.attrs['n_processors'] = self.n_processors
@@ -318,13 +334,13 @@ class IDFinder( object ):
 
   ########################################################################
 
-  def find_ids( self, sdir, snum, types, target_ids, target_child_ids=None, ):
+  def find_ids( self, sdir, snum, p_types, target_ids, target_child_ids=None, ):
     '''Find the information for particular IDs in a given snapshot, ordered by the ID list you pass.
 
     Args:
       sdir (str): The targeted simulation directory.
       snum (int): The snapshot to find the IDs for.
-      types (list of ints): Which particle types to target.
+      p_types (list of ints): Which particle types to target.
       target_ids (np.array): The particle IDs you want to find.
 
     Returns:
@@ -337,7 +353,7 @@ class IDFinder( object ):
     # Store the target ids for easy access.
     self.sdir = sdir
     self.snum = snum
-    self.types = types
+    self.p_types = p_types
     self.target_ids = target_ids
     if target_child_ids is not None:
       self.target_child_ids = target_child_ids
@@ -394,7 +410,7 @@ class IDFinder( object ):
     # Flag for saving header info
     saved_header_info = False
 
-    for i, p_type in enumerate( self.types ):
+    for i, p_type in enumerate( self.p_types ):
 
       P = read_snapshot.readsnap( self.sdir, self.snum, p_type, load_additional_ids=load_additional_ids, cosmological=1, skip_bh=1, header_only=0 )
 

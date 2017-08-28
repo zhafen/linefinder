@@ -25,38 +25,35 @@ import galaxy_diver.utils.constants as constants
 
 default_data_p = {
   'sdir' : './tests/data/test_data_with_new_id_scheme',
-  'types' : [0,],
+  'p_types' : [0,],
   'snum_start' : 500,
   'snum_end' : 600,
   'snum_step' : 50,
 
-  'outdir' : './tests/data/tracking_output',
+  'out_dir' : './tests/data/tracking_output',
   'tag' : 'test',
-  'check_same_sdir' : False,
 }
 
 star_data_p = {
   'sdir' : './tests/data/stars_included_test_data',
-  'types' : [0,4],
+  'p_types' : [0,4],
   'snum_start' : 500,
   'snum_end' : 600,
   'snum_step' : 50,
 
-  'outdir' : './tests/data/tracking_output',
+  'out_dir' : './tests/data/tracking_output',
   'tag' : 'test_star',
-  'check_same_sdir' : False,
 }
 
 early_star_data_p = {
   'sdir' : './tests/data/stars_included_test_data',
-  'types' : [0,4],
+  'p_types' : [0,4],
   'snum_start' : 10,
   'snum_end' : 11,
   'snum_step' : 1,
 
-  'outdir' : './tests/data/tracking_output',
+  'out_dir' : './tests/data/tracking_output',
   'tag' : 'test_star_early',
-  'check_same_sdir' : False,
 }
 
 fire1_data_p = copy.deepcopy( star_data_p )
@@ -88,7 +85,7 @@ class TestConcatenateParticleData( unittest.TestCase ):
     # Input
     self.id_finder.sdir = './tests/data/test_data_with_new_id_scheme'
     self.id_finder.snum = 600
-    self.id_finder.types = [0,]
+    self.id_finder.p_types = [0,]
     self.id_finder.target_ids = np.array([ 36091289, 36091289, 3211791, 10952235 ])
     self.id_finder.target_child_ids = np.array([ 893109954, 1945060136, 0, 0 ])
 
@@ -110,7 +107,7 @@ class TestConcatenateParticleData( unittest.TestCase ):
     # Input
     self.id_finder.sdir = './tests/data/test_data_with_new_id_scheme'
     self.id_finder.snum = 600
-    self.id_finder.types = [0,4]
+    self.id_finder.p_types = [0,4]
     self.id_finder.target_ids = np.array([24565150, 24079833, 13109563, 14147322, ])
     self.id_finder.target_child_ids = np.array([ 0, 0, 0, 0 ])
 
@@ -255,7 +252,7 @@ class TestFindIds( unittest.TestCase ):
     # Input
     sdir = './tests/data/test_data_with_new_id_scheme'
     snum = 600
-    types = [0,]
+    p_types = [0,]
     target_ids = np.array([ 36091289, 36091289, 3211791, 10952235 ])
     target_child_ids = np.array([ 893109954, 1945060136, 0, 0 ])
 
@@ -269,7 +266,7 @@ class TestFindIds( unittest.TestCase ):
       'Den' : np.array([ P['rho'][ind]*constants.UNITDENSITY_IN_NUMDEN for ind in target_inds ]),
     }
 
-    dfid, redshift, attrs = self.fn( sdir, snum, types, target_ids, \
+    dfid, redshift, attrs = self.fn( sdir, snum, p_types, target_ids, \
                               target_child_ids=target_child_ids)
 
     for key in expected.keys():
@@ -285,7 +282,7 @@ class TestFindIds( unittest.TestCase ):
     # Input
     sdir = './tests/data/stars_included_test_data'
     snum = 500
-    types = [ 0, 4,]
+    p_types = [ 0, 4,]
     target_ids = np.array([ 24079833, 24565150, 14147322, ])
     target_child_ids = None
 
@@ -298,7 +295,7 @@ class TestFindIds( unittest.TestCase ):
       'Den' : np.array([ 3.12611002e-08,   2.98729116e-09, 0. ])*constants.UNITDENSITY_IN_NUMDEN
     }
 
-    dfid, redshift, attrs = self.fn( sdir, snum, types, target_ids, \
+    dfid, redshift, attrs = self.fn( sdir, snum, p_types, target_ids, \
                               target_child_ids=target_child_ids)
 
     for key in expected.keys():
@@ -475,6 +472,9 @@ class TestSaveTargetedParticlesParallel( unittest.TestCase ):
   ########################################################################
 
   def test_basic( self ):
+
+    #DEBUG
+    import pdb; pdb.set_trace()
 
     self.fn()
 

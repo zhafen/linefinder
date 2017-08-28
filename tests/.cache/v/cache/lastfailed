@@ -1,1 +1,10 @@
-{}
+{
+  "test_track.py::TestSaveTargetedParticles::test_basic": true, 
+  "test_track.py::TestSaveTargetedParticles::test_get_target_ids": true, 
+  "test_track.py::TestSaveTargetedParticles::test_has_attributes": true, 
+  "test_track.py::TestSaveTargetedParticles::test_runs": true, 
+  "test_track.py::TestSaveTargetedParticles::test_works_fire1": true, 
+  "test_track.py::TestSaveTargetedParticles::test_works_with_stars": true, 
+  "test_track.py::TestSaveTargetedParticles::test_works_with_stars_early_on": true, 
+  "test_track.py::TestSaveTargetedParticlesParallel::test_basic": true
+}

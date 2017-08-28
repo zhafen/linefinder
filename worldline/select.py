@@ -36,7 +36,7 @@ class IDSelector( object ):
       snum_start (int) : Starting snapshot number.
       snum_end (int) : Ending snapshot number.
       snum_step (int) : Snapshot step.
-      ptypes (list of ints) : Types of particles to search through.
+      p_types (list of ints) : Types of particles to search through.
       out_dir (str) : Where to store the data.
       tag (str) : Tag to give the filename.
     '''
@@ -97,7 +97,7 @@ class IDSelector( object ):
     selected_ids = set()
 
     for snum in self.snums:
-      for ptype in self.kwargs['ptypes']:
+      for ptype in self.kwargs['p_types']:
 
         kwargs = dict( self.snapshot_kwargs )
         kwargs['snum'] = snum
@@ -140,7 +140,7 @@ class IDSelector( object ):
 
     args = []
     for snum in self.snums:
-      for ptype in self.kwargs['ptypes']:
+      for ptype in self.kwargs['p_types']:
 
         kwargs = dict( self.snapshot_kwargs )
         kwargs['snum'] = snum
@@ -426,7 +426,7 @@ class IDSampler( object ):
 
     duplicate_ids = set()
     id_sets = []
-    for ptype in self.f['parameters'].attrs['ptypes']:
+    for ptype in self.f['parameters'].attrs['p_types']:
 
       p_data_kwargs = dict( self.f['parameters/snapshot_parameters'].attrs )
       p_data_kwargs['snum'] = self.f['parameters'].attrs['snum_end']
