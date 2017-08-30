@@ -260,7 +260,9 @@ class Worldlines( generic_data.GenericData ):
     '''Total mass at the last snapshot.'''
 
     if not hasattr( self, '_m_tot' ):
-      self._m_tot = self.get_data( 'M', sl=(slice(None),0) ).sum()
+      masses = self.get_data( 'M', sl=(slice(None),0), )
+      masses_no_invalids = np.ma.fix_invalid( masses ).compressed()
+      self._m_tot = masses_no_invalids.sum()
 
     return self._m_tot
 
@@ -286,7 +288,8 @@ class Worldlines( generic_data.GenericData ):
       self._mass_totals = {}
       for mass_category in [ 'is_pristine', 'is_merger', 'is_mass_transfer', 'is_wind' ]:
         self._mass_totals[mass_category] = self.get_masked_data( 'M', sl=(slice(None),0),
-                                                                 classification=mass_category ).sum()
+                                                                 classification=mass_category,
+                                                                 fix_invalid=True, ).sum()
 
       self._mass_totals = utilities.SmartDict( self._mass_totals )
 
@@ -339,6 +342,12 @@ class Worldlines( generic_data.GenericData ):
 
     return data
 
+  ########################################################################
+
+  def get_category_stellar_mass( self ):
+  
+    pass
+
 ########################################################################
 ########################################################################
 
@@ -352,7 +361,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
   ########################################################################
 
   def get_mask( self,
-    mask =default,
+    mask = default,
     classification = None,
     mask_after_first_acc = False,
     mask_before_first_acc = False,
