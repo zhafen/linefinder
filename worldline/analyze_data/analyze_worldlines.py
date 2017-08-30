@@ -394,12 +394,20 @@ class Worldlines( generic_data.GenericData ):
   ########################################################################
   ########################################################################
 
-  def calc_fresh_accretion( self ):
+  def calc_is_fresh_accretion( self ):
 
     pristine_tiled = np.tile( self.get_data( 'is_pristine' ), (self.n_snaps, 1) ).transpose()
     is_not_wind = np.invert( self.get_data( 'is_wind' ) )
 
     self.data['is_fresh_accretion'] = np.all( [ pristine_tiled, is_not_wind ], axis=0 )
+
+  ########################################################################
+
+  def calc_is_NEP_wind_recycling( self ):
+
+    pristine_tiled = np.tile( self.get_data( 'is_pristine' ), (self.n_snaps, 1) ).transpose()
+
+    self.data['is_NEP_wind_recycling'] = np.all( [ pristine_tiled, self.get_data( 'is_wind' ) ], axis=0 )
 
 ########################################################################
 ########################################################################

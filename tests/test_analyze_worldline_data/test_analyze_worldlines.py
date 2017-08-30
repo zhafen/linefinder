@@ -166,7 +166,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
   ########################################################################
 
-  def test_calc_fresh_accretion( self ):
+  def test_calc_is_fresh_accretion( self ):
 
     # Setup test data
     self.worldlines.data['is_pristine'] = np.array( [ 1, 1, 1, 0, ] ).astype( bool )
@@ -177,13 +177,38 @@ class TestWorldlineCalcData( unittest.TestCase ):
       [ 1, 1, 0, ],
     ]).astype( bool )
 
-    self.worldlines.calc_fresh_accretion()
+    self.worldlines.calc_is_fresh_accretion()
 
     actual = self.worldlines.data['is_fresh_accretion']
     expected = np.array([
       [ 0, 0, 1, ],
       [ 0, 1, 1, ],
       [ 1, 1, 1, ],
+      [ 0, 0, 0, ],
+    ]).astype( bool )
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_calc_is_NEP_wind_recycling( self ):
+
+    # Setup test data
+    self.worldlines.data['is_pristine'] = np.array( [ 1, 1, 1, 0, ] ).astype( bool )
+    self.worldlines.data['is_wind'] = np.array([
+      [ 1, 1, 0, ],
+      [ 1, 0, 0, ],
+      [ 0, 0, 0, ],
+      [ 1, 1, 0, ],
+    ]).astype( bool )
+
+    self.worldlines.calc_is_NEP_wind_recycling()
+
+    actual = self.worldlines.data['is_NEP_wind_recycling']
+    expected = np.array([
+      [ 1, 1, 0, ],
+      [ 1, 0, 0, ],
+      [ 0, 0, 0, ],
       [ 0, 0, 0, ],
     ]).astype( bool )
 
