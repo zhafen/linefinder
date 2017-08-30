@@ -354,9 +354,6 @@ class Worldlines( generic_data.GenericData ):
 
     self.data_masker.clear_masks()
 
-    if ( classification != 'is_wind' ) and ( classification is not None ):
-      self.data_masker.mask_data( 'is_wind', custom_mask=self.get_data( 'is_wind' ) )
-
     self.data_masker.mask_data( 'PType', data_value=4 )
 
     return self.get_masked_data( 'M', sl=(slice(None),ind), classification=classification, fix_invalid=True ).sum()
@@ -364,11 +361,13 @@ class Worldlines( generic_data.GenericData ):
   def get_categories_stellar_mass( self, ind=0, ):
   
     stellar_mass = {}
-    for mass_category in [ 'is_pristine', 'is_merger', 'is_mass_transfer', 'is_wind' ]:
+    for mass_category in [ 'is_fresh_accretion', 'is_NEP_wind_recycling', 'is_merger', 'is_mass_transfer', 'is_wind' ]:
       stellar_mass[mass_category] = self.get_stellar_mass( mass_category, ind=ind )
 
     return utilities.SmartDict( stellar_mass )
 
+  ########################################################################
+  # Generate Very Generic Data on the Go
   ########################################################################
 
   def handle_data_key_error( self, data_key ):
@@ -381,17 +380,17 @@ class Worldlines( generic_data.GenericData ):
       self.data (dict) : If successful, stores the data here.
     '''
 
+    # Check if there's a method for calculating the data key, with name calc_data_key
+    method_str = 'calc_{}'.format( data_key )
+    if hasattr( self, method_str ):
+      getattr( self, method_str )()
 
-    if data_key in self.classifications.data.keys():
+    elif data_key in self.classifications.data.keys():
       self.data[data_key] =  self.classifications.data[data_key]
-
-    elif data_key == 'is_fresh_accretion':
-      self.calc_fresh_accretion()
 
     else:
       raise KeyError( 'NULL data_key, data_key = {}'.format( data_key ) )
 
-  ########################################################################
   ########################################################################
 
   def calc_is_fresh_accretion( self ):
@@ -456,8 +455,8 @@ class WorldlineDataMasker( generic_data.DataMasker ):
       used_masks.append( mask )
 
     if classification is not None:
-      cl_mask = np.invert( self.data_object.classifications.data[classification] ) 
-      if classification != 'is_wind':
+      cl_mask = np.invert( self.data_object.get_data( classification ) ) 
+      if len( cl_mask.shape ) == 1:
         cl_mask = np.tile( cl_mask, (self.data_object.n_snaps, 1) ).transpose()
       used_masks.append( cl_mask )
 

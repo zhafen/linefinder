@@ -155,6 +155,15 @@ class TestWorldlineGetData( unittest.TestCase ):
 
     mock_get_data.assert_called_once_with( 'Rx', sl=None )
 
+  ########################################################################
+
+  @mock.patch( 'worldline.analyze_data.analyze_worldlines.Worldlines.calc_method', create=True )
+  def test_handle_data_key_error( self, mock_calc_method ):
+
+    self.worldlines.handle_data_key_error( 'method' )
+
+    mock_calc_method.assert_called_once()
+
 ########################################################################
 ########################################################################
 
