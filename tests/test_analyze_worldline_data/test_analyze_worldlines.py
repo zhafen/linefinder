@@ -254,6 +254,29 @@ class TestWorldlineDataMasker( unittest.TestCase ):
     actual = self.worldlines.data_masker.get_masked_data( 'T', mask_before_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
     expected = np.array( [ 42283.62890625,  20401.44335938,  115423.2109375, ] )
     npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_mask_default_and_other( self ):
+
+    self.worldlines.data_masker.masks.append(
+      {
+        'data_key' : 'NA',
+        'data_min' : np.nan,
+        'data_max' : np.nan,
+        'mask' : np.array([
+          [ 1, 1, 0, ],
+          [ 1, 0, 0, ],
+          [ 1, 0, 1, ],
+          [ 0, 0, 0, ],
+        ]),
+      }
+    )
+  
+    actual = self.worldlines.data_masker.get_mask()
+    expected = self.worldlines.data_masker.masks[0]['mask']
+
+    npt.assert_allclose( expected, actual )
     
   ########################################################################
 

@@ -384,7 +384,8 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
     used_masks = []
     if mask is default:
-      used_masks += self.masks
+      if len( self.masks ) > 0:
+        used_masks.append( self.get_total_mask() )
     else:
       
       # Tile mask if it's single-dimensional
