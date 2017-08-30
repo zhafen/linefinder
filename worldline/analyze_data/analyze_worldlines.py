@@ -80,6 +80,8 @@ class Worldlines( generic_data.GenericData ):
 
     data_masker = WorldlineDataMasker( self )
 
+    self.data = {}
+
     super( Worldlines, self ).__init__( data_masker=data_masker, **kwargs )
 
   ########################################################################
@@ -328,7 +330,7 @@ class Worldlines( generic_data.GenericData ):
   # Get Data
   ########################################################################
 
-  def get_data( self, data_key, *args, **kwargs ):
+  def get_data( self, data_key, sl=None ):
     '''Get data. Usually just get it from ptracks. args and kwargs are passed to self.ptracks.get_data()
 
     Args:
@@ -338,15 +340,66 @@ class Worldlines( generic_data.GenericData ):
       data (np.ndarray) : Array of data.
     '''
 
-    data = self.ptracks.get_data( data_key, *args, **kwargs )
+    try:
+      data = self.ptracks.get_data( data_key, sl=sl )
+      return data
 
-    return data
+    except KeyError:
+
+      return super( Worldlines, self ).get_data( data_key, sl=sl )
 
   ########################################################################
 
-  def get_category_stellar_mass( self ):
+  def get_stellar_mass( self, classification=None, ind=0, ):
+
+    self.data_masker.clear_masks()
+
+    if ( classification != 'is_wind' ) and ( classification is not None ):
+      self.data_masker.mask_data( 'is_wind', custom_mask=self.get_data( 'is_wind' ) )
+
+    self.data_masker.mask_data( 'PType', data_value=4 )
+
+    return self.get_masked_data( 'M', sl=(slice(None),ind), classification=classification, fix_invalid=True ).sum()
+
+  def get_categories_stellar_mass( self, ind=0, ):
   
-    pass
+    stellar_mass = {}
+    for mass_category in [ 'is_pristine', 'is_merger', 'is_mass_transfer', 'is_wind' ]:
+      stellar_mass[mass_category] = self.get_stellar_mass( mass_category, ind=ind )
+
+    return utilities.SmartDict( stellar_mass )
+
+  ########################################################################
+
+  def handle_data_key_error( self, data_key ):
+    '''If we don't have a data_key stored, try and create it.
+
+    Args:
+      data_key (str) : The data key in question.
+
+    Modifies:
+      self.data (dict) : If successful, stores the data here.
+    '''
+
+
+    if data_key in self.classifications.data.keys():
+      self.data[data_key] =  self.classifications.data[data_key]
+
+    elif data_key == 'is_fresh_accretion':
+      self.calc_fresh_accretion()
+
+    else:
+      raise KeyError( 'NULL data_key, data_key = {}'.format( data_key ) )
+
+  ########################################################################
+  ########################################################################
+
+  def calc_fresh_accretion( self ):
+
+    pristine_tiled = np.tile( self.get_data( 'is_pristine' ), (self.n_snaps, 1) ).transpose()
+    is_not_wind = np.invert( self.get_data( 'is_wind' ) )
+
+    self.data['is_fresh_accretion'] = np.all( [ pristine_tiled, is_not_wind ], axis=0 )
 
 ########################################################################
 ########################################################################

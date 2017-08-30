@@ -138,6 +138,7 @@ class TestWorldlinesDifferentTags( unittest.TestCase ):
       'alt_tag3' )
 
 ########################################################################
+########################################################################
 
 class TestWorldlineGetData( unittest.TestCase ):
 
@@ -152,8 +153,43 @@ class TestWorldlineGetData( unittest.TestCase ):
 
     self.worldlines.get_data( 'Rx' )
 
-    mock_get_data.assert_called_once_with( 'Rx', )
+    mock_get_data.assert_called_once_with( 'Rx', sl=None )
 
+########################################################################
+########################################################################
+
+class TestWorldlineCalcData( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.worldlines = analyze_worldlines.Worldlines( tracking_dir, tag, **kwargs )
+
+  ########################################################################
+
+  def test_calc_fresh_accretion( self ):
+
+    # Setup test data
+    self.worldlines.data['is_pristine'] = np.array( [ 1, 1, 1, 0, ] ).astype( bool )
+    self.worldlines.data['is_wind'] = np.array([
+      [ 1, 1, 0, ],
+      [ 1, 0, 0, ],
+      [ 0, 0, 0, ],
+      [ 1, 1, 0, ],
+    ]).astype( bool )
+
+    self.worldlines.calc_fresh_accretion()
+
+    actual = self.worldlines.data['is_fresh_accretion']
+    expected = np.array([
+      [ 0, 0, 1, ],
+      [ 0, 1, 1, ],
+      [ 1, 1, 1, ],
+      [ 0, 0, 0, ],
+    ]).astype( bool )
+
+    npt.assert_allclose( expected, actual )
+
+########################################################################
 ########################################################################
 
 class TestWorldlineProperties( unittest.TestCase ):
