@@ -26,7 +26,7 @@ default_kwargs = {
   'snum_start' : 500,
   'snum_end' : 600,
   'snum_step' : 100,
-  'ptypes' : [0, 4],
+  'p_types' : [0, 4],
   'out_dir' : './tests/data/tracking_output',
   'tag' : 'test',
 
@@ -320,7 +320,7 @@ class TestIDSelector( unittest.TestCase ):
         snapshot_kwargs = default_kwargs[key]
         for key2 in snapshot_kwargs.keys():
           assert snapshot_kwargs[key2] == g['parameters/snapshot_parameters'].attrs[key2]
-      elif key == 'ptypes':
+      elif key == 'p_types':
         continue
       else:
         assert default_kwargs[key] == g['parameters'].attrs[key]
@@ -374,7 +374,7 @@ class TestIDSelector( unittest.TestCase ):
         snapshot_kwargs = default_kwargs[key]
         for key2 in snapshot_kwargs.keys():
           assert snapshot_kwargs[key2] == g['parameters/snapshot_parameters'].attrs[key2]
-      elif key == 'ptypes':
+      elif key == 'p_types':
         continue
       else:
         assert default_kwargs[key] == g['parameters'].attrs[key]
@@ -508,7 +508,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
         snapshot_kwargs = default_kwargs[key]
         for key2 in snapshot_kwargs.keys():
           assert snapshot_kwargs[key2] == g['parameters/snapshot_parameters'].attrs[key2]
-      elif key == 'ptypes':
+      elif key == 'p_types':
         continue
       else:
         assert default_kwargs[key] == g['parameters'].attrs[key]

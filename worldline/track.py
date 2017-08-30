@@ -311,7 +311,7 @@ class ParticleTracker( object ):
 
     # Save the data parameters too, as part of a group
     grp = f.create_group('parameters')
-    for parameter in self.parameters_to_save:
+    for parameter in self.stored_parameters:
       grp.attrs[parameter] = getattr( self, parameter )
 
     # Save the number of processors
