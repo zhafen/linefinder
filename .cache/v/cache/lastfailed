@@ -1,17 +1,1 @@
-{
-  "tests/test_select.py::TestIDSampler::test_identify_duplicate_ids": true, 
-  "tests/test_select.py::TestIDSampler::test_identify_duplicate_ids_load_correct_data": true, 
-  "tests/test_select.py::TestIDSampler::test_identify_duplicate_ids_star_gas": true, 
-  "tests/test_select.py::TestIDSelector::test_get_selected_ids": true, 
-  "tests/test_select.py::TestIDSelector::test_get_selected_ids_parallel": true, 
-  "tests/test_select.py::TestIDSelector::test_select_ids": true, 
-  "tests/test_select.py::TestIDSelectorNoChildIDs::test_get_selected_ids": true, 
-  "tests/test_select.py::TestIDSelectorNoChildIDs::test_get_selected_ids_parallel": true, 
-  "tests/test_track.py::TestSaveTargetedParticles::test_basic": true, 
-  "tests/test_track.py::TestSaveTargetedParticles::test_has_attributes": true, 
-  "tests/test_track.py::TestSaveTargetedParticles::test_runs": true, 
-  "tests/test_track.py::TestSaveTargetedParticles::test_works_fire1": true, 
-  "tests/test_track.py::TestSaveTargetedParticles::test_works_with_stars": true, 
-  "tests/test_track.py::TestSaveTargetedParticles::test_works_with_stars_early_on": true, 
-  "tests/test_track.py::TestSaveTargetedParticlesParallel::test_basic": true
-}
+{}

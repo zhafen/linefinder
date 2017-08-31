@@ -473,9 +473,6 @@ class TestSaveTargetedParticlesParallel( unittest.TestCase ):
 
   def test_basic( self ):
 
-    #DEBUG
-    import pdb; pdb.set_trace()
-
     self.fn()
 
     f = h5py.File( 'tests/data/tracking_output/ptracks_test.hdf5', 'r' )

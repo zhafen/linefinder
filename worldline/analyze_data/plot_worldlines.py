@@ -23,6 +23,8 @@ import galaxy_diver.plot_data.pu_colormaps as pu_cm
 import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
 
+import worldline.utils.presentation_constants as p_constants
+
 import analyze_worldlines
 
 ########################################################################
@@ -35,6 +37,37 @@ default = object()
 
 class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
+  def plot_classification_bar( self,
+    x_pos,
+    ind = 0,
+    ax = default,
+    width = 0.5,
+    add_label = False,
+    ):
+
+    # Plot
+    if ax is default:
+      fig = plt.figure( figsize=(11,5), facecolor='white' )
+      ax = plt.gca()
+
+    classification_values = self.data_object.get_categories_stellar_mass_fraction( ind=ind )
+
+    bar_start = 0.
+    for i, key in enumerate( p_constants.CLASSIFICATION_LIST_A ):
+
+      if add_label:
+        label = p_constants.CLASSIFICATION_LABELS[key]
+      else:
+        label = None
+
+      value = classification_values[key]
+      ax.bar( x_pos, value, width, bottom=bar_start, color=p_constants.CLASSIFICATION_COLORS[key],
+        label=label, alpha=0.7 )
+
+      bar_start += value
+
+  ########################################################################
+
   def plot_classification_values( self,
     ax = default,
     label = default,
@@ -45,6 +78,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     Args:
       ax (axis) : What axis to use. By default creates a figure and places the axis on it.
+      label (str) : What label to use for the lines.
+      color (str) : What color to use for the lines.
+      pointsize (int) : What pointsize to use for the lines.
     '''
 
     if label is default:
@@ -132,17 +168,17 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
       sl = ( slice(None), slices )
 
     # Get data
-    x_data = self.get_masked_data( x_key, sl=sl, *args, **kwargs )
-    y_data = self.get_masked_data( y_key, sl=sl, *args, **kwargs )
+    x_data = self.data_object.get_masked_data( x_key, sl=sl, *args, **kwargs )
+    y_data = self.data_object.get_masked_data( y_key, sl=sl, *args, **kwargs )
 
     if x_range is default:
       x_range = [ x_data.min(), x_data.max() ]
     elif isinstance( x_range, float ):
-      x_range = np.array( [ -x_range, x_range ])*self.ptracks.length_scale.iloc[slices]
+      x_range = np.array( [ -x_range, x_range ])*self.data_object.ptracks.length_scale.iloc[slices]
     if y_range is default:
       y_range = [ y_data.min(), y_data.max() ]
     elif isinstance( y_range, float ):
-      y_range = np.array( [ -y_range, y_range ])*self.ptracks.length_scale.iloc[slices]
+      y_range = np.array( [ -y_range, y_range ])*self.data_object.ptracks.length_scale.iloc[slices]
 
     x_edges = np.linspace( x_range[0], x_range[1], n_bins )
     y_edges = np.linspace( y_range[0], y_range[1], n_bins )
@@ -171,11 +207,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     # Halo Plot
     if plot_halos:
-      ahf_plotter = plot_ahf.AHFPlotter( self.ptracks.ahf_reader )
-      snum = self.ptracks.ahf_reader.mtree_halos[0].index[slices]
-      ahf_plotter.plot_halos_snapshot( snum, ax, hubble_param=self.ptracks.data_attrs['hubble'],
-        radius_fraction=self.galids.parameters['galaxy_cut'] )
-      assert self.galids.parameters['length_scale'] == 'r_scale'
+      ahf_plotter = plot_ahf.AHFPlotter( self.data_object.ptracks.ahf_reader )
+      snum = self.data_object.ptracks.ahf_reader.mtree_halos[0].index[slices]
+      ahf_plotter.plot_halos_snapshot( snum, ax, hubble_param=self.data_object.ptracks.data_attrs['hubble'],
+        radius_fraction=self.data_object.galids.parameters['galaxy_cut'] )
+      assert self.data_object.galids.parameters['length_scale'] == 'r_scale'
 
     # Plot label
     if plot_label is default:
@@ -192,9 +228,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     # Upper right label (info label)
     info_label = ''
     if label_galaxy_cut:
-      info_label = r'$r_{ \rm cut } = ' + '{:.3g}'.format( self.galids.parameters['galaxy_cut'] ) + 'r_{ s}$'
+      info_label = r'$r_{ \rm cut } = ' + '{:.3g}'.format( self.data_object.galids.parameters['galaxy_cut'] ) + 'r_{ s}$'
     if label_redshift:
-      info_label = r'$z=' + '{:.3f}'.format( self.ptracks.redshift.iloc[slices] ) + '$, '+ info_label
+      info_label = r'$z=' + '{:.3f}'.format( self.data_object.ptracks.redshift.iloc[slices] ) + '$, '+ info_label
     if label_galaxy_cut or label_redshift:
       ax.annotate( s=info_label, xy=(1.,1.0225), xycoords='axes fraction', fontsize=label_fontsize,
         ha='right' )
@@ -219,7 +255,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     # Save the file
     if out_dir is not None:
-      save_file = '{}_{:03d}.png'.format( self.label, self.ptracks.snum[slices] )
+      save_file = '{}_{:03d}.png'.format( self.label, self.data_object.ptracks.snum[slices] )
       gen_plot.save_fig( out_dir, save_file, fig=fig, dpi=75 )
 
       plt.close()
@@ -331,17 +367,17 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     # Upper right label (info label)
     info_label = ''
     if label_galaxy_cut:
-      info_label = r'$r_{ \rm cut } = ' + '{:.3g}'.format( self.galids.parameters['galaxy_cut'] ) + 'r_{ s}$'
+      info_label = r'$r_{ \rm cut } = ' + '{:.3g}'.format( self.data_object.galids.parameters['galaxy_cut'] ) + 'r_{ s}$'
     if label_redshift:
       ind = defaults['slices']
-      info_label = r'$z=' + '{:.3f}'.format( self.ptracks.redshift.iloc[ind] ) + '$, '+ info_label
+      info_label = r'$z=' + '{:.3f}'.format( self.data_object.ptracks.redshift.iloc[ind] ) + '$, '+ info_label
     if label_galaxy_cut or label_redshift:
       axs[1].annotate( s=info_label, xy=(1.,1.0225), xycoords='axes fraction', fontsize=label_fontsize,
         ha='right' )
 
     # Save the file
     if out_dir is not None:
-      save_file = '{}_{:03d}.png'.format( self.label, self.ptracks.snum[slices] )
+      save_file = '{}_{:03d}.png'.format( self.label, self.data_object.ptracks.snum[slices] )
       gen_plot.save_fig( out_dir, save_file, fig=fig )
 
       plt.close()
@@ -392,7 +428,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     if n_processors > 1:
       # For safety, make sure we've loaded the data already
-      self.ptracks, self.galids, self.classifications
+      self.data_object.ptracks, self.data_object.galids, self.data_object.classifications
 
       mp_utils.parmap( plotting_method_wrapper, all_process_args, n_processors=n_processors, return_values=False )
     else:
@@ -403,6 +439,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
       gen_plot.make_movie( out_dir, '{}_*.png'.format( self.label ), '{}.mp4'.format( self.label ), )
 
     if clear_data:
-      del self.ptracks
-      del self.galids
-      del self.classifications
+      del self.data_object.ptracks
+      del self.data_object.galids
+      del self.data_object.classifications
