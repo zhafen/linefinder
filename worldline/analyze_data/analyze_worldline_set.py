@@ -16,6 +16,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.patheffects as path_effects
 
 import plot_worldlines
+import analyze_worldlines as a_worldlines
 
 import galaxy_diver.utils.utilities as utilities
 
@@ -42,9 +43,11 @@ class WorldlineSet( utilities.SmartDict ):
       for var_key in variations[key].keys():
         kwargs[var_key] = variations[key][var_key]
 
-      worldlines_d[key] = plot_worldlines.WorldlinesPlotter( label=key, **kwargs )
+      worldlines_d[key] = { 'data_object' : a_worldlines.Worldlines( label=key, **kwargs ), 'label' : key }
 
-    super( WorldlineSet, self ).__init__( worldlines_d )
+    worldlines_plotters_d = utilities.SmartDict.from_class_and_args( plot_worldlines.WorldlinesPlotter, worldlines_d )
+
+    super( WorldlineSet, self ).__init__( worldlines_plotters_d )
 
   ########################################################################
 

@@ -16,6 +16,7 @@ import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
 import matplotlib.patheffects as path_effects
 
+import galaxy_diver.plot_data.generic_plotter as generic_plotter
 import galaxy_diver.plot_data.ahf as plot_ahf
 import galaxy_diver.plot_data.plotting as gen_plot
 import galaxy_diver.plot_data.pu_colormaps as pu_cm
@@ -32,7 +33,7 @@ default = object()
 ########################################################################
 ########################################################################
 
-class WorldlinesPlotter( analyze_worldlines.Worldlines ):
+class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
   def plot_classification_values( self,
     ax = default,

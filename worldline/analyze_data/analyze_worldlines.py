@@ -361,10 +361,14 @@ class Worldlines( generic_data.GenericData ):
   def get_categories_stellar_mass( self, ind=0, ):
   
     stellar_mass = {}
-    for mass_category in [ 'is_fresh_accretion', 'is_NEP_wind_recycling', 'is_merger', 'is_mass_transfer', 'is_wind' ]:
+    for mass_category in [ 'is_fresh_accretion', 'is_NEP_wind_recycling', 'is_merger', 'is_mass_transfer', ]:
       stellar_mass[mass_category] = self.get_stellar_mass( mass_category, ind=ind )
 
     return utilities.SmartDict( stellar_mass )
+
+  def get_categories_stellar_mass_fraction( self, ind=0, ):
+
+    return self.get_categories_stellar_mass( ind=ind )/self.get_stellar_mass( ind=ind )
 
   ########################################################################
   # Generate Very Generic Data on the Go
