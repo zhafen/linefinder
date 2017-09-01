@@ -36,16 +36,14 @@ tag = 'analyze'
 
 # Tracking Parameters
 tracker_kwargs = {
-  'sdir' : sdir,
-  'types' : types,
-  'snum_start' : snap_ini,
-  'snum_end' : snap_end,
-  'snum_step' : snap_step,
+#  'sdir' : sdir,
+#  'types' : types,
+#  'snum_start' : snap_ini,
+#  'snum_end' : snap_end,
+#  'snum_step' : snap_step,
 
-  'outdir' : outdir,
+  'out_dir' : outdir,
   'tag' : tag,
-
-  'check_same_sdir' : False,
 }
 
 # Galaxy Finding Parameters

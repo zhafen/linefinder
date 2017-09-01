@@ -116,6 +116,7 @@ class ParticleTracker( object ):
           attr = f['parameters/snapshot_parameters'].attrs[attr_name]
         else:
           attr = f['parameters'].attrs[attr_name]
+        setattr( self, attr_name, attr )
     replace_default_attr( 'sdir' )
     replace_default_attr( 'p_types' )
     replace_default_attr( 'snum_start' )
