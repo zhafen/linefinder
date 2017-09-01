@@ -24,35 +24,47 @@ import galaxy_diver.utils.utilities as utilities
 
 class IDSelector( object ):
 
-  def __init__( self, snapshot_kwargs=None, n_processors=1, **kwargs ):
+  @utilities.store_parameters
+  def __init__( self,
+    out_dir,
+    tag,
+    snum_start,
+    snum_end,
+    snum_step,
+    p_types,
+    snapshot_kwargs,
+    n_processors=1,
+    ):
     '''
     Args:
-      snapshot_kwargs (dict) : Arguments to pass to SnapshotIDSelector. Can be the full range of arguments passed to
-        particle_data.ParticleData
-      n_processors (int) : The number of processers to run the ID selector with. Parallelizes by opening multiple snapshots
-        at once (that's the most time-consumptive part of the code), so requires a large memory node, most likely.
+      out_dir (str) :
+        Where to store the data.
 
-    Keyword Args:
-      snum_start (int) : Starting snapshot number.
-      snum_end (int) : Ending snapshot number.
-      snum_step (int) : Snapshot step.
-      p_types (list of ints) : Types of particles to search through.
-      out_dir (str) : Where to store the data.
-      tag (str) : Tag to give the filename.
+      tag (str) :
+        Tag to give the filename.
+
+      snum_start (int) :
+        Starting snapshot number.
+
+      snum_end (int) :
+        Ending snapshot number.
+
+      snum_step (int) :
+        Snapshot step.
+
+      p_types (list of ints) :
+        Types of particles to search through.
+
+      snapshot_kwargs (dict) :
+        Arguments to pass to SnapshotIDSelector. Can be the full range of arguments passed to
+        particle_data.ParticleData
+
+      n_processors (int, optional) :
+        The number of processers to run the ID selector with. Parallelizes by opening multiple snapshots
+        at once (that's the most time-consumptive part of the code), so requires a large memory node, most likely.
     '''
 
-    # Store the arguments
-    for arg in locals().keys():
-      setattr( self, arg, locals()[arg] )
-
-    # Make sure that all the arguments have been specified.
-    for attr in vars( self ).keys():
-      if attr == 'kwargs':
-        continue
-      if getattr( self, attr ) == None:
-        raise Exception( '{} not specified'.format( attr ) )
-
-    self.snums = range( self.kwargs['snum_start'], self.kwargs['snum_end'] + 1, self.kwargs['snum_step'] )
+    self.snums = range( self.snum_start, self.snum_end + 1, self.snum_step )
 
   ########################################################################
 
@@ -97,7 +109,7 @@ class IDSelector( object ):
     selected_ids = set()
 
     for snum in self.snums:
-      for ptype in self.kwargs['p_types']:
+      for ptype in self.p_types:
 
         kwargs = dict( self.snapshot_kwargs )
         kwargs['snum'] = snum
@@ -140,7 +152,7 @@ class IDSelector( object ):
 
     args = []
     for snum in self.snums:
-      for ptype in self.kwargs['p_types']:
+      for ptype in self.p_types:
 
         kwargs = dict( self.snapshot_kwargs )
         kwargs['snum'] = snum
@@ -208,8 +220,8 @@ class IDSelector( object ):
   def save_selected_ids( self, selected_ids_formatted ):
 
     # Open up the file to save the data in.
-    ids_filename =  'ids_full_{}.hdf5'.format( self.kwargs['tag'] )
-    self.ids_filepath = os.path.join( self.kwargs['out_dir'], ids_filename )
+    ids_filename =  'ids_full_{}.hdf5'.format( self.tag )
+    self.ids_filepath = os.path.join( self.out_dir, ids_filename )
     f = h5py.File( self.ids_filepath, 'a' )
 
     # Save the data
@@ -227,8 +239,9 @@ class IDSelector( object ):
     subgrp = f.create_group('parameters/snapshot_parameters')
 
     # Save the data parameters
-    for key in self.kwargs.keys():
-      grp.attrs[key] = self.kwargs[key]
+    for parameter in self.stored_parameters:
+      if parameter != 'snapshot_kwargs':
+        grp.attrs[parameter] = getattr( self, parameter )
 
     # Save the snapshot parameters too
     for key in self.snapshot_kwargs.keys():
