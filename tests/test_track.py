@@ -15,7 +15,7 @@ import os
 import pdb
 import unittest
 
-from worldline import track
+from pathfinder import track
 import galaxy_diver.read_data.snapshot as readsnap
 import galaxy_diver.utils.constants as constants
 

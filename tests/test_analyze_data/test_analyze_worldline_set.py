@@ -16,8 +16,8 @@ import pdb
 import pytest
 import unittest
 
-import worldline.analyze_data.analyze_worldline_set as analyze_worldline_set
-import worldline.analyze_data.analyze_classifications as analyze_classifications
+import pathfinder.analyze_data.analyze_worldline_set as analyze_worldline_set
+import pathfinder.analyze_data.analyze_classifications as analyze_classifications
 
 ########################################################################
 # Commonly useful input variables
@@ -31,7 +31,7 @@ defaults = {
 
 class TestWorldlineSetStartUp( unittest.TestCase ):
 
-  @mock.patch( 'worldline.analyze_data.analyze_worldlines.Worldlines.__init__' )
+  @mock.patch( 'pathfinder.analyze_data.analyze_worldlines.Worldlines.__init__' )
   def test_init( self, mock_constructor ):
 
     variations = {
@@ -88,8 +88,8 @@ class TestWorldlineSet( unittest.TestCase ):
 
   ########################################################################
 
-  @mock.patch( 'worldline.analyze_data.analyze_worldlines.Worldlines.foo.bar', create=True, new=1 )
-  @mock.patch( 'worldline.analyze_data.analyze_worldlines.Worldlines.foo', create=True )
+  @mock.patch( 'pathfinder.analyze_data.analyze_worldlines.Worldlines.foo.bar', create=True, new=1 )
+  @mock.patch( 'pathfinder.analyze_data.analyze_worldlines.Worldlines.foo', create=True )
   def test_getattr_nested( self, mock_foo ):
 
     actual = self.worldline_set.data_object.foo.bar
@@ -99,7 +99,7 @@ class TestWorldlineSet( unittest.TestCase ):
 
   #########################################################################
 
-  @mock.patch( 'worldline.analyze_data.analyze_worldlines.Worldlines.foo', create=True )
+  @mock.patch( 'pathfinder.analyze_data.analyze_worldlines.Worldlines.foo', create=True )
   def test_getmethod( self, mock_foo ):
 
     def side_effects( x ):
@@ -114,8 +114,8 @@ class TestWorldlineSet( unittest.TestCase ):
 
   #########################################################################
 
-  @mock.patch( 'worldline.analyze_data.analyze_classifications.Classifications.__init__' )
-  @mock.patch( 'worldline.analyze_data.analyze_classifications.Classifications.foo', create=True )
+  @mock.patch( 'pathfinder.analyze_data.analyze_classifications.Classifications.__init__' )
+  @mock.patch( 'pathfinder.analyze_data.analyze_classifications.Classifications.foo', create=True )
   def test_getmethod_nested( self, mock_foo, mock_constructor ):
 
     def side_effects( x, **kwargs ):

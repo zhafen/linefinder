@@ -15,7 +15,7 @@ import pdb
 import pytest
 import unittest
 
-import worldline.analyze_data.analyze_galids as analyze_galids
+import pathfinder.analyze_data.analyze_ids as analyze_ids
 
 ########################################################################
 # Commonly useful input variables
@@ -29,7 +29,7 @@ class TestGalIDsStartup( unittest.TestCase ):
 
   def test_init( self ):
 
-    galids = analyze_galids.GalIDs( tracking_dir, tag )
+    ids = analyze_ids.IDs( tracking_dir, tag )
 
-    assert galids.parameters['tag'] == tag
+    assert ids.parameters['tag'] == tag
 

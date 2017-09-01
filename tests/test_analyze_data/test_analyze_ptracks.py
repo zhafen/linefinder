@@ -15,7 +15,7 @@ import pdb
 import pytest
 import unittest
 
-import worldline.analyze_data.analyze_ptracks as analyze_ptracks
+import pathfinder.analyze_data.analyze_ptracks as analyze_ptracks
 
 ########################################################################
 

@@ -12,9 +12,9 @@ import os
 import pytest
 import unittest
 
-import worldline.classify as classify
-import worldline.galaxy_find as galaxy_find
-import worldline.track as track
+import pathfinder.classify as classify
+import pathfinder.galaxy_find as galaxy_find
+import pathfinder.track as track
 
 ########################################################################
 # Global variables

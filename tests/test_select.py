@@ -17,7 +17,7 @@ import unittest
 
 import galaxy_diver.analyze_data.particle_data as particle_data
 
-from worldline import select
+from pathfinder import select
 
 ########################################################################
 
@@ -215,8 +215,8 @@ class TestIDSelector( unittest.TestCase ):
 
   ########################################################################
 
-  @mock.patch( 'worldline.select.SnapshotIDSelector.__init__' )
-  @mock.patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
+  @mock.patch( 'pathfinder.select.SnapshotIDSelector.__init__' )
+  @mock.patch( 'pathfinder.select.SnapshotIDSelector.select_ids_snapshot' )
   def test_get_selected_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
     # Mock setup
@@ -243,8 +243,8 @@ class TestIDSelector( unittest.TestCase ):
 
   ########################################################################
 
-  @mock.patch( 'worldline.select.SnapshotIDSelector.__init__' )
-  @mock.patch( 'worldline.select.IDSelector.get_selected_ids_snapshot' )
+  @mock.patch( 'pathfinder.select.SnapshotIDSelector.__init__' )
+  @mock.patch( 'pathfinder.select.IDSelector.get_selected_ids_snapshot' )
   def test_get_selected_ids_parallel( self, mock_get_selected_ids_snapshot, mock_constructor, ):
 
     self.id_selector.n_processors = 2
@@ -325,13 +325,13 @@ class TestIDSelector( unittest.TestCase ):
       else:
         assert default_kwargs[key] == g['parameters'].attrs[key]
 
-    assert g.attrs['worldline_version'] is not None
+    assert g.attrs['pathfinder_version'] is not None
     assert g.attrs['galaxy_diver_version'] is not None
 
   ########################################################################
 
-  @mock.patch( 'worldline.select.SnapshotIDSelector.__init__' )
-  @mock.patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
+  @mock.patch( 'pathfinder.select.SnapshotIDSelector.__init__' )
+  @mock.patch( 'pathfinder.select.SnapshotIDSelector.select_ids_snapshot' )
   def test_select_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
     # Make sure there's nothing in our way, bwahahah
@@ -379,7 +379,7 @@ class TestIDSelector( unittest.TestCase ):
       else:
         assert default_kwargs[key] == g['parameters'].attrs[key]
 
-    assert g.attrs['worldline_version'] is not None
+    assert g.attrs['pathfinder_version'] is not None
     assert g.attrs['galaxy_diver_version'] is not None
 
 ########################################################################
@@ -407,8 +407,8 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
 
   ########################################################################
 
-  @mock.patch( 'worldline.select.SnapshotIDSelector.__init__' )
-  @mock.patch( 'worldline.select.SnapshotIDSelector.select_ids_snapshot' )
+  @mock.patch( 'pathfinder.select.SnapshotIDSelector.__init__' )
+  @mock.patch( 'pathfinder.select.SnapshotIDSelector.select_ids_snapshot' )
   def test_get_selected_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
     # Mock setup
@@ -435,8 +435,8 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
 
   ########################################################################
 
-  @mock.patch( 'worldline.select.SnapshotIDSelector.__init__' )
-  @mock.patch( 'worldline.select.IDSelector.get_selected_ids_snapshot' )
+  @mock.patch( 'pathfinder.select.SnapshotIDSelector.__init__' )
+  @mock.patch( 'pathfinder.select.IDSelector.get_selected_ids_snapshot' )
   def test_get_selected_ids_parallel( self, mock_get_selected_ids_snapshot, mock_constructor, ):
 
     self.id_selector.n_processors = 2
@@ -513,7 +513,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
       else:
         assert default_kwargs[key] == g['parameters'].attrs[key]
 
-    assert g.attrs['worldline_version'] is not None
+    assert g.attrs['pathfinder_version'] is not None
     assert g.attrs['galaxy_diver_version'] is not None
 
 ########################################################################
@@ -610,7 +610,7 @@ class TestIDSampler( unittest.TestCase ):
 
   ########################################################################
 
-  @mock.patch( 'worldline.select.IDSampler.identify_duplicate_ids' )
+  @mock.patch( 'pathfinder.select.IDSampler.identify_duplicate_ids' )
   def test_choose_particles_to_sample_ignore_duplicates( self, mock_identify_duplicate_ids ):
 
     mock_identify_duplicate_ids.side_effect = [ set([ 0, 15, 12 ]), ]
@@ -629,7 +629,7 @@ class TestIDSampler( unittest.TestCase ):
 
   ########################################################################
 
-  @mock.patch( 'worldline.select.IDSampler.identify_child_particles' )
+  @mock.patch( 'pathfinder.select.IDSampler.identify_child_particles' )
   def test_choose_particles_to_sample_ignore_child_particles( self, mock_identify_child_particles ):
 
     # Create some child ids

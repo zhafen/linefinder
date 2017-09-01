@@ -16,7 +16,7 @@ import pdb
 import pytest
 import unittest
 
-import worldline.analyze_data.analyze_worldlines as analyze_worldlines
+import pathfinder.analyze_data.analyze_worldlines as analyze_worldlines
 
 ########################################################################
 # Commonly useful input variables
@@ -107,9 +107,9 @@ class TestWorldlinesDifferentTags( unittest.TestCase ):
 
   ########################################################################
 
-  @mock.patch( 'worldline.analyze_data.analyze_classifications.Classifications.__init__' )
-  @mock.patch( 'worldline.analyze_data.analyze_galids.GalIDs.__init__' )
-  @mock.patch( 'worldline.analyze_data.analyze_ptracks.PTracks.__init__' )
+  @mock.patch( 'pathfinder.analyze_data.analyze_classifications.Classifications.__init__' )
+  @mock.patch( 'pathfinder.analyze_data.analyze_galids.GalIDs.__init__' )
+  @mock.patch( 'pathfinder.analyze_data.analyze_ptracks.PTracks.__init__' )
   def test_different_tags( self, mock_ptracks, mock_galids, mock_classifications ):
 
     mock_ptracks.side_effect = [ None, ]
@@ -157,7 +157,7 @@ class TestWorldlineGetData( unittest.TestCase ):
 
   ########################################################################
 
-  @mock.patch( 'worldline.analyze_data.analyze_worldlines.Worldlines.calc_method', create=True )
+  @mock.patch( 'pathfinder.analyze_data.analyze_worldlines.Worldlines.calc_method', create=True )
   def test_handle_data_key_error( self, mock_calc_method ):
 
     self.worldlines.handle_data_key_error( 'method' )

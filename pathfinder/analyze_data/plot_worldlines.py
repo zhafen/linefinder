@@ -23,7 +23,7 @@ import galaxy_diver.plot_data.pu_colormaps as pu_cm
 import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
 
-import worldline.utils.presentation_constants as p_constants
+import pathfinder.utils.presentation_constants as p_constants
 
 import analyze_worldlines
 

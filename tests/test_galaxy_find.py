@@ -17,7 +17,7 @@ import pytest
 import unittest
 
 import galaxy_diver.read_data.ahf as read_ahf
-from worldline import galaxy_find
+from pathfinder import galaxy_find
 
 ########################################################################
 # Useful global test variables
