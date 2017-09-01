@@ -36,23 +36,17 @@ tag = 'analyze'
 
 # Tracking Parameters
 tracker_kwargs = {
-#  'sdir' : sdir,
-#  'types' : types,
-#  'snum_start' : snap_ini,
-#  'snum_end' : snap_end,
-#  'snum_step' : snap_step,
-
   'out_dir' : outdir,
   'tag' : tag,
 }
 
 # Galaxy Finding Parameters
 gal_finder_kwargs = {
-  'sdir' : ahf_sdir,
+  'ahf_data_dir' : ahf_sdir,
   'main_mt_halo_id' : 0,
   'mtree_halos_index' : mtree_halos_index,
 
-  'tracking_dir' : outdir,
+  'out_dir' : outdir,
   'tag' : tag,
 }
 

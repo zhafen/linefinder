@@ -29,7 +29,7 @@ gal_finder_kwargs = {
   'redshift' : 0.16946003,
   'snum' : 500,
   'hubble' : 0.70199999999999996,
-  'sdir' : './tests/data/ahf_test_data',
+  'ahf_data_dir' : './tests/data/ahf_test_data',
   'mtree_halos_index' : 600,
   'main_mt_halo_id' : 0,
 
@@ -43,8 +43,10 @@ ptrack_gal_finder_kwargs = {
   'length_scale' : 'R_vir',
   'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
 
-  'sdir' : './tests/data/ahf_test_data',
-  'tracking_dir' : './tests/data/tracking_output',
+  'galaxy_cut' : 0.1,
+
+  'ahf_data_dir' : './tests/data/ahf_test_data',
+  'out_dir' : './tests/data/tracking_output',
   'tag' : 'test',
   'mtree_halos_index' : 600,
   'main_mt_halo_id' : 0,
@@ -78,7 +80,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     self.galaxy_finder = galaxy_find.GalaxyFinder( halo_coords, **self.kwargs ) 
 
     # Get the necessary reader.
-    self.galaxy_finder.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
+    self.galaxy_finder.ahf_reader = read_ahf.AHFReader( self.kwargs['ahf_data_dir'] )
     
     # Get the full needed ahf info.
     self.galaxy_finder.ahf_reader.get_halos( 500 )
@@ -454,7 +456,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     }
 
     # Prepare an ahf_reader to pass along.
-    ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
+    ahf_reader = read_ahf.AHFReader( self.kwargs['ahf_data_dir'] )
 
     # Muck it up by making it try to retrieve data
     ahf_reader.get_halos( 600 )
@@ -483,7 +485,7 @@ class TestGalaxyFinderMinimumStellarMass( unittest.TestCase ):
       'redshift' : 6.1627907799999999,
       'snum' : 50,
       'hubble' : 0.70199999999999996,
-      'sdir' : './tests/data/ahf_test_data',
+      'ahf_data_dir' : './tests/data/ahf_test_data',
       'mtree_halos_index' : 600,
     }
 
@@ -505,7 +507,7 @@ class TestGalaxyFinderMinimumStellarMass( unittest.TestCase ):
     self.galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **self.kwargs ) 
 
     # Get the necessary reader.
-    self.galaxy_finder.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
+    self.galaxy_finder.ahf_reader = read_ahf.AHFReader( self.kwargs['ahf_data_dir'] )
     
     # Get the full needed ahf info.
     self.galaxy_finder.ahf_reader.get_halos( 50 )
@@ -551,7 +553,7 @@ class TestGalaxyFinderMinimumNumStars( unittest.TestCase ):
       'redshift' : 6.1627907799999999,
       'snum' : 50,
       'hubble' : 0.70199999999999996,
-      'sdir' : './tests/data/ahf_test_data',
+      'ahf_data_dir' : './tests/data/ahf_test_data',
       'mtree_halos_index' : 600,
     }
 
@@ -573,7 +575,7 @@ class TestGalaxyFinderMinimumNumStars( unittest.TestCase ):
     self.galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **self.kwargs ) 
 
     # Get the necessary reader.
-    self.galaxy_finder.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
+    self.galaxy_finder.ahf_reader = read_ahf.AHFReader( self.kwargs['ahf_data_dir'] )
     
     # Get the full needed ahf info.
     self.galaxy_finder.ahf_reader.get_halos( 50 )
@@ -644,9 +646,10 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
     gal_finder_kwargs_copy['redshift'] = g['redshift'][1]
     particle_positions = g['P'][...][:,1]
     galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **gal_finder_kwargs_copy )
+
     expected = galaxy_finder.find_ids()
     for key in expected.keys():
-      npt.assert_allclose( expected[key], f[key][...][:,1] )
+      npt.assert_allclose( expected[key], f[key][...][:,1], err_msg="Key '{}' failed".format( key ) )
 
     # Make sure the main MT halo ID is the one we expect.
     assert f.attrs['main_mt_halo_id'] == 0
@@ -681,7 +684,6 @@ class TestParticleTrackGalaxyFinderParallel( unittest.TestCase ):
     parallel_kwargs['ptrack_tag'] = 'test'
     parallel_kwargs['tag'] = 'test_parallel'
     parallel_kwargs['n_processors'] = 2
-    parallel_kwargs['force_mp'] = True
 
     particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder( **parallel_kwargs )
     particle_track_gal_finder.find_galaxies_for_particle_tracks()

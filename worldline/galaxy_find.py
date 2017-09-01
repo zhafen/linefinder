@@ -20,47 +20,54 @@ import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
+
+default = object()
+
+########################################################################
 ########################################################################
 
 class ParticleTrackGalaxyFinder( object ):
   '''Find the association with galaxies for entire particle tracks.'''
 
+  @utilities.store_parameters
   def __init__( self,
-                main_mt_halo_id,
-                galaxy_cut=0.1,
-                length_scale='r_scale',
-                ids_to_return=[ 'gal_id', 'mt_gal_id' ],
-                minimum_criteria='n_star',
-                minimum_value=10,
-                n_processors=1,
-                **kwargs ):
+    out_dir,
+    tag,
+    main_mt_halo_id,
+    mtree_halos_index,
+    ahf_data_dir = default,
+    ptrack_tag = default,
+    galaxy_cut = 0.5,
+    length_scale = 'r_scale',
+    ids_to_return = [ 'gal_id', 'mt_gal_id' ],
+    minimum_criteria = 'n_star',
+    minimum_value = 10,
+    n_processors = 1,
+    ):
     '''Initialize.
 
     Args:
-      main_mt_halo_id (int, required): What is the ID of the main halo. To automatically choose via the most massive
+      out_dir (str) : Output directory, and directory the ptrack data is in.
+      tag (str) : Identifying tag.
+      main_mt_halo_id (int) : What is the ID of the main halo. To automatically choose via the most massive
         at z=0, set equal to None. HOWEVER, be warned that the most massive halo at z=0 *may not* be the main halo.
-      galaxy_cut (float, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy
-      length_scale (str, optional): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
+      mtree_halos_index (str or int) : The index argument to pass to AHFReader.get_mtree_halos().
+        For most cases this should be the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
+      ahf_data_dir (str, optional) : Directory the AHF data is in. Defaults to the directory the simulation data is
+        stored in, as found in the ptracks file.
+      ptrack_tag (str, optional) : Identifying tag for the ptrack data. Defaults to tag.
+      galaxy_cut (float, optional) : Anything within galaxy_cut*length_scale is counted as being inside the galaxy
+      length_scale (str, optional) : Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
       ids_to_return (list of strs, optional): The types of id you want to get out.
-      minimum_criteria (str, optional): Options...
+      minimum_criteria (str, optional) : Options...
         'n_star' -- halos must contain a minimum number of stars to count as containing a galaxy.
         'M_star' -- halos must contain a minimum stellar mass to count as containing a galaxy.
-      minimum_value (int or float, optional): The minimum amount of something (specified in minimum criteria)
+      minimum_value (int or float, optional) : The minimum amount of something (specified in minimum criteria)
         in order for a galaxy to count as hosting a halo.
       n_processors (int) : The number of processors to use. If parallel, expect significant memory usage.
-
-    Keyword Args:
-      sdir (str, required): Directory the AHF data is in.
-      tracking_dir (str, required): Directory the ptrack data is in.
-      tag (str, required): Identifying tag.
-      mtree_halos_index (str or int, required) : The index argument to pass to AHFReader.get_mtree_halos().
-        For most cases this should be the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
-      ptrack_tag (str, optional): Identifying tag for the ptrack data. Defaults to 'tag'.
     '''
 
-    # Store the arguments
-    for arg in locals().keys():
-      setattr( self, arg, locals()[arg] )
+    pass
 
   ########################################################################
 
@@ -72,8 +79,8 @@ class ParticleTrackGalaxyFinder( object ):
     print "########################################################################"
     print "Starting Adding Galaxy and Halo IDs!"
     print "########################################################################"
-    print "Using AHF data from this directory:\n    {}".format( self.kwargs['sdir'] )
-    print "Data will be saved here:\n    {}".format( self.kwargs['tracking_dir'] )
+    print "Using AHF data from this directory:\n    {}".format( self.ahf_data_dir )
+    print "Data will be saved here:\n    {}".format( self.out_dir )
     sys.stdout.flush()
 
     self.read_data()
@@ -105,18 +112,19 @@ class ParticleTrackGalaxyFinder( object ):
     '''
 
     # Get the tag for particle tracking.
-    if 'ptrack_tag' in self.kwargs:
-      ptrack_tag = self.kwargs['ptrack_tag']
-    else:
-      ptrack_tag = self.kwargs['tag']
+    if self.ptrack_tag is default:
+      self.ptrack_tag = self.tag
 
     # Load the particle track data
-    ptrack_filename = 'ptracks_{}.hdf5'.format( ptrack_tag )
-    self.ptrack_filepath = os.path.join( self.kwargs['tracking_dir'], ptrack_filename )
+    ptrack_filename = 'ptracks_{}.hdf5'.format( self.ptrack_tag )
+    self.ptrack_filepath = os.path.join( self.out_dir, ptrack_filename )
     self.ptrack = h5py.File( self.ptrack_filepath, 'r' )
 
+    if self.ahf_data_dir is default:
+      self.ahf_data_dir = self.ptrack['parameters'].attrs['sdir']
+
     # Load the ahf data
-    self.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
+    self.ahf_reader = read_ahf.AHFReader( self.ahf_data_dir )
 
   ########################################################################
 
@@ -146,8 +154,8 @@ class ParticleTrackGalaxyFinder( object ):
         'redshift' : self.ptrack['redshift'][...][ i ],
         'snum' : self.ptrack['snum'][...][ i ],
         'hubble' : self.ptrack.attrs['hubble'],
-        'sdir' : self.kwargs['sdir'],
-        'mtree_halos_index' : self.kwargs['mtree_halos_index'],
+        'ahf_data_dir' : self.ahf_data_dir,
+        'mtree_halos_index' : self.mtree_halos_index,
       }
 
       time_start = time.time()
@@ -235,8 +243,8 @@ class ParticleTrackGalaxyFinder( object ):
         'redshift' : self.ptrack['redshift'][...][ i ],
         'snum' : self.ptrack['snum'][...][ i ],
         'hubble' : self.ptrack.attrs['hubble'],
-        'sdir' : self.kwargs['sdir'],
-        'mtree_halos_index' : self.kwargs['mtree_halos_index'],
+        'ahf_data_dir' : self.ahf_data_dir,
+        'mtree_halos_index' : self.mtree_halos_index,
       }
 
       all_args.append( (particle_positions, kwargs) )
@@ -275,8 +283,8 @@ class ParticleTrackGalaxyFinder( object ):
     self.ptrack.close()
 
     # Save the data.
-    save_filename = 'galids_{}.hdf5'.format( self.kwargs['tag'] )
-    self.save_filepath = os.path.join( self.kwargs['tracking_dir'], save_filename )
+    save_filename = 'galids_{}.hdf5'.format( self.tag )
+    self.save_filepath = os.path.join( self.out_dir, save_filename )
     f = h5py.File( self.save_filepath )
     for key in self.ptrack_gal_ids.keys():
       f.create_dataset( key, data=self.ptrack_gal_ids[key] )
@@ -286,27 +294,22 @@ class ParticleTrackGalaxyFinder( object ):
       try:
         indice = self.ahf_reader.mtree_halos[0].index.max()
       except AttributeError:
-        self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
+        self.ahf_reader.get_mtree_halos( self.mtree_halos_index, 'smooth' )
         indice = self.ahf_reader.mtree_halos[0].index.max()
-      m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=indice, index=self.kwargs['mtree_halos_index'], tag='smooth' )
+      m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=indice,
+                                                          index=self.mtree_halos_index, tag='smooth' )
       f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
     else:
       f.attrs['main_mt_halo_id'] = self.main_mt_halo_id
 
     # Save the data parameters
     grp = f.create_group('parameters')
-    for key in self.kwargs.keys():
-      grp.attrs[key] = self.kwargs[key]
-
-    # Save the arguments (that aren't already obvious somewhere else in the output).
-    grp.attrs['galaxy_cut'] = self.galaxy_cut
-    grp.attrs['length_scale'] = self.length_scale
-    grp.attrs['minimum_criteria'] = self.minimum_criteria
-    grp.attrs['minimum_value'] = self.minimum_value
+    for i, parameter in enumerate( self.stored_parameters ):
+      grp.attrs[parameter] = getattr( self, parameter )
 
     # Save the current code version
-    grp.attrs['worldline_version'] = utilities.get_code_version( self )
-    grp.attrs['galaxy_diver_version'] = utilities.get_code_version( read_ahf, instance_type='module' )
+    f.attrs['worldline_version'] = utilities.get_code_version( self )
+    f.attrs['galaxy_diver_version'] = utilities.get_code_version( read_ahf, instance_type='module' )
 
     f.close()
 
@@ -324,23 +327,26 @@ class GalaxyFinder( object ):
 
     Args:
       particle_positions (np.array): Positions with dimensions (n_particles, 3).
-      ahf_reader (read_ahf object, optional): An instance of an object that reads in the AHF data. If not given initiate one using the sdir in kwargs
+      ahf_reader (read_ahf object, optional): An instance of an object that reads in the AHF data.
+        If not given initiate one using the ahf_data_dir in kwargs
 
     Keyword Args:
       redshift (float, required): Redshift the particles are at.
       snum (int, required): Snapshot the particles correspond to.
       hubble (float, required): Cosmological hubble parameter (little h)
-      sdir (str, required): Directory the AHF data is in.
-      mtree_halos_index (str or int, required) : The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be the final
-                        snapshot number, but see AHFReader.get_mtree_halos's documentation.
-
+      ahf_data_dir (str, required): Directory the AHF data is in.
+      mtree_halos_index (str or int, required) : The index argument to pass to AHFReader.get_mtree_halos().
+        For most cases this should be the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
       
       The following will most likely be passed from ParticleTrackGalaxyFinder....
-      galaxy_cut (float, required): The fraction of the length scale a particle must be inside to be counted as part of a galaxy.
+      galaxy_cut (float, required): The fraction of the length scale a particle must be inside to be counted as part
+        of a galaxy.
       length_scale (str, required): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
       ids_to_return (list of strs, required): The types of id you want to get out.
-      minimum_stellar_mass (float, required if no minimum_num_stars): The minimum stellar mass a halo must contain to count as containing a galaxy.
-      minimum_num_stars (int, required if no minimum_stellar_mass): The minimum number of stars a halo must contain to count as containing a galaxy.
+      minimum_stellar_mass (float, required if no minimum_num_stars): The minimum stellar mass a halo must contain to
+        count as containing a galaxy.
+      minimum_num_stars (int, required if no minimum_stellar_mass): The minimum number of stars a halo must contain to
+        count as containing a galaxy.
     '''
 
     # Store the arguments
@@ -349,7 +355,7 @@ class GalaxyFinder( object ):
 
     # Setup the default ahf_reader
     if ahf_reader is None:
-      self.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
+      self.ahf_reader = read_ahf.AHFReader( self.kwargs['ahf_data_dir'] )
 
     # In the case of a minimum stellar mass, we need to divide it by 1/h when getting its values out.
     if self.kwargs['minimum_criteria'] == 'M_star':
@@ -392,7 +398,8 @@ class GalaxyFinder( object ):
         return galaxy_and_halo_ids
 
       else:
-        raise KeyError( 'AHF data not found for snum {} in {}'.format( self.kwargs['snum'], self.kwargs['sdir'] ) )
+        raise KeyError( 'AHF data not found for snum {} in {}'.format( self.kwargs['snum'],
+                                                                       self.kwargs['ahf_data_dir'] ) )
     
     # Actually get the data
     for id_type in self.kwargs['ids_to_return']:
@@ -491,7 +498,8 @@ class GalaxyFinder( object ):
       extremum_fn = np.max
 
       # Get the virial masses. It's okay to leave in comoving, since we're just finding the maximum
-      m_vir = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=self.kwargs['snum'], index=self.kwargs['mtree_halos_index'], tag='smooth' )
+      m_vir = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=self.kwargs['snum'],
+                                                       index=self.kwargs['mtree_halos_index'], tag='smooth' )
 
     else:
       raise Exception( "Unrecognized type_of_halo_id" )
@@ -531,7 +539,8 @@ class GalaxyFinder( object ):
     '''
 
     # Get the halo positions
-    halo_pos_comov = np.array([ self.ahf_reader.ahf_halos['Xc'], self.ahf_reader.ahf_halos['Yc'], self.ahf_reader.ahf_halos['Zc'] ]).transpose()
+    halo_pos_comov = np.array([ self.ahf_reader.ahf_halos['Xc'], self.ahf_reader.ahf_halos['Yc'],
+                                self.ahf_reader.ahf_halos['Zc'] ]).transpose()
     halo_pos = halo_pos_comov/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
 
     # Apply a cut on containing a minimum amount of stars
@@ -582,7 +591,8 @@ class GalaxyFinder( object ):
 
     Returns:
       part_of_halo (np.array of bools): Shape (n_particles, n_halos). 
-        If index [i, j] is True, then particle i is inside radial_cut_fraction*length_scale of the jth halo, defined via the MergerTrace ID.
+        If index [i, j] is True, then particle i is inside radial_cut_fraction*length_scale of the jth halo, defined
+          via the MergerTrace ID.
     '''
 
     # Load up the merger tree data
@@ -597,7 +607,8 @@ class GalaxyFinder( object ):
 
       # Only try to get the data if we have the minimum stellar mass
       if above_minimum_snap:
-        has_minimum_value = mtree_halo[ self.kwargs['minimum_criteria'] ][ self.kwargs['snum'] ]/self.min_conversion_factor >= self.kwargs['minimum_value']
+        halo_value = mtree_halo[ self.kwargs['minimum_criteria'] ][ self.kwargs['snum'] ]/self.min_conversion_factor 
+        has_minimum_value = halo_value >= self.kwargs['minimum_value']
       else:
         # If it's not at the point where it can be traced, it definitely doesn't have the minimum stellar mass.
         has_minimum_value = False
@@ -606,7 +617,11 @@ class GalaxyFinder( object ):
       if has_minimum_value:
 
         # Get the halo position
-        halo_pos_comov = np.array([ mtree_halo['Xc'][ self.kwargs['snum'] ], mtree_halo['Yc'][ self.kwargs['snum'] ], mtree_halo['Zc'][ self.kwargs['snum'] ] ])
+        halo_pos_comov = np.array([
+          mtree_halo['Xc'][ self.kwargs['snum'] ],
+          mtree_halo['Yc'][ self.kwargs['snum'] ],
+          mtree_halo['Zc'][ self.kwargs['snum'] ],
+        ])
         halo_pos = halo_pos_comov/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
 
         # Make halo_pos 2D for compatibility with cdist
