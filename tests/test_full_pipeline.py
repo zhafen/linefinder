@@ -42,27 +42,18 @@ tracker_kwargs = {
 
 # Galaxy Finding Parameters
 gal_finder_kwargs = {
+  'out_dir' : outdir,
+  'tag' : tag,
+
   'ahf_data_dir' : ahf_sdir,
   'main_mt_halo_id' : 0,
   'mtree_halos_index' : mtree_halos_index,
-
-  'out_dir' : outdir,
-  'tag' : tag,
 }
 
 # Classifying Parameters
 classifier_kwargs = {
-  'sdir' : ahf_sdir,
-  'mtree_halos_index' : mtree_halos_index,
-
-  'tracking_dir' : outdir,
+  'out_dir' : outdir,
   'tag' : tag,
-
-  'neg' : 1,
-  'wind_vel_min_vc' : 2.,
-  'wind_vel_min' : 15.,
-  'time_min' : 100., 
-  'time_interval_fac' : 5.,
 }
 
 ptracks_filename = os.path.join( outdir, 'ptracks_analyze.hdf5' )

@@ -36,7 +36,7 @@ class ParticleTrackGalaxyFinder( object ):
     main_mt_halo_id,
     mtree_halos_index,
     ahf_data_dir = default,
-    ptrack_tag = default,
+    ptracks_tag = default,
     galaxy_cut = 0.5,
     length_scale = 'r_scale',
     ids_to_return = [ 'gal_id', 'mt_gal_id' ],
@@ -47,24 +47,47 @@ class ParticleTrackGalaxyFinder( object ):
     '''Initialize.
 
     Args:
-      out_dir (str) : Output directory, and directory the ptrack data is in.
-      tag (str) : Identifying tag.
-      main_mt_halo_id (int) : What is the ID of the main halo. To automatically choose via the most massive
+      out_dir (str) :
+        Output directory, and directory the ptrack data is in.
+
+      tag (str) :
+        Identifying tag.
+
+      main_mt_halo_id (int) :
+        What is the ID of the main halo. To automatically choose via the most massive
         at z=0, set equal to None. HOWEVER, be warned that the most massive halo at z=0 *may not* be the main halo.
-      mtree_halos_index (str or int) : The index argument to pass to AHFReader.get_mtree_halos().
+
+      mtree_halos_index (str or int) :
+        The index argument to pass to AHFReader.get_mtree_halos().
         For most cases this should be the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
-      ahf_data_dir (str, optional) : Directory the AHF data is in. Defaults to the directory the simulation data is
+
+      ahf_data_dir (str, optional) :
+        Directory the AHF data is in. Defaults to the directory the simulation data is
         stored in, as found in the ptracks file.
-      ptrack_tag (str, optional) : Identifying tag for the ptrack data. Defaults to tag.
-      galaxy_cut (float, optional) : Anything within galaxy_cut*length_scale is counted as being inside the galaxy
-      length_scale (str, optional) : Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
-      ids_to_return (list of strs, optional): The types of id you want to get out.
-      minimum_criteria (str, optional) : Options...
+
+      ptracks_tag (str, optional) :
+        Identifying tag for the ptrack data. Defaults to tag.
+
+      galaxy_cut (float, optional) :
+        Anything within galaxy_cut*length_scale is counted as being inside the galaxy
+
+      length_scale (str, optional) :
+        Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
+
+      ids_to_return (list of strs, optional):
+        The types of id you want to get out.
+
+      minimum_criteria (str, optional) :
+        Options...
         'n_star' -- halos must contain a minimum number of stars to count as containing a galaxy.
         'M_star' -- halos must contain a minimum stellar mass to count as containing a galaxy.
-      minimum_value (int or float, optional) : The minimum amount of something (specified in minimum criteria)
+
+      minimum_value (int or float, optional) :
+        The minimum amount of something (specified in minimum criteria)
         in order for a galaxy to count as hosting a halo.
-      n_processors (int) : The number of processors to use. If parallel, expect significant memory usage.
+
+      n_processors (int) :
+        The number of processors to use. If parallel, expect significant memory usage.
     '''
 
     pass
@@ -112,11 +135,11 @@ class ParticleTrackGalaxyFinder( object ):
     '''
 
     # Get the tag for particle tracking.
-    if self.ptrack_tag is default:
-      self.ptrack_tag = self.tag
+    if self.ptracks_tag is default:
+      self.ptracks_tag = self.tag
 
     # Load the particle track data
-    ptrack_filename = 'ptracks_{}.hdf5'.format( self.ptrack_tag )
+    ptrack_filename = 'ptracks_{}.hdf5'.format( self.ptracks_tag )
     self.ptrack_filepath = os.path.join( self.out_dir, ptrack_filename )
     self.ptrack = h5py.File( self.ptrack_filepath, 'r' )
 

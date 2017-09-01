@@ -46,15 +46,29 @@ class ParticleTracker( object ):
     '''Setup the ID Finder. Looks for data in the form of "out_dir/ids_tag.hdf5"
 
     Args:
-      out_dir (str) : Output data directory. Also the directory for the file the ids to track should be in.
-      tag (str) : Identifying tag. Currently must be put in manually. Should be the same for all stages of the
-        pipeline.
-      sdir (str, optional): Simulation data directory. Defaults to same directory the IDs are from.
-      p_types (list of ints, optional): The particle data types to include. Defaults to the values used in the IDs.
-      snum_start (int, optional): Starting snapshot. Defaults to the value used in the IDs.
-      snum_end (int, optional): End snapshot. Defaults to same directory the IDs are from.
-      snum_step (int, optional): How many snapshots to jump over? Defaults to same directory the IDs are from.
-      n_processors (int, optional) : Number of processors to use.
+      out_dir (str) :
+        Output data directory. Also the directory for the file the ids to track should be in.
+
+      tag (str) :
+        Identifying tag. Currently must be put in manually. Should be the same for all stages of the pipeline.
+
+      sdir (str, optional):
+        Simulation data directory. Defaults to same directory the IDs are from.
+
+      p_types (list of ints, optional):
+        The particle data types to include. Defaults to the values used in the IDs.
+
+      snum_start (int, optional):
+        Starting snapshot. Defaults to the value used in the IDs.
+
+      snum_end (int, optional):
+        End snapshot. Defaults to same directory the IDs are from.
+
+      snum_step (int, optional):
+        How many snapshots to jump over? Defaults to same directory the IDs are from.
+
+      n_processors (int, optional) :
+        Number of processors to use.
     '''
 
     pass

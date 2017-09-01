@@ -681,7 +681,7 @@ class TestParticleTrackGalaxyFinderParallel( unittest.TestCase ):
   def test_find_galaxies_for_particle_tracks_parallel( self ):
 
     parallel_kwargs = dict( ptrack_gal_finder_kwargs )
-    parallel_kwargs['ptrack_tag'] = 'test'
+    parallel_kwargs['ptracks_tag'] = 'test'
     parallel_kwargs['tag'] = 'test_parallel'
     parallel_kwargs['n_processors'] = 2
 

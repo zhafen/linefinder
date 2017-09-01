@@ -20,53 +20,91 @@ import galaxy_diver.utils.constants as constants
 import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
+
+default = object()
+
+########################################################################
 ########################################################################
 
 class Classifier( object ):
   '''Loads the tracked particle data, and uses that to classify the particles into different categories.
   '''
 
+  @utilities.store_parameters
   def __init__( self,
+    out_dir,
+    tag,
+    ptracks_tag = default,
+    galids_tag = default,
+    ahf_data_dir = default,
+    mtree_halos_index = default,
     not_in_main_gal_key = 'gal_id',
     classifications_to_save = [ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', ],
     write_events = True,
     events_to_save = [ 'is_in_other_gal', 'is_in_main_gal', 'is_ejected', 'redshift_first_acc' ],
-    **kwargs ):
+    neg = 1,
+    wind_vel_min = 15.,
+    wind_vel_min_vc = 1.,
+    time_min = 100.,
+    time_interval_fac = 5.,
+    ):
     '''Setup the ID Finder.
 
     Args:
-      not_in_main_gal_key (str) : The galaxy_finder data key used to identify when not in a main galaxy.
+      out_dir (str) :
+        Data directory for tracked particle data.
+
+      tag (str) :
+        Identifying tag. Currently must be put in manually.
+
+      ptracks_tag (str, optional) :
+        Identifying tag for the ptrack data. Defaults to 'tag'.
+
+      galids_tag (str, optional) :
+        Identifying tag for the galaxy_finder data. Defaults to 'tag'.
+
+      ahf_data_dir (str, optional) :
+        Data directory for AHF data. Default value is whatever is stored in the galids file.
+
+      mtree_halos_index (int, optional) : 
+        The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be 
+        the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
+        Default value is whatever is stored in the galids file.
+
+      not_in_main_gal_key (str, optional) :
+        The galaxy_finder data key used to identify when not in a main galaxy.
         'gal_id' is the default, meaning if a particle is in the main galaxy and isn't inside another galaxy then it's
-          counted as in part of the main galaxy.
-        Another potential option is 'halo_id'.
-      classifications_to_save (list of strs) : What classifications to write to a file.
-      write_events (bool) : Whether or not to save events in a particle's history to a file, e.g. when it's ejected.
-      events_to_save (list of strs) : What events to write to a file.
+        counted as in part of the main galaxy. Another potential option is 'halo_id'.
 
-    Keyword Args:
-      Data Parameters:
-        sdir (str): Data directory for AHF data.
-        tracking_dir (str): Data directory for tracked particle data.
-        galfind_tag
-        tag (str): Identifying tag. Currently must be put in manually.
-        ptrack_tag (str,optional): Identifying tag for the ptrack data. Defaults to 'tag'.
-        galfind_tag (str,optional): Identifying tag for the galaxy_finder data. Defaults to 'tag'.
-        mtree_halos_index: The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be 
-          the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
+      classifications_to_save (list of strs, optional) :
+        What classifications to write to a file.
 
-      Analysis Parameters:
-        neg (int): Number of earliest indices for which we neglect accretion/ejection events.
-                   If each indice corresponds to a snapshot, then it's the number of snapshots
-        wind_vel_min (float): The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
-        wind_vel_min_vc (float): The minimum radial velocity (in units of the main galaxy circular velocity) a particle must have to be considered ejection.
-        time_min (float): Minimum time (in Myr) a particle must reside in a galaxy to not count as pristine gas.
-        time_interval_fac (float): Externally-processed mass is required to spend at least time_min during the
-                                   interval time_interval_fac x time_min prior to accretion to qualify as a *merger*.
+      write_events (bool, optional) :
+        Whether or not to save events in a particle's history to a file, e.g. when it's ejected.
+
+      events_to_save (list of strs, optional) :
+        What events to write to a file.
+
+      neg (int, optional) :
+        Number of earliest indices for which we neglect accretion/ejection events.
+        If each indice corresponds to a snapshot, then it's the number of snapshots
+
+      wind_vel_min (float, optional) :
+        The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
+        
+      wind_vel_min_vc (float, optional) :
+        The minimum radial velocity (in units of the main galaxy circular velocity)
+        a particle must have to be considered ejection.
+
+      time_min (float, optional) :
+        Minimum time (in Myr) a particle must reside in a galaxy to not count as pristine gas.
+
+      time_interval_fac (float, optional) :
+        Externally-processed mass is required to spend at least time_min during the
+        interval time_interval_fac x time_min prior to accretion to qualify as a *merger*.
     '''
 
-    # Store the arguments
-    for arg in locals().keys():
-      setattr( self, arg, locals()[arg] )
+    pass
 
   ########################################################################
 
@@ -78,9 +116,9 @@ class Classifier( object ):
     print "########################################################################"
     print "Starting Classifying!"
     print "########################################################################"
-    print "Using tracked particle data from this directory:\n    {}".format( self.kwargs['tracking_dir'] )
-    print "Using AHF data from this directory:\n    {}".format( self.kwargs['sdir'] )
-    print "Data will be saved here:\n    {}".format( self.kwargs['tracking_dir'] )
+    print "Using tracked particle data from this directory:\n    {}".format( self.out_dir )
+    print "Using AHF data from this directory:\n    {}".format( self.ahf_data_dir )
+    print "Data will be saved here:\n    {}".format( self.out_dir )
     sys.stdout.flush()
 
     # Get the data files out
@@ -143,9 +181,9 @@ class Classifier( object ):
 
     self.ptrack = {}
     self.ptrack_attrs = {}
-    def load_data_into_ptrack( filename ):
+    def load_data_into_ptrack( filename, store_parameters=False ):
 
-      filepath = os.path.join( self.kwargs['tracking_dir'], filename )
+      filepath = os.path.join( self.out_dir, filename )
       f = h5py.File(filepath, 'r')
 
       # Store the particle track data in a dictionary
@@ -157,33 +195,35 @@ class Classifier( object ):
       for key in f.attrs.keys():
         self.ptrack_attrs[ key ] = f.attrs[ key ]
 
+      if store_parameters:
+        if self.ahf_data_dir is default:
+          self.ahf_data_dir = f['parameters'].attrs['ahf_data_dir']
+        if self.mtree_halos_index is default:
+          self.mtree_halos_index = f['parameters'].attrs['mtree_halos_index']
+
       f.close()
 
     # Get the tag for particle tracking.
-    if 'ptrack_tag' in self.kwargs:
-      ptrack_tag = self.kwargs['ptrack_tag']
-    else:
-      ptrack_tag = self.kwargs['tag']
+    if self.ptracks_tag is default:
+      self.ptracks_tag = self.tag
 
     # Get the tag for galaxy finding.
-    if 'galfind_tag' in self.kwargs:
-      galfind_tag = self.kwargs['galfind_tag']
-    else:
-      galfind_tag = self.kwargs['tag']
+    if self.galids_tag is default:
+      self.galids_tag = self.tag
 
     # Load Particle Tracking and Galaxy Finding Data
-    self.ptrack_filename = 'ptracks_{}.hdf5'.format( ptrack_tag )
-    self.galfind_filename = 'galids_{}.hdf5'.format( galfind_tag )
+    self.ptrack_filename = 'ptracks_{}.hdf5'.format( self.ptracks_tag )
+    self.galfind_filename = 'galids_{}.hdf5'.format( self.galids_tag )
     load_data_into_ptrack( self.ptrack_filename )
-    load_data_into_ptrack( self.galfind_filename )
+    load_data_into_ptrack( self.galfind_filename, True )
 
     # Set useful state variables
     self.n_snap = self.ptrack['redshift'].size
     self.n_particle = self.ptrack['ID'].size
 
     # Load the ahf data
-    self.ahf_reader = read_ahf.AHFReader( self.kwargs['sdir'] )
-    self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
+    self.ahf_reader = read_ahf.AHFReader( self.ahf_data_dir )
+    self.ahf_reader.get_mtree_halos( self.mtree_halos_index, 'smooth' )
 
   ########################################################################
 
@@ -195,8 +235,8 @@ class Classifier( object ):
     '''
 
     # Open up the file to save the data in.
-    classification_filename =  'classifications_{}.hdf5'.format( self.kwargs['tag'] )
-    self.classification_filepath = os.path.join( self.kwargs['tracking_dir'], classification_filename )
+    classification_filename =  'classifications_{}.hdf5'.format( self.tag )
+    self.classification_filepath = os.path.join( self.out_dir, classification_filename )
     f = h5py.File( self.classification_filepath, 'a' )
 
     # Save the data
@@ -207,11 +247,8 @@ class Classifier( object ):
 
     # Save the data parameters
     grp = f.create_group('parameters')
-    for key in self.kwargs.keys():
-      grp.attrs[key] = self.kwargs[key]
-
-    # Save the arguments
-    grp.attrs['not_in_main_gal_key'] = self.not_in_main_gal_key
+    for parameter in self.stored_parameters:
+      grp.attrs[parameter] = getattr( self, parameter )
 
     # Save the current code versions
     f.attrs['worldline_version'] = utilities.get_code_version( self )
@@ -229,8 +266,8 @@ class Classifier( object ):
     '''
 
     # Open up the file to save the data in.
-    events_filename =  'events_{}.hdf5'.format( self.kwargs['tag'] )
-    self.events_filepath = os.path.join( self.kwargs['tracking_dir'], events_filename )
+    events_filename =  'events_{}.hdf5'.format( self.tag )
+    self.events_filepath = os.path.join( self.out_dir, events_filename )
     f = h5py.File( self.events_filepath, 'a' )
 
     # Save the data
@@ -241,11 +278,8 @@ class Classifier( object ):
 
     # Save the data parameters
     grp = f.create_group('parameters')
-    for key in self.kwargs.keys():
-      grp.attrs[key] = self.kwargs[key]
-
-    # Save the arguments
-    grp.attrs['not_in_main_gal_key'] = self.not_in_main_gal_key
+    for parameter in self.stored_parameters:
+      grp.attrs[parameter] = getattr( self, parameter )
 
     # Save the current code versions
     f.attrs['worldline_version'] = utilities.get_code_version( self )
@@ -411,7 +445,7 @@ class Classifier( object ):
     is_accreted = ( self.gal_event_id == 1 )
 
     # Correct for "boundary conditions": neglect events at earliest snapshots
-    is_accreted[:,-self.kwargs['neg']: ] = False
+    is_accreted[:,-self.neg: ] = False
 
     return is_accreted
 
@@ -437,8 +471,8 @@ class Classifier( object ):
 
     # The conditions for being outside any galaxy
     is_outside_before_inside_after = ( self.gal_event_id == -1 ) # Condition 1
-    has_minimum_vr_in_vc = ( v_r[:,0:self.n_snap-1] > self.kwargs['wind_vel_min_vc']*v_c_tiled[:,0:self.n_snap-1] ) # Condition 2
-    has_minimum_vr = ( v_r[:,0:self.n_snap-1] > self.kwargs['wind_vel_min'] ) # Condition 3
+    has_minimum_vr_in_vc = ( v_r[:,0:self.n_snap-1] > self.wind_vel_min_vc*v_c_tiled[:,0:self.n_snap-1] ) # Condition 2
+    has_minimum_vr = ( v_r[:,0:self.n_snap-1] > self.wind_vel_min ) # Condition 3
     is_gas = ( self.ptrack['PType'][:,0:self.n_snap-1] == 0 ) # Condition 4
     is_outside_any_gal = ( self.ptrack['gal_id'][:,0:self.n_snap-1] < 0 ) # Condition 5
 
@@ -451,7 +485,7 @@ class Classifier( object ):
       )
 
     # Correct for "boundary conditions": neglect events at earliest snapshots
-    is_ejected[:,-self.kwargs['neg']:] = False
+    is_ejected[:,-self.neg:] = False
 
     return is_ejected
 
@@ -539,7 +573,7 @@ class Classifier( object ):
     cum_time_before_acc = ( self.dt * self.is_before_first_acc.astype( float ) ).cumsum(axis=1)
 
     # Conditions for counting up time
-    time_interval = self.kwargs['time_interval_fac'] * self.kwargs['time_min']
+    time_interval = self.time_interval_fac * self.time_min
     is_in_other_gal_in_time_interval_before_acc = (
       ( cum_time_before_acc <= time_interval ) & # Count up only the time before first accretion.
       self.is_before_first_acc & # Make sure we haven't accreted yet
@@ -563,10 +597,10 @@ class Classifier( object ):
         of time in another galaxy before being accreted.
     '''
 
-    is_pristine = ( self.time_in_other_gal_before_acc < self.kwargs['time_min'] )
+    is_pristine = ( self.time_in_other_gal_before_acc < self.time_min )
 
     # Correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
-    for k in range( self.kwargs['neg'] ):
+    for k in range( self.neg ):
       is_pristine[ self.is_in_main_gal[:,self.n_snap-1-k] ] = True
 
     return is_pristine
@@ -581,10 +615,10 @@ class Classifier( object ):
         amount of time in another galaxy before being accreted.
     '''
 
-    is_preprocessed = ( self.time_in_other_gal_before_acc >= self.kwargs['time_min'] )
+    is_preprocessed = ( self.time_in_other_gal_before_acc >= self.time_min )
 
     # Correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
-    for k in range( self.kwargs['neg'] ):
+    for k in range( self.neg ):
       is_preprocessed[ self.is_in_main_gal[:, self.n_snap-1-k] ] = False
 
     return is_preprocessed
@@ -598,7 +632,7 @@ class Classifier( object ):
       is_mass_transfer (np.array of bools) : True for particle i if it has been preprocessed but has *not*
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
-    has_not_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval < self.kwargs['time_min'] )
+    has_not_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval < self.time_min )
     is_mass_transfer = (  self.is_preprocessed & has_not_spent_minimum_time )
 
     return is_mass_transfer
@@ -613,7 +647,7 @@ class Classifier( object ):
       is_merger ( [n_particle] np.array of bools ) : True for particle i if it has been preprocessed and has
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
-    has_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval >= self.kwargs['time_min'] )
+    has_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval >= self.time_min )
     is_merger = (  self.is_preprocessed & has_spent_minimum_time  )
 
     return is_merger

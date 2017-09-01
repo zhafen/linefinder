@@ -22,8 +22,8 @@ from worldline import classify
 ########################################################################
 
 default_kwargs = {
-  'sdir' : './tests/data/ahf_test_data',
-  'tracking_dir' : './tests/data/tracking_output',
+  'ahf_data_dir' : './tests/data/ahf_test_data',
+  'out_dir' : './tests/data/tracking_output',
   'tag' : 'test_classify',
   'neg' : 1,
   'mtree_halos_index' : 600,
@@ -201,7 +201,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   def test_identify_is_in_other_gal( self ):
 
-    self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['sdir'] )
+    self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['ahf_data_dir'] )
     self.classifier.ahf_reader.get_mtree_halos( 'snum' )
 
     expected = np.array([
@@ -301,7 +301,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
   def test_identify_ejection( self ):
 
     # Prerequisites
-    self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['sdir'] )
+    self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['ahf_data_dir'] )
     self.classifier.ahf_reader.get_mtree_halos( 'snum' )
 
     expected = np.array([
@@ -420,7 +420,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     # Prerequisites
     # For this test we're not going to use the default data
-    self.classifier.kwargs['time_interval_fac'] = 1.5
+    self.classifier.time_interval_fac = 1.5
     self.classifier.dt = np.array([
        [   50.,   50.,  50.,  50.,  50., ],
        [   50.,   50.,  50.,  50.,  50., ],
@@ -611,6 +611,10 @@ class TestFullClassifierPipeline( unittest.TestCase ):
     self.savefile = './tests/data/tracking_output/classifications_test_classify.hdf5'
     self.events_savefile = './tests/data/tracking_output/events_test_classify.hdf5'
 
+    # Because we're skipping this step, we need to make sure we're not tossing objects around
+    self.classifier.ptracks_tag = self.classifier.tag
+    self.classifier.galids_tag = self.classifier.tag
+
     if os.path.isfile( self.savefile ):
       os.system( 'rm {}'.format( self.savefile ) )
     if os.path.isfile( self.events_savefile ):
@@ -633,7 +637,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
     self.classifier.ptrack_filename = 'test_ptrack_filename'
     self.classifier.galfind_filename = 'test_galfind_filename'
 
-    self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['sdir'] )
+    self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['ahf_data_dir'] )
 
     # Prerequisites
     self.classifier.is_pristine = np.array([
