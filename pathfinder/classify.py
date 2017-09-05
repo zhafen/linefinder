@@ -379,7 +379,7 @@ class Classifier( object ):
     '''Identify what particles are in a galaxy besides the main galaxy.
 
     Returns:
-      is_in_main_gal ( [n_particle, n_snap-1] np.array of bools) : True if in a galaxy other than the main galaxy at
+      is_in_other_gal ( [n_particle, n_snap-1] np.array of bools) : True if in a galaxy other than the main galaxy at
         that redshift.
     '''
 

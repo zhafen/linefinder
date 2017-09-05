@@ -401,6 +401,8 @@ class GalaxyFinder( object ):
         host_halo_id (np.array of ints): ID of the host halo the particle is part of.
         gal_id (np.array of ints): ID of the smallest galaxy the particle is part of.
         host_gal_id (np.array of ints): ID of the host galaxy the particle is part of.
+        mt_halo_id (np.array of ints): Merger tree ID of the least-massive halo the particle is part of.
+        mt_gal_id (np.array of ints): Merger tree ID of the smallest galaxy the particle is part of.
     '''
 
     # Dictionary to store the data in.
@@ -561,23 +563,6 @@ class GalaxyFinder( object ):
         If index [i, j] is True, then particle i is inside radial_cut_fraction*length_scale of the jth halo.
     '''
 
-    # Get the halo positions
-    halo_pos_comov = np.array([ self.ahf_reader.ahf_halos['Xc'], self.ahf_reader.ahf_halos['Yc'],
-                                self.ahf_reader.ahf_halos['Zc'] ]).transpose()
-    halo_pos = halo_pos_comov/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
-
-    # Apply a cut on containing a minimum amount of stars
-    min_criteria = self.ahf_reader.ahf_halos[ self.kwargs['minimum_criteria'] ]
-    has_minimum_value = min_criteria/self.min_conversion_factor >= self.kwargs['minimum_value']
-
-    # Figure out which indices satisfy the criteria and choose only those halos
-    success_inds = np.where( has_minimum_value )[0]
-    halo_pos_selected = halo_pos[success_inds]
-
-    # Get the distances
-    # Output is ordered such that dist[:,0] is the distance to the center of halo 0 for each particle
-    dist = scipy.spatial.distance.cdist( self.particle_positions, halo_pos_selected )
-
     # Get the relevant length scale
     if self.kwargs['length_scale'] == 'R_vir':
       length_scale = self.ahf_reader.ahf_halos['Rvir']
@@ -593,16 +578,64 @@ class GalaxyFinder( object ):
     length_scale_pkpc = length_scale/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
 
     # Get the radial cut
-    radial_cut = radial_cut_fraction*length_scale_pkpc[success_inds]
+    radial_cut = radial_cut_fraction*length_scale_pkpc[self.valid_halo_inds]
 
     # Find the halos that our particles are part of (provided they passed the minimum cut)
-    part_of_halo_success = dist < radial_cut[np.newaxis,:]
+    part_of_halo_success = self.dist_to_all_valid_halos < radial_cut[np.newaxis,:]
 
     # Get the full array out
     part_of_halo = np.zeros( (self.n_particles, length_scale_pkpc.size) ).astype( bool )
-    part_of_halo[:,success_inds] = part_of_halo_success
+    part_of_halo[:,self.valid_halo_inds] = part_of_halo_success
 
     return part_of_halo
+
+  ########################################################################
+
+  @property
+  def dist_to_all_valid_halos( self ):
+    '''
+    Returns:
+      dist_to_all_valid_halos (np.ndarray) :
+        Distance between the particle positions and all *.AHF_halos halos containing a galaxy.
+    '''
+
+    if not hasattr( self, '_dist_to_all_valid_halos' ):
+        
+      # Get the halo positions
+      halo_pos_comov = np.array([
+        self.ahf_reader.ahf_halos['Xc'],
+        self.ahf_reader.ahf_halos['Yc'],
+        self.ahf_reader.ahf_halos['Zc'],
+      ]).transpose()
+      halo_pos = halo_pos_comov/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
+      halo_pos_selected = halo_pos[self.valid_halo_inds]
+
+      # Get the distances
+      # Output is ordered such that dist[:,0] is the distance to the center of halo 0 for each particle
+      self._dist_to_all_valid_halos = scipy.spatial.distance.cdist( self.particle_positions, halo_pos_selected )
+
+    return self._dist_to_all_valid_halos
+
+  ########################################################################
+
+  @property
+  def valid_halo_inds( self ):
+    '''
+    Returns:
+      valid_halo_inds (np.ndarray) :
+        Indices of *AHF_halos halos that satisfy our minimum criteria for containing a galaxy.
+    '''
+
+    if not hasattr( self, '_valid_halo_inds' ):
+
+      # Apply a cut on containing a minimum amount of stars
+      min_criteria = self.ahf_reader.ahf_halos[ self.kwargs['minimum_criteria'] ]
+      has_minimum_value = min_criteria/self.min_conversion_factor >= self.kwargs['minimum_value']
+
+      # Figure out which indices satisfy the criteria and choose only those halos
+      self._valid_halo_inds = np.where( has_minimum_value )[0]
+
+    return self._valid_halo_inds
 
   ########################################################################
 

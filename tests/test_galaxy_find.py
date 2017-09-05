@@ -87,6 +87,49 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
+  def test_valid_halo_inds( self ):
+
+    # Make sure we actually have a minimum
+    self.galaxy_finder.kwargs['minimum_value'] = 10
+
+    # Modify the AHF halos data for easy replacement
+    self.galaxy_finder.ahf_reader.ahf_halos = {}
+    self.galaxy_finder.ahf_reader.ahf_halos['n_star'] = np.array( [ 100, 5, 10, 0 ] )
+
+    actual = self.galaxy_finder.valid_halo_inds
+
+    expected = np.array( [ 0, 2, ] )
+
+    npt.assert_allclose( expected, actual )
+    
+  ########################################################################
+
+  def test_dist_to_all_valid_halos( self ):
+    '''Test that this works for using r_scale.'''
+
+    self.galaxy_finder.particle_positions = np.array([
+      [ 29414.96458784,  30856.75007114,  32325.90901812], # Right in the middle of mt halo 0 at snap 500
+      [ 29414.96458784 + 50.,  30856.75007114,  32325.90901812], # Just outside the scale radius of mt halo 0 at snap 500.
+      [ 29414.96458784,  30856.75007114 - 25.,  32325.90901812], # Just inside the scale radius of mt halo 0 at snap 500.
+      ])
+    self.galaxy_finder.particle_positions *= 1./(1. + self.redshift)/self.hubble
+    self.galaxy_finder.n_particles = 3
+
+    actual = self.galaxy_finder.dist_to_all_valid_halos
+
+    # Build the expected output
+    n_halos = self.galaxy_finder.ahf_reader.ahf_halos.index.size
+    n_particles = self.galaxy_finder.n_particles
+    expected_shape = ( n_particles, n_halos )
+
+    npt.assert_allclose( actual[ 0, 0 ], 0., atol=1e-7 )
+    npt.assert_allclose( actual[ 1, 0 ], 50.*1./(1. + self.redshift)/self.hubble )
+    npt.assert_allclose( actual[ 2, 0 ], 25.*1./(1. + self.redshift)/self.hubble )
+
+    self.assertEqual( actual.shape, expected_shape )
+
+  ########################################################################
+
   def test_find_containing_halos( self ):
 
     result = self.galaxy_finder.find_containing_halos()
@@ -354,6 +397,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     particle_positions *= 1./(1. + self.redshift)/self.hubble
 
     expected = {
+      'd_halo' : np.array( [ 1., 1., 1., ] ),
       'host_halo_id' : np.array( [-1, 1, 3610] ),
       'halo_id' : np.array( [0, 10, 3783] ),
       'host_gal_id' : np.array( [-1, 1, 3610] ),
