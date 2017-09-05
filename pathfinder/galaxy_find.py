@@ -39,7 +39,7 @@ class ParticleTrackGalaxyFinder( object ):
     ptracks_tag = default,
     galaxy_cut = 0.5,
     length_scale = 'r_scale',
-    ids_to_return = [ 'gal_id', 'mt_gal_id', 'd_gal', ],
+    ids_to_return = [ 'gal_id', 'mt_gal_id', 'd_sat', ],
     minimum_criteria = 'n_star',
     minimum_value = 10,
     n_processors = 1,
@@ -179,6 +179,7 @@ class ParticleTrackGalaxyFinder( object ):
         'hubble' : self.ptrack.attrs['hubble'],
         'ahf_data_dir' : self.ahf_data_dir,
         'mtree_halos_index' : self.mtree_halos_index,
+        'main_mt_halo_id' : self.main_mt_halo_id,
       }
 
       time_start = time.time()
@@ -269,6 +270,7 @@ class ParticleTrackGalaxyFinder( object ):
         'hubble' : self.ptrack.attrs['hubble'],
         'ahf_data_dir' : self.ahf_data_dir,
         'mtree_halos_index' : self.mtree_halos_index,
+        'main_mt_halo_id' : self.main_mt_halo_id,
       }
 
       all_args.append( (particle_positions, kwargs) )
@@ -345,33 +347,54 @@ class GalaxyFinder( object ):
   '''Find the association with galaxies and halos for a given set of particles at a given redshift.'''
 
   def __init__( self,
-                particle_positions,
-                ahf_reader=None,
-                **kwargs ):
+    particle_positions,
+    ahf_reader = None,
+    **kwargs ):
     '''Initialize.
 
     Args:
-      particle_positions (np.array): Positions with dimensions (n_particles, 3).
-      ahf_reader (read_ahf object, optional): An instance of an object that reads in the AHF data.
+      particle_positions (np.array) :
+        Positions with dimensions (n_particles, 3).
+
+      ahf_reader (read_ahf object, optional) :
+        An instance of an object that reads in the AHF data.
         If not given initiate one using the ahf_data_dir in kwargs
 
     Keyword Args:
-      redshift (float, required): Redshift the particles are at.
-      snum (int, required): Snapshot the particles correspond to.
-      hubble (float, required): Cosmological hubble parameter (little h)
-      ahf_data_dir (str, required): Directory the AHF data is in.
-      mtree_halos_index (str or int, required) : The index argument to pass to AHFReader.get_mtree_halos().
+      redshift (float, required) :
+        Redshift the particles are at.
+
+      snum (int, required) :
+        Snapshot the particles correspond to.
+
+      hubble (float, required) :
+        Cosmological hubble parameter (little h)
+
+      ahf_data_dir (str, required) :
+        Directory the AHF data is in.
+
+      mtree_halos_index (str or int, required)  :
+        The index argument to pass to AHFReader.get_mtree_halos().
         For most cases this should be the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
-      
+
       The following will most likely be passed from ParticleTrackGalaxyFinder....
-      galaxy_cut (float, required): The fraction of the length scale a particle must be inside to be counted as part
+
+      galaxy_cut (float, required) :
+        The fraction of the length scale a particle must be inside to be counted as part
         of a galaxy.
-      length_scale (str, required): Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
-      ids_to_return (list of strs, required): The types of id you want to get out.
-      minimum_stellar_mass (float, required if no minimum_num_stars): The minimum stellar mass a halo must contain to
+
+      length_scale (str, required) :
+        Anything within galaxy_cut*length_scale is counted as being inside the galaxy.
+
+      ids_to_return (list of strs, required) :
+        The types of id you want to get out.
+
+      minimum_stellar_mass (float, required if no minimum_num_stars) :
+        The minimum stellar mass a halo must contain to
         count as containing a galaxy.
-      minimum_num_stars (int, required if no minimum_stellar_mass): The minimum number of stars a halo must contain to
-        count as containing a galaxy.
+
+      minimum_num_stars (int, required if no minimum_stellar_mass) :
+        The minimum number of stars a halo must contain to count as containing a galaxy.
     '''
 
     # Store the arguments
@@ -444,6 +467,8 @@ class GalaxyFinder( object ):
         galaxy_and_halo_ids['mt_gal_id'] = self.find_halo_id( self.kwargs['galaxy_cut'], type_of_halo_id='mt_halo_id' )
       elif id_type == 'd_gal':
         galaxy_and_halo_ids['d_gal'] = self.find_d_gal()
+      elif id_type == 'd_sat':
+        galaxy_and_halo_ids['d_sat'] = self.find_d_sat()
       else:
         raise Exception( "Unrecognized id_type" )
     
@@ -452,13 +477,41 @@ class GalaxyFinder( object ):
   ########################################################################
 
   def find_d_gal( self ):
-    '''Find the distance to the center of the closest galaxy that contains a galaxy.
+    '''Find the distance to the center of the closest halo that contains a galaxy.
 
     Returns:
       d_gal (np.ndarray) : For particle i, d_gal[i] is the distance in pkpc to the center of the nearest galaxy.
     '''
   
     return np.min( self.dist_to_all_valid_halos, axis=1 )
+
+  ########################################################################
+
+  def find_d_sat( self ):
+    '''Find the distance to the center of the closest halo that contains a satellite galaxy.
+
+    Returns:
+      d_sat (np.ndarray) :
+        For particle i, d_sat[i] is the distance in pkpc to the center of the nearest galaxy, besides the main galaxy.
+    '''
+
+    self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
+
+    # The indice for the main galaxy is the same as the AHF_halos ID for it.
+    ind_main_gal = self.ahf_reader.mtree_halos[ self.kwargs['main_mt_halo_id'] ]['ID'][ self.kwargs['snum'] ]
+
+    valid_halo_ind_is_main_gal_ind = self.valid_halo_inds == ind_main_gal 
+    ind_main_gal_in_valid_inds = np.where( valid_halo_ind_is_main_gal_ind )[0]
+
+    if ind_main_gal_in_valid_inds.size == 0:
+      return np.min( self.dist_to_all_valid_halos, axis=1 )
+
+    elif ind_main_gal_in_valid_inds.size == 1:
+      dist_to_all_valid_sats = np.delete( self.dist_to_all_valid_halos, ind_main_gal_in_valid_inds[0], axis=1 )
+      return np.min( dist_to_all_valid_sats, axis=1 )
+
+    else:
+      raise Exception( "valid_ind_main_gal too big, is size {}".format( valid_ind_main_gal.size ) )
 
   ########################################################################
 
