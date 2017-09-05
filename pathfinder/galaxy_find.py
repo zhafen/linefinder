@@ -447,6 +447,14 @@ class GalaxyFinder( object ):
 
   ########################################################################
 
+  def find_d_gal( self ):
+    '''Find the distance to the center of the closest galaxy that contains a galaxy.
+    '''
+  
+    return np.min( self.dist_to_all_valid_halos, axis=1 )
+
+  ########################################################################
+
   def find_host_id( self, radial_cut_fraction=1. ):
     '''Find the host halos our particles are inside of some radial cut of.
     This is the host ID at a given snapshot, and is not the same as the merger tree halo ID.
