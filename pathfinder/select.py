@@ -73,7 +73,7 @@ class IDSelector( object ):
     '''Save a set of all ids that match a set of data filters to a file.
     
     Args:
-      data_filters (list of dicts): The data filters to apply.
+      data_filters (dict of dicts): The data filters to apply.
     '''
 
     print( "########################################################################" )
@@ -88,7 +88,7 @@ class IDSelector( object ):
 
     selected_ids_formatted = self.format_selected_ids( selected_ids )
 
-    self.save_selected_ids( selected_ids_formatted )
+    self.save_selected_ids( selected_ids_formatted, data_filters )
 
     print( "########################################################################" )
     print( "Done!" )
@@ -217,7 +217,7 @@ class IDSelector( object ):
 
   ########################################################################
 
-  def save_selected_ids( self, selected_ids_formatted ):
+  def save_selected_ids( self, selected_ids_formatted, data_filters ):
 
     # Open up the file to save the data in.
     ids_filename =  'ids_full_{}.hdf5'.format( self.tag )
@@ -237,6 +237,7 @@ class IDSelector( object ):
     # Create groups for the parameters
     grp = f.create_group('parameters')
     subgrp = f.create_group('parameters/snapshot_parameters')
+    data_filter_subgrp = f.create_group('parameters/data_filters')
 
     # Save the data parameters
     for parameter in self.stored_parameters:
@@ -246,6 +247,12 @@ class IDSelector( object ):
     # Save the snapshot parameters too
     for key in self.snapshot_kwargs.keys():
       subgrp.attrs[key] = self.snapshot_kwargs[key]
+
+    # Save the data filter values
+    for key, data_filter in data_filters.items():
+      df_subgrp = data_filter_subgrp.create_group( key )
+      for inner_key, value in data_filter.items():
+        df_subgrp.attrs[inner_key] = value
 
     # Save how many processors we used.
     grp.attrs['n_processors'] = self.n_processors
@@ -297,7 +304,7 @@ class SnapshotIDSelector( particle_data.ParticleData ):
       data_filters (list of dicts): The data filters to apply.
     '''
 
-    for data_filter in data_filters:
+    for key, data_filter in data_filters.items():
       self.data_masker.mask_data( data_filter['data_key'], data_filter['data_min'], data_filter['data_max'] )
 
   ########################################################################

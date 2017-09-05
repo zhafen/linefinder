@@ -51,10 +51,10 @@ default_snap_kwargs = {
 newids_snap_kwargs = copy.deepcopy( default_snap_kwargs )
 newids_snap_kwargs['load_additional_ids'] = True
 
-default_data_filters = [
-  { 'data_key' : 'Rf', 'data_min' : 0., 'data_max' : 1., },
-  { 'data_key' : 'T', 'data_min' : 1e4, 'data_max' : 1e6, },
-]
+default_data_filters = {
+  'radial_cut' : { 'data_key' : 'Rf', 'data_min' : 0., 'data_max' : 1., },
+  'temp_cut' : { 'data_key' : 'T', 'data_min' : 1e4, 'data_max' : 1e6, },
+}
 
 id_sampler_kwargs = {
   'sdir' : './tests/data/tracking_output_for_analysis',
@@ -302,7 +302,20 @@ class TestIDSelector( unittest.TestCase ):
       os.system( 'rm {}'.format( ids_filepath ) )
 
     # The function itself
-    self.id_selector.save_selected_ids( ( self.selected_ids_formatted, self.selected_child_ids_formatted ) )
+    ids = ( self.selected_ids_formatted, self.selected_child_ids_formatted )
+    data_filters = {
+      'radial_cut' : {
+        'data_key' : 'Rf',
+        'data_min' : 0.,
+        'data_max' : 1.,
+      },
+      'velocity_cut' : {
+        'data_key' : 'Vf',
+        'data_min' : 0.,
+        'data_max' : 0.5,
+      },
+    }
+    self.id_selector.save_selected_ids( ids, data_filters )
 
     filepath = os.path.join( default_kwargs['out_dir'], 'ids_full_test.hdf5' )
     g = h5py.File( filepath, 'r' )
@@ -324,6 +337,10 @@ class TestIDSelector( unittest.TestCase ):
         continue
       else:
         assert default_kwargs[key] == g['parameters'].attrs[key]
+
+    for key, data_filter in data_filters.items():
+      for inner_key, data_filter_inner in data_filter.items():
+        assert data_filter_inner == g['parameters/data_filters'][key].attrs[inner_key]
 
     assert g.attrs['pathfinder_version'] is not None
     assert g.attrs['galaxy_diver_version'] is not None
@@ -494,7 +511,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
       os.system( 'rm {}'.format( ids_filepath ) )
 
     # The function itself
-    self.id_selector.save_selected_ids( self.selected_ids_formatted, )
+    self.id_selector.save_selected_ids( self.selected_ids_formatted, default_data_filters )
 
     filepath = os.path.join( default_kwargs['out_dir'], 'ids_full_test.hdf5' )
     g = h5py.File( filepath, 'r' )
