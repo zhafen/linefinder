@@ -39,7 +39,7 @@ class ParticleTrackGalaxyFinder( object ):
     ptracks_tag = default,
     galaxy_cut = 0.5,
     length_scale = 'r_scale',
-    ids_to_return = [ 'gal_id', 'mt_gal_id' ],
+    ids_to_return = [ 'gal_id', 'mt_gal_id', 'd_gal', ],
     minimum_criteria = 'n_star',
     minimum_value = 10,
     n_processors = 1,
@@ -198,7 +198,8 @@ class ParticleTrackGalaxyFinder( object ):
       if not hasattr( self, 'ptrack_gal_ids' ):
         self.ptrack_gal_ids = {}
         for key in galaxy_and_halo_ids.keys():
-          self.ptrack_gal_ids[key] = np.empty( ( galaxy_finder.n_particles, n_snaps ), dtype=int )
+          dtype = type( galaxy_and_halo_ids[key][0] )
+          self.ptrack_gal_ids[key] = np.empty( ( galaxy_finder.n_particles, n_snaps ), dtype=dtype )
 
       # Store the data in the primary array
       for key in galaxy_and_halo_ids.keys():
@@ -284,7 +285,8 @@ class ParticleTrackGalaxyFinder( object ):
       if not hasattr( self, 'ptrack_gal_ids' ):
         self.ptrack_gal_ids = {}
         for key in galaxy_and_halo_ids.keys():
-          self.ptrack_gal_ids[key] = np.empty( ( n_particles, n_snaps ), dtype=int )
+          dtype = type( galaxy_and_halo_ids[key][0] )
+          self.ptrack_gal_ids[key] = np.empty( ( n_particles, n_snaps ), dtype=dtype )
 
       # Store the data in the primary array
       for key in galaxy_and_halo_ids.keys():
@@ -440,6 +442,8 @@ class GalaxyFinder( object ):
         galaxy_and_halo_ids['mt_halo_id'] = self.find_halo_id( type_of_halo_id='mt_halo_id' )
       elif id_type == 'mt_gal_id':
         galaxy_and_halo_ids['mt_gal_id'] = self.find_halo_id( self.kwargs['galaxy_cut'], type_of_halo_id='mt_halo_id' )
+      elif id_type == 'd_gal':
+        galaxy_and_halo_ids['d_gal'] = self.find_d_gal()
       else:
         raise Exception( "Unrecognized id_type" )
     
@@ -449,6 +453,9 @@ class GalaxyFinder( object ):
 
   def find_d_gal( self ):
     '''Find the distance to the center of the closest galaxy that contains a galaxy.
+
+    Returns:
+      d_gal (np.ndarray) : For particle i, d_gal[i] is the distance in pkpc to the center of the nearest galaxy.
     '''
   
     return np.min( self.dist_to_all_valid_halos, axis=1 )

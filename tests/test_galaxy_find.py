@@ -34,14 +34,16 @@ gal_finder_kwargs = {
   'main_mt_halo_id' : 0,
 
   'galaxy_cut' : 0.1,
-  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
+  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', ],
   'minimum_criteria' : 'n_star',
   'minimum_value' : 0,
 }
 
 ptrack_gal_finder_kwargs = {
   'length_scale' : 'R_vir',
-  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id' ],
+  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', ],
+  'minimum_criteria' : 'n_star',
+  'minimum_value' : 0,
 
   'galaxy_cut' : 0.1,
 
@@ -397,7 +399,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     particle_positions *= 1./(1. + self.redshift)/self.hubble
 
     expected = {
-      'd_halo' : np.array( [ 1., 1., 1., ] ),
+      'd_gal' : np.array( [ 0., 0., 0., ] ),
       'host_halo_id' : np.array( [-1, 1, 3610] ),
       'halo_id' : np.array( [0, 10, 3783] ),
       'host_gal_id' : np.array( [-1, 1, 3610] ),
@@ -412,7 +414,7 @@ class TestGalaxyFinder( unittest.TestCase ):
 
     for key in expected.keys():
       print key
-      npt.assert_allclose( expected[key], actual[key] )
+      npt.assert_allclose( expected[key], actual[key], atol=1e-10 )
 
   ########################################################################
 
@@ -700,8 +702,11 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
     particle_positions = g['P'][...][:,-1]
     galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **gal_finder_kwargs )
     expected = galaxy_finder.find_ids()
+
+    # Make the comparison
     for key in expected.keys():
-      npt.assert_allclose( expected[key], f[key][...][:,-1] )
+      npt.assert_allclose( expected[key], f[key][...][:,-1],
+                           err_msg='Key {} failed'.format( key ), rtol=1e-4 )
 
     # What we expect (calculated using the positions of the particles in snum 550 )
     gal_finder_kwargs_copy = dict( gal_finder_kwargs )
@@ -710,9 +715,10 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
     particle_positions = g['P'][...][:,1]
     galaxy_finder = galaxy_find.GalaxyFinder( particle_positions, **gal_finder_kwargs_copy )
 
+    # Make the comparison
     expected = galaxy_finder.find_ids()
     for key in expected.keys():
-      npt.assert_allclose( expected[key], f[key][...][:,1], err_msg="Key '{}' failed".format( key ) )
+      npt.assert_allclose( expected[key], f[key][...][:,1], err_msg="Key '{}' failed".format( key ), rtol=1e-4 )
 
     # Make sure the main MT halo ID is the one we expect.
     assert f.attrs['main_mt_halo_id'] == 0
