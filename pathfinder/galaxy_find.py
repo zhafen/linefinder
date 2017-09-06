@@ -635,31 +635,40 @@ class GalaxyFinder( object ):
         If index [i, j] is True, then particle i is inside radial_cut_fraction*length_scale of the jth halo.
     '''
 
-    # Get the relevant length scale
-    if self.kwargs['length_scale'] == 'R_vir':
-      length_scale = self.ahf_reader.ahf_halos['Rvir']
-    elif self.kwargs['length_scale'] == 'r_scale':
-      # Get the files containing the concentration (counts on it being already calculated beforehand)
-      self.ahf_reader.get_halos_add( self.ahf_reader.ahf_halos_snum )
-
-      # Get the scale radius
-      r_vir = self.ahf_reader.ahf_halos['Rvir']
-      length_scale = r_vir/self.ahf_reader.ahf_halos_add['cAnalytic']
-    else:
-      raise KeyError( "Unspecified length scale" )
-    length_scale_pkpc = length_scale/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
-
     # Get the radial cut
-    radial_cut = radial_cut_fraction*length_scale_pkpc[self.valid_halo_inds]
+    radial_cut = radial_cut_fraction*self.ahf_halos_length_scale_pkpc[self.valid_halo_inds]
 
     # Find the halos that our particles are part of (provided they passed the minimum cut)
     part_of_halo_success = self.dist_to_all_valid_halos < radial_cut[np.newaxis,:]
 
     # Get the full array out
-    part_of_halo = np.zeros( (self.n_particles, length_scale_pkpc.size) ).astype( bool )
+    part_of_halo = np.zeros( (self.n_particles, self.ahf_halos_length_scale_pkpc.size) ).astype( bool )
     part_of_halo[:,self.valid_halo_inds] = part_of_halo_success
 
     return part_of_halo
+
+  ########################################################################
+
+  @property
+  def ahf_halos_length_scale_pkpc( self ):
+
+    if not hasattr( self, '_ahf_halos_length_scale_pkpc' ):
+
+      # Get the relevant length scale
+      if self.kwargs['length_scale'] == 'R_vir':
+        length_scale = self.ahf_reader.ahf_halos['Rvir']
+      elif self.kwargs['length_scale'] == 'r_scale':
+        # Get the files containing the concentration (counts on it being already calculated beforehand)
+        self.ahf_reader.get_halos_add( self.ahf_reader.ahf_halos_snum )
+
+        # Get the scale radius
+        r_vir = self.ahf_reader.ahf_halos['Rvir']
+        length_scale = r_vir/self.ahf_reader.ahf_halos_add['cAnalytic']
+      else:
+        raise KeyError( "Unspecified length scale" )
+      self._ahf_halos_length_scale_pkpc = length_scale/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
+
+    return self._ahf_halos_length_scale_pkpc
 
   ########################################################################
 
