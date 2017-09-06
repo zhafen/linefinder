@@ -487,7 +487,7 @@ class GalaxyFinder( object ):
 
   ########################################################################
 
-  def find_d_sat( self ):
+  def find_d_sat( self, scaled=False ):
     '''Find the distance to the center of the closest halo that contains a satellite galaxy.
 
     Returns:
@@ -497,25 +497,42 @@ class GalaxyFinder( object ):
 
     self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
 
-    # The indice for the main galaxy is the same as the AHF_halos ID for it.
     mtree_halo = self.ahf_reader.mtree_halos[ self.kwargs['main_mt_halo_id'] ]
+
     if self.kwargs['snum'] < mtree_halo.index.min():
+      # This mimics what would happen if ind_main_gal wasn't in self.valid_halo_inds
       ind_main_gal_in_valid_inds = np.array( [] )
     else:
+      # The indice for the main galaxy is the same as the AHF_halos ID for it.
       ind_main_gal = mtree_halo['ID'][ self.kwargs['snum'] ]
 
       valid_halo_ind_is_main_gal_ind = self.valid_halo_inds == ind_main_gal 
       ind_main_gal_in_valid_inds = np.where( valid_halo_ind_is_main_gal_ind )[0]
 
     if ind_main_gal_in_valid_inds.size == 0:
-      return np.min( self.dist_to_all_valid_halos, axis=1 )
+      dist_to_all_valid_sats = self.dist_to_all_valid_halos
+      valid_halo_inds_sats = self.valid_halo_inds
 
     elif ind_main_gal_in_valid_inds.size == 1:
       dist_to_all_valid_sats = np.delete( self.dist_to_all_valid_halos, ind_main_gal_in_valid_inds[0], axis=1 )
-      return np.min( dist_to_all_valid_sats, axis=1 )
+      valid_halo_inds_sats = np.delete( self.valid_halo_inds, ind_main_gal_in_valid_inds[0] )
 
     else:
       raise Exception( "valid_ind_main_gal too big, is size {}".format( valid_ind_main_gal.size ) )
+
+    if not scaled:
+      return np.min( dist_to_all_valid_sats, axis=1 )
+
+    inds_sat = np.argmin( dist_to_all_valid_sats, axis=1 )
+
+    # Now scale
+    length_scale_sats = self.ahf_halos_length_scale_pkpc[ valid_halo_inds_sats ]
+
+    dist_to_all_valid_sats_scaled = dist_to_all_valid_sats/length_scale_sats
+
+    d_sat_scaled = dist_to_all_valid_sats_scaled[ np.arange( self.n_particles ), inds_sat ]
+
+    return d_sat_scaled
 
   ########################################################################
 

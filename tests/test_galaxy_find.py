@@ -611,9 +611,12 @@ class TestGalaxyFinder( unittest.TestCase ):
       [ 10., 8., 6., 7., ],
     ])
 
+    # Make sure we set the number of particles correctly, to match the number we're using
+    self.galaxy_finder.n_particles = 3
+
     actual = self.galaxy_finder.find_d_sat( scaled=True )
 
-    expected = np.array([ 2., 0.2, 2., ])
+    expected = np.array([ 2., 0.25, 2., ])
 
     npt.assert_allclose( expected, actual )
 
