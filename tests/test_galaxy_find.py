@@ -575,6 +575,27 @@ class TestGalaxyFinder( unittest.TestCase ):
 
     npt.assert_allclose( expected, actual )
 
+  ########################################################################
+
+  def test_find_d_sat_early_universe( self ):
+    '''This tests we can find the shortest distance to the nearest galaxy.
+    '''
+
+    self.galaxy_finder.kwargs['snum'] = 1
+
+    # Setup the distance so we don't have to calculate it.
+    self.galaxy_finder._dist_to_all_valid_halos = np.array([
+      [ 0.5, 1.0, 0.75, ],
+      [ 15., 5., 3., ],
+      [ 0.2, 2.5e-4, 4., ],
+    ])
+
+    actual = self.galaxy_finder.find_d_sat()
+
+    expected = np.array([ 0.5, 3., 2.5e-4, ])
+
+    npt.assert_allclose( expected, actual )
+
 ########################################################################
 
 class TestGalaxyFinderMinimumStellarMass( unittest.TestCase ):

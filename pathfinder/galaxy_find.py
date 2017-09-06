@@ -498,10 +498,14 @@ class GalaxyFinder( object ):
     self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
 
     # The indice for the main galaxy is the same as the AHF_halos ID for it.
-    ind_main_gal = self.ahf_reader.mtree_halos[ self.kwargs['main_mt_halo_id'] ]['ID'][ self.kwargs['snum'] ]
+    mtree_halo = self.ahf_reader.mtree_halos[ self.kwargs['main_mt_halo_id'] ]
+    if self.kwargs['snum'] < mtree_halo.index.min():
+      ind_main_gal_in_valid_inds = np.array( [] )
+    else:
+      ind_main_gal = mtree_halo['ID'][ self.kwargs['snum'] ]
 
-    valid_halo_ind_is_main_gal_ind = self.valid_halo_inds == ind_main_gal 
-    ind_main_gal_in_valid_inds = np.where( valid_halo_ind_is_main_gal_ind )[0]
+      valid_halo_ind_is_main_gal_ind = self.valid_halo_inds == ind_main_gal 
+      ind_main_gal_in_valid_inds = np.where( valid_halo_ind_is_main_gal_ind )[0]
 
     if ind_main_gal_in_valid_inds.size == 0:
       return np.min( self.dist_to_all_valid_halos, axis=1 )
