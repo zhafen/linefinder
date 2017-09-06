@@ -34,14 +34,14 @@ gal_finder_kwargs = {
   'main_mt_halo_id' : 0,
 
   'galaxy_cut' : 0.1,
-  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', ],
+  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_sat_scaled', ],
   'minimum_criteria' : 'n_star',
   'minimum_value' : 0,
 }
 
 ptrack_gal_finder_kwargs = {
   'length_scale' : 'R_vir',
-  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', ],
+  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_sat_scaled', ],
   'minimum_criteria' : 'n_star',
   'minimum_value' : 0,
 

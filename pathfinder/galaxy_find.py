@@ -39,7 +39,7 @@ class ParticleTrackGalaxyFinder( object ):
     ptracks_tag = default,
     galaxy_cut = 0.5,
     length_scale = 'r_scale',
-    ids_to_return = [ 'gal_id', 'mt_gal_id', 'd_sat', ],
+    ids_to_return = [ 'gal_id', 'mt_gal_id', 'd_sat_scaled', ],
     minimum_criteria = 'n_star',
     minimum_value = 10,
     n_processors = 1,
@@ -469,6 +469,8 @@ class GalaxyFinder( object ):
         galaxy_and_halo_ids['d_gal'] = self.find_d_gal()
       elif id_type == 'd_sat':
         galaxy_and_halo_ids['d_sat'] = self.find_d_sat()
+      elif id_type == 'd_sat_scaled':
+        galaxy_and_halo_ids['d_sat'] = self.find_d_sat( scaled=True )
       else:
         raise Exception( "Unrecognized id_type" )
     
@@ -528,7 +530,7 @@ class GalaxyFinder( object ):
     # Now scale
     length_scale_sats = self.ahf_halos_length_scale_pkpc[ valid_halo_inds_sats ]
 
-    dist_to_all_valid_sats_scaled = dist_to_all_valid_sats/length_scale_sats
+    dist_to_all_valid_sats_scaled = dist_to_all_valid_sats/length_scale_sats[np.newaxis,:]
 
     d_sat_scaled = dist_to_all_valid_sats_scaled[ np.arange( self.n_particles ), inds_sat ]
 
