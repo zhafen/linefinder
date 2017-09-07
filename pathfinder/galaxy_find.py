@@ -484,6 +484,10 @@ class GalaxyFinder( object ):
     Returns:
       d_gal (np.ndarray) : For particle i, d_gal[i] is the distance in pkpc to the center of the nearest galaxy.
     '''
+
+    # Handle when no halos exist.
+    if self.ahf_reader.ahf_halos.size == 0:
+      return -2.*np.ones( (self.n_particles,) )
   
     return np.min( self.dist_to_all_valid_halos, axis=1 )
 
@@ -496,6 +500,10 @@ class GalaxyFinder( object ):
       d_sat (np.ndarray) :
         For particle i, d_sat[i] is the distance in pkpc to the center of the nearest galaxy, besides the main galaxy.
     '''
+
+    # Handle when no halos exist.
+    if self.ahf_reader.ahf_halos.size == 0:
+      return -2.*np.ones( (self.n_particles,) )
 
     self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
 
