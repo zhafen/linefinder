@@ -10,11 +10,8 @@ import numpy as np
 import os
 
 import galaxy_diver.analyze_data.generic_data as generic_data
-import galaxy_diver.plot_data.ahf as plot_ahf
-import galaxy_diver.plot_data.plotting as gen_plot
-import galaxy_diver.plot_data.pu_colormaps as pu_cm
 import galaxy_diver.read_data.snapshot as read_snapshot
-import galaxy_diver.utils.astro_tools as astro_tools
+import galaxy_diver.utils.astro as astro_tools
 import galaxy_diver.utils.utilities as utilities
 
 import analyze_ids
@@ -433,6 +430,9 @@ class Worldlines( generic_data.GenericData ):
       h=self.ptracks.data_attrs['hubble'],
       omega_matter=self.ptracks.data_attrs['omega_matter'] )
     dt = time[:-1] - time[1:] 
+
+    # dt is shorter than the standard array, so we need to pad the array at the final snapshot
+    dt = np.append( dt, np.nan )
 
     self.data['dt'] = dt
 

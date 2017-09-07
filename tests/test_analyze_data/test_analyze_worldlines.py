@@ -223,6 +223,19 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     npt.assert_allclose( expected, actual )
 
+  ########################################################################
+
+  def test_calc_dt( self ):
+  
+    # Setup test data
+    self.worldlines.classifications.data['redshift'] = np.array( [ 0., 0.06984670, 0.16946000, ] )
+    
+    self.worldlines.calc_dt()
+    actual = self.worldlines.data['dt']
+    expected = np.array( [ 0.927, 1.177, np.nan ] )*1e3
+
+    npt.assert_allclose( expected, actual, rtol=1e-3 )
+
 ########################################################################
 ########################################################################
 
