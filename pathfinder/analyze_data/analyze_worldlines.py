@@ -14,6 +14,7 @@ import galaxy_diver.plot_data.ahf as plot_ahf
 import galaxy_diver.plot_data.plotting as gen_plot
 import galaxy_diver.plot_data.pu_colormaps as pu_cm
 import galaxy_diver.read_data.snapshot as read_snapshot
+import galaxy_diver.utils.astro_tools as astro_tools
 import galaxy_diver.utils.utilities as utilities
 
 import analyze_ids
@@ -398,6 +399,11 @@ class Worldlines( generic_data.GenericData ):
   ########################################################################
 
   def calc_is_fresh_accretion( self ):
+    '''Find material classified as fresh accretion (pristine gas that has not recycled).
+
+    Modifies:
+      self.data['is_fresh_accretion'] ( np.ndarray ) : Result.
+    '''
 
     pristine_tiled = np.tile( self.get_data( 'is_pristine' ), (self.n_snaps, 1) ).transpose()
     is_not_wind = np.invert( self.get_data( 'is_wind' ) )
@@ -407,6 +413,11 @@ class Worldlines( generic_data.GenericData ):
   ########################################################################
 
   def calc_is_NEP_wind_recycling( self ):
+    '''Find material classified as non-externally-processed wind recycling.
+
+    Modifies:
+      self.data['is_NEP_wind_recycling'] ( np.ndarray ) : Result.
+    '''
 
     pristine_tiled = np.tile( self.get_data( 'is_pristine' ), (self.n_snaps, 1) ).transpose()
 
@@ -414,6 +425,16 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
+  def calc_dt( self ):
+
+    # Age of the universe in Myr
+    time = 1e3 * astro_tools.age_of_universe(
+      self.get_data( 'redshift' ),
+      h=self.ptracks.data_attrs['hubble'],
+      omega_matter=self.ptracks.data_attrs['omega_matter'] )
+    dt = time[:-1] - time[1:] 
+
+    self.data['dt'] = dt
 
 ########################################################################
 ########################################################################

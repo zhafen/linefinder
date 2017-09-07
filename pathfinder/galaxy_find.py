@@ -471,7 +471,7 @@ class GalaxyFinder( object ):
       elif id_type == 'd_sat':
         galaxy_and_halo_ids['d_sat'] = self.find_d_sat()
       elif id_type == 'd_sat_scaled':
-        galaxy_and_halo_ids['d_sat'] = self.find_d_sat( scaled=True )
+        galaxy_and_halo_ids['d_sat_scaled'] = self.find_d_sat( scaled=True )
       else:
         raise Exception( "Unrecognized id_type" )
     
