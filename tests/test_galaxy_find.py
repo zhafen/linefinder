@@ -667,6 +667,27 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
+  def test_find_d_sat_scaled_no_halos_with_sufficient_mass( self ):
+    '''This tests we can find the shortest distance to the nearest galaxy.
+    '''
+
+    # Setup dummy data
+    self.galaxy_finder.kwargs['snum'] = 12
+    self.galaxy_finder.kwargs['minimum_value'] = 10
+    self.galaxy_finder.ahf_reader.sdir = './tests/data/ahf_test_data2'
+    self.galaxy_finder.ahf_reader.get_halos( 12 )
+
+    # Make sure we set the number of particles correctly, to match the number we're using
+    #self.galaxy_finder.n_particles = 3
+
+    actual = self.galaxy_finder.find_d_sat( scaled=True )
+
+    expected = np.array([ -2., -2., ])
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
   def test_find_d_sat_scaled_main_halo_id_not_0( self ):
     '''This tests we can find the shortest distance to the nearest galaxy.
     '''

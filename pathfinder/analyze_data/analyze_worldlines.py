@@ -412,6 +412,9 @@ class Worldlines( generic_data.GenericData ):
 
     self.data['is_NEP_wind_recycling'] = np.all( [ pristine_tiled, self.get_data( 'is_wind' ) ], axis=0 )
 
+  ########################################################################
+
+
 ########################################################################
 ########################################################################
 
@@ -434,16 +437,25 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     '''Get a mask for the data.
 
     Args:
-      mask (np.array) : Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to
-        empty).
-      classification (str) : If provided, only select particles that meet this classification, as given in
+      mask (np.array) :
+        Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).
+
+      classification (str) :
+        If provided, only select particles that meet this classification, as given in
         self.data_object.classifications.data
-      mask_after_first_acc (bool) : If True, only select particles above first accretion.
-      mask_before_first_acc (bool) : If True, only select particles after first accretion.
-      preserve_mask_shape (bool) : If True, don't tile masks that are single dimensional, and one per particle.
+
+      mask_after_first_acc (bool) :
+        If True, only select particles above first accretion.
+
+      mask_before_first_acc (bool) :
+        If True, only select particles after first accretion.
+
+      preserve_mask_shape (bool) :
+        If True, don't tile masks that are single dimensional, and one per particle.
 
     Returns:
-      mask (bool np.ndarray) : Mask from all the combinations.
+      mask (bool np.ndarray) :
+        Mask from all the combinations.
     '''
 
     used_masks = []
@@ -466,7 +478,8 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
     if mask_after_first_acc or mask_before_first_acc:
 
-      assert not ( mask_after_first_acc and mask_before_first_acc ), "Attempted to mask both before and after first acc."
+      assert not ( mask_after_first_acc and mask_before_first_acc ), \
+      "Attempted to mask both before and after first acc."
 
       redshift_tiled = np.tile( self.data_object.redshift, (self.data_object.n_particles, 1) )
       redshift_first_acc_tiled = np.tile( self.data_object.events.data['redshift_first_acc'],

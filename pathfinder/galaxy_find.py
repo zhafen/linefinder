@@ -377,8 +377,6 @@ class GalaxyFinder( object ):
         The index argument to pass to AHFReader.get_mtree_halos().
         For most cases this should be the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
 
-      The following will most likely be passed from ParticleTrackGalaxyFinder....
-
       galaxy_cut (float, required) :
         The fraction of the length scale a particle must be inside to be counted as part
         of a galaxy.
@@ -389,12 +387,15 @@ class GalaxyFinder( object ):
       ids_to_return (list of strs, required) :
         The types of id you want to get out.
 
-      minimum_stellar_mass (float, required if no minimum_num_stars) :
-        The minimum stellar mass a halo must contain to
-        count as containing a galaxy.
+      minimum_criteria (str) :
+        Options...
+        'n_star' -- halos must contain a minimum number of stars to count as containing a galaxy.
+        'M_star' -- halos must contain a minimum stellar mass to count as containing a galaxy.
 
-      minimum_num_stars (int, required if no minimum_stellar_mass) :
-        The minimum number of stars a halo must contain to count as containing a galaxy.
+      minimum_value (int or float) :
+        The minimum amount of something (specified in minimum criteria)
+        in order for a galaxy to count as hosting a halo.
+
     '''
 
     # Store the arguments
@@ -503,6 +504,10 @@ class GalaxyFinder( object ):
 
     # Handle when no halos exist.
     if self.ahf_reader.ahf_halos.size == 0:
+      return -2.*np.ones( (self.n_particles,) )
+
+    # Handle when all the halos aren't massive enough
+    if self.valid_halo_inds.size == 0:
       return -2.*np.ones( (self.n_particles,) )
 
     self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
