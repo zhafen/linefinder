@@ -304,7 +304,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
     self.worldlines.data['d_sat_scaled'] = np.array([
       [ 2., 2., 1., ],
       [ 2., 0.5, 3., ],
-      [ 1., 2., 3., ],
+      [ 1., 2., -2., ],
       [ 1., 2., 3., ],
     ])
     self.worldlines._redshift = np.array([ 1., 2., 3., ])

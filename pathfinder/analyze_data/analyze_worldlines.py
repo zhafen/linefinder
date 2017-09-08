@@ -487,7 +487,10 @@ class Worldlines( generic_data.GenericData ):
     '''
 
     d = self.get_data( 'd_sat_scaled' )
-    mask = self.data_masker.get_mask( mask_after_first_acc=True )
+
+    mask2 = np.isclose( d, -2. )
+
+    mask = self.data_masker.get_mask( mask=mask2, mask_after_first_acc=True )
 
     d_ma = np.ma.masked_array( d, mask=mask )
 
@@ -522,6 +525,10 @@ class WorldlineDataMasker( generic_data.DataMasker ):
         If provided, only select particles that meet this classification, as given in
         self.data_object.classifications.data
 
+      tile_classification_mask (bool) :
+        Whether or not to tile the classification mask. True for most data that's time dependent, but False
+        for data that's one value per particle.
+
       mask_after_first_acc (bool) :
         If True, only select particles above first accretion.
 
@@ -549,8 +556,9 @@ class WorldlineDataMasker( generic_data.DataMasker ):
       used_masks.append( mask )
 
     if classification is not None:
+
       cl_mask = np.invert( self.data_object.get_data( classification ) ) 
-      if len( cl_mask.shape ) == 1:
+      if ( len( cl_mask.shape ) == 1 ) and ( not preserve_mask_shape ):
         cl_mask = np.tile( cl_mask, (self.data_object.n_snaps, 1) ).transpose()
       used_masks.append( cl_mask )
 
@@ -585,16 +593,32 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_masked_data.
 
     Args:
-      data_key (str) : Data to get.
-      mask (np.array) : Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to
-        empty).
-      classification (str) : If provided, only select particles that meet this classification, as given in
+      data_key (str) :
+        Data to get.
+
+      mask (np.array) :
+        Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).
+
+      classification (str) :
+        If provided, only select particles that meet this classification, as given in
         self.data_object.classifications.data
-      mask_after_first_acc (bool) : If True, only select particles above first accretion.
-      mask_before_first_acc (bool) : If True, only select particles after first accretion.
+
+      tile_classification_mask (bool) :
+        Whether or not to tile the classification mask. True for most data that's time dependent, but False
+        for data that's one value per particle.
+
+      mask_after_first_acc (bool) :
+        If True, only select particles above first accretion.
+
+      mask_before_first_acc (bool) :
+        If True, only select particles after first accretion.
+
+      preserve_mask_shape (bool) :
+        If True, don't tile masks that are single dimensional, and one per particle.
 
     Returns:
-      masked_data (np.array) : Flattened array of masked data.
+      masked_data (np.array) :
+        Flattened array of masked data.
     '''
 
     used_mask = self.get_mask(
