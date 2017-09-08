@@ -12,10 +12,11 @@ as well as their names.
 ########################################################################
 
 CLASSIFICATION_COLORS = {
-  'is_fresh_accretion' : 'blueviolet',
-  'is_NEP_wind_recycling' : 'dodgerblue',
-  'is_mass_transfer' : 'green',
+  'is_fresh_accretion' : '#984ea3',
+  'is_NEP_wind_recycling' : '#377eb8',
+  'is_mass_transfer' : '#4daf4a',
   'is_merger' : '#e41a1c',
+  'is_pristine' : '#377eb8',
 }
 
 CLASSIFICATION_LABELS = {

@@ -422,6 +422,9 @@ class Worldlines( generic_data.GenericData ):
     elif data_key in self.classifications.data.keys():
       self.data[data_key] =  self.classifications.data[data_key]
 
+    elif data_key in self.galids.data.keys():
+      self.data[data_key] =  self.galids.data[data_key]
+
     else:
       raise KeyError( 'NULL data_key, data_key = {}'.format( data_key ) )
 
