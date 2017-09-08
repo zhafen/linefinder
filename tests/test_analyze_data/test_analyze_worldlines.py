@@ -296,6 +296,27 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     npt.assert_allclose( expected, actual, rtol=1e-3 )
 
+  ########################################################################
+
+  def test_calc_d_sat_scaled_min( self ):
+
+    # Setup test data
+    self.worldlines.data['d_sat_scaled'] = np.array([
+      [ 2., 2., 1., ],
+      [ 2., 0.5, 3., ],
+      [ 1., 2., 3., ],
+      [ 1., 2., 3., ],
+    ])
+    self.worldlines._redshift = np.array([ 1., 2., 3., ])
+    self.worldlines.events.data['redshift_first_acc'] = np.array([ 1.5, 1.5, 1.5, 2.5, ])
+
+    self.worldlines.calc_d_sat_scaled_min()
+
+    actual = self.worldlines.data['d_sat_scaled_min']
+    expected = np.array([ 1., 0.5, 2., 3., ])
+
+    npt.assert_allclose( expected, actual )
+
 ########################################################################
 ########################################################################
 

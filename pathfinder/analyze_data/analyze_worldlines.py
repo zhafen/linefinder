@@ -401,7 +401,7 @@ class Worldlines( generic_data.GenericData ):
     return self.get_categories_stellar_mass( ind=ind )/self.get_stellar_mass( ind=ind )
 
   ########################################################################
-  # Generate Very Generic Data on the Go
+  # Generate Data on the Go
   ########################################################################
 
   def handle_data_key_error( self, data_key ):
@@ -458,6 +458,11 @@ class Worldlines( generic_data.GenericData ):
   ########################################################################
 
   def calc_dt( self ):
+    '''Calc time difference between snapshots.
+
+    Modifies:
+      self.data['dt'] (np.ndarray) : self.data['dt'][i] = light_travel_time[i+1] - light_travel_time[i]
+    '''
 
     # Age of the universe in Myr
     time = 1e3 * astro_tools.age_of_universe(
@@ -470,6 +475,23 @@ class Worldlines( generic_data.GenericData ):
     dt = np.append( dt, np.nan )
 
     self.data['dt'] = dt
+
+  ########################################################################
+
+  def calc_d_sat_scaled_min( self ):
+    '''Calculate the minimum distance to a a galaxy other than the main galaxy, prior to accretion onto the main gal.
+
+    Modifies:
+      self.data['d_sat_scaled_min'] (np.ndarray of shape (n_particles,)) :
+        self.data['d_sat_scaled_min'][i] = min( d_sat_scaled, prior to first acc for particle i )
+    '''
+
+    d = self.get_data( 'd_sat_scaled' )
+    mask = self.data_masker.get_mask( mask_after_first_acc=True )
+
+    d_ma = np.ma.masked_array( d, mask=mask )
+
+    self.data['d_sat_scaled_min'] = d_ma.min( axis=1 )
 
 ########################################################################
 ########################################################################
