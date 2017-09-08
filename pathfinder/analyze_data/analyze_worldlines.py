@@ -77,10 +77,11 @@ class Worldlines( generic_data.GenericData ):
     self.ptracks_kwargs = dict( kwargs )
 
     data_masker = WorldlineDataMasker( self )
+    key_parser = WorldlineDataKeyParser()
 
     self.data = {}
 
-    super( Worldlines, self ).__init__( data_masker=data_masker, **kwargs )
+    super( Worldlines, self ).__init__( data_masker=data_masker, key_parser=key_parser, **kwargs )
 
   ########################################################################
   # Properties for loading data on the fly
@@ -348,6 +349,37 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
+  def get_processed_data( self, data_key, sl=None ):
+    '''Get data, handling more complex data keys that indicate doing generic things to the data.
+
+    Args:
+      data_key (str) : What data to get?
+      sl (object) : How to slice the data before returning it.
+
+    Returns:
+      data (np.ndarray) : Array of data.
+    '''
+    
+
+    data_key, tiled_flag = self.key_parser.is_tiled_key( data_key )
+
+    data = super( Worldlines, self ).get_processed_data( data_key, sl=sl )
+
+    if tiled_flag:
+
+      if data.shape == ( self.n_particles, ):
+        data = np.tile( data, ( self.n_snaps, 1) ).transpose()
+
+      elif data.shape == ( self.n_snaps, ):
+        data = np.tile( data, ( self.n_particles, 1) )
+
+      else:
+        raise Exception( "Unrecognized data shape, {}".format( data.shape ) )
+
+    return data
+
+  ########################################################################
+
   def get_stellar_mass( self, classification=None, ind=0, ):
 
     self.data_masker.clear_masks()
@@ -552,6 +584,20 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
     return masked_data
 
+########################################################################
+########################################################################
+
+class WorldlineDataKeyParser( generic_data.DataKeyParser ):
+
+  ########################################################################
+
+  def is_tiled_key( self, data_key ):
+    '''Parse the data key for tiled data.'''
+
+    if data_key[-6:] == '_tiled':
+      return data_key[:-6], True
+    else:
+      return data_key, False
 
 
 

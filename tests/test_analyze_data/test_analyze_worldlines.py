@@ -167,6 +167,66 @@ class TestWorldlineGetData( unittest.TestCase ):
 ########################################################################
 ########################################################################
 
+class TestWorldlineGetProcessedData( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.worldlines = analyze_worldlines.Worldlines( tracking_dir, tag, **kwargs )
+
+  ########################################################################
+
+  def test_basic( self ):
+
+    # Setup test data
+    self.worldlines.ptracks.data['A'] = np.array( [ 10., 100., 1000. ] )
+
+    actual = self.worldlines.get_processed_data( 'logA' )
+    expected = np.array( [ 1., 2., 3. ] )
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_tiled_horizontal( self ):
+    '''Test that we can add the tiled key and get out a tiled result.
+    In this case, we're testing if we properly tile when we have one value per particle.
+    '''
+
+    # Setup test data
+    self.worldlines.ptracks.data['A'] = np.array( [ 10., 100., 1000., 10000. ] )
+
+    actual = self.worldlines.get_processed_data( 'logA_tiled' )
+    expected = np.array([
+      [ 1., 2., 3., 4., ],
+      [ 1., 2., 3., 4., ],
+      [ 1., 2., 3., 4., ],
+    ]).transpose()
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_tiled_vertical( self ):
+    '''Test that we can add the tiled key and get out a tiled result.
+    In this case, we're testing if we properly tile when we have one value per particle.
+    '''
+
+    # Setup test data
+    self.worldlines.ptracks.data['A'] = np.array( [ 10., 100., 1000., ] )
+
+    actual = self.worldlines.get_processed_data( 'logA_tiled' )
+    expected = np.array([
+      [ 1., 2., 3., ],
+      [ 1., 2., 3., ],
+      [ 1., 2., 3., ],
+      [ 1., 2., 3., ],
+    ])
+
+    npt.assert_allclose( expected, actual )
+
+########################################################################
+########################################################################
+
 class TestWorldlineCalcData( unittest.TestCase ):
 
   def setUp( self ):
@@ -385,3 +445,32 @@ class TestWorldlineDataMasker( unittest.TestCase ):
       [ 0, 0, 0, ],
     ])
     npt.assert_allclose( expected, actual )
+
+########################################################################
+########################################################################
+
+class TestWorldlineDataKeyParser( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.key_parser = analyze_worldlines.WorldlineDataKeyParser()
+
+  ########################################################################
+
+  def test_basic( self ):
+
+    actual, log_flag = self.key_parser.is_log_key( 'logBlah' )
+
+    self.assertEqual( 'Blah', actual )
+
+    assert log_flag
+
+  ########################################################################
+
+  def test_tiled( self ):
+
+    actual, tiled_flag = self.key_parser.is_tiled_key( 'Blah_tiled' )
+
+    self.assertEqual( 'Blah', actual )
+
+    assert tiled_flag
