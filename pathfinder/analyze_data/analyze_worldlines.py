@@ -380,6 +380,29 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
+  def get_fraction_outside( self, data_key, data_min, data_max, *args, **kwargs ):
+    '''Get the fraction of data outside a certain range. *args, **kwargs are arguments sent to mask the data.
+
+    Args:
+      data_key (str) : What data to get.
+      data_min (float) : Lower bound of the data range.
+      data_max (float) : Upper bound of the data range.
+
+    Returns:
+      f_outside (float) : Fraction outside the range.
+    '''
+
+    data = self.get_masked_data( data_key, *args, **kwargs )
+
+    data_ma = np.ma.masked_outside( data, data_min, data_max )
+
+    n_outside = float( data_ma.mask.sum() )
+    n_all = float( data.size )
+
+    return n_outside/n_all
+
+  ########################################################################
+
   def get_stellar_mass( self, classification=None, ind=0, ):
 
     self.data_masker.clear_masks()

@@ -121,12 +121,19 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
   ########################################################################
 
   def plot_dist_hist( self,
+    data_key,
     ax,
+    x_label = default,
     *args, **kwargs ):
 
-    if self.data_object.galids.parameters['length_scale'] == 'r_scale':
-      x_label = r'Distance to Nearest Satellite ($r_{ \rm scale, sat }$)'
-    self.plot_hist( ax=ax, x_label=x_label, *args, **kwargs )
+    if x_label is default:
+      if data_key == 'd_sat_scaled':
+        if self.data_object.galids.parameters['length_scale'] == 'r_scale':
+          x_label = r'Distance to Nearest Other Galaxy ($r_{ \rm scale, sat }$)'
+      elif data_key == 'd_sat_scaled_min':
+        if self.data_object.galids.parameters['length_scale'] == 'r_scale':
+          x_label = r'Minimum Distance to Nearest Other Galaxy ($r_{ \rm scale, sat }$)'
+    self.plot_hist( data_key, ax=ax, x_label=x_label, *args, **kwargs )
 
     # Add a bar indicating our radial cut
     trans = transforms.blended_transform_factory( ax.transData, ax.transAxes )

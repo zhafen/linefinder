@@ -164,6 +164,23 @@ class TestWorldlineGetData( unittest.TestCase ):
 
     mock_calc_method.assert_called_once()
 
+  ########################################################################
+
+  def test_get_fraction_outside( self ):
+
+    # Setup test data
+    self.worldlines.data['A'] = np.array([
+      [ 1., 2., 3., ],
+      [ 3., 3., 1., ],
+      [ 1., 1., 1., ],
+      [ 1., 3., 1., ],
+    ])
+
+    actual = self.worldlines.get_fraction_outside( 'A', 0., 2.5, )
+    expected = 4./12.
+
+    npt.assert_allclose( expected, actual )
+
 ########################################################################
 ########################################################################
 
