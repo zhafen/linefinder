@@ -339,7 +339,12 @@ class Worldlines( generic_data.GenericData ):
       data (np.ndarray) : Array of data.
     '''
 
+    if data_key in self.data:
+      data = self.data[data_key]
+      return data
+
     try:
+      
       data = self.ptracks.get_data( data_key, sl=sl )
       return data
 

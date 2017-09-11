@@ -63,7 +63,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
       value = classification_values[key]
       ax.bar( x_pos, value, width, bottom=bar_start, color=p_constants.CLASSIFICATION_COLORS[key],
-        label=label, )
+        label=label, alpha=0.7, )
 
       bar_start += value
 
