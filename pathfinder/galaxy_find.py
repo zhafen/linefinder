@@ -34,7 +34,8 @@ class ParticleTrackGalaxyFinder( object ):
     out_dir,
     tag,
     main_mt_halo_id,
-    mtree_halos_index,
+    mtree_halos_index = None,
+    halo_file_tag = 'smooth',
     ahf_data_dir = default,
     ptracks_tag = default,
     galaxy_cut = 0.5,
@@ -60,6 +61,9 @@ class ParticleTrackGalaxyFinder( object ):
       mtree_halos_index (str or int) :
         The index argument to pass to AHFReader.get_mtree_halos().
         For most cases this should be the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
+
+      halo_file_tag (str) :
+        What halo files to load (e.g. defaults to loading `halo_00000_smooth.dat`, etc.)?
 
       ahf_data_dir (str, optional) :
         Directory the AHF data is in. Defaults to the directory the simulation data is
@@ -180,6 +184,7 @@ class ParticleTrackGalaxyFinder( object ):
         'ahf_data_dir' : self.ahf_data_dir,
         'mtree_halos_index' : self.mtree_halos_index,
         'main_mt_halo_id' : self.main_mt_halo_id,
+        'halo_file_tag' : self.halo_file_tag,
       }
 
       time_start = time.time()
@@ -271,6 +276,7 @@ class ParticleTrackGalaxyFinder( object ):
         'ahf_data_dir' : self.ahf_data_dir,
         'mtree_halos_index' : self.mtree_halos_index,
         'main_mt_halo_id' : self.main_mt_halo_id,
+        'halo_file_tag' : self.halo_file_tag,
       }
 
       all_args.append( (particle_positions, kwargs) )
@@ -321,18 +327,15 @@ class ParticleTrackGalaxyFinder( object ):
       try:
         indice = self.ahf_reader.mtree_halos[0].index.max()
       except AttributeError:
-        self.ahf_reader.get_mtree_halos( self.mtree_halos_index, 'smooth' )
+        self.ahf_reader.get_mtree_halos( self.mtree_halos_index, self.halo_file_tag )
         indice = self.ahf_reader.mtree_halos[0].index.max()
       m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=indice,
-                                                          index=self.mtree_halos_index, tag='smooth' )
+                                                          index=self.mtree_halos_index, tag=self.halo_file_tag )
       f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
     else:
       f.attrs['main_mt_halo_id'] = self.main_mt_halo_id
 
-    # Save the data parameters
-    grp = f.create_group('parameters')
-    for i, parameter in enumerate( self.stored_parameters ):
-      grp.attrs[parameter] = getattr( self, parameter )
+    grp = utilities.save_parameters( self, f )
 
     # Save the current code version
     f.attrs['pathfinder_version'] = utilities.get_code_version( self )
@@ -510,7 +513,7 @@ class GalaxyFinder( object ):
     if self.valid_halo_inds.size == 0:
       return -2.*np.ones( (self.n_particles,) )
 
-    self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
+    self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], self.kwargs['halo_file_tag'] )
 
     mtree_halo = self.ahf_reader.mtree_halos[ self.kwargs['main_mt_halo_id'] ]
 
@@ -628,7 +631,7 @@ class GalaxyFinder( object ):
 
       # Get the virial masses. It's okay to leave in comoving, since we're just finding the maximum
       m_vir = self.ahf_reader.get_mtree_halo_quantity( quantity='Mvir', indice=self.kwargs['snum'],
-                                                       index=self.kwargs['mtree_halos_index'], tag='smooth' )
+                                                       index=self.kwargs['mtree_halos_index'], tag=self.kwargs['halo_file_tag'] )
 
     else:
       raise Exception( "Unrecognized type_of_halo_id" )
@@ -765,7 +768,7 @@ class GalaxyFinder( object ):
     '''
 
     # Load up the merger tree data
-    self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], 'smooth' )
+    self.ahf_reader.get_mtree_halos( self.kwargs['mtree_halos_index'], self.kwargs['halo_file_tag'] )
 
     part_of_halo = []
     for halo_id in self.ahf_reader.mtree_halos.keys():

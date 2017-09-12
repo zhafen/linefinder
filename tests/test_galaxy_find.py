@@ -32,6 +32,7 @@ gal_finder_kwargs = {
   'ahf_data_dir' : './tests/data/ahf_test_data',
   'mtree_halos_index' : 600,
   'main_mt_halo_id' : 0,
+  'halo_file_tag' : 'smooth',
 
   'galaxy_cut' : 0.1,
   'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_sat_scaled', ],
@@ -728,6 +729,7 @@ class TestGalaxyFinderMinimumStellarMass( unittest.TestCase ):
       'hubble' : 0.70199999999999996,
       'ahf_data_dir' : './tests/data/ahf_test_data',
       'mtree_halos_index' : 600,
+      'halo_file_tag' : 'smooth',
     }
 
     # Get input data
@@ -796,6 +798,7 @@ class TestGalaxyFinderMinimumNumStars( unittest.TestCase ):
       'hubble' : 0.70199999999999996,
       'ahf_data_dir' : './tests/data/ahf_test_data',
       'mtree_halos_index' : 600,
+      'halo_file_tag' : 'smooth',
     }
 
     # Get input data

@@ -38,6 +38,7 @@ class Classifier( object ):
     galids_tag = default,
     ahf_data_dir = default,
     mtree_halos_index = default,
+    halo_file_tag = default,
     not_in_main_gal_key = 'gal_id',
     classifications_to_save = [ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', ],
     write_events = True,
@@ -70,6 +71,9 @@ class Classifier( object ):
         The index argument to pass to AHFReader.get_mtree_halos(). For most cases this should be 
         the final snapshot number, but see AHFReader.get_mtree_halos's documentation.
         Default value is whatever is stored in the galids file.
+
+      halo_file_tag (str, optional) :
+        What halo files to load and use? Defaults to whatever is stored in the galids file.
 
       not_in_main_gal_key (str, optional) :
         The galaxy_finder data key used to identify when not in a main galaxy.
@@ -200,6 +204,8 @@ class Classifier( object ):
           self.ahf_data_dir = f['parameters'].attrs['ahf_data_dir']
         if self.mtree_halos_index is default:
           self.mtree_halos_index = f['parameters'].attrs['mtree_halos_index']
+        if self.halo_file_tag is default:
+          self.halo_file_tag = f['parameters'].attrs['halo_file_tag']
 
       f.close()
 
@@ -223,7 +229,7 @@ class Classifier( object ):
 
     # Load the ahf data
     self.ahf_reader = read_ahf.AHFReader( self.ahf_data_dir )
-    self.ahf_reader.get_mtree_halos( self.mtree_halos_index, 'smooth' )
+    self.ahf_reader.get_mtree_halos( self.mtree_halos_index, self.halo_file_tag )
 
   ########################################################################
 
@@ -245,10 +251,7 @@ class Classifier( object ):
       data = getattr( self, classification )
       f.create_dataset( classification, data=data )
 
-    # Save the data parameters
-    grp = f.create_group('parameters')
-    for parameter in self.stored_parameters:
-      grp.attrs[parameter] = getattr( self, parameter )
+    grp = utilities.save_parameters( self, f )
 
     # Save the current code versions
     f.attrs['pathfinder_version'] = utilities.get_code_version( self )
@@ -276,10 +279,7 @@ class Classifier( object ):
       data = getattr( self, event_type )
       f.create_dataset( event_type, data=data )
 
-    # Save the data parameters
-    grp = f.create_group('parameters')
-    for parameter in self.stored_parameters:
-      grp.attrs[parameter] = getattr( self, parameter )
+    grp = utilities.save_parameters( self, f )
 
     # Save the current code versions
     f.attrs['pathfinder_version'] = utilities.get_code_version( self )

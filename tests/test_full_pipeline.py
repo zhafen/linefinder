@@ -47,7 +47,6 @@ gal_finder_kwargs = {
 
   'ahf_data_dir' : ahf_sdir,
   'main_mt_halo_id' : 0,
-  'mtree_halos_index' : mtree_halos_index,
 
   'n_processors' : 2, 
 }

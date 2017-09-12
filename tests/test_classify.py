@@ -26,7 +26,6 @@ default_kwargs = {
   'out_dir' : './tests/data/tracking_output',
   'tag' : 'test_classify',
   'neg' : 1,
-  'mtree_halos_index' : 600,
   'wind_vel_min_vc' : 2.,
   'wind_vel_min' : 15.,
   'time_min' : 100., 
@@ -672,6 +671,10 @@ class TestFullClassifierPipeline( unittest.TestCase ):
       ]).astype( bool )
     self.classifier.redshift_first_acc = np.array([ 0., -1., 0.06984665, -1. ])
 
+    # Change values from defaults so that we save without issue
+    self.classifier.halo_file_tag = 'smooth'
+    self.classifier.mtree_halos_index = None
+
     # The function itself.
     self.classifier.save_classifications( self.classifier.classifications_to_save )
 
@@ -701,6 +704,10 @@ class TestFullClassifierPipeline( unittest.TestCase ):
       [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
     self.classifier.redshift_first_acc = np.array([ 0., np.nan, 0.06984665, 0.16946003 ])
+
+    # Change values so that we save without issue
+    self.classifier.halo_file_tag = 'smooth'
+    self.classifier.mtree_halos_index = None
 
     self.classifier.save_events( self.classifier.events_to_save )
 

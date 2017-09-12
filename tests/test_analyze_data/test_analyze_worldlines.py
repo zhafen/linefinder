@@ -186,13 +186,14 @@ class TestWorldlineGetData( unittest.TestCase ):
   def test_get_stellar_mass( self ):
 
     # Setup test data
-    self.worldlines._n_particles = 5
+    self.worldlines._n_particles = 6
     self.worldlines.ptracks.data['M'] = np.array([
       [ 1., 1., 1., ],
       [ 1., 2., 1., ],
       [ 1., 3., 1., ],
       [ 1., 4., 1., ],
       [ 1., 5., 1., ],
+      [ 1., 6., 1., ],
     ])
     self.worldlines.data['PType'] = np.array([
       [ 4, 4, 4, ],
@@ -200,15 +201,24 @@ class TestWorldlineGetData( unittest.TestCase ):
       [ 4, 4, 0, ],
       [ 4, 4, 0, ],
       [ 4, 0, 0, ],
+      [ 4, 4, 0, ],
+    ])
+    self.worldlines.events.data['is_in_main_gal'] = np.array([
+      [ 1, 1, 0, ],
+      [ 1, 1, 0, ],
+      [ 1, 1, 0, ],
+      [ 1, 1, 0, ],
+      [ 1, 1, 0, ],
+      [ 1, 0, 0, ],
     ])
     self.worldlines.classifications.data['is_merger'] = np.array([
-      1, 0, 0, 0, 0, ]).astype( bool )
+      1, 0, 0, 0, 0, 0, ]).astype( bool )
     self.worldlines.classifications.data['is_mass_transfer'] = np.array([
-      0, 1, 0, 0, 0, ]).astype( bool )
+      0, 1, 0, 0, 0, 0,  ]).astype( bool )
     self.worldlines.data['is_fresh_accretion'] = np.array([
-      0, 0, 1, 0, 1, ]).astype( bool )
+      0, 0, 1, 0, 1, 1, ]).astype( bool )
     self.worldlines.data['is_NEP_wind_recycling'] = np.array([
-      0, 0, 0, 1, 0, ]).astype( bool )
+      0, 0, 0, 1, 0, 0, ]).astype( bool )
 
     actual = self.worldlines.get_categories_stellar_mass_fraction( ind=1 )
     expected = {
