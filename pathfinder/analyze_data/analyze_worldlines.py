@@ -413,6 +413,7 @@ class Worldlines( generic_data.GenericData ):
     self.data_masker.clear_masks()
 
     self.data_masker.mask_data( 'PType', data_value=4 )
+    self.data_masker.mask_data( 'is_in_main_gal', data_value=True )
 
     return self.get_masked_data( 'M', sl=(slice(None),ind), classification=classification, fix_invalid=True ).sum()
 
@@ -449,6 +450,9 @@ class Worldlines( generic_data.GenericData ):
 
     elif data_key in self.classifications.data.keys():
       self.data[data_key] =  self.classifications.data[data_key]
+
+    elif data_key in self.events.data.keys():
+      self.data[data_key] =  self.events.data[data_key]
 
     elif data_key in self.galids.data.keys():
       self.data[data_key] =  self.galids.data[data_key]

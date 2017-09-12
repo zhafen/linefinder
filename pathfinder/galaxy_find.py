@@ -695,7 +695,7 @@ class GalaxyFinder( object ):
 
         # Get the scale radius
         r_vir = self.ahf_reader.ahf_halos['Rvir']
-        length_scale = r_vir/self.ahf_reader.ahf_halos_add['cAnalytic']
+        length_scale = r_vir/self.ahf_reader.ahf_halos['cAnalytic']
       else:
         raise KeyError( "Unspecified length scale" )
       self._ahf_halos_length_scale_pkpc = length_scale/( 1. + self.kwargs['redshift'] )/self.kwargs['hubble']
