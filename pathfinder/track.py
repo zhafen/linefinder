@@ -324,13 +324,7 @@ class ParticleTracker( object ):
     for key in self.attrs.keys():
       f.attrs[key] = self.attrs[key]
 
-    # Save the data parameters too, as part of a group
-    grp = f.create_group('parameters')
-    for parameter in self.stored_parameters:
-      grp.attrs[parameter] = getattr( self, parameter )
-
-    # Save the number of processors
-    grp.attrs['n_processors'] = self.n_processors
+    grp = utilities.save_parameters( self, f )
 
     # Save the current code version
     f.attrs['pathfinder_version'] = utilities.get_code_version( self )
