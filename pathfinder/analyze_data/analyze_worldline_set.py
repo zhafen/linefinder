@@ -77,6 +77,7 @@ class WorldlineSet( utilities.SmartDict ):
     ind = 0,
     width = 0.5,
     data_order = default,
+    legend_args = default,
     **default_kwargs ):
 
     fig = plt.figure( figsize=(11,5), facecolor='white' )
@@ -113,4 +114,7 @@ class WorldlineSet( utilities.SmartDict ):
     title_string = r'$z=' + '{:.3f}'.format( redshift ) + '$'
     ax.set_title( title_string, fontsize=22, )
     
-    ax.legend(prop={'size':14.5}, ncol=5, loc=(0.,-0.2), fontsize=20)
+    if legend_args is default:
+      ax.legend(prop={'size':14.5}, ncol=5, loc=(0.,-0.2), fontsize=20)
+    else:
+      ax.legend( **legend_args )

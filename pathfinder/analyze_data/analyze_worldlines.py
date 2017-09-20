@@ -191,7 +191,7 @@ class Worldlines( generic_data.GenericData ):
     '''The number of particles selected, prior to sampling.'''
 
     if not hasattr( self, '_n_particles_presampled' ):
-      self._n_particles_presampled = self.ids.parameters['n_particles']
+      self._n_particles_presampled = self.ids.data_attrs['n_particles']
 
     return self._n_particles_presampled
 
@@ -408,26 +408,57 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
-  def get_stellar_mass( self, classification=None, ind=0, ):
+  def get_stellar_mass( self, *args, **kwargs ):
+    '''Get the total stellar mass.
+
+    Args:
+      *args, **kwargs :
+        Additional arguments to be passed to self.get_masked_data()
+
+    Returns:
+      stellar_mass (np.ndarray) :
+        Total stellar mass in the main galaxy (satisfying any additional requirements passed via *args and **kwargs)
+        at each specified redshift.
+    '''
 
     self.data_masker.clear_masks()
 
     self.data_masker.mask_data( 'PType', data_value=4 )
     self.data_masker.mask_data( 'is_in_main_gal', data_value=True )
 
-    return self.get_masked_data( 'M', sl=(slice(None),ind), classification=classification, fix_invalid=True ).sum()
+    data_ma = self.get_masked_data( 'M', fix_invalid=True, compress=False, *args, **kwargs )
 
-  def get_categories_stellar_mass( self, ind=0, ):
+    stellar_mass = data_ma.sum( axis=0 )
+
+    # Replace masked values with 0
+    if not isinstance( stellar_mass, float ):
+      stellar_mass.fill_value = 0.
+      stellar_mass = stellar_mass.filled()
+
+    return stellar_mass
+
+  def get_categories_stellar_mass( self, *args, **kwargs ):
+    '''Get the total stellar mass in each of a number of classification categories.
+
+    Args:
+      *args, **kwargs :
+        Additional arguments to be passed to self.get_masked_data()
+
+    Returns:
+      categories_stellar_mass (SmartDict of np.ndarrays) :
+        stellar_mass that fits each classification.
+    '''
   
     stellar_mass = {}
     for mass_category in [ 'is_fresh_accretion', 'is_NEP_wind_recycling', 'is_merger', 'is_mass_transfer', ]:
-      stellar_mass[mass_category] = self.get_stellar_mass( mass_category, ind=ind )
+      stellar_mass[mass_category] = self.get_stellar_mass( classification=mass_category, *args, **kwargs )
 
     return utilities.SmartDict( stellar_mass )
 
-  def get_categories_stellar_mass_fraction( self, ind=0, ):
+  def get_categories_stellar_mass_fraction( self, *args, **kwargs ):
+    '''Same as categories_stellar_mass, but as a fraction of the total stellar mass.'''
 
-    return self.get_categories_stellar_mass( ind=ind )/self.get_stellar_mass( ind=ind )
+    return self.get_categories_stellar_mass( *args, **kwargs )/self.get_stellar_mass( *args, **kwargs )
 
   ########################################################################
   # Generate Data on the Go

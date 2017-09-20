@@ -46,6 +46,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     add_label = False,
     ):
 
+    print( "Plotting bar at x_pos {}".format( x_pos ) )
+
     # Plot
     if ax is default:
       fig = plt.figure( figsize=(11,5), facecolor='white' )
@@ -70,10 +72,14 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
   ########################################################################
 
   def plot_classification_values( self,
+    values = 'mass_fractions',
     ax = default,
     label = default,
+    y_label = default,
+    y_scale = default,
     color = default,
     pointsize = 3000,
+    y_range = default,
     ):
     '''Plot overall values from a classification category.
 
@@ -87,18 +93,18 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     if label is default:
       label = self.label
     if color is default:
-      color = self.color
+      color = self.data_object.color
 
     print( "Plotting classification values for {}".format( label ) )
 
-    classification_values = self.mass_fractions
+    classification_values = getattr( self.data_object, values )
 
     # Plot
     if ax is default:
       fig = plt.figure( figsize=(11,5), facecolor='white' )
       ax = plt.gca()
 
-    objects = ( 'fresh\naccretion', 'merger', 'intergalactic\ntransfer', 'wind' )
+    objects = ( 'pristine', 'merger', 'intergalactic\ntransfer', 'wind' )
     x_pos = np.arange(len(objects))
     x_pos_dict = {
       'is_pristine' : 0,
@@ -115,8 +121,16 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     plt.xticks( x_pos, objects, fontsize=22 )
 
-    ax.set_ylabel( r'$\frac{ m_{\rm{class}} }{ m_{\rm{ total }} }$', fontsize=35, rotation=0, labelpad=35 )
-    ax.set_ylim( [ 0., 1. ])
+    if y_label is default:
+      y_label = values
+
+    ax.set_ylabel( y_label, fontsize=22 )
+
+    if y_range is not default:
+      ax.set_ylim( y_range )
+
+    if y_scale is not default:
+      ax.set_yscale( y_scale )
 
   ########################################################################
 

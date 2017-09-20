@@ -349,6 +349,7 @@ class SnapshotIDSelector( particle_data.ParticleData ):
 
 class IDSampler( object ):
 
+  @utilities.store_parameters
   def __init__( self, sdir, tag, n_samples=100000, ignore_child_particles=False, ignore_duplicates=False  ):
     '''Sample an ID file to obtain and save a subset of size n_samples.
     Assumes the full set of IDs are saved as ids_full_tag.hdf5, and will save the sampled IDs as ids_tag.hdf5.
@@ -362,9 +363,7 @@ class IDSampler( object ):
         snapshot.
     '''
 
-    # Store the arguments
-    for arg in locals().keys():
-      setattr( self, arg, locals()[arg] )
+    pass
 
   ########################################################################
 
