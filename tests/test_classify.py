@@ -282,21 +282,6 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
     
   ########################################################################
 
-  def test_get_redshift_first_acc( self ):
-
-    self.classifier.is_accreted = np.array([
-      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
-      [ 0, 0, 0, 0, ], # Always part of main galaxy
-      [ 0, 1, 0, 0, ], # CGM -> main galaxy -> CGM
-      [ 1, 0, 1, 0, ], # Accreted twice
-      ]).astype( bool )
-
-    expected = np.array([ 0., np.nan, 0.06984665, 0.16946003 ])
-    actual = self.classifier.get_redshift_first_acc()
-    npt.assert_allclose( expected, actual )
-
-  #########################################################################
-
   def test_identify_ejection( self ):
 
     # Prerequisites
@@ -357,6 +342,25 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
     expected = np.array([ 0., -1., 0.06984665, -1. ])
     actual = self.classifier.get_redshift_first_acc()
     npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_ind_first_acc( self ):
+
+    self.classifier.is_before_first_acc = np.array([
+      [ 0, 1, 1, 1, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 1, 1, ], # CGM -> main galaxy -> CGM
+      [ 1, 1, 1, 1, ], # Never accreted
+      ]).astype( bool )
+    self.classifier.n_particle = 4
+
+    expected = np.array([ 0, -99999, 1, -99999 ])
+    actual = self.classifier.ind_first_acc
+    npt.assert_allclose( expected, actual )
+
+  #########################################################################
+
 
   ########################################################################
 
@@ -704,6 +708,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
       [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
     self.classifier.redshift_first_acc = np.array([ 0., np.nan, 0.06984665, 0.16946003 ])
+    self.classifier._ind_first_acc = np.array([ 0, -99999, 1, -99999 ])
 
     # Change values so that we save without issue
     self.classifier.halo_file_tag = 'smooth'

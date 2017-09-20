@@ -42,7 +42,7 @@ class Classifier( object ):
     not_in_main_gal_key = 'gal_id',
     classifications_to_save = [ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', ],
     write_events = True,
-    events_to_save = [ 'is_in_other_gal', 'is_in_main_gal', 'is_ejected', 'redshift_first_acc' ],
+    events_to_save = [ 'is_in_other_gal', 'is_in_main_gal', 'is_ejected', 'redshift_first_acc', 'ind_first_acc', ],
     neg = 1,
     wind_vel_min = 15.,
     wind_vel_min_vc = 1.,
@@ -515,7 +515,8 @@ class Classifier( object ):
     '''Identify when before a particle's first accretion event.
 
     Returns:
-      is_before_first_acc ([n_particle, n_snap-1] np.array of bools): If True, then the first accretion event for that particle hasn't happened yet.
+      is_before_first_acc ([n_particle, n_snap-1] np.ndarray of bools) :
+        If True, then the first accretion event for that particle hasn't happened yet.
     '''
     is_before_first_acc = ( self.cum_num_acc == 0 )  &  ( self.is_in_main_gal[:,0:self.n_snap-1] == 0 )
 
@@ -523,11 +524,35 @@ class Classifier( object ):
 
   ########################################################################
 
+  @property
+  def ind_first_acc( self ):
+    '''Get the index of first accretion.
+    This is defined as the the indice immediately after accretion happens.
+
+    Returns:
+      ind_first_acc ([n_particle,] np.ndarray of floats): Redshift of first accretion.
+    '''
+
+    if not hasattr( self, '_ind_first_acc' ):
+      inds = np.arange( self.ptrack['redshift'].size )
+      inds_tiled = np.tile( inds, ( self.n_particle, 1 ) )[:,0:self.n_snap-1]
+
+      self._ind_first_acc = np.ma.masked_array( inds_tiled, mask=self.is_before_first_acc ).max( axis=1 )
+      self._ind_first_acc = self._ind_first_acc.filled( fill_value = -99999 )
+
+      # Mask the ones that were always part of the galaxy
+      always_part_of_gal = self.is_before_first_acc.sum( axis=1 ) == 0
+      self._ind_first_acc[always_part_of_gal] = -99999
+
+    return self._ind_first_acc
+
+  ########################################################################
+
   def get_redshift_first_acc( self ):
     '''Get the redshift of first accretion.
 
     Returns:
-      cum_num_acc ([n_particle,] np.array of floats): Redshift of first accretion.
+      redshift_first_acc ([n_particle,] np.ndarray of floats): Redshift of first accretion.
     '''
 
     redshift_tiled = np.tile( self.ptrack['redshift'], ( self.n_particle, 1 ) )[:,0:self.n_snap-1]
