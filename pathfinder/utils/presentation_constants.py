@@ -19,6 +19,8 @@ CLASSIFICATION_COLORS = {
   'is_pristine' : '#377eb8',
 }
 
+CLASSIFICATION_ALPHA = 0.7
+
 CLASSIFICATION_LABELS = {
   'is_fresh_accretion' : 'Fresh Accretion',
   'is_NEP_wind_recycling' : 'NEP Wind Recycling',
@@ -27,3 +29,4 @@ CLASSIFICATION_LABELS = {
 }
 
 CLASSIFICATION_LIST_A = [ 'is_fresh_accretion', 'is_NEP_wind_recycling', 'is_mass_transfer', 'is_merger' ]
+

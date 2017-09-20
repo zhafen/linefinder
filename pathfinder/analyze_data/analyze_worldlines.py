@@ -20,6 +20,8 @@ import analyze_galids
 import analyze_classifications
 import analyze_events
 
+import pathfinder.utils.presentation_constants as p_constants
+
 ########################################################################
 
 # For catching default values
@@ -450,7 +452,7 @@ class Worldlines( generic_data.GenericData ):
     '''
   
     stellar_mass = {}
-    for mass_category in [ 'is_fresh_accretion', 'is_NEP_wind_recycling', 'is_merger', 'is_mass_transfer', ]:
+    for mass_category in p_constants.CLASSIFICATION_LIST_A:
       stellar_mass[mass_category] = self.get_stellar_mass( classification=mass_category, *args, **kwargs )
 
     return utilities.SmartDict( stellar_mass )

@@ -53,7 +53,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
       fig = plt.figure( figsize=(11,5), facecolor='white' )
       ax = plt.gca()
 
-    classification_values = self.data_object.get_categories_stellar_mass_fraction( ind=ind )
+    classification_values = self.data_object.get_categories_stellar_mass_fraction( sl=(slice(None),ind) )
 
     bar_start = 0.
     for i, key in enumerate( p_constants.CLASSIFICATION_LIST_A ):
@@ -64,8 +64,15 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         label = None
 
       value = classification_values[key]
-      ax.bar( x_pos, value, width, bottom=bar_start, color=p_constants.CLASSIFICATION_COLORS[key],
-        label=label, alpha=0.7, )
+      ax.bar(
+        x_pos,
+        value,
+        width,
+        bottom = bar_start,
+        color = p_constants.CLASSIFICATION_COLORS[key],
+        label = label,
+        alpha = p_constants.CLASSIFICATION_ALPHA,
+      )
 
       bar_start += value
 
@@ -131,6 +138,78 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     if y_scale is not default:
       ax.set_yscale( y_scale )
+
+  ########################################################################
+
+  def plot_stacked_time_dependent_data( self,
+    ax = default,
+    x_range = default, y_range = default,
+    x_label = default, y_label = default,
+    plot_dividing_line = False,
+    ):
+
+    if ax is default:
+      fig = plt.figure( figsize=(11,5), facecolor='white' )
+      ax = plt.gca()
+
+    x_data = np.log10( 1. + self.data_object.get_data( 'redshift' ) )
+
+    y_datas = self.data_object.get_categories_stellar_mass_fraction()
+
+    y_prev = np.zeros( shape=y_datas.values()[0].shape )
+
+    color_objects = []
+    labels = []
+    for key in p_constants.CLASSIFICATION_LIST_A[::-1]:
+
+      y_next = y_prev + y_datas[key]
+
+      ax.fill_between(
+        x_data,
+        y_prev,
+        y_next,
+        color = p_constants.CLASSIFICATION_COLORS[key],
+        alpha = p_constants.CLASSIFICATION_ALPHA,
+      )
+
+      if plot_dividing_line:
+        ax.plot(
+          x_data,
+          y_next,
+          linewidth = 1,
+          color = p_constants.CLASSIFICATION_COLORS[key],
+        )
+
+      y_prev = y_next
+
+      # Make virtual artists to allow a legend to appear
+      color_object = matplotlib.patches.Rectangle(
+        (0, 0),
+        1,
+        1,
+        fc = p_constants.CLASSIFICATION_COLORS[key], 
+        ec = p_constants.CLASSIFICATION_COLORS[key], 
+        alpha = p_constants.CLASSIFICATION_ALPHA,
+      )
+      color_objects.append( color_object )
+      labels.append( p_constants.CLASSIFICATION_LABELS[key] )
+
+    if x_range is not default:
+      ax.set_xlim( x_range )
+
+    if y_range is not default:
+      ax.set_ylim( y_range )
+
+    tick_redshifts = np.array( [ 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, ] )
+    x_tick_values = np.log10( 1. + tick_redshifts )
+    plt.xticks( x_tick_values, tick_redshifts )
+
+    ax.set_xlabel( r'z', fontsize=22, )
+    ax.set_ylabel( r'$f(M_{\star})$', fontsize=22, )
+
+    ax.annotate( s=self.label, xy=(0.,1.0225), xycoords='axes fraction', fontsize=22,  )
+
+    ax.legend( color_objects, labels, prop={'size':14.5}, ncol=5, loc=(0.,-0.28), fontsize=20 )
 
   ########################################################################
 
