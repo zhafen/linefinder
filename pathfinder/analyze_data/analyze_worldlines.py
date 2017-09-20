@@ -21,6 +21,7 @@ import analyze_classifications
 import analyze_events
 
 import pathfinder.utils.presentation_constants as p_constants
+import pathfinder.utils.data_constants as d_constants
 
 ########################################################################
 
@@ -387,6 +388,38 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
+  def get_data_first_acc( self, data_key ):
+    '''Get data the snapshot immediately after first accretion.
+
+    Args:
+      data_key (str) : What data to get?
+
+    Returns:
+      data_first_acc (np.ndarray) : Array of data, the index immediately after first accretion.
+    '''
+
+    data = self.get_data( data_key )
+
+    if issubclass( data.dtype.type, np.integer ):
+      fill_value = d_constants.INT_FILL_VALUE
+    elif issubclass( data.dtype.type, np.float ):
+      fill_value = d_constants.FLOAT_FILL_VALUE
+    else:
+      raise Exception( "Unrecognized data type, data.dtype = {}".format( data.dtype ) )
+
+    data_first_acc = fill_value*np.ones( self.n_particles, dtype=data.dtype )
+
+    ind_first_acc = self.get_data( 'ind_first_acc' )
+
+    valid_inds = np.where( ind_first_acc != d_constants.INT_FILL_VALUE )[0]
+    valid_ind_first_acc = ind_first_acc[valid_inds]
+
+    data_first_acc[valid_inds] = data[valid_inds, valid_ind_first_acc]
+
+    return data_first_acc
+
+  ########################################################################
+
   def get_fraction_outside( self, data_key, data_min, data_max, *args, **kwargs ):
     '''Get the fraction of data outside a certain range. *args, **kwargs are arguments sent to mask the data.
 
@@ -537,7 +570,7 @@ class Worldlines( generic_data.GenericData ):
     dt = time[:-1] - time[1:] 
 
     # dt is shorter than the standard array, so we need to pad the array at the final snapshot
-    dt = np.append( dt, np.nan )
+    dt = np.append( dt, d_constants.FLOAT_FILL_VALUE )
 
     self.data['dt'] = dt
 

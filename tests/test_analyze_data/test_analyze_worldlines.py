@@ -17,6 +17,7 @@ import pytest
 import unittest
 
 import pathfinder.analyze_data.analyze_worldlines as analyze_worldlines
+import pathfinder.utils.data_constants as d_constants
 
 ########################################################################
 # Commonly useful input variables
@@ -372,6 +373,38 @@ class TestWorldlineCalcData( unittest.TestCase ):
       [ 0, 0, 0, ],
     ]).astype( bool )
 
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_data_first_acc( self ):
+
+    self.worldlines.data['PType'] = np.array([
+      [ 4, 4, 0, ],
+      [ 4, 0, 0, ],
+      [ 4, 0, 0, ],
+      [ 4, 0, 0, ],
+    ])
+    self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, d_constants.INT_FILL_VALUE, ])
+
+    actual = self.worldlines.get_data_first_acc( 'PType' )
+    expected = np.array( [ 4, 4, 0, d_constants.INT_FILL_VALUE ] )
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_data_first_acc_float( self ):
+
+    self.worldlines.data['Den'] = np.array([
+      [ 1., 2., 3., ],
+      [ 1., 2., 3., ],
+      [ 1., 2., 3., ],
+      [ 1., 2., 3., ],
+    ])
+    self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, d_constants.INT_FILL_VALUE, ])
+
+    actual = self.worldlines.get_data_first_acc( 'Den' )
+    expected = np.array( [ 1., 1., 2., d_constants.FLOAT_FILL_VALUE ] )
     npt.assert_allclose( expected, actual )
 
   ########################################################################

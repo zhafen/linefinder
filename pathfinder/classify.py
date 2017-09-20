@@ -19,6 +19,8 @@ import galaxy_diver.utils.astro as astro_tools
 import galaxy_diver.utils.constants as constants
 import galaxy_diver.utils.utilities as utilities
 
+import utils.data_constants as d_constants
+
 ########################################################################
 
 default = object()
@@ -538,11 +540,11 @@ class Classifier( object ):
       inds_tiled = np.tile( inds, ( self.n_particle, 1 ) )[:,0:self.n_snap-1]
 
       self._ind_first_acc = np.ma.masked_array( inds_tiled, mask=self.is_before_first_acc ).max( axis=1 )
-      self._ind_first_acc = self._ind_first_acc.filled( fill_value = -99999 )
+      self._ind_first_acc = self._ind_first_acc.filled( fill_value = d_constants.INT_FILL_VALUE )
 
       # Mask the ones that were always part of the galaxy
       always_part_of_gal = self.is_before_first_acc.sum( axis=1 ) == 0
-      self._ind_first_acc[always_part_of_gal] = -99999
+      self._ind_first_acc[always_part_of_gal] = d_constants.INT_FILL_VALUE
 
     return self._ind_first_acc
 
