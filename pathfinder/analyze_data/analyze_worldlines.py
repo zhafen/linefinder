@@ -218,7 +218,7 @@ class Worldlines( generic_data.GenericData ):
       snapshot_kwargs = {
         'sdir' : self.ids.snapshot_parameters['sdir'],
         'snum' : self.ids.parameters['snum_end'],
-        'ptype' : 0,
+        'ptype' : d_constants.PTYPE_GAS,
         'header_only' : True,
       }
 
@@ -237,7 +237,7 @@ class Worldlines( generic_data.GenericData ):
       snapshot_kwargs = {
         'sdir' : self.ids.snapshot_parameters['sdir'],
         'snum' : self.ids.parameters['snum_end'],
-        'ptype' : 4,
+        'ptype' : d_constants.PTYPE_STAR,
         'header_only' : True,
       }
 
@@ -458,7 +458,7 @@ class Worldlines( generic_data.GenericData ):
 
     self.data_masker.clear_masks()
 
-    self.data_masker.mask_data( 'PType', data_value=4 )
+    self.data_masker.mask_data( 'PType', data_value=d_constants.PTYPE_STAR )
     self.data_masker.mask_data( 'is_in_main_gal', data_value=True )
 
     data_ma = self.get_masked_data( 'M', fix_invalid=True, compress=False, *args, **kwargs )
@@ -552,6 +552,36 @@ class Worldlines( generic_data.GenericData ):
     pristine_tiled = np.tile( self.get_data( 'is_pristine' ), (self.n_snaps, 1) ).transpose()
 
     self.data['is_NEP_wind_recycling'] = np.all( [ pristine_tiled, self.get_data( 'is_wind' ) ], axis=0 )
+
+  ########################################################################
+
+  def calc_is_merger_star( self ):
+    '''Find material classified as a merger, while being a star particle at time of first accretion.
+    Caution: This is calculated at the snapshot first after accretion. The safer option may be to calculate at the
+    snapshot immediately before first accretion.
+
+    Modifies:
+      self.data['is_merger_star'] ( np.ndarray ) : Result.
+    '''
+
+    is_star_first_acc = self.get_data_first_acc( 'PType' ) == d_constants.PTYPE_STAR
+
+    self.data['is_merger_star'] = np.all( [ is_star_first_acc, self.get_data( 'is_merger' ) ], axis=0 )
+
+  ########################################################################
+
+  def calc_is_merger_gas( self ):
+    '''Find material classified as a merger, while being gas at time of first accretion.
+    Caution: This is calculated at the snapshot first after accretion. The safer option may be to calculate at the
+    snapshot immediately before first accretion.
+
+    Modifies:
+      self.data['is_merger_gas'] ( np.ndarray ) : Result.
+    '''
+
+    is_star_first_acc = self.get_data_first_acc( 'PType' ) == d_constants.PTYPE_GAS
+
+    self.data['is_merger_gas'] = np.all( [ is_star_first_acc, self.get_data( 'is_merger' ) ], axis=0 )
 
   ########################################################################
 

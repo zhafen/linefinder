@@ -14,3 +14,8 @@ import numpy as np
 
 INT_FILL_VALUE = -99999
 FLOAT_FILL_VALUE = np.nan
+
+PTYPE_GAS = 0
+PTYPE_DM = 1
+PTYPE_LOWRES_DM = 2
+PTYPE_STAR = 4

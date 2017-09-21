@@ -182,6 +182,38 @@ class TestWorldlineGetData( unittest.TestCase ):
 
     npt.assert_allclose( expected, actual )
 
+  ########################################################################
+
+  def test_get_data_first_acc( self ):
+
+    self.worldlines.data['PType'] = np.array([
+      [ 4, 4, 0, ],
+      [ 4, 0, 0, ],
+      [ 4, 0, 0, ],
+      [ 4, 0, 0, ],
+    ])
+    self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, d_constants.INT_FILL_VALUE, ])
+
+    actual = self.worldlines.get_data_first_acc( 'PType' )
+    expected = np.array( [ 4, 4, 0, d_constants.INT_FILL_VALUE ] )
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_data_first_acc_float( self ):
+
+    self.worldlines.data['Den'] = np.array([
+      [ 1., 2., 3., ],
+      [ 1., 2., 3., ],
+      [ 1., 2., 3., ],
+      [ 1., 2., 3., ],
+    ])
+    self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, d_constants.INT_FILL_VALUE, ])
+
+    actual = self.worldlines.get_data_first_acc( 'Den' )
+    expected = np.array( [ 1., 1., 2., d_constants.FLOAT_FILL_VALUE ] )
+    npt.assert_allclose( expected, actual )
+
 ########################################################################
 ########################################################################
 
@@ -377,34 +409,34 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_data_first_acc( self ):
+  @mock.patch( 'pathfinder.analyze_data.analyze_worldlines.Worldlines.get_data_first_acc' )
+  def test_calc_is_merger_star( self, mock_get_data_first_acc ):
 
-    self.worldlines.data['PType'] = np.array([
-      [ 4, 4, 0, ],
-      [ 4, 0, 0, ],
-      [ 4, 0, 0, ],
-      [ 4, 0, 0, ],
-    ])
-    self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, d_constants.INT_FILL_VALUE, ])
+    # Setup test data
+    mock_get_data_first_acc.side_effect = [ np.array( [ 4, 0, 4, 0, ] ), ]
+    self.worldlines.data['is_merger'] = np.array( [ 1, 1, 0, 0, ] ).astype( bool )
 
-    actual = self.worldlines.get_data_first_acc( 'PType' )
-    expected = np.array( [ 4, 4, 0, d_constants.INT_FILL_VALUE ] )
+    self.worldlines.calc_is_merger_star()
+
+    actual = self.worldlines.data['is_merger_star']
+    expected = np.array( [ True, False, False, False, ] )
+
     npt.assert_allclose( expected, actual )
 
   ########################################################################
 
-  def test_get_data_first_acc_float( self ):
+  @mock.patch( 'pathfinder.analyze_data.analyze_worldlines.Worldlines.get_data_first_acc' )
+  def test_calc_is_merger_star( self, mock_get_data_first_acc ):
 
-    self.worldlines.data['Den'] = np.array([
-      [ 1., 2., 3., ],
-      [ 1., 2., 3., ],
-      [ 1., 2., 3., ],
-      [ 1., 2., 3., ],
-    ])
-    self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, d_constants.INT_FILL_VALUE, ])
+    # Setup test data
+    mock_get_data_first_acc.side_effect = [ np.array( [ 4, 0, 4, 0, ] ), ]
+    self.worldlines.data['is_merger'] = np.array( [ 1, 1, 0, 0, ] ).astype( bool )
 
-    actual = self.worldlines.get_data_first_acc( 'Den' )
-    expected = np.array( [ 1., 1., 2., d_constants.FLOAT_FILL_VALUE ] )
+    self.worldlines.calc_is_merger_gas()
+
+    actual = self.worldlines.data['is_merger_gas']
+    expected = np.array( [ False, True, False, False, ] )
+
     npt.assert_allclose( expected, actual )
 
   ########################################################################
