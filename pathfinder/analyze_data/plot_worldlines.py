@@ -143,10 +143,25 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
   def plot_stacked_time_dependent_data( self,
     ax = default,
-    x_range = default, y_range = default,
+    x_range = [ 0., np.log10(8.) ], y_range = [0., 1.],
     x_label = default, y_label = default,
     plot_dividing_line = False,
     ):
+    '''Make a plot like the bottom panel of Fig. 3 in Angles-Alcazar+17
+
+    Args:
+      ax (axis object) :
+        What axis to put the plot on. By default, create a new one on a separate figure.
+
+      x_range, y_range (list-like) :
+        [ x_min, x_max ] or [ y_min, y_max ] for the displayed range.
+
+      x_label, y_label (str) :
+        Labels for axis. By default, redshift and f(M_star), respectively.
+
+      plot_dividing_line (bool) :
+        Whether or not to plot a line at the edge between stacked regions.
+    '''
 
     if ax is default:
       fig = plt.figure( figsize=(11,5), facecolor='white' )
