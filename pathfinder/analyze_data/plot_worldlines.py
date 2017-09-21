@@ -53,7 +53,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
       fig = plt.figure( figsize=(11,5), facecolor='white' )
       ax = plt.gca()
 
-    classification_values = self.data_object.get_categories_stellar_mass_fraction( sl=(slice(None),ind) )
+    classification_values = self.data_object.get_categories_galaxy_quantity_fraction( sl=(slice(None),ind) )
 
     bar_start = 0.
     for i, key in enumerate( p_constants.CLASSIFICATION_LIST_A ):
@@ -141,11 +141,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
   ########################################################################
 
-  def plot_time_dependent_data( self,
+  def plot_classified_time_dependent_data( self,
     ax = default,
-    x_range = [ 0., np.log10(8.) ], y_range = [0., 1.],
+    x_range = [ 0., np.log10(8.) ], y_range = default,
+    y_scale = 'log',
     x_label = default, y_label = default,
-    ):
+    *args, **kwargs ):
     '''Make a plot like the top panel of Fig. 3 in Angles-Alcazar+17
 
     Args:
@@ -160,6 +161,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
       plot_dividing_line (bool) :
         Whether or not to plot a line at the edge between stacked regions.
+
+      *args, **kwargs :
+        Passed to the data retrieval method.
     '''
 
     if ax is default:
@@ -168,7 +172,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     x_data = np.log10( 1. + self.data_object.get_data( 'redshift' ) )
 
-    y_datas = self.data_object.get_categories_stellar_mass_fraction()
+    y_datas = self.data_object.get_categories_galaxy_quantity( *args, **kwargs )
 
     for key in p_constants.CLASSIFICATION_LIST_A[::-1]:
 
@@ -188,6 +192,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     if y_range is not default:
       ax.set_ylim( y_range )
 
+    ax.set_yscale( y_scale )
+
     tick_redshifts = np.array( [ 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, ] )
     x_tick_values = np.log10( 1. + tick_redshifts )
     plt.xticks( x_tick_values, tick_redshifts )
@@ -196,6 +202,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     ax.set_ylabel( r'$M_{\star} (M_{\odot})$', fontsize=22, )
 
     ax.annotate( s=self.label, xy=(0.,1.0225), xycoords='axes fraction', fontsize=22,  )
+
+    ax.legend( prop={'size':14.5}, ncol=5, loc=(0.,-0.28), fontsize=20 )
 
   ########################################################################
 
@@ -227,7 +235,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     x_data = np.log10( 1. + self.data_object.get_data( 'redshift' ) )
 
-    y_datas = self.data_object.get_categories_stellar_mass_fraction()
+    y_datas = self.data_object.get_categories_galaxy_quantity_fraction()
 
     y_prev = np.zeros( shape=y_datas.values()[0].shape )
 

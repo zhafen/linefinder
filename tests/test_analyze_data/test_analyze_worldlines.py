@@ -261,9 +261,9 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_galaxy_mass( self ):
+  def test_get_galaxy_quantity( self ):
 
-    actual = self.worldlines.get_categories_galaxy_mass_fraction(
+    actual = self.worldlines.get_categories_galaxy_quantity_fraction(
       sl = (slice(None),1),
       classification_list = p_constants.CLASSIFICATION_LIST_B,
     )
@@ -279,9 +279,9 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_galaxy_mass_redshift( self ):
+  def test_get_galaxy_quantity_redshift( self ):
 
-    actual = self.worldlines.get_categories_galaxy_mass_fraction(
+    actual = self.worldlines.get_categories_galaxy_quantity_fraction(
       classification_list = p_constants.CLASSIFICATION_LIST_B,
     )
     expected = {
@@ -293,6 +293,24 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
 
     for key, item in expected.items():
       npt.assert_allclose( item, actual[key] )
+
+  ########################################################################
+
+  def test_get_galaxy_quantity_n_particles( self ):
+
+    actual = self.worldlines.get_categories_galaxy_quantity(
+      quantity = 'n_particles',
+      classification_list = p_constants.CLASSIFICATION_LIST_B,
+    )
+    expected = {
+      'is_merger' : np.array([ 1, 1, 1, ]),
+      'is_mass_transfer' : np.array([ 1, 1, 0, ]),
+      'is_fresh_accretion' : np.array([ 3, 1, 0, ]),
+      'is_NEP_wind_recycling' : np.array([ 1, 1, 0, ]),
+    }
+
+    for key, item in expected.items():
+      npt.assert_allclose( item, actual[key], err_msg="Key {} failed".format( key ) )
 
 ########################################################################
 ########################################################################

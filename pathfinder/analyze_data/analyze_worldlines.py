@@ -438,15 +438,21 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
-  def get_galaxy_mass( self, ptype='star', *args, **kwargs ):
+  def get_galaxy_quantity( self, ptype='star', quantity='mass', *args, **kwargs ):
     '''Get the total mass in the main galaxy for a particular particle type.
 
     Args:
+      ptype (str):
+        What particle type inside the galaxy to consider.
+
+      quantity (str):
+        What quantity of the galaxy to retrieve.
+
       *args, **kwargs :
         Additional arguments to be passed to self.get_masked_data()
 
     Returns:
-      galaxy_mass (np.ndarray) :
+      galaxy_quantity (np.ndarray) :
         Total mass for a particular particle type in the main galaxy
         (satisfying any additional requirements passed via *args and **kwargs)
         at each specified redshift.
@@ -466,44 +472,77 @@ class Worldlines( generic_data.GenericData ):
 
     data_ma = self.get_masked_data( 'M', fix_invalid=True, compress=False, *args, **kwargs )
 
-    galaxy_mass = data_ma.sum( axis=0 )
+    if quantity == 'mass':
+      galaxy_quantity = data_ma.sum( axis=0 )
 
-    # Replace masked values with 0
-    if not isinstance( galaxy_mass, float ):
-      galaxy_mass.fill_value = 0.
-      galaxy_mass = galaxy_mass.filled()
+      # Replace masked values with 0
+      if not isinstance( galaxy_quantity, float ):
+        galaxy_quantity.fill_value = 0.
+        galaxy_quantity = galaxy_quantity.filled()
 
-    return galaxy_mass
+    elif quantity == 'n_particles':
+      galaxy_quantity = np.invert( data_ma.mask ).sum( axis=0 )
 
-  def get_categories_galaxy_mass( self, classification_list=p_constants.CLASSIFICATION_LIST_A, *args, **kwargs ):
+    else:
+      raise Exception( "Unrecognized galaxy_quantity, galaxy_quantity = {}".format( galaxy_quantity ) )
+
+    return galaxy_quantity
+
+  def get_categories_galaxy_quantity( self, classification_list=p_constants.CLASSIFICATION_LIST_A, *args, **kwargs ):
     '''Get the total mass in the main galaxy for a particular particle type in each
-    of a number of classification categories.
+    of a number of classification categories. This is only for particles that are tracked! This is not the real mass!
 
     Args:
+      classification_list (list) :
+        What classifications to use.
+
       *args, **kwargs :
         Additional arguments to be passed to self.get_masked_data()
 
     Returns:
-      categories_galaxy_mass (SmartDict of np.ndarrays) :
-        galaxy_mass that fits each classification.
+      categories_galaxy_quantity (SmartDict of np.ndarrays) :
+        galaxy_quantity that fits each classification.
     '''
   
-    galaxy_mass = {}
+    galaxy_quantity = {}
     for mass_category in classification_list:
-      galaxy_mass[mass_category] = self.get_galaxy_mass( classification=mass_category, *args, **kwargs )
+      galaxy_quantity[mass_category] = self.get_galaxy_quantity( classification=mass_category, *args, **kwargs )
 
-    return utilities.SmartDict( galaxy_mass )
+    return utilities.SmartDict( galaxy_quantity )
 
-  def get_categories_galaxy_mass_fraction( self,
-    classification_list=p_constants.CLASSIFICATION_LIST_A,
+  def get_categories_galaxy_quantity_fraction( self,
+    classification_list = p_constants.CLASSIFICATION_LIST_A,
     *args, **kwargs ):
-    '''Same as categories_galaxy_mass, but as a fraction of the total mass in the main galaxy
+    '''Same as categories_galaxy_quantity, but as a fraction of the total mass in the main galaxy
     for a particular particle type.
     '''
 
-    categories_mass = self.get_categories_galaxy_mass( classification_list=classification_list, *args, **kwargs )
+    categories_mass = self.get_categories_galaxy_quantity( classification_list=classification_list, *args, **kwargs )
 
-    return categories_mass/self.get_galaxy_mass( *args, **kwargs )
+    return categories_mass/self.get_galaxy_quantity( *args, **kwargs )
+
+  def get_real_categories_galaxy_quantity( self, classification_list=p_constants.CLASSIFICATION_LIST_A, *args, **kwargs ):
+    '''Get the total mass in the main galaxy for a particular particle type in each
+    of a number of classification categories.
+
+    Args:
+      classification_list (list) :
+        What classifications to use.
+
+      *args, **kwargs :
+        Additional arguments to be passed to self.get_masked_data()
+
+    Returns:
+      categories_galaxy_quantity (SmartDict of np.ndarrays) :
+        galaxy_quantity that fits each classification.
+    '''
+
+    categories_mass = self.get_categories_galaxy_quantity( classification_list=classification_list, *args, **kwargs )
+
+    # TODO
+    raise Exception( "This may not be correct yet!" )
+
+    return categories_mass*self.conversion_factor
 
   ########################################################################
   # Generate Data on the Go
