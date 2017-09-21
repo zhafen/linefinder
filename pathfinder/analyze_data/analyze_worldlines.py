@@ -43,8 +43,6 @@ class Worldlines( generic_data.GenericData ):
     galids_tag = default,
     classifications_tag = default,
     events_tag = default,
-    label = default,
-    color = 'k',
     **kwargs ):
     '''
     Args:
@@ -69,9 +67,6 @@ class Worldlines( generic_data.GenericData ):
       classifications_tag = tag
     if events_tag is default:
       events_tag = tag
-
-    if label is default:
-      label = tag
 
     # Store the arguments
     for arg in locals().keys():
@@ -443,57 +438,72 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
-  def get_stellar_mass( self, *args, **kwargs ):
-    '''Get the total stellar mass.
+  def get_galaxy_mass( self, ptype='star', *args, **kwargs ):
+    '''Get the total mass in the main galaxy for a particular particle type.
 
     Args:
       *args, **kwargs :
         Additional arguments to be passed to self.get_masked_data()
 
     Returns:
-      stellar_mass (np.ndarray) :
-        Total stellar mass in the main galaxy (satisfying any additional requirements passed via *args and **kwargs)
+      galaxy_mass (np.ndarray) :
+        Total mass for a particular particle type in the main galaxy
+        (satisfying any additional requirements passed via *args and **kwargs)
         at each specified redshift.
     '''
 
     self.data_masker.clear_masks()
 
-    self.data_masker.mask_data( 'PType', data_value=d_constants.PTYPE_STAR )
+    if ptype == 'star':
+      ptype_value = d_constants.PTYPE_STAR 
+    elif ptype == 'gas':
+      ptype_value = d_constants.PTYPE_GAS
+    else:
+      raise Exception( "Unrecognized Particle Type, ptype = {}".format( ptype ) )
+
+    self.data_masker.mask_data( 'PType', data_value=ptype_value )
     self.data_masker.mask_data( 'is_in_main_gal', data_value=True )
 
     data_ma = self.get_masked_data( 'M', fix_invalid=True, compress=False, *args, **kwargs )
 
-    stellar_mass = data_ma.sum( axis=0 )
+    galaxy_mass = data_ma.sum( axis=0 )
 
     # Replace masked values with 0
-    if not isinstance( stellar_mass, float ):
-      stellar_mass.fill_value = 0.
-      stellar_mass = stellar_mass.filled()
+    if not isinstance( galaxy_mass, float ):
+      galaxy_mass.fill_value = 0.
+      galaxy_mass = galaxy_mass.filled()
 
-    return stellar_mass
+    return galaxy_mass
 
-  def get_categories_stellar_mass( self, *args, **kwargs ):
-    '''Get the total stellar mass in each of a number of classification categories.
+  def get_categories_galaxy_mass( self, classification_list=p_constants.CLASSIFICATION_LIST_A, *args, **kwargs ):
+    '''Get the total mass in the main galaxy for a particular particle type in each
+    of a number of classification categories.
 
     Args:
       *args, **kwargs :
         Additional arguments to be passed to self.get_masked_data()
 
     Returns:
-      categories_stellar_mass (SmartDict of np.ndarrays) :
-        stellar_mass that fits each classification.
+      categories_galaxy_mass (SmartDict of np.ndarrays) :
+        galaxy_mass that fits each classification.
     '''
   
-    stellar_mass = {}
-    for mass_category in p_constants.CLASSIFICATION_LIST_A:
-      stellar_mass[mass_category] = self.get_stellar_mass( classification=mass_category, *args, **kwargs )
+    galaxy_mass = {}
+    for mass_category in classification_list:
+      galaxy_mass[mass_category] = self.get_galaxy_mass( classification=mass_category, *args, **kwargs )
 
-    return utilities.SmartDict( stellar_mass )
+    return utilities.SmartDict( galaxy_mass )
 
-  def get_categories_stellar_mass_fraction( self, *args, **kwargs ):
-    '''Same as categories_stellar_mass, but as a fraction of the total stellar mass.'''
+  def get_categories_galaxy_mass_fraction( self,
+    classification_list=p_constants.CLASSIFICATION_LIST_A,
+    *args, **kwargs ):
+    '''Same as categories_galaxy_mass, but as a fraction of the total mass in the main galaxy
+    for a particular particle type.
+    '''
 
-    return self.get_categories_stellar_mass( *args, **kwargs )/self.get_stellar_mass( *args, **kwargs )
+    categories_mass = self.get_categories_galaxy_mass( classification_list=classification_list, *args, **kwargs )
+
+    return categories_mass/self.get_galaxy_mass( *args, **kwargs )
 
   ########################################################################
   # Generate Data on the Go

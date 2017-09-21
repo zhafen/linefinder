@@ -18,6 +18,7 @@ import unittest
 
 import pathfinder.analyze_data.analyze_worldlines as analyze_worldlines
 import pathfinder.utils.data_constants as d_constants
+import pathfinder.utils.presentation_constants as p_constants
 
 ########################################################################
 # Commonly useful input variables
@@ -260,9 +261,12 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_stellar_mass( self ):
+  def test_get_galaxy_mass( self ):
 
-    actual = self.worldlines.get_categories_stellar_mass_fraction( sl=(slice(None),1) )
+    actual = self.worldlines.get_categories_galaxy_mass_fraction(
+      sl = (slice(None),1),
+      classification_list = p_constants.CLASSIFICATION_LIST_B,
+    )
     expected = {
       'is_merger' : 0.1,
       'is_mass_transfer' : 0.2,
@@ -275,9 +279,11 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_stellar_mass_redshift( self ):
+  def test_get_galaxy_mass_redshift( self ):
 
-    actual = self.worldlines.get_categories_stellar_mass_fraction()
+    actual = self.worldlines.get_categories_galaxy_mass_fraction(
+      classification_list = p_constants.CLASSIFICATION_LIST_B,
+    )
     expected = {
       'is_merger' : np.array([ 1./6., 0.1, 1., ]),
       'is_mass_transfer' : np.array([ 1./6., 0.2, 0., ]),
