@@ -93,7 +93,7 @@ class TestGalaxyFinder( unittest.TestCase ):
   def test_valid_halo_inds( self ):
 
     # Make sure we actually have a minimum
-    self.galaxy_finder.kwargs['minimum_value'] = 10
+    self.galaxy_finder.minimum_value = 10
 
     # Modify the AHF halos data for easy replacement
     self.galaxy_finder.ahf_reader.ahf_halos = {}
@@ -158,8 +158,8 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''Test that this works for using r_scale.'''
 
     # Set the length scale
-    self.galaxy_finder.kwargs['galaxy_cut'] = 1.
-    self.galaxy_finder.kwargs['length_scale'] = 'r_scale'
+    self.galaxy_finder.galaxy_cut = 1.
+    self.galaxy_finder.length_scale = 'r_scale'
 
     r_scale_500 = 21.113602882685832
     self.galaxy_finder.particle_positions = np.array([
@@ -231,8 +231,8 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''Test that this works for using r_scale.'''
 
     # Set the length scale
-    self.galaxy_finder.kwargs['galaxy_cut'] = 1.
-    self.galaxy_finder.kwargs['length_scale'] = 'r_scale'
+    self.galaxy_finder.galaxy_cut = 1.
+    self.galaxy_finder.length_scale = 'r_scale'
 
     r_scale_500 = 21.113602882685832
     self.galaxy_finder.particle_positions = np.array([
@@ -368,7 +368,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''Test that, when there are no galaxies formed, we return an mt halo value of -2'''
     
     # Set it to early redshifts
-    self.galaxy_finder.kwargs['snum'] = 0
+    self.galaxy_finder.snum = 0
 
     # It doesn't really matter where the particles are, because there shouldn't be any galaxies anyways....
     self.galaxy_finder.particle_positions = np.array([
@@ -561,7 +561,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''This tests we can find the shortest distance to the nearest galaxy.
     '''
 
-    self.galaxy_finder.kwargs['main_mt_halo_id'] = 1
+    self.galaxy_finder.main_mt_halo_id = 1
 
     # Setup the distance so we don't have to calculate it.
     self.galaxy_finder._dist_to_all_valid_halos = np.array([
@@ -582,7 +582,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''This tests we can find the shortest distance to the nearest galaxy.
     '''
 
-    self.galaxy_finder.kwargs['snum'] = 1
+    self.galaxy_finder.snum = 1
 
     # Setup the distance so we don't have to calculate it.
     self.galaxy_finder._dist_to_all_valid_halos = np.array([
@@ -628,7 +628,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''
 
     # Setup dummy data
-    self.galaxy_finder.kwargs['snum'] = 1
+    self.galaxy_finder.snum = 1
     self.galaxy_finder._ahf_halos_length_scale_pkpc = np.array([ 1., 2., 3., 4., 5., ])
     self.galaxy_finder._valid_halo_inds = np.array([ 0, 1, 2, 3, ])
     self.galaxy_finder._dist_to_all_valid_halos = np.array([
@@ -653,7 +653,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''
 
     # Setup dummy data
-    self.galaxy_finder.kwargs['snum'] = 1
+    self.galaxy_finder.snum = 1
     self.galaxy_finder.ahf_reader.sdir = './tests/data/ahf_test_data2'
     self.galaxy_finder.ahf_reader.get_halos( 1 )
 
@@ -673,8 +673,8 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''
 
     # Setup dummy data
-    self.galaxy_finder.kwargs['snum'] = 12
-    self.galaxy_finder.kwargs['minimum_value'] = 10
+    self.galaxy_finder.snum = 12
+    self.galaxy_finder.minimum_value = 10
     self.galaxy_finder.ahf_reader.sdir = './tests/data/ahf_test_data2'
     self.galaxy_finder.ahf_reader.get_halos( 12 )
 
@@ -694,7 +694,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     '''
 
     # Setup dummy data
-    self.galaxy_finder.kwargs['main_mt_halo_id'] = 3
+    self.galaxy_finder.main_mt_halo_id = 3
     self.galaxy_finder._ahf_halos_length_scale_pkpc = np.array([ 1., 2., 3., 4., 5., ])
     self.galaxy_finder._valid_halo_inds = np.array([ 0, 1, 2, 3, ])
     self.galaxy_finder._dist_to_all_valid_halos = np.array([
@@ -730,6 +730,11 @@ class TestGalaxyFinderMinimumStellarMass( unittest.TestCase ):
       'ahf_data_dir' : './tests/data/ahf_test_data',
       'mtree_halos_index' : 600,
       'halo_file_tag' : 'smooth',
+      'main_mt_halo_id' : 0,
+      'galaxy_cut' : 0.1,
+      'length_scale' : 'R_vir',
+
+      'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_sat_scaled', ],
     }
 
     # Get input data
@@ -799,6 +804,11 @@ class TestGalaxyFinderMinimumNumStars( unittest.TestCase ):
       'ahf_data_dir' : './tests/data/ahf_test_data',
       'mtree_halos_index' : 600,
       'halo_file_tag' : 'smooth',
+      'main_mt_halo_id' : 0,
+      'galaxy_cut' : 0.1,
+      'length_scale' : 'R_vir',
+
+      'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_sat_scaled', ],
     }
 
     # Get input data
