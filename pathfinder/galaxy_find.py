@@ -40,7 +40,7 @@ class ParticleTrackGalaxyFinder( object ):
     ptracks_tag = default,
     galaxy_cut = 0.5,
     length_scale = 'r_scale',
-    ids_to_return = [ 'gal_id', 'mt_gal_id', 'd_sat_scaled', ],
+    ids_to_return = [ 'gal_id', 'mt_gal_id', 'd_other_gal_scaled', ],
     minimum_criteria = 'n_star',
     minimum_value = 10,
     n_processors = 1,
@@ -559,10 +559,10 @@ class GalaxyFinder( object ):
         galaxy_and_halo_ids['mt_gal_id'] = self.find_halo_id( self.galaxy_cut, type_of_halo_id='mt_halo_id' )
       elif id_type == 'd_gal':
         galaxy_and_halo_ids['d_gal'] = self.find_d_gal()
-      elif id_type == 'd_sat':
-        galaxy_and_halo_ids['d_sat'] = self.find_d_sat()
-      elif id_type == 'd_sat_scaled':
-        galaxy_and_halo_ids['d_sat_scaled'] = self.find_d_sat( scaled=True )
+      elif id_type == 'd_other_gal':
+        galaxy_and_halo_ids['d_other_gal'] = self.find_d_other_gal()
+      elif id_type == 'd_other_gal_scaled':
+        galaxy_and_halo_ids['d_other_gal_scaled'] = self.find_d_other_gal( scaled=True )
       else:
         raise Exception( "Unrecognized id_type" )
     
@@ -585,12 +585,12 @@ class GalaxyFinder( object ):
 
   ########################################################################
 
-  def find_d_sat( self, scaled=False ):
-    '''Find the distance to the center of the closest halo that contains a satellite galaxy.
+  def find_d_other_gal( self, scaled=False ):
+    '''Find the distance to the center of the closest halo that contains a galaxy, other than the main galaxy.
 
     Returns:
-      d_sat (np.ndarray) :
-        For particle i, d_sat[i] is the distance in pkpc to the center of the nearest galaxy, besides the main galaxy.
+      d_other_gal (np.ndarray) :
+        For particle i, d_other_gal[i] is the distance in pkpc to the center of the nearest galaxy, besides the main galaxy.
     '''
 
     # Handle when no halos exist.
@@ -616,29 +616,29 @@ class GalaxyFinder( object ):
       ind_main_gal_in_valid_inds = np.where( valid_halo_ind_is_main_gal_ind )[0]
 
     if ind_main_gal_in_valid_inds.size == 0:
-      dist_to_all_valid_sats = self.dist_to_all_valid_halos
+      dist_to_all_valid_other_gals = self.dist_to_all_valid_halos
       valid_halo_inds_sats = self.valid_halo_inds
 
     elif ind_main_gal_in_valid_inds.size == 1:
-      dist_to_all_valid_sats = np.delete( self.dist_to_all_valid_halos, ind_main_gal_in_valid_inds[0], axis=1 )
+      dist_to_all_valid_other_gals = np.delete( self.dist_to_all_valid_halos, ind_main_gal_in_valid_inds[0], axis=1 )
       valid_halo_inds_sats = np.delete( self.valid_halo_inds, ind_main_gal_in_valid_inds[0] )
 
     else:
       raise Exception( "valid_ind_main_gal too big, is size {}".format( valid_ind_main_gal.size ) )
 
     if not scaled:
-      return np.min( dist_to_all_valid_sats, axis=1 )
+      return np.min( dist_to_all_valid_other_gals, axis=1 )
 
-    inds_sat = np.argmin( dist_to_all_valid_sats, axis=1 )
+    inds_sat = np.argmin( dist_to_all_valid_other_gals, axis=1 )
 
     # Now scale
     length_scale_sats = self.ahf_halos_length_scale_pkpc[ valid_halo_inds_sats ]
 
-    dist_to_all_valid_sats_scaled = dist_to_all_valid_sats/length_scale_sats[np.newaxis,:]
+    dist_to_all_valid_other_gals_scaled = dist_to_all_valid_other_gals/length_scale_sats[np.newaxis,:]
 
-    d_sat_scaled = dist_to_all_valid_sats_scaled[ np.arange( self.n_particles ), inds_sat ]
+    d_other_gal_scaled = dist_to_all_valid_other_gals_scaled[ np.arange( self.n_particles ), inds_sat ]
 
-    return d_sat_scaled
+    return d_other_gal_scaled
 
   ########################################################################
 

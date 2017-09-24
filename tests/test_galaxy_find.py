@@ -35,14 +35,14 @@ gal_finder_kwargs = {
   'halo_file_tag' : 'smooth',
 
   'galaxy_cut' : 0.1,
-  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_sat_scaled', ],
+  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_other_gal_scaled', ],
   'minimum_criteria' : 'n_star',
   'minimum_value' : 0,
 }
 
 ptrack_gal_finder_kwargs = {
   'length_scale' : 'R_vir',
-  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_sat_scaled', ],
+  'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_other_gal_scaled', ],
   'minimum_criteria' : 'n_star',
   'minimum_value' : 0,
 
@@ -538,7 +538,7 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
-  def test_find_d_sat( self ):
+  def test_find_d_other_gal( self ):
     '''This tests we can find the shortest distance to the nearest galaxy.
     '''
 
@@ -549,7 +549,7 @@ class TestGalaxyFinder( unittest.TestCase ):
       [ 0.2, 2.5e-4, 4., ],
     ])
 
-    actual = self.galaxy_finder.find_d_sat()
+    actual = self.galaxy_finder.find_d_other_gal()
 
     expected = np.array([ 0.75, 3., 2.5e-4, ])
 
@@ -557,7 +557,7 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
-  def test_find_d_sat_main_halo_id_not_0( self ):
+  def test_find_d_other_gal_main_halo_id_not_0( self ):
     '''This tests we can find the shortest distance to the nearest galaxy.
     '''
 
@@ -570,7 +570,7 @@ class TestGalaxyFinder( unittest.TestCase ):
       [ 0.2, 2.5e-4, 4., ],
     ])
 
-    actual = self.galaxy_finder.find_d_sat()
+    actual = self.galaxy_finder.find_d_other_gal()
 
     expected = np.array([ 0.5, 3., 0.2, ])
 
@@ -578,7 +578,7 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
-  def test_find_d_sat_early_universe( self ):
+  def test_find_d_other_gal_early_universe( self ):
     '''This tests we can find the shortest distance to the nearest galaxy.
     '''
 
@@ -591,7 +591,7 @@ class TestGalaxyFinder( unittest.TestCase ):
       [ 0.2, 2.5e-4, 4., ],
     ])
 
-    actual = self.galaxy_finder.find_d_sat()
+    actual = self.galaxy_finder.find_d_other_gal()
 
     expected = np.array([ 0.5, 3., 2.5e-4, ])
 
@@ -599,7 +599,7 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
-  def test_find_d_sat_scaled( self ):
+  def test_find_d_other_gal_scaled( self ):
     '''This tests we can find the shortest distance to the nearest galaxy.
     '''
 
@@ -615,7 +615,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     # Make sure we set the number of particles correctly, to match the number we're using
     self.galaxy_finder.n_particles = 3
 
-    actual = self.galaxy_finder.find_d_sat( scaled=True )
+    actual = self.galaxy_finder.find_d_other_gal( scaled=True )
 
     expected = np.array([ 2., 0.25, 2., ])
 
@@ -623,7 +623,7 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
-  def test_find_d_sat_scaled_early_universe( self ):
+  def test_find_d_other_gal_scaled_early_universe( self ):
     '''This tests we can find the shortest distance to the nearest galaxy.
     '''
 
@@ -640,7 +640,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     # Make sure we set the number of particles correctly, to match the number we're using
     self.galaxy_finder.n_particles = 3
 
-    actual = self.galaxy_finder.find_d_sat( scaled=True )
+    actual = self.galaxy_finder.find_d_other_gal( scaled=True )
 
     expected = np.array([ 2., 0.25, 2., ])
 
@@ -648,7 +648,7 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
-  def test_find_d_sat_scaled_no_halos( self ):
+  def test_find_d_other_gal_scaled_no_halos( self ):
     '''This tests we can find the shortest distance to the nearest galaxy.
     '''
 
@@ -660,7 +660,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     # Make sure we set the number of particles correctly, to match the number we're using
     #self.galaxy_finder.n_particles = 3
 
-    actual = self.galaxy_finder.find_d_sat( scaled=True )
+    actual = self.galaxy_finder.find_d_other_gal( scaled=True )
 
     expected = np.array([ -2., -2., ])
 
@@ -668,7 +668,7 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
-  def test_find_d_sat_scaled_no_halos_with_sufficient_mass( self ):
+  def test_find_d_other_gal_scaled_no_halos_with_sufficient_mass( self ):
     '''This tests we can find the shortest distance to the nearest galaxy.
     '''
 
@@ -681,7 +681,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     # Make sure we set the number of particles correctly, to match the number we're using
     #self.galaxy_finder.n_particles = 3
 
-    actual = self.galaxy_finder.find_d_sat( scaled=True )
+    actual = self.galaxy_finder.find_d_other_gal( scaled=True )
 
     expected = np.array([ -2., -2., ])
 
@@ -689,7 +689,7 @@ class TestGalaxyFinder( unittest.TestCase ):
 
   ########################################################################
 
-  def test_find_d_sat_scaled_main_halo_id_not_0( self ):
+  def test_find_d_other_gal_scaled_main_halo_id_not_0( self ):
     '''This tests we can find the shortest distance to the nearest galaxy.
     '''
 
@@ -706,7 +706,7 @@ class TestGalaxyFinder( unittest.TestCase ):
     # Make sure we set the number of particles correctly, to match the number we're using
     self.galaxy_finder.n_particles = 3
 
-    actual = self.galaxy_finder.find_d_sat( scaled=True )
+    actual = self.galaxy_finder.find_d_other_gal( scaled=True )
 
     expected = np.array([ 2., 2./3., 2., ])
 
@@ -734,7 +734,7 @@ class TestGalaxyFinderMinimumStellarMass( unittest.TestCase ):
       'galaxy_cut' : 0.1,
       'length_scale' : 'R_vir',
 
-      'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_sat_scaled', ],
+      'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_other_gal_scaled', ],
     }
 
     # Get input data
@@ -808,7 +808,7 @@ class TestGalaxyFinderMinimumNumStars( unittest.TestCase ):
       'galaxy_cut' : 0.1,
       'length_scale' : 'R_vir',
 
-      'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_sat_scaled', ],
+      'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_other_gal_scaled', ],
     }
 
     # Get input data
