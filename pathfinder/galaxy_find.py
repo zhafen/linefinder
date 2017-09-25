@@ -624,7 +624,7 @@ class GalaxyFinder( object ):
       valid_halo_inds_sats = np.delete( self.valid_halo_inds, ind_main_gal_in_valid_inds[0] )
 
     else:
-      raise Exception( "valid_ind_main_gal too big, is size {}".format( valid_ind_main_gal.size ) )
+      raise Exception( "ind_main_gal_in_valid_inds too big, is size {}".format( valid_ind_main_gal.size ) )
 
     if not scaled:
       return np.min( dist_to_all_valid_other_gals, axis=1 )
