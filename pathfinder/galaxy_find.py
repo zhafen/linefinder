@@ -15,7 +15,7 @@ import subprocess
 import sys
 import time
 
-import galaxy_diver.galaxy_finder.galaxy_finder as general_galaxy_finder
+import galaxy_diver.galaxy_finder.finder as galaxy_finder
 import galaxy_diver.read_data.ahf as read_ahf
 import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
@@ -191,8 +191,8 @@ class ParticleTrackGalaxyFinder( object ):
       time_start = time.time()
 
       # Find the galaxy for a given snapshot
-      galaxy_finder = general_galaxy_finder.GalaxyFinder( particle_positions, **kwargs )
-      galaxy_and_halo_ids = galaxy_finder.find_ids()
+      gal_finder = galaxy_finder.GalaxyFinder( particle_positions, **kwargs )
+      galaxy_and_halo_ids = gal_finder.find_ids()
 
       time_end = time.time()
 
@@ -206,15 +206,15 @@ class ParticleTrackGalaxyFinder( object ):
         self.ptrack_gal_ids = {}
         for key in galaxy_and_halo_ids.keys():
           dtype = type( galaxy_and_halo_ids[key][0] )
-          self.ptrack_gal_ids[key] = np.empty( ( galaxy_finder.n_particles, n_snaps ), dtype=dtype )
+          self.ptrack_gal_ids[key] = np.empty( ( gal_finder.n_particles, n_snaps ), dtype=dtype )
 
       # Store the data in the primary array
       for key in galaxy_and_halo_ids.keys():
         self.ptrack_gal_ids[key][ :, i ] = galaxy_and_halo_ids[key]
 
-      # Try clearing up memory again, in case galaxy_finder is hanging around...
+      # Try clearing up memory again, in case gal_finder is hanging around...
       del kwargs
-      del galaxy_finder
+      del gal_finder
       del galaxy_and_halo_ids
       gc.collect()
 
@@ -235,8 +235,8 @@ class ParticleTrackGalaxyFinder( object ):
       time_start = time.time()
 
       # Find the galaxy for a given snapshot
-      galaxy_finder = general_galaxy_finder.GalaxyFinder( particle_positions, **kwargs )
-      galaxy_and_halo_ids = galaxy_finder.find_ids()
+      gal_finder = galaxy_finder.GalaxyFinder( particle_positions, **kwargs )
+      galaxy_and_halo_ids = gal_finder.find_ids()
 
       time_end = time.time()
 
@@ -247,7 +247,7 @@ class ParticleTrackGalaxyFinder( object ):
 
       # Try to avoid memory leaks
       del kwargs
-      del galaxy_finder
+      del gal_finder
       gc.collect()
 
       return galaxy_and_halo_ids
@@ -301,7 +301,7 @@ class ParticleTrackGalaxyFinder( object ):
       for key in galaxy_and_halo_ids.keys():
         self.ptrack_gal_ids[key][ :, i ] = galaxy_and_halo_ids[key]
 
-      # Try clearing up memory again, in case galaxy_finder is hanging around...
+      # Try clearing up memory again, in case gal_finder is hanging around...
       del galaxy_and_halo_ids
       gc.collect()
 

@@ -17,7 +17,7 @@ import pytest
 import unittest
 
 import galaxy_diver.read_data.ahf as read_ahf
-import galaxy_diver.galaxy_finder.galaxy_finder as general_galaxy_finder
+import galaxy_diver.galaxy_finder.finder as galaxy_finder
 from pathfinder import galaxy_find
 
 ########################################################################
@@ -93,8 +93,8 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
     # What we expect (calculated using the positions of the particles in snum 500 )
     particle_positions = g['P'][...][:,-1]
-    galaxy_finder = general_galaxy_finder.GalaxyFinder( particle_positions, **gal_finder_kwargs )
-    expected = galaxy_finder.find_ids()
+    gal_finder = galaxy_finder.GalaxyFinder( particle_positions, **gal_finder_kwargs )
+    expected = gal_finder.find_ids()
 
     # Make the comparison
     for key in expected.keys():
@@ -106,10 +106,10 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
     gal_finder_kwargs_copy['snum'] = g['snum'][1]
     gal_finder_kwargs_copy['redshift'] = g['redshift'][1]
     particle_positions = g['P'][...][:,1]
-    galaxy_finder = general_galaxy_finder.GalaxyFinder( particle_positions, **gal_finder_kwargs_copy )
+    gal_finder = galaxy_finder.GalaxyFinder( particle_positions, **gal_finder_kwargs_copy )
 
     # Make the comparison
-    expected = galaxy_finder.find_ids()
+    expected = gal_finder.find_ids()
     for key in expected.keys():
       npt.assert_allclose( expected[key], f[key][...][:,1], err_msg="Key '{}' failed".format( key ), rtol=1e-4 )
 
