@@ -25,7 +25,7 @@ from pathfinder import galaxy_find
 ########################################################################
 
 gal_finder_kwargs = {
-  'length_scale' : 'R_vir',
+  'length_scale' : 'Rvir',
 
   'redshift' : 0.16946003,
   'snum' : 500,
@@ -42,7 +42,7 @@ gal_finder_kwargs = {
 }
 
 ptrack_gal_finder_kwargs = {
-  'length_scale' : 'R_vir',
+  'length_scale' : 'Rvir',
   'ids_to_return' : [ 'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id', 'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_other_gal_scaled', ],
   'minimum_criteria' : 'n_star',
   'minimum_value' : 0,
