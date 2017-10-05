@@ -476,7 +476,7 @@ class Worldlines( generic_data.GenericData ):
       galaxy_quantity = data_ma.sum( axis=0 )
 
       # Replace masked values with 0
-      if not isinstance( galaxy_quantity, np.float32 ):
+      if not isinstance( galaxy_quantity, float ):
         galaxy_quantity.fill_value = 0.
         galaxy_quantity = galaxy_quantity.filled()
 
