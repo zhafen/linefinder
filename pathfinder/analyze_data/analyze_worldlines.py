@@ -339,16 +339,19 @@ class Worldlines( generic_data.GenericData ):
 
     if data_key in self.data:
       data = self.data[data_key]
+
+      if sl is not None:
+        return data[sl]
+
       return data
 
     try:
-      
       data = self.ptracks.get_data( data_key, sl=sl )
       return data
 
     except KeyError:
-
-      return super( Worldlines, self ).get_data( data_key, sl=sl )
+      data = super( Worldlines, self ).get_data( data_key, sl=sl )
+      return data
 
   ########################################################################
 
