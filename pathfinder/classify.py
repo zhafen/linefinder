@@ -428,6 +428,11 @@ class Classifier( object ):
     # Find if particles are inside/outside of main galaxy at each redshift
     is_in_main_gal = ( is_in_main_gal_literal & is_not_in_other_gal )
 
+    # Correct for boundary conditions
+    main_gal_not_resolved = self.ptrack['snum'] < self.main_mt_halo_first_snap
+    main_gal_not_resolved_inds = np.where( main_gal_not_resolved )[0]
+    is_in_main_gal[slice(None),main_gal_not_resolved_inds] = False
+
     return is_in_main_gal
 
   ########################################################################
@@ -727,6 +732,10 @@ class Classifier( object ):
       self._main_mt_halo_first_snap = snapshot
 
     return self._main_mt_halo_first_snap
+
+  ########################################################################
+
+
 
 
 

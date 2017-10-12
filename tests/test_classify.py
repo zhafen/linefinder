@@ -752,12 +752,13 @@ class TestBoundaryConditions( unittest.TestCase ):
 
     self.classifier = classify.Classifier( **default_kwargs )
 
-    self.classifier.read_data_files()
-
   ########################################################################
 
   def test_main_mt_halo_first_snap( self ):
     '''Test that we can get out the first snapshot for which we have a merger tree for our main halo.'''
+
+    # Loade the necessary data
+    self.classifier.read_data_files()
 
     # Using the defaults for the classifier.
     actual = self.classifier.main_mt_halo_first_snap
@@ -772,6 +773,9 @@ class TestBoundaryConditions( unittest.TestCase ):
     for our main halo, even if we dip below the criteria values at a lower redshift.
     (As might happen when the merger tree struggles).
     '''
+
+    # Loade the necessary data
+    self.classifier.read_data_files()
 
     # Create a fake merger tree as test data.
     with patch.object( read_ahf.AHFReader, 'mtree_halos', new_callable=PropertyMock, create=True ) as mock_mtree_halos:
@@ -791,3 +795,33 @@ class TestBoundaryConditions( unittest.TestCase ):
       expected = 300
 
       self.assertEqual( expected, actual )
+
+  ########################################################################
+
+  def test_is_in_main_gal_bc( self ):
+    '''Test that we don't allow anything to be inside the main galaxy
+    before it is resolved.
+    '''
+
+    # Setup the test data
+    self.classifier.ptrack = default_ptrack
+    self.classifier.ptrack_attrs = default_ptrack_attrs
+    self.classifier._main_mt_halo_first_snap = 510
+    self.classifier.is_in_other_gal = np.array([
+      [ 0, 0, 1, 0, 0, ],
+      [ 0, 0, 0, 0, 0, ],
+      [ 0, 0, 0, 0, 0, ],
+    ]).astype( bool )
+    self.classifier.n_snap = 5
+
+    # Get the actual result out
+    actual = self.classifier.identify_is_in_main_gal()
+    expected = np.array([
+      [ 1, 1, 0, 0, 0, ],
+      [ 1, 1, 0, 0, 0, ],
+      [ 0, 1, 0, 0, 0, ],
+    ]).astype( bool )
+
+    npt.assert_allclose( expected, actual )
+    
+    
