@@ -50,6 +50,8 @@ class Classifier( object ):
     wind_vel_min_vc = 1.,
     time_min = 100.,
     time_interval_fac = 5.,
+    main_halo_robustness_criteria = 'n_star',
+    main_halo_robustness_value = 100,
     ):
     '''Setup the ID Finder.
 
@@ -108,6 +110,12 @@ class Classifier( object ):
       time_interval_fac (float, optional) :
         Externally-processed mass is required to spend at least time_min during the
         interval time_interval_fac x time_min prior to accretion to qualify as a *merger*.
+
+      main_halo_robustness_criteria (str) &
+      main_halo_robustness_value (int or float) :
+        The main halo is considered resolved if the value of main_halo_robustness_criteria is greater than or equal
+        to main_halo_robustness_value.
+        By default the main halo is counted as resolved if the n_stars(main halo) >= 100.
     '''
 
     pass
@@ -229,7 +237,7 @@ class Classifier( object ):
     self.n_snap = self.ptrack['redshift'].size
     self.n_particle = self.ptrack['ID'].size
 
-    # Load the ahf data
+    # Get the AHF data files.
     self.ahf_reader = read_ahf.AHFReader( self.ahf_data_dir )
     self.ahf_reader.get_mtree_halos( self.mtree_halos_index, self.halo_file_tag )
 
@@ -700,4 +708,41 @@ class Classifier( object ):
     is_wind[:,0:self.n_snap-1] = ( cum_num_eject >= 1 )
 
     return is_wind.astype( bool )
+
+  ########################################################################
+  # Properties
+  ########################################################################
+
+  @property
+  def main_mt_halo_first_snap( self ):
+    '''Find the first snapshot at which the main merger tree halo is resolved.
+    '''
+  
+    if not hasattr( self, '_main_mt_halo_first_snap' ):
+      
+      mtree_halo = self.ahf_reader.mtree_halos[self.ptrack_attrs['main_mt_halo_id']]
+
+      snapshot = np.argmin( mtree_halo[self.main_halo_robustness_criteria] >= self.main_halo_robustness_value ) + 1
+
+      self._main_mt_halo_first_snap = snapshot
+
+    return self._main_mt_halo_first_snap
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

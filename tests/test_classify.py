@@ -7,10 +7,11 @@
 '''
 
 import h5py
-from mock import patch
+from mock import patch, PropertyMock
 import numpy as np
 import numpy.testing as npt
 import os
+import pandas as pd
 import pdb
 import unittest
 
@@ -741,3 +742,52 @@ class TestFullClassifierPipeline( unittest.TestCase ):
     # Make sure that we've saved our input arguments
     for key in default_kwargs.keys():
       assert default_kwargs[key] == f['parameters'].attrs[key]
+
+########################################################################
+########################################################################
+
+class TestBoundaryConditions( unittest.TestCase ):
+
+  def setUp( self ):
+
+    self.classifier = classify.Classifier( **default_kwargs )
+
+    self.classifier.read_data_files()
+
+  ########################################################################
+
+  def test_main_mt_halo_first_snap( self ):
+    '''Test that we can get out the first snapshot for which we have a merger tree for our main halo.'''
+
+    # Using the defaults for the classifier.
+    actual = self.classifier.main_mt_halo_first_snap
+    expected = 36
+
+    self.assertEqual( expected, actual )
+
+  ########################################################################
+
+  def test_main_mt_halo_first_snap_jump_insensitive( self ):
+    '''Test that we can get out the first snapshot for which we have a merger tree
+    for our main halo, even if we dip below the criteria values at a lower redshift.
+    (As might happen when the merger tree struggles).
+    '''
+
+    # Create a fake merger tree as test data.
+    with patch.object( read_ahf.AHFReader, 'mtree_halos', new_callable=PropertyMock, create=True ) as mock_mtree_halos:
+
+      # More setting up of the fake merger tree.
+      data = {
+        'n_star' : np.array([ 200, 150, 90, 150, 90, 5 ]),
+        'snum' : np.array([ 600, 500, 400, 300, 200, 100 ]),
+      }
+      df = pd.DataFrame( data, index=data['snum'] )
+      df.index.name = 'snum'
+      mock_mtree_halos.return_value = {
+        0 : df,
+      }
+
+      actual = self.classifier.main_mt_halo_first_snap
+      expected = 300
+
+      self.assertEqual( expected, actual )

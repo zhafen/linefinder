@@ -89,7 +89,7 @@ class ParticleTrackGalaxyFinder( object ):
 
       minimum_value (int or float, optional) :
         The minimum amount of something (specified in minimum criteria)
-        in order for a galaxy to count as hosting a halo.
+        in order for a halo to count as hosting a galaxy.
 
       n_processors (int) :
         The number of processors to use. If parallel, expect significant memory usage.
