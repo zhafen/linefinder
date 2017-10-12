@@ -459,9 +459,6 @@ class Classifier( object ):
 
     is_accreted = ( self.gal_event_id == 1 )
 
-    # Correct for "boundary conditions": neglect events at earliest snapshots
-    is_accreted[:,-self.neg: ] = False
-
     return is_accreted
 
   ########################################################################
@@ -498,9 +495,6 @@ class Classifier( object ):
       is_gas & 
       is_outside_any_gal  
       )
-
-    # Correct for "boundary conditions": neglect events at earliest snapshots
-    is_ejected[:,-self.neg:] = False
 
     return is_ejected
 
@@ -640,8 +634,6 @@ class Classifier( object ):
     is_pristine = ( self.time_in_other_gal_before_acc < self.time_min )
 
     # Correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
-    for k in range( self.neg ):
-      is_pristine[ self.is_in_main_gal[:,self.n_snap-1-k] ] = True
 
     return is_pristine
 
@@ -658,8 +650,6 @@ class Classifier( object ):
     is_preprocessed = ( self.time_in_other_gal_before_acc >= self.time_min )
 
     # Correct "boundary conditions": particles inside galaxy at earliest snapshot count as pristine
-    for k in range( self.neg ):
-      is_preprocessed[ self.is_in_main_gal[:, self.n_snap-1-k] ] = False
 
     return is_preprocessed
 

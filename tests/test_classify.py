@@ -823,5 +823,62 @@ class TestBoundaryConditions( unittest.TestCase ):
     ]).astype( bool )
 
     npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_ind_first_acc( self ):
+    '''Test that we correctly identify the indice of first accretion, with the boundary
+    conditions in place.
+    This also tests everything that leads up to it.
+    '''
+
+    # Setup the test data
+    self.classifier.ptrack = default_ptrack
+    self.classifier.ptrack_attrs = default_ptrack_attrs
+    self.classifier._main_mt_halo_first_snap = 510
+    self.classifier.is_in_main_gal = np.array([
+      [ 1, 1, 0, 0, 0, ],
+      [ 1, 0, 0, 0, 0, ],
+      [ 0, 1, 0, 0, 0, ],
+    ]).astype( bool )
+    self.classifier.n_snap = 5
+    self.classifier.n_particle = 3
+
+    # Get the actual result out
+    self.classifier.gal_event_id = self.classifier.calc_gal_event_id()
+    self.classifier.is_accreted = self.classifier.identify_accretion()
+    self.classifier.cum_num_acc = self.classifier.get_cum_num_acc()
+    self.classifier.is_before_first_acc = self.classifier.identify_is_before_first_acc()
+    actual = self.classifier.ind_first_acc
+
+    expected = np.array([ 1, 0, 1, ])
+
+    npt.assert_allclose( expected, actual )
     
-    
+  ########################################################################
+
+  def test_is_pristine_bc( self ):
+    '''Test that anything that "accretes" onto the main galaxy at the first `neg` snapshots
+    it's resolved is counted as pristine.
+    '''
+
+    # Setup test data
+    self.classifier.time_in_other_gal_before_acc = np.array([ 200., 50., 200., 200., ])
+    self.classifier.ind_first_acc = None
+
+    actual = self.classifier.identify_pristine()
+    expected = np.array([ False, True, True, True, ])
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_is_not_preprocessed_bc( self ):
+    '''Test that anything that "accretes" onto the main galaxy at the first `neg` snapshots
+    it's resolved is *not* counted as preprocessed.
+    '''
+
+    assert False, "Need to do this test."
+
+
+   
