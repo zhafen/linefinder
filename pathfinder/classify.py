@@ -722,7 +722,7 @@ class Classifier( object ):
       
       mtree_halo = self.ahf_reader.mtree_halos[self.ptrack_attrs['main_mt_halo_id']]
 
-      snapshot = np.argmin( mtree_halo[self.main_halo_robustness_criteria] >= self.main_halo_robustness_value ) + 1
+      snapshot = np.argmax( mtree_halo[self.main_halo_robustness_criteria][::-1] >= self.main_halo_robustness_value )
 
       self._main_mt_halo_first_snap = snapshot
 
