@@ -762,8 +762,9 @@ class TestBoundaryConditions( unittest.TestCase ):
 
     # Using the defaults for the classifier.
     actual = self.classifier.main_mt_halo_first_snap
-    expected = 36
 
+    # Test that we got out what we should have.
+    expected = 36
     self.assertEqual( expected, actual )
 
   ########################################################################
@@ -774,7 +775,7 @@ class TestBoundaryConditions( unittest.TestCase ):
     (As might happen when the merger tree struggles).
     '''
 
-    # Loade the necessary data
+    # Load the necessary data
     self.classifier.read_data_files()
 
     # Create a fake merger tree as test data.
@@ -791,10 +792,32 @@ class TestBoundaryConditions( unittest.TestCase ):
         0 : df,
       }
 
+      # Actual calculation.
       actual = self.classifier.main_mt_halo_first_snap
-      expected = 300
 
+      # Test that we got out what we should have.
+      expected = 300
       self.assertEqual( expected, actual )
+
+  ########################################################################
+
+  def test_ind_first_snap( self ):
+    '''Test that we can get out the indice, for a standard array in the Classifier,
+    at which the main merger tree halo is first resolved.
+    '''
+
+    # Setup test data.
+    self.classifier._main_mt_halo_first_snap = 500
+    self.classifier.ptrack  = {
+      'snum' : np.array([ 600, 502, 501, 500, 0, ] ),
+    }
+
+    # Get the actual value
+    actual = self.classifier.ind_first_snap
+
+    # Compare to expected
+    expected = 3
+    self.assertEqual( expected, actual )
 
   ########################################################################
 
@@ -816,12 +839,13 @@ class TestBoundaryConditions( unittest.TestCase ):
 
     # Get the actual result out
     actual = self.classifier.identify_is_in_main_gal()
+
+    # Test that we got out what we should have.
     expected = np.array([
       [ 1, 1, 0, 0, 0, ],
       [ 1, 1, 0, 0, 0, ],
       [ 0, 1, 0, 0, 0, ],
     ]).astype( bool )
-
     npt.assert_allclose( expected, actual )
 
   ########################################################################
@@ -851,8 +875,8 @@ class TestBoundaryConditions( unittest.TestCase ):
     self.classifier.is_before_first_acc = self.classifier.identify_is_before_first_acc()
     actual = self.classifier.ind_first_acc
 
+    # Test that we got out what we should have.
     expected = np.array([ 1, 0, 1, ])
-
     npt.assert_allclose( expected, actual )
     
   ########################################################################
@@ -864,11 +888,17 @@ class TestBoundaryConditions( unittest.TestCase ):
 
     # Setup test data
     self.classifier.time_in_other_gal_before_acc = np.array([ 200., 50., 200., 200., ])
-    self.classifier.ind_first_acc = None
+    self.classifier._ind_first_acc = np.array([ 1, 2, 2, 3, ])
+    self.classifier._ind_first_snap = 3
+    self.classifier.n_snap = 5
+    self.classifier.n_particle = 4
+    self.classifier.neg = 2
 
+    # Get the actual calculation out
     actual = self.classifier.identify_pristine()
-    expected = np.array([ False, True, True, True, ])
 
+    # Test that we got out what we should have.
+    expected = np.array([ False, True, True, True, ])
     npt.assert_allclose( expected, actual )
 
   ########################################################################

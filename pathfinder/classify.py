@@ -725,6 +725,20 @@ class Classifier( object ):
 
   ########################################################################
 
+  @property
+  def ind_first_snap( self ):
+    '''Find the indice for first snapshot at which the main merger tree halo is resolved.
+    '''
+
+    if not hasattr( self, '_ind_first_snap' ):
+    
+      potential_inds = np.where( self.ptrack['snum'] == self.main_mt_halo_first_snap )[0]
+
+      assert potential_inds.size == 1, "Wrong number of matches!"
+
+      self._ind_first_snap = potential_inds[0]
+
+    return self._ind_first_snap
 
 
 
