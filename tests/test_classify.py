@@ -908,7 +908,19 @@ class TestBoundaryConditions( unittest.TestCase ):
     it's resolved is *not* counted as preprocessed.
     '''
 
-    assert False, "Need to do this test."
+    # Setup test data
+    self.classifier.time_in_other_gal_before_acc = np.array([ 200., 50., 200., 200., 200. ])
+    self.classifier._ind_first_acc = np.array([ 1, 2, 2, 3, 4 ])
+    self.classifier._ind_first_snap = 3
+    self.classifier.n_snap = 5
+    self.classifier.n_particle = 5
+    self.classifier.neg = 2
 
+    # Get the actual calculation out
+    actual = self.classifier.identify_preprocessed()
+
+    # Test that we got out what we should have.
+    expected = np.array([ True, False, False, False, False ])
+    npt.assert_allclose( expected, actual )
 
    

@@ -651,6 +651,9 @@ class Classifier( object ):
 
     is_preprocessed = ( self.time_in_other_gal_before_acc >= self.time_min )
 
+    # Apply "boundary conditions": particles inside galaxy when it's first resolved count as pristine
+    bc_should_be_applied = self.ind_first_acc > self.ind_first_snap - self.neg
+    is_preprocessed[bc_should_be_applied] = False
 
     return is_preprocessed
 
