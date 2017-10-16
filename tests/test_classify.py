@@ -197,6 +197,10 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
     self.classifier.n_snap = default_ptrack['gal_id'].shape[1]
     self.classifier.n_particle = default_ptrack['gal_id'].shape[0]
 
+    # Force the first valid snapshot to be snapshot 10, to ensure compatibility with
+    # previous tests.
+    self.classifier._main_mt_halo_first_snap = 10
+
   ########################################################################
 
   def test_identify_is_in_other_gal( self ):
@@ -360,9 +364,6 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
     actual = self.classifier.ind_first_acc
     npt.assert_allclose( expected, actual )
 
-  #########################################################################
-
-
   ########################################################################
 
   def test_identify_is_before_first_acc( self ):
@@ -480,6 +481,11 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
       [ 1, 1, 1, 1, 1, ], # Always part of main galaxy
       [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
+    self.classifier.is_before_first_acc = np.array([
+      [ 0, 0, 0, 1, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 1, ], # Always part of main galaxy
+      [ 0, 0, 0, 1, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
 
     expected = np.array([
       0,    # Merger, except in early snapshots
@@ -505,6 +511,11 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
       [ 1, 0, 0, 0, 0, ], # Merger, except in early snapshots
       [ 1, 1, 1, 1, 1, ], # Always part of main galaxy
       [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.is_before_first_acc = np.array([
+      [ 0, 0, 0, 1, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 1, ], # Always part of main galaxy
+      [ 0, 0, 0, 1, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
 
     expected = np.array([
@@ -727,6 +738,10 @@ class TestFullClassifierPipeline( unittest.TestCase ):
   def test_full_pipeline( self ):
     '''Test that we can run the full pipeline from just the files.'''
 
+    # Force the first valid snapshot to be snapshot 10, to ensure compatibility with
+    # previous tests.
+    self.classifier._main_mt_halo_first_snap = 10
+
     self.classifier.classify_particles()
 
     expected = np.array([
@@ -734,7 +749,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
       1,
       1,
       1,
-      ]).astype( bool )
+    ]).astype( bool )
 
     f = h5py.File( self.savefile, 'r')
     actual =  f['is_pristine'][...]
