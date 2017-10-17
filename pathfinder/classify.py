@@ -45,7 +45,7 @@ class Classifier( object ):
     classifications_to_save = [ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', ],
     write_events = True,
     events_to_save = [ 'is_in_other_gal', 'is_in_main_gal', 'is_ejected', 'redshift_first_acc', 'ind_first_acc', ],
-    neg = 1,
+    neg = 10,
     wind_vel_min = 15.,
     wind_vel_min_vc = 1.,
     time_min = 100.,
