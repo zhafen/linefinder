@@ -654,6 +654,10 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
     self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['ahf_data_dir'] )
 
+    # Add some properties that we're not testing in this test.
+    self.classifier._main_mt_halo_first_snap = 10
+    self.classifier._ind_first_snap = 10
+
     # Prerequisites
     self.classifier.is_pristine = np.array([
       0,    # Merger, except in early snapshots

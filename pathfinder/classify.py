@@ -267,6 +267,10 @@ class Classifier( object ):
     f.attrs['pathfinder_version'] = utilities.get_code_version( self )
     f.attrs['galaxy_diver_version'] = utilities.get_code_version( read_ahf, instance_type='module' )
 
+    # Save the snapshot number when the main halo is first resolved.
+    f.attrs['main_mt_halo_first_snap'] = self.main_mt_halo_first_snap
+    f.attrs['ind_first_snap'] = self.ind_first_snap
+
     f.close()
 
   ########################################################################
