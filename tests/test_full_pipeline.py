@@ -55,6 +55,8 @@ gal_finder_kwargs = {
 classifier_kwargs = {
   'out_dir' : outdir,
   'tag' : tag,
+
+  'velocity_scale' : 'Vc(Rvir)',
 }
 
 ptracks_filename = os.path.join( outdir, 'ptracks_analyze.hdf5' )

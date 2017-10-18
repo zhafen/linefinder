@@ -27,10 +27,11 @@ default_kwargs = {
   'out_dir' : './tests/data/tracking_output',
   'tag' : 'test_classify',
   'neg' : 1,
-  'wind_vel_min_vc' : 2.,
+  'wind_vel_min_scaled' : 2.,
   'wind_vel_min' : 15.,
   'time_min' : 100., 
   'time_interval_fac' : 5.,
+  'velocity_scale' : 'Vc(Rvir)',
   }
 
 default_ptrack = {
@@ -114,7 +115,8 @@ class TestReadPTrack( unittest.TestCase ):
     actual = self.classifier.ptrack['Den'][0,0]
     npt.assert_allclose( expected, actual )
 
-  ########################################################################
+########################################################################
+########################################################################
 
 class TestDerivedFunctions( unittest.TestCase ):
 
@@ -178,9 +180,7 @@ class TestDerivedFunctions( unittest.TestCase ):
     npt.assert_allclose( expected_0, result[0][0], 1e-3)
     npt.assert_allclose( expected_1, result[1][1], 1e-3)
 
-  ########################################################################
-
-
+########################################################################
 ########################################################################
 
 class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
@@ -943,3 +943,107 @@ class TestBoundaryConditions( unittest.TestCase ):
     npt.assert_allclose( expected, actual )
 
    
+########################################################################
+########################################################################
+
+class TestVelocityScale( unittest.TestCase ):
+  '''Test that we can implement a veocity scale independently.'''
+
+  def setUp( self ):
+
+    self.classifier = classify.Classifier( **default_kwargs )
+
+  ########################################################################
+
+  @patch( 'pathfinder.classify.Classifier.get_circular_velocity' )
+  def test_get_velocity_scale_v_circ( self, mock_get_v_circ ):
+    '''Test that we can still access the old way of getting the velocity scale
+    '''
+
+    expected = np.array([ 5., 4., 3., ])
+    mock_get_v_circ.side_effect = [ expected, ]
+
+    # Change one of the input parameters, because v_circ(halo) won't be the default.
+    self.classifier.velocity_scale = 'Vc(Rvir)'
+
+    actual = self.classifier.get_velocity_scale()
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_velocity_scale_specified( self ):
+    '''Test that we can pull the velocity scale straight from our halo finder files.
+    '''
+  
+    # Create a fake merger tree as test data.
+    with patch.object( read_ahf.AHFReader, 'mtree_halos', new_callable=PropertyMock, create=True ) as mock_mtree_halos:
+
+      # More setting up of the fake merger tree.
+      data = {
+        'snum' : np.array([ 600, 550, 500, 450, ]),
+        'Vc(3.0Rstar0.5)' : np.array([ 5., 4., 3., 2., ]),
+      }
+      df = pd.DataFrame( data, index=data['snum'] )
+      df.index.name = 'snum'
+      mock_mtree_halos.return_value = {
+        0 : df,
+      }
+
+      # Setup mock particle track data
+      self.classifier.ptrack = {
+        'snum' : np.array([ 600, 550, 500, ]),
+      }
+
+      # Change one of the input parameters to match what we want to paass it
+      self.classifier.velocity_scale = 'Vc(3.0Rstar0.5)'
+      
+      # Load necessary data structures
+      self.classifier.ahf_reader = read_ahf.AHFReader( self.classifier.ahf_data_dir )
+
+      actual = self.classifier.get_velocity_scale()
+      expected = np.array([ 5., 4., 3., ])
+
+      npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_get_velocity_scale_r_gal( self ):
+    '''Test that we can pull the velocity scale from our halo finder files,
+    finding what Rgal is automatically
+    '''
+  
+    # Create a fake merger tree as test data.
+    with patch.object( read_ahf.AHFReader, 'mtree_halos', new_callable=PropertyMock, create=True ) as mock_mtree_halos:
+
+      # More setting up of the fake merger tree.
+      data = {
+        'snum' : np.array([ 600, 550, 500, 450, ]),
+        'Vc(3.0Rstar0.5)' : np.array([ 5., 4., 3., 2., ]),
+      }
+      df = pd.DataFrame( data, index=data['snum'] )
+      df.index.name = 'snum'
+      mock_mtree_halos.return_value = {
+        0 : df,
+      }
+
+      # Setup mock particle track data
+      self.classifier.ptrack = {
+        'snum' : np.array([ 600, 550, 500, ]),
+      }
+      self.classifier.ptrack_attrs = {
+        'galaxy_cut' : 3.0,
+        'length_scale' : 'Rstar0.5',
+      }
+
+      # Change our input parameter for what velocity scale we want to select
+      self.classifier.velocity_scale = 'Vc(Rgal)'
+      
+      # Load necessary data structures
+      self.classifier.ahf_reader = read_ahf.AHFReader( self.classifier.ahf_data_dir )
+
+      actual = self.classifier.get_velocity_scale()
+      expected = np.array([ 5., 4., 3., ])
+
+      npt.assert_allclose( expected, actual )
+      

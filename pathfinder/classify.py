@@ -14,6 +14,7 @@ import subprocess
 import sys
 import time
 
+import galaxy_diver.analyze_data.ahf as analyze_ahf
 import galaxy_diver.read_data.ahf as read_ahf
 import galaxy_diver.utils.astro as astro_tools
 import galaxy_diver.utils.constants as constants
@@ -45,9 +46,10 @@ class Classifier( object ):
     classifications_to_save = [ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', ],
     write_events = True,
     events_to_save = [ 'is_in_other_gal', 'is_in_main_gal', 'is_ejected', 'redshift_first_acc', 'ind_first_acc', ],
+    velocity_scale = 'Vc(Rgal)',
     neg = 10,
     wind_vel_min = 15.,
-    wind_vel_min_vc = 1.,
+    wind_vel_min_scaled = 1.,
     time_min = 100.,
     time_interval_fac = 5.,
     main_halo_robustness_criteria = 'n_star',
@@ -100,7 +102,7 @@ class Classifier( object ):
       wind_vel_min (float, optional) :
         The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
         
-      wind_vel_min_vc (float, optional) :
+      wind_vel_min_scaled (float, optional) :
         The minimum radial velocity (in units of the main galaxy circular velocity)
         a particle must have to be considered ejection.
 
@@ -141,8 +143,6 @@ class Classifier( object ):
     # Do the auxiliary calculations
     print "Calculating radial velocity, circular velocity, and dt..."
     sys.stdout.flush()
-    self.v_r = self.get_radial_velocity()
-    self.v_c = self.get_circular_velocity()
     self.dt = self.get_time_difference()
 
     # Do the first wave of classifications
@@ -216,6 +216,8 @@ class Classifier( object ):
           self.mtree_halos_index = f['parameters'].attrs['mtree_halos_index']
         if self.halo_file_tag is default:
           self.halo_file_tag = f['parameters'].attrs['halo_file_tag']
+        for parameter_key in [ 'galaxy_cut', 'length_scale', ]:
+          self.ptrack_attrs[ parameter_key ] = f['parameters'].attrs[parameter_key]
 
       f.close()
 
@@ -348,7 +350,7 @@ class Classifier( object ):
   ########################################################################
 
   def get_circular_velocity( self ):
-    '''Get the circular velocity of the halo.
+    '''Get the circular velocity of the halo (measured at Rvir).
 
     Returns:
       v_c : Circular velocity of the halo in km/s, indexed the same way that ahf_reader.mtree_halos[i] is.
@@ -365,6 +367,28 @@ class Classifier( object ):
     v_c = astro_tools.circular_velocity( r_vir_kpc, m_vir_msun )
 
     return v_c
+
+  ########################################################################
+
+  def get_velocity_scale( self ):
+    '''Get the characteristic velocity scale.
+
+    Returns:
+      velocity_scale (np.ndarray): Velocity of the halo in proper km/s.
+    '''
+
+    if self.velocity_scale == 'Vc(Rvir)':
+      return self.get_circular_velocity()
+    elif self.velocity_scale == 'Vc(Rgal)':
+      ahf_key_parser = analyze_ahf.AHFKeyParser()
+      r_gal_key = ahf_key_parser.get_velocity_at_radius_key(
+        'Vc',
+        self.ptrack_attrs['galaxy_cut'],
+        self.ptrack_attrs['length_scale'],
+      )
+      return self.ahf_reader.mtree_halos[0][r_gal_key][ self.ptrack[ 'snum' ] ]
+    else:
+      return self.ahf_reader.mtree_halos[0][self.velocity_scale][ self.ptrack[ 'snum' ] ]
 
   ########################################################################
 
@@ -482,12 +506,12 @@ class Classifier( object ):
     v_r = self.get_radial_velocity()
 
     # Get the circular velocity out and tile it for comparison
-    v_c = self.get_circular_velocity()
-    v_c_tiled = np.tile( v_c, ( self.n_particle, 1 ) )
+    v_scale = self.get_velocity_scale()
+    v_scale_tiled = np.tile( v_scale, ( self.n_particle, 1 ) )
 
     # The conditions for being outside any galaxy
     is_outside_before_inside_after = ( self.gal_event_id == -1 ) # Condition 1
-    has_minimum_vr_in_vc = ( v_r[:,0:self.n_snap-1] > self.wind_vel_min_vc*v_c_tiled[:,0:self.n_snap-1] ) # Condition 2
+    has_minimum_vr_in_vc = ( v_r[:,0:self.n_snap-1] > self.wind_vel_min_scaled*v_scale_tiled[:,0:self.n_snap-1] ) # Condition 2
     has_minimum_vr = ( v_r[:,0:self.n_snap-1] > self.wind_vel_min ) # Condition 3
     is_gas = ( self.ptrack['PType'][:,0:self.n_snap-1] == 0 ) # Condition 4
     is_outside_any_gal = ( self.ptrack['gal_id'][:,0:self.n_snap-1] < 0 ) # Condition 5
@@ -677,7 +701,6 @@ class Classifier( object ):
 
   ########################################################################
 
-
   def identify_merger( self ):
     '''Boolean for whether or no particles are from galaxies merging.
 
@@ -752,7 +775,6 @@ class Classifier( object ):
         self._ind_first_snap = potential_inds[0]
 
     return self._ind_first_snap
-
 
 
 
