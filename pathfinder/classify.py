@@ -47,9 +47,9 @@ class Classifier( object ):
     write_events = True,
     events_to_save = [ 'is_in_other_gal', 'is_in_main_gal', 'is_ejected', 'redshift_first_acc', 'ind_first_acc', ],
     velocity_scale = 'Vc(Rgal)',
-    neg = 10,
-    wind_vel_min = 15.,
     wind_vel_min_scaled = 1.,
+    wind_vel_min = 15.,
+    neg = 10,
     time_min = 100.,
     time_interval_fac = 5.,
     main_halo_robustness_criteria = 'n_star',
@@ -99,12 +99,15 @@ class Classifier( object ):
         Number of earliest indices for which we neglect accretion/ejection events.
         If each indice corresponds to a snapshot, then it's the number of snapshots
 
+      velocity_scale (float) :
+        What the velocity scale of the galaxy is (for applying velocity cuts).
+
+      wind_vel_min_scaled (float, optional) :
+        The minimum radial velocity (in units of the main galaxy velocity scale)
+        a particle must have to be considered ejection.
+
       wind_vel_min (float, optional) :
         The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
-        
-      wind_vel_min_scaled (float, optional) :
-        The minimum radial velocity (in units of the main galaxy circular velocity)
-        a particle must have to be considered ejection.
 
       time_min (float, optional) :
         Minimum time (in Myr) a particle must reside in a galaxy to not count as pristine gas.
