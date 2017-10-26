@@ -44,7 +44,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     ax = default,
     width = 0.5,
     add_label = False,
-    ):
+    *args, **kwargs ):
 
     print( "Plotting bar at x_pos {}".format( x_pos ) )
 
@@ -53,7 +53,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
       fig = plt.figure( figsize=(11,5), facecolor='white' )
       ax = plt.gca()
 
-    classification_values = self.data_object.get_categories_galaxy_quantity_fraction( sl=(slice(None),ind) )
+    classification_values = self.data_object.get_categories_galaxy_quantity_fraction(
+      sl=(slice(None),ind), *args, **kwargs )
 
     bar_start = 0.
     for i, key in enumerate( p_constants.CLASSIFICATION_LIST_A ):

@@ -479,9 +479,12 @@ class Worldlines( generic_data.GenericData ):
       galaxy_quantity = data_ma.sum( axis=0 )
 
       # Replace masked values with 0
-      if not isinstance( galaxy_quantity, float ):
+      try:
         galaxy_quantity.fill_value = 0.
         galaxy_quantity = galaxy_quantity.filled()
+
+      except AttributeError:
+        pass
 
     elif quantity == 'n_particles':
       galaxy_quantity = np.invert( data_ma.mask ).sum( axis=0 )
