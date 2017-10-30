@@ -48,7 +48,9 @@ gal_finder_kwargs = {
   'ahf_data_dir' : ahf_sdir,
   'main_mt_halo_id' : 0,
 
-  'n_processors' : 2, 
+  'n_processors' : 1, 
+
+  'length_scale' : 'Rvir',
 }
 
 # Classifying Parameters
