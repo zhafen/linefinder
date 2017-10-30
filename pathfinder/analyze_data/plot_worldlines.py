@@ -36,6 +36,8 @@ default = object()
 
 class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
+  ########################################################################
+
   def plot_classification_bar( self,
     x_pos,
     ind = 0,

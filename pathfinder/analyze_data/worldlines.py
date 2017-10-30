@@ -355,7 +355,7 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
-  def get_processed_data( self, data_key, sl=None ):
+  def get_processed_data( self, data_key, *args, **kwargs ):
     '''Get data, handling more complex data keys that indicate doing generic things to the data.
 
     Args:
@@ -369,7 +369,7 @@ class Worldlines( generic_data.GenericData ):
 
     data_key, tiled_flag = self.key_parser.is_tiled_key( data_key )
 
-    data = super( Worldlines, self ).get_processed_data( data_key, sl=sl )
+    data = super( Worldlines, self ).get_processed_data( data_key, *args, **kwargs )
 
     if tiled_flag:
 
@@ -386,7 +386,7 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
-  def get_data_first_acc( self, data_key ):
+  def get_data_first_acc( self, data_key, *args, **kwargs ):
     '''Get data the snapshot immediately after first accretion.
 
     Args:
@@ -400,7 +400,7 @@ class Worldlines( generic_data.GenericData ):
 
     if issubclass( data.dtype.type, np.integer ):
       fill_value = d_constants.INT_FILL_VALUE
-    elif issubclass( data.dtype.type, np.float ):
+    elif issubclass( data.dtype.type, np.float ) or issubclass( data.dtype.type, np.float32 ):
       fill_value = d_constants.FLOAT_FILL_VALUE
     else:
       raise Exception( "Unrecognized data type, data.dtype = {}".format( data.dtype ) )
