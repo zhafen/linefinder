@@ -15,7 +15,7 @@ import pdb
 import pytest
 import unittest
 
-import pathfinder.analyze_data.analyze_ids as analyze_ids
+import pathfinder.analyze_data.ids as analyze_ids
 
 ########################################################################
 # Commonly useful input variables

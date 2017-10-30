@@ -16,7 +16,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.patheffects as path_effects
 
 import plot_worldlines
-import analyze_worldlines as a_worldlines
+import worldlines as a_worldlines
 
 import galaxy_diver.utils.utilities as utilities
 

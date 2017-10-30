@@ -15,7 +15,7 @@ import pdb
 import pytest
 import unittest
 
-import pathfinder.analyze_data.analyze_events as analyze_events
+import pathfinder.analyze_data.events as analyze_events
 
 ########################################################################
 # Commonly useful input variables

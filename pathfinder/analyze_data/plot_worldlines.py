@@ -26,8 +26,6 @@ import galaxy_diver.utils.utilities as utilities
 
 import pathfinder.utils.presentation_constants as p_constants
 
-import analyze_worldlines
-
 ########################################################################
 
 # For catching default values

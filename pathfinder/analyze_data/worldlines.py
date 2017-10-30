@@ -14,11 +14,11 @@ import galaxy_diver.read_data.snapshot as read_snapshot
 import galaxy_diver.utils.astro as astro_tools
 import galaxy_diver.utils.utilities as utilities
 
-import analyze_ids
-import analyze_ptracks
-import analyze_galids
-import analyze_classifications
-import analyze_events
+import ids
+import ptracks
+import galids
+import classifications
+import events
 
 import pathfinder.utils.presentation_constants as p_constants
 import pathfinder.utils.data_constants as d_constants
@@ -89,7 +89,7 @@ class Worldlines( generic_data.GenericData ):
   def ids( self ):
 
     if not hasattr( self, '_ids' ):
-      self._ids = analyze_ids.IDs( self.data_dir, self.ids_tag, )
+      self._ids = ids.IDs( self.data_dir, self.ids_tag, )
 
     return self._ids
 
@@ -103,7 +103,7 @@ class Worldlines( generic_data.GenericData ):
   def ptracks( self ):
 
     if not hasattr( self, '_ptracks' ):
-      self._ptracks = analyze_ptracks.PTracks( self.data_dir, self.ptracks_tag, store_ahf_reader=True,
+      self._ptracks = ptracks.PTracks( self.data_dir, self.ptracks_tag, store_ahf_reader=True,
                                                **self.ptracks_kwargs )
 
     return self._ptracks
@@ -118,7 +118,7 @@ class Worldlines( generic_data.GenericData ):
   def galids( self ):
 
     if not hasattr( self, '_galids' ):
-      self._galids = analyze_galids.GalIDs( self.data_dir, self.galids_tag )
+      self._galids = galids.GalIDs( self.data_dir, self.galids_tag )
 
     return self._galids
 
@@ -132,7 +132,7 @@ class Worldlines( generic_data.GenericData ):
   def classifications( self ):
 
     if not hasattr( self, '_classifications' ):
-      self._classifications = analyze_classifications.Classifications( self.data_dir, self.classifications_tag )
+      self._classifications = classifications.Classifications( self.data_dir, self.classifications_tag )
 
     return self._classifications
 
@@ -146,7 +146,7 @@ class Worldlines( generic_data.GenericData ):
   def events( self ):
 
     if not hasattr( self, '_events' ):
-      self._events = analyze_events.Events( self.data_dir, self.events_tag )
+      self._events = events.Events( self.data_dir, self.events_tag )
 
     return self._events
 
