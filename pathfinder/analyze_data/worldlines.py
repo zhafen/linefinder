@@ -327,30 +327,30 @@ class Worldlines( generic_data.GenericData ):
   # Get Data
   ########################################################################
 
-  def get_data( self, data_key, sl=None ):
+  def get_data( self, data_key, *args, **kwargs ):
     '''Get data. Usually just get it from ptracks. args and kwargs are passed to self.ptracks.get_data()
 
     Args:
       data_key (str) : What data to get?
+      *args, **kwargs : Additional arguments to pass to other get_data() methods.
 
     Returns:
       data (np.ndarray) : Array of data.
     '''
 
+    # First, look to see if this data is calculated in some easy to access location
     if data_key in self.data:
-      data = self.data[data_key]
-
-      if sl is not None:
-        return data[sl]
-
+      data = super( Worldlines, self ).get_data( data_key, *args, **kwargs )
       return data
 
+    # We assume a lot of the data is held in the particle tracks, so look there by default.
     try:
-      data = self.ptracks.get_data( data_key, sl=sl )
+      data = self.ptracks.get_data( data_key, *args, **kwargs )
       return data
 
+    # If the data isn't there, go through the more-complicated default scheme for accessing the data
     except KeyError:
-      data = super( Worldlines, self ).get_data( data_key, sl=sl )
+      data = super( Worldlines, self ).get_data( data_key, *args, **kwargs )
       return data
 
   ########################################################################
@@ -759,6 +759,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
         first_acc_mask = redshift_tiled > redshift_first_acc_tiled
       used_masks.append( first_acc_mask )
 
+    # Combine the masks
     mask = np.any( used_masks, axis=0, keepdims=True )[0]
 
     return mask

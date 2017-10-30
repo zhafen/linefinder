@@ -155,7 +155,7 @@ class TestWorldlineGetData( unittest.TestCase ):
 
     self.worldlines.get_data( 'Rx' )
 
-    mock_get_data.assert_called_once_with( 'Rx', sl=None )
+    mock_get_data.assert_called_once_with( 'Rx' )
 
   ########################################################################
 
