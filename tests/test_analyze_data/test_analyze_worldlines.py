@@ -482,6 +482,8 @@ class TestWorldlineCalcData( unittest.TestCase ):
     '''Test basic functionality of calc_t_EP.'''
   
     # Setup test data
+    self.worldlines._n_snaps = 4
+    self.worldlines._n_particles = 3
     self.worldlines.data['is_in_other_gal'] = np.array([
       [ 0, 1, 1, 0, ],
       [ 0, 0, 1, 1, ],

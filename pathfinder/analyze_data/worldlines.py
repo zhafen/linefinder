@@ -676,13 +676,18 @@ class Worldlines( generic_data.GenericData ):
     # Make sure we have a fresh slate to work with.
     self.data_masker.clear_masks()
 
+    # Make sure we only include time when the particle is in another galaxy
     self.data_masker.mask_data( 'is_in_other_gal', data_value=True )
 
-    dt_masked = self.get_masked_data( 'dt_tiled', mask_after_first_acc = True, )
+    # Get the individual pieces of time, prior to adding them up.
+    dt_masked = self.get_masked_data( 'dt_tiled', mask_after_first_acc=True, compress=False )
 
+    # Now do the sum
     t_EP = dt_masked.sum( axis=1 )
 
-    self.data['t_EP'] = t_EP
+    # Save the data, with fully masked data filled in with 0's (because that's how long it's spent)
+    t_EP.fill_value = 0.
+    self.data['t_EP'] = t_EP.filled()
 
   ########################################################################
 
