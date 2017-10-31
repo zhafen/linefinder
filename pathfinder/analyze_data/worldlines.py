@@ -386,11 +386,12 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
-  def get_data_first_acc( self, data_key, *args, **kwargs ):
-    '''Get data the snapshot immediately after first accretion.
+  def get_data_first_acc( self, data_key, ind_after_first_acc=False, *args, **kwargs ):
+    '''Get data the snapshot immediately after before accretion.
 
     Args:
       data_key (str) : What data to get?
+      ind_after_first_acc (bool) : If True, get data the index immediately *after* first accretion, instead.
 
     Returns:
       data_first_acc (np.ndarray) : Array of data, the index immediately after first accretion.
@@ -411,6 +412,9 @@ class Worldlines( generic_data.GenericData ):
 
     valid_inds = np.where( ind_first_acc != d_constants.INT_FILL_VALUE )[0]
     valid_ind_first_acc = ind_first_acc[valid_inds]
+
+    if not ind_after_first_acc:
+      valid_ind_first_acc += 1
 
     data_first_acc[valid_inds] = data[valid_inds, valid_ind_first_acc]
 
