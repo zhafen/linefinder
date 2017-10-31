@@ -775,19 +775,16 @@ class WorldlineDataMasker( generic_data.DataMasker ):
       assert not ( mask_after_first_acc and mask_before_first_acc ), \
       "Attempted to mask both before and after first acc."
 
-      redshift_tiled = np.tile( self.data_object.redshift, (self.data_object.n_particles, 1) )
-      redshift_first_acc_tiled = np.tile( self.data_object.events.data['redshift_first_acc'],
-                                          (self.data_object.n_snaps, 1) ).transpose()
+      ind_first_acc_tiled = self.data_object.get_processed_data( 'ind_first_acc_tiled' )
+      ind_tiled = np.tile( range( self.data_object.n_snaps ), (self.data_object.n_particles, 1) )
+
       if mask_after_first_acc:
-        first_acc_mask = redshift_tiled <= redshift_first_acc_tiled
+        first_acc_mask = ind_tiled <= ind_first_acc_tiled
       elif mask_before_first_acc:
-        first_acc_mask = redshift_tiled > redshift_first_acc_tiled
+        first_acc_mask = ind_tiled > ind_first_acc_tiled
       used_masks.append( first_acc_mask )
 
     # Combine the masks
-
-    #DEBUG
-    import pdb; pdb.set_trace()
     mask = np.any( used_masks, axis=0, keepdims=True )[0]
 
     return mask

@@ -487,11 +487,10 @@ class TestWorldlineCalcData( unittest.TestCase ):
       [ 0, 0, 1, 1, ],
       [ 0, 1, 0, 0, ],
     ]).astype( bool )
-    self.worldlines.data['redshift'] = np.array([ 0., 1., 2., 3., ])
-    self.worldlines.events.data['redshift_first_acc'] = np.array([
-      0.,
-      1.5,
-      2.5,
+    self.worldlines.data['ind_first_acc'] = np.array([
+      1,
+      0,
+      2,
     ])
     self.worldlines.data['dt'] = np.array([
       1.,
@@ -510,7 +509,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
       0.,
     ])
 
-    npt.assert_allclose( expected, actual, )
+    npt.assert_allclose( expected, actual,)
 
   ########################################################################
 
@@ -524,7 +523,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
       [ 1., 2., 3., ],
     ])
     self.worldlines._redshift = np.array([ 1., 2., 3., ])
-    self.worldlines.events.data['redshift_first_acc'] = np.array([ 1.5, 1.5, 1.5, 2.5, ])
+    self.worldlines.events.data['ind_first_acc'] = np.array([ 0, 0, 0, 1, ])
 
     self.worldlines.calc_d_sat_scaled_min()
 
@@ -619,7 +618,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
   def test_get_masked_data_before_first_acc( self ):
 
-    self.worldlines.events.data['redshift_first_acc'] = np.array([ 30., -1., 0., 30. ])
+    self.worldlines.events.data['ind_first_acc'] = np.array([ 2, d_constants.INT_FILL_VALUE, 0, 2 ])
 
     actual = self.worldlines.data_masker.get_masked_data( 'T', mask_after_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
     expected = np.array( [ 12212.33984375,   812602.1875, 4107.27490234, ] )
@@ -629,7 +628,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
   def test_get_masked_data_after_first_acc( self ):
 
-    self.worldlines.events.data['redshift_first_acc'] = np.array([ 30., -1., 0., 30. ])
+    self.worldlines.events.data['ind_first_acc'] = np.array([ 2, d_constants.INT_FILL_VALUE, 0, 2 ])
 
     actual = self.worldlines.data_masker.get_masked_data( 'T', mask_before_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
     expected = np.array( [ 42283.62890625,  20401.44335938,  115423.2109375, ] )
