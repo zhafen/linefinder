@@ -195,7 +195,7 @@ class TestWorldlineGetData( unittest.TestCase ):
     ])
     self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, d_constants.INT_FILL_VALUE, ])
 
-    actual = self.worldlines.get_data_first_acc( 'PType' )
+    actual = self.worldlines.get_data_first_acc( 'PType', ind_after_first_acc=True )
     expected = np.array( [ 4, 4, 0, d_constants.INT_FILL_VALUE ] )
     npt.assert_allclose( expected, actual )
 
@@ -211,7 +211,7 @@ class TestWorldlineGetData( unittest.TestCase ):
     ])
     self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, d_constants.INT_FILL_VALUE, ])
 
-    actual = self.worldlines.get_data_first_acc( 'Den' )
+    actual = self.worldlines.get_data_first_acc( 'Den', ind_after_first_acc=True )
     expected = np.array( [ 1., 1., 2., d_constants.FLOAT_FILL_VALUE ] )
     npt.assert_allclose( expected, actual )
 
@@ -475,6 +475,42 @@ class TestWorldlineCalcData( unittest.TestCase ):
     expected = np.array( [ 0.927, 1.177, np.nan ] )*1e3
 
     npt.assert_allclose( expected, actual, rtol=1e-3 )
+
+  ########################################################################
+
+  def test_calc_t_EP( self ):
+    '''Test basic functionality of calc_t_EP.'''
+  
+    # Setup test data
+    self.worldlines.data['is_in_other_gal'] = np.array([
+      [ 0, 1, 1, 0, ],
+      [ 0, 0, 1, 1, ],
+      [ 0, 1, 0, 0, ],
+    ]).astype( bool )
+    self.worldlines.data['redshift'] = np.array([ 0., 1., 2., 3., ])
+    self.worldlines.events.data['redshift_first_acc'] = np.array([
+      0.,
+      1.5,
+      2.5,
+    ])
+    self.worldlines.data['dt'] = np.array([
+      1.,
+      2.,
+      3.,
+      4.,
+    ])
+
+    # Actual calculation
+    self.worldlines.calc_t_EP()
+    
+    actual = self.worldlines.data['t_EP']
+    expected = np.array([
+      3.,
+      7.,
+      0.,
+    ])
+
+    npt.assert_allclose( expected, actual, )
 
   ########################################################################
 

@@ -665,6 +665,27 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
+  def calc_t_EP( self ):
+    '''Calculate the time spent in another galaxy prior to accretion onto the main galaxy of the simulation.
+
+    Modifies:
+      self.data['t_EP'] (np.ndarray) :
+        self.data['t_EP'][i] = time particle i spent in another galaxy prior to first accretion.
+    '''
+
+    # Make sure we have a fresh slate to work with.
+    self.data_masker.clear_masks()
+
+    self.data_masker.mask_data( 'is_in_other_gal', data_value=True )
+
+    dt_masked = self.get_masked_data( 'dt_tiled', mask_after_first_acc = True, )
+
+    t_EP = dt_masked.sum( axis=1 )
+
+    self.data['t_EP'] = t_EP
+
+  ########################################################################
+
   def calc_d_sat_scaled_min( self ):
     '''Calculate the minimum distance to a a galaxy other than the main galaxy, prior to accretion onto the main gal.
 
@@ -764,6 +785,9 @@ class WorldlineDataMasker( generic_data.DataMasker ):
       used_masks.append( first_acc_mask )
 
     # Combine the masks
+
+    #DEBUG
+    import pdb; pdb.set_trace()
     mask = np.any( used_masks, axis=0, keepdims=True )[0]
 
     return mask
