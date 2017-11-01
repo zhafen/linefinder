@@ -689,6 +689,9 @@ class Worldlines( generic_data.GenericData ):
     t_EP.fill_value = 0.
     self.data['t_EP'] = t_EP.filled()
 
+    # Clear the masks again so we don't affect future things.
+    self.data_masker.clear_masks()
+
   ########################################################################
 
   def calc_d_sat_scaled_min( self ):

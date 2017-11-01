@@ -19,3 +19,10 @@ PTYPE_GAS = 0
 PTYPE_DM = 1
 PTYPE_LOWRES_DM = 2
 PTYPE_STAR = 4
+
+########################################################################
+# Global Defaults
+########################################################################
+
+# Fiducial threshold processing time, t_{pro}
+T_PRO = 100.
