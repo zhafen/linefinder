@@ -25,4 +25,4 @@ PTYPE_STAR = 4
 ########################################################################
 
 # Fiducial threshold processing time, t_{pro}
-T_PRO = 100.
+T_PRO = 30.

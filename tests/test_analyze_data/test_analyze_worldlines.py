@@ -261,9 +261,9 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_galaxy_quantity( self ):
+  def test_get_selected_quantity( self ):
 
-    actual = self.worldlines.get_categories_galaxy_quantity_fraction(
+    actual = self.worldlines.get_categories_selected_quantity_fraction(
       sl = (slice(None),1),
       classification_list = p_constants.CLASSIFICATION_LIST_B,
     )
@@ -279,9 +279,9 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_galaxy_quantity_redshift( self ):
+  def test_get_selected_quantity_redshift( self ):
 
-    actual = self.worldlines.get_categories_galaxy_quantity_fraction(
+    actual = self.worldlines.get_categories_selected_quantity_fraction(
       classification_list = p_constants.CLASSIFICATION_LIST_B,
     )
     expected = {
@@ -296,9 +296,9 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_galaxy_quantity_n_particles( self ):
+  def test_get_selected_quantity_n_particles( self ):
 
-    actual = self.worldlines.get_categories_galaxy_quantity(
+    actual = self.worldlines.get_categories_selected_quantity(
       quantity = 'n_particles',
       classification_list = p_constants.CLASSIFICATION_LIST_B,
     )

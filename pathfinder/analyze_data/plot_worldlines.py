@@ -53,7 +53,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
       fig = plt.figure( figsize=(11,5), facecolor='white' )
       ax = plt.gca()
 
-    classification_values = self.data_object.get_categories_galaxy_quantity_fraction(
+    classification_values = self.data_object.get_categories_selected_quantity_fraction(
       sl=(slice(None),ind), *args, **kwargs )
 
     bar_start = 0.
@@ -173,7 +173,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     x_data = np.log10( 1. + self.data_object.get_data( 'redshift' ) )
 
-    y_datas = self.data_object.get_categories_galaxy_quantity( *args, **kwargs )
+    y_datas = self.data_object.get_categories_selected_quantity( *args, **kwargs )
 
     for key in p_constants.CLASSIFICATION_LIST_A[::-1]:
 
@@ -215,7 +215,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     x_range = [ 0., np.log10(8.) ], y_range = [0., 1.],
     x_label = default, y_label = default,
     plot_dividing_line = False,
-    ):
+    *args, **kwargs ):
     '''Make a plot like the bottom panel of Fig. 3 in Angles-Alcazar+17
 
     Args:
@@ -238,7 +238,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     x_data = np.log10( 1. + self.data_object.get_data( 'redshift' ) )
 
-    y_datas = self.data_object.get_categories_galaxy_quantity_fraction()
+    y_datas = self.data_object.get_categories_selected_quantity_fraction( *args, **kwargs )
 
     y_prev = np.zeros( shape=y_datas.values()[0].shape )
 
