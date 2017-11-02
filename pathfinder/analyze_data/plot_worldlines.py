@@ -288,8 +288,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     x_tick_values = np.log10( 1. + tick_redshifts )
     plt.xticks( x_tick_values, tick_redshifts )
 
+    if y_label is default:
+      y_label = r'$f(M_{\star})$'
+
     ax.set_xlabel( r'z', fontsize=22, )
-    ax.set_ylabel( r'$f(M_{\star})$', fontsize=22, )
+    ax.set_ylabel( y_label, fontsize=22, )
 
     ax.annotate( s=self.label, xy=(0.,1.0225), xycoords='axes fraction', fontsize=22,  )
 

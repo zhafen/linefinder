@@ -893,6 +893,27 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     self.mask_data( 'PType', data_value=ptype_value )
     self.mask_data( 'is_in_main_gal', data_value=True )
 
+  ########################################################################
+
+  def select_accreted( self, ptype_value ):
+    '''This selection routine selects only particles that are the snapshot before being accreted.
+
+    ptype_value (int) :
+      In the data, what ptype do we select?
+
+    Modifies:
+      self.masks (list) :
+        Adds masks needed to select only particles in a galaxy.
+    '''
+
+    self.mask_data( 'PType', data_value=ptype_value )
+
+    # Because `is_accreted` has one less column, we need to adjust the shape before we add the mask.
+    adjusted_accreted_mask = np.zeros( (self.data_object.n_particles, self.data_object.n_snaps) ).astype( bool )
+    adjusted_accreted_mask[:,1:] = self.data_object.get_data( 'is_accreted' )
+
+    self.mask_data( 'is_accreted', custom_mask=adjusted_accreted_mask )
+
 ########################################################################
 ########################################################################
 
