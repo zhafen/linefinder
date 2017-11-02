@@ -713,6 +713,12 @@ class TestFullClassifierPipeline( unittest.TestCase ):
       [ 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
       [ 1, 0, 1, 0, ], # Another test case
       ]).astype( bool )
+    self.classifier.is_accreted = np.array([
+      [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+      [ 1, 0, 1, 0, ], # Accreted twice
+      ]).astype( bool )
     self.classifier.is_in_other_gal = np.array([
       [ 0, 1, 1, 0, 0, ], # Merger, except in early snapshots
       [ 0, 0, 0, 0, 0, ], # Always part of main galaxy

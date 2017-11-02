@@ -909,8 +909,8 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     self.mask_data( 'PType', data_value=ptype_value )
 
     # Because `is_accreted` has one less column, we need to adjust the shape before we add the mask.
-    adjusted_accreted_mask = np.zeros( (self.data_object.n_particles, self.data_object.n_snaps) ).astype( bool )
-    adjusted_accreted_mask[:,1:] = self.data_object.get_data( 'is_accreted' )
+    adjusted_accreted_mask = np.ones( (self.data_object.n_particles, self.data_object.n_snaps) ).astype( bool )
+    adjusted_accreted_mask[:,1:] = np.invert( self.data_object.get_data( 'is_accreted' ) )
 
     self.mask_data( 'is_accreted', custom_mask=adjusted_accreted_mask )
 

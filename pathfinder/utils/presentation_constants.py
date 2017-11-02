@@ -32,12 +32,29 @@ CLASSIFICATION_LABELS = {
   'is_merger_gas' : 'Merger-ISM',
 }
 
-CLASSIFICATION_LIST_A = [
+CLASSIFICATION_A = [
   'is_fresh_accretion',
   'is_NEP_wind_recycling',
   'is_mass_transfer',
   'is_merger_gas',
   'is_merger_star',
 ]
-CLASSIFICATION_LIST_B = [ 'is_fresh_accretion', 'is_NEP_wind_recycling', 'is_mass_transfer', 'is_merger' ]
+CLASSIFICATION_B = [
+  'is_fresh_accretion',
+  'is_NEP_wind_recycling',
+  'is_mass_transfer',
+  'is_merger',
+]
 
+CLASSIFICATIONS_A_SMOOTH_ACCRETION = [
+  'is_fresh_accretion',
+  'is_NEP_wind_recycling',
+  'is_mass_transfer',
+]
+
+CLASSIFICATIONS_A_GAS = [
+  'is_fresh_accretion',
+  'is_NEP_wind_recycling',
+  'is_mass_transfer',
+  'is_merger_gas',
+]
