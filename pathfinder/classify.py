@@ -51,7 +51,7 @@ class Classifier( object ):
     wind_vel_min_scaled = 1.,
     wind_vel_min = 15.,
     neg = 10,
-    time_min = 100.,
+    time_min = 30.,
     time_interval_fac = 5.,
     main_halo_robustness_criteria = 'n_star',
     main_halo_robustness_value = 100,

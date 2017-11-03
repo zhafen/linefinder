@@ -57,7 +57,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
       sl=(slice(None),ind), *args, **kwargs )
 
     bar_start = 0.
-    for i, key in enumerate( p_constants.CLASSIFICATION_LIST_A ):
+    for i, key in enumerate( p_constants.CLASSIFICATIONS_A ):
 
       if add_label:
         label = p_constants.CLASSIFICATION_LABELS[key]
@@ -147,6 +147,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     x_range = [ 0., np.log10(8.) ], y_range = default,
     y_scale = 'log',
     x_label = default, y_label = default,
+    classification_list = p_constants.CLASSIFICATIONS_A,
     *args, **kwargs ):
     '''Make a plot like the top panel of Fig. 3 in Angles-Alcazar+17
 
@@ -173,9 +174,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     x_data = np.log10( 1. + self.data_object.get_data( 'redshift' ) )
 
-    y_datas = self.data_object.get_categories_selected_quantity( *args, **kwargs )
+    y_datas = self.data_object.get_categories_selected_quantity(
+      classification_list=classification_list,
+      *args, **kwargs )
 
-    for key in p_constants.CLASSIFICATION_LIST_A[::-1]:
+    for key in classification_list[::-1]:
 
       y_data = y_datas[key]
 
@@ -215,6 +218,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     x_range = [ 0., np.log10(8.) ], y_range = [0., 1.],
     x_label = default, y_label = default,
     plot_dividing_line = False,
+    classification_list = p_constants.CLASSIFICATIONS_A,
     *args, **kwargs ):
     '''Make a plot like the bottom panel of Fig. 3 in Angles-Alcazar+17
 
@@ -238,13 +242,15 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     x_data = np.log10( 1. + self.data_object.get_data( 'redshift' ) )
 
-    y_datas = self.data_object.get_categories_selected_quantity_fraction( *args, **kwargs )
+    y_datas = self.data_object.get_categories_selected_quantity_fraction(
+      classification_list = classification_list,
+      *args, **kwargs )
 
     y_prev = np.zeros( shape=y_datas.values()[0].shape )
 
     color_objects = []
     labels = []
-    for key in p_constants.CLASSIFICATION_LIST_A[::-1]:
+    for key in classification_list[::-1]:
 
       y_next = y_prev + y_datas[key]
 

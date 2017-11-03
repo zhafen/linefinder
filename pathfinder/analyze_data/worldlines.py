@@ -343,14 +343,13 @@ class Worldlines( generic_data.GenericData ):
       data = super( Worldlines, self ).get_data( data_key, *args, **kwargs )
       return data
 
-    # We assume a lot of the data is held in the particle tracks, so look there by default.
     try:
-      data = self.ptracks.get_data( data_key, *args, **kwargs )
+      data = super( Worldlines, self ).get_data( data_key, *args, **kwargs )
       return data
 
-    # If the data isn't there, go through the more-complicated default scheme for accessing the data
+    # A lot of the data can be calculated from the particle tracks data, so we can also try to access it from there.
     except KeyError:
-      data = super( Worldlines, self ).get_data( data_key, *args, **kwargs )
+      data = self.ptracks.get_data( data_key, *args, **kwargs )
       return data
 
   ########################################################################
@@ -492,7 +491,7 @@ class Worldlines( generic_data.GenericData ):
 
     return selected_quantity
 
-  def get_categories_selected_quantity( self, classification_list=p_constants.CLASSIFICATION_LIST_A, *args, **kwargs ):
+  def get_categories_selected_quantity( self, classification_list=p_constants.CLASSIFICATIONS_A, *args, **kwargs ):
     '''Get the total mass in the main galaxy for a particular particle type in each
     of a number of classification categories. This is only for particles that are tracked! This is not the real mass!
 
@@ -515,7 +514,7 @@ class Worldlines( generic_data.GenericData ):
     return utilities.SmartDict( selected_quantity )
 
   def get_categories_selected_quantity_fraction( self,
-    classification_list = p_constants.CLASSIFICATION_LIST_A,
+    classification_list = p_constants.CLASSIFICATIONS_A,
     *args, **kwargs ):
     '''Same as categories_selected_quantity, but as a fraction of the total mass in the main galaxy
     for a particular particle type.
@@ -526,7 +525,7 @@ class Worldlines( generic_data.GenericData ):
     return categories_mass/self.get_selected_quantity( *args, **kwargs )
 
   def get_real_categories_selected_quantity( self,
-    classification_list=p_constants.CLASSIFICATION_LIST_A,
+    classification_list=p_constants.CLASSIFICATIONS_A,
     *args, **kwargs ):
     '''Get the total mass in the main galaxy for a particular particle type in each
     of a number of classification categories.

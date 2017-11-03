@@ -32,14 +32,14 @@ CLASSIFICATION_LABELS = {
   'is_merger_gas' : 'Merger-ISM',
 }
 
-CLASSIFICATION_A = [
+CLASSIFICATIONS_A = [
   'is_fresh_accretion',
   'is_NEP_wind_recycling',
   'is_mass_transfer',
   'is_merger_gas',
   'is_merger_star',
 ]
-CLASSIFICATION_B = [
+CLASSIFICATIONS_B = [
   'is_fresh_accretion',
   'is_NEP_wind_recycling',
   'is_mass_transfer',

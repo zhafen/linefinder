@@ -265,7 +265,7 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
 
     actual = self.worldlines.get_categories_selected_quantity_fraction(
       sl = (slice(None),1),
-      classification_list = p_constants.CLASSIFICATION_LIST_B,
+      classification_list = p_constants.CLASSIFICATIONS_B,
     )
     expected = {
       'is_merger' : 0.1,
@@ -282,7 +282,7 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
   def test_get_selected_quantity_redshift( self ):
 
     actual = self.worldlines.get_categories_selected_quantity_fraction(
-      classification_list = p_constants.CLASSIFICATION_LIST_B,
+      classification_list = p_constants.CLASSIFICATIONS_B,
     )
     expected = {
       'is_merger' : np.array([ 1./6., 0.1, 1., ]),
@@ -300,7 +300,7 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
 
     actual = self.worldlines.get_categories_selected_quantity(
       quantity = 'n_particles',
-      classification_list = p_constants.CLASSIFICATION_LIST_B,
+      classification_list = p_constants.CLASSIFICATIONS_B,
     )
     expected = {
       'is_merger' : np.array([ 1, 1, 1, ]),
