@@ -20,6 +20,8 @@ import galaxy_diver.read_data.ahf as read_ahf
 import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
 
+import utils.data_constants as d_constants
+
 ########################################################################
 
 default = object()
@@ -39,8 +41,8 @@ class ParticleTrackGalaxyFinder( object ):
     halo_file_tag = 'smooth',
     ahf_data_dir = default,
     ptracks_tag = default,
-    galaxy_cut = 3.0,
-    length_scale = 'Rstar0.5',
+    galaxy_cut = d_constants.GALAXY_CUT,
+    length_scale = d_constants.LENGTH_SCALE,
     ids_to_return = [ 'gal_id', 'mt_gal_id', 'd_other_gal_scaled', ],
     minimum_criteria = 'n_star',
     minimum_value = 10,

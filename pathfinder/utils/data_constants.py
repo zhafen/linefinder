@@ -26,6 +26,16 @@ PTYPE_STAR = 4
 # I do it this way that way I can access these global defaults from plotting scripts as well,
 # and also have all the most important parameters shown in one place.
 
+# The radius of the galaxy is defined as R_{gal} = GALAXY_CUT*LENGTH_SCALE
+LENGTH_SCALE = 'Rstar0.5'
+GALAXY_CUT = 3.0
+
+# The ejection velocity necessary to be counted as a wind is defined as v_{wind} = WIND_CUT*VELOCITY_SCALE
+# There's also an absolute wind velocity required, v_{wind} = ABSOLUTE_WIND_CUT
+VELOCITY_SCALE = 'Vc(Rgal)'
+WIND_CUT = 1.0
+ABSOLUTE_WIND_CUT = 15.0
+
 # Fiducial threshold processing time, t_{pro}
 T_PRO = 50.0
 

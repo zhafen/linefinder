@@ -46,13 +46,13 @@ class Classifier( object ):
     classifications_to_save = [ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', ],
     write_events = True,
     events_to_save = [ 'is_in_other_gal', 'is_in_main_gal', 'is_accreted', 'is_ejected', 'redshift_first_acc',
-                       'ind_first_acc', ],
-    velocity_scale = 'Vc(Rgal)',
-    wind_vel_min_scaled = 1.,
-    wind_vel_min = 15.,
-    neg = 10,
+      'ind_first_acc', ],
+    velocity_scale = d_constants.VELOCITY_SCALE,
+    wind_cut = d_constants.WIND_CUT,
+    absolute_wind_cut = d_constants.ABSOLUTE_WIND_CUT,
     t_pro = d_constants.T_PRO,
     t_m = d_constants.T_M,
+    neg = 10,
     main_halo_robustness_criteria = 'n_star',
     main_halo_robustness_value = 100,
     ):
@@ -96,18 +96,14 @@ class Classifier( object ):
       events_to_save (list of strs, optional) :
         What events to write to a file.
 
-      neg (int, optional) :
-        Number of earliest indices for which we neglect accretion/ejection events.
-        If each indice corresponds to a snapshot, then it's the number of snapshots
-
       velocity_scale (float) :
         What the velocity scale of the galaxy is (for applying velocity cuts).
 
-      wind_vel_min_scaled (float, optional) :
+      wind_cut (float, optional) :
         The minimum radial velocity (in units of the main galaxy velocity scale)
         a particle must have to be considered ejection.
 
-      wind_vel_min (float, optional) :
+      absolute_wind_cut (float, optional) :
         The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
 
       t_pro (float, optional) :
@@ -117,6 +113,10 @@ class Classifier( object ):
       t_m (float, optional) :
         Externally-processed mass is required to spend at least t_pro during the
         interval t_m prior to accretion to qualify as a *merger*.
+
+      neg (int, optional) :
+        Number of earliest indices for which we neglect accretion/ejection events.
+        If each indice corresponds to a snapshot, then it's the number of snapshots
 
       main_halo_robustness_criteria (str) &
       main_halo_robustness_value (int or float) :
@@ -516,8 +516,8 @@ class Classifier( object ):
 
     # The conditions for being outside any galaxy
     is_outside_before_inside_after = ( self.gal_event_id == -1 ) # Condition 1
-    has_minimum_vr_in_vc = ( v_r[:,0:self.n_snap-1] > self.wind_vel_min_scaled*v_scale_tiled[:,0:self.n_snap-1] ) # Condition 2
-    has_minimum_vr = ( v_r[:,0:self.n_snap-1] > self.wind_vel_min ) # Condition 3
+    has_minimum_vr_in_vc = ( v_r[:,0:self.n_snap-1] > self.wind_cut*v_scale_tiled[:,0:self.n_snap-1] ) # Condition 2
+    has_minimum_vr = ( v_r[:,0:self.n_snap-1] > self.absolute_wind_cut ) # Condition 3
     is_gas = ( self.ptrack['PType'][:,0:self.n_snap-1] == 0 ) # Condition 4
     is_outside_any_gal = ( self.ptrack['gal_id'][:,0:self.n_snap-1] < 0 ) # Condition 5
 
