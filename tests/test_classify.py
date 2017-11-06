@@ -29,8 +29,8 @@ default_kwargs = {
   'neg' : 1,
   'wind_vel_min_scaled' : 2.,
   'wind_vel_min' : 15.,
-  'time_min' : 100., 
-  'time_interval_fac' : 5.,
+  't_pro' : 100., 
+  't_m' : 500.,
   'velocity_scale' : 'Vc(Rvir)',
   }
 
@@ -425,7 +425,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     # Prerequisites
     # For this test we're not going to use the default data
-    self.classifier.time_interval_fac = 1.5
+    self.classifier.t_m = 150.0
     self.classifier.dt = np.array([
        [   50.,   50.,  50.,  50.,  50., ],
        [   50.,   50.,  50.,  50.,  50., ],
@@ -1001,7 +1001,7 @@ class TestVelocityScale( unittest.TestCase ):
         'snum' : np.array([ 600, 550, 500, ]),
       }
 
-      # Change one of the input parameters to match what we want to paass it
+      # Change one of the input parameters to match what we want to pass it
       self.classifier.velocity_scale = 'Vc(3.0Rstar0.5)'
       
       # Load necessary data structures

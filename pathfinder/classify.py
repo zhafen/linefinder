@@ -51,8 +51,8 @@ class Classifier( object ):
     wind_vel_min_scaled = 1.,
     wind_vel_min = 15.,
     neg = 10,
-    time_min = 30.,
-    time_interval_fac = 5.,
+    t_pro = d_constants.T_PRO,
+    t_m = d_constants.T_M,
     main_halo_robustness_criteria = 'n_star',
     main_halo_robustness_value = 100,
     ):
@@ -110,12 +110,13 @@ class Classifier( object ):
       wind_vel_min (float, optional) :
         The minimum radial velocity (in km/s ) a particle must have to be considered ejection.
 
-      time_min (float, optional) :
-        Minimum time (in Myr) a particle must reside in a galaxy to not count as pristine gas.
+      t_pro (float, optional) :
+        The processing time, i.e. the minimum time (in Myr) a particle must reside in
+        a galaxy to not count as pristine gas.
 
-      time_interval_fac (float, optional) :
-        Externally-processed mass is required to spend at least time_min during the
-        interval time_interval_fac x time_min prior to accretion to qualify as a *merger*.
+      t_m (float, optional) :
+        Externally-processed mass is required to spend at least t_pro during the
+        interval t_m prior to accretion to qualify as a *merger*.
 
       main_halo_robustness_criteria (str) &
       main_halo_robustness_value (int or float) :
@@ -639,7 +640,7 @@ class Classifier( object ):
     cum_time_before_acc = ( self.dt * self.is_before_first_acc.astype( float ) ).cumsum(axis=1)
 
     # Conditions for counting up time
-    time_interval = self.time_interval_fac * self.time_min
+    time_interval = self.t_m
     is_in_other_gal_in_time_interval_before_acc = (
       ( cum_time_before_acc <= time_interval ) & # Count up only the time before first accretion.
       self.is_before_first_acc & # Make sure we haven't accreted yet
@@ -663,7 +664,7 @@ class Classifier( object ):
         of time in another galaxy before being accreted.
     '''
 
-    is_pristine = ( self.time_in_other_gal_before_acc < self.time_min )
+    is_pristine = ( self.time_in_other_gal_before_acc < self.t_pro )
 
     # Apply "boundary conditions": particles inside galaxy when it's first resolved count as pristine
     bc_should_be_applied = self.ind_first_acc > self.ind_first_snap - self.neg
@@ -681,7 +682,7 @@ class Classifier( object ):
         amount of time in another galaxy before being accreted.
     '''
 
-    is_preprocessed = ( self.time_in_other_gal_before_acc >= self.time_min )
+    is_preprocessed = ( self.time_in_other_gal_before_acc >= self.t_pro )
 
     # Apply "boundary conditions": particles inside galaxy when it's first resolved count as pristine
     bc_should_be_applied = self.ind_first_acc > self.ind_first_snap - self.neg
@@ -698,7 +699,7 @@ class Classifier( object ):
       is_mass_transfer (np.array of bools) : True for particle i if it has been preprocessed but has *not*
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
-    has_not_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval < self.time_min )
+    has_not_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval < self.t_pro )
     is_mass_transfer = (  self.is_preprocessed & has_not_spent_minimum_time )
 
     return is_mass_transfer
@@ -712,7 +713,7 @@ class Classifier( object ):
       is_merger ( [n_particle] np.array of bools ) : True for particle i if it has been preprocessed and has
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
-    has_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval >= self.time_min )
+    has_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval >= self.t_pro )
     is_merger = (  self.is_preprocessed & has_spent_minimum_time  )
 
     return is_merger

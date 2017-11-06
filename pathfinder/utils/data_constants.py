@@ -21,8 +21,13 @@ PTYPE_LOWRES_DM = 2
 PTYPE_STAR = 4
 
 ########################################################################
-# Global Defaults
+# Global Default Parameters
 ########################################################################
+# I do it this way that way I can access these global defaults from plotting scripts as well,
+# and also have all the most important parameters shown in one place.
 
 # Fiducial threshold processing time, t_{pro}
-T_PRO = 30.
+T_PRO = 50.0
+
+# Fiducial time interval during which material can be counted as merger.
+T_M = 500.0
