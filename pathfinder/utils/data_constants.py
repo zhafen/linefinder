@@ -28,16 +28,16 @@ PTYPE_STAR = 4
 
 # The radius of the galaxy is defined as R_{gal} = GALAXY_CUT*LENGTH_SCALE
 LENGTH_SCALE = 'Rstar0.5'
-GALAXY_CUT = 3.0
+GALAXY_CUT = 2.0
 
 # The ejection velocity necessary to be counted as a wind is defined as v_{wind} = WIND_CUT*VELOCITY_SCALE
-# There's also an absolute wind velocity required, v_{wind} = ABSOLUTE_WIND_CUT
+# There's also an absolute wind velocity in km/s required, v_{wind} = ABSOLUTE_WIND_CUT
 VELOCITY_SCALE = 'Vc(Rgal)'
 WIND_CUT = 1.0
 ABSOLUTE_WIND_CUT = 15.0
 
-# Fiducial threshold processing time, t_{pro}
-T_PRO = 50.0
+# Fiducial threshold processing time, t_{pro}, in Myr.
+T_PRO = 100.0
 
-# Fiducial time interval during which material can be counted as merger.
+# Fiducial time interval during which material can be counted as merger (in Myr).
 T_M = 500.0

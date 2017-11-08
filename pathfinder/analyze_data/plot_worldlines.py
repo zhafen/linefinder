@@ -326,4 +326,32 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     r_cut = self.data_object.galids.parameters['galaxy_cut']
     ax.plot( [ r_cut, ]*2, [0, 1], color='black', linewidth=3, linestyle='--', transform=trans )
 
+  ########################################################################
+
+  def plot_hist_2d_with_halos( self,
+    plot_halos = True,
+    slices = None,
+    ax = default,
+    *args, **kwargs ):
+
+    if ax is default:
+      fig = plt.figure( figsize=(10,9), facecolor='white', )
+      ax = plt.gca()
+
+    self.plot_hist_2d( ax = ax, slices=slices, *args, **kwargs )
+
+    if plot_halos:
+      ahf_plotter = plot_ahf.AHFPlotter( self.data_object.ptracks.ahf_reader )
+      snum = self.data_object.ptracks.ahf_reader.mtree_halos[0].index[slices]
+      ahf_plotter.plot_halos_snapshot(
+        snum,
+        ax,
+        color = '#4daf4a',
+        linewidth = 3,
+        hubble_param = self.data_object.ptracks.data_attrs['hubble'],
+        radius_fraction = self.data_object.galids.parameters['galaxy_cut'],
+        length_scale = self.data_object.galids.parameters['length_scale'],
+      )
+
+
 
