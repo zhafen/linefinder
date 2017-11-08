@@ -767,7 +767,7 @@ class Classifier( object ):
     '''
 
     if not hasattr( self, '_ind_first_snap' ):
-      
+        
       # In the case that we aren't tracking over the full range of data,
       # and our first tracked snapshot comes after the first snapshot at which the merger tree is resolved,
       # we set the first indice at which the main merger tree halo is resolved to the last indice in our array.
@@ -775,8 +775,22 @@ class Classifier( object ):
         self._ind_first_snap = -1
 
       else:
-        potential_inds = np.where( self.ptrack['snum'] == self.main_mt_halo_first_snap )[0]
-        assert potential_inds.size == 1, "Wrong number of matches!"
+
+        # Look for the first stored snapshot above self.main_mt_halo_first_snap
+        search_snap = self.main_mt_halo_first_snap
+        search_for_first_ind = True
+        while search_for_first_ind:
+          potential_inds = np.where( self.ptrack['snum'] == search_snap )[0]
+
+          # We found a viable index
+          if potential_inds.size == 1:
+            search_for_first_ind = False
+          # Throw an exception if we go too far
+          elif search_snap > self.ptrack['snum'].max():
+            raise Exception( "Found no viable first index." )
+          else:
+            search_snap += 1
+        
         self._ind_first_snap = potential_inds[0]
 
     return self._ind_first_snap

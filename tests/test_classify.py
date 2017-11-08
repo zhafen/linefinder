@@ -846,6 +846,26 @@ class TestBoundaryConditions( unittest.TestCase ):
 
   ########################################################################
 
+  def test_ind_first_snap_when_first_snap_skipped( self ):
+    '''This test addresses Issue #57, i.e. Classifier.ind_first_snap fails if
+    Classifier.main_mt_halo_first_snap is not in the tracked snapshots.
+    '''
+
+    # Setup test data.
+    self.classifier._main_mt_halo_first_snap = 592
+    self.classifier.ptrack  = {
+      'snum' : np.array([ 600, 597, 594, 591, ] ),
+    }
+    
+    # Get the actual value
+    actual = self.classifier.ind_first_snap
+
+    # Compare to expected
+    expected = 2
+    self.assertEqual( expected, actual )
+
+  ########################################################################
+
   def test_is_in_main_gal_bc( self ):
     '''Test that we don't allow anything to be inside the main galaxy
     before it is resolved.
