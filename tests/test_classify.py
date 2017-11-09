@@ -468,26 +468,48 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   #########################################################################
 
-  def test_identify_pristine( self ):
+  def test_identify_unaccreted( self ):
 
     # Prerequisites
-    self.classifier.time_in_other_gal_before_acc = np.array([
-      2.404*1e3, # Merger, except in early snapshots
-      0.,    # Always part of main galaxy
-      0.,    # CGM -> main galaxy -> CGM
-      ])
     self.classifier.is_in_main_gal = np.array([
+      [ 0, 0, 0, 0, 0, ], # Never accreted onto the main galaxy
       [ 1, 0, 0, 0, 0, ], # Merger, except in early snapshots
       [ 1, 1, 1, 1, 1, ], # Always part of main galaxy
       [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
-    self.classifier.is_before_first_acc = np.array([
-      [ 0, 0, 0, 1, ], # Merger, except in early snapshots
-      [ 0, 0, 0, 1, ], # Always part of main galaxy
-      [ 0, 0, 0, 1, ], # CGM -> main galaxy -> CGM
+
+    expected = np.array([
+      1,    # Never accreted
+      0,    # Merger, except in early snapshots
+      0,    # Always part of main galaxy
+      0,    # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+
+    actual = self.classifier.identify_unaccreted()
+
+    npt.assert_allclose( expected, actual, )
+
+  ########################################################################
+
+  def test_identify_pristine( self ):
+
+    # Prerequisites
+    self.classifier.n_particle = 4
+    self.classifier.is_preprocessed = np.array([
+      0,  # Never accreted
+      1,  # Merger, except in early snapshots
+      0,  # Always part of main galaxy
+      0,  # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.is_unaccreted = np.array([
+      1,  # Never accreted
+      0,  # Merger, except in early snapshots
+      0,  # Always part of main galaxy
+      0,  # CGM -> main galaxy -> CGM
       ]).astype( bool )
 
     expected = np.array([
+      0,
       0,    # Merger, except in early snapshots
       1,    # Always part of main galaxy
       1,    # CGM -> main galaxy -> CGM
@@ -502,23 +524,34 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
   def test_identify_preprocessed( self ):
 
     # Prerequisites
+    self.classifier.n_particle = 4
     self.classifier.time_in_other_gal_before_acc = np.array([
+      1e3, # Unaccreted
       2.404*1e3, # Merger, except in early snapshots
       0.,    # Always part of main galaxy
       0.,    # CGM -> main galaxy -> CGM
       ])
     self.classifier.is_in_main_gal = np.array([
+      [ 0, 0, 0, 0, 0, ], # Never accreted onto the main galaxy
       [ 1, 0, 0, 0, 0, ], # Merger, except in early snapshots
       [ 1, 1, 1, 1, 1, ], # Always part of main galaxy
       [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
     self.classifier.is_before_first_acc = np.array([
+      [ 1, 1, 1, 1, ], # Never accreted onto the main galaxy
       [ 0, 0, 0, 1, ], # Merger, except in early snapshots
       [ 0, 0, 0, 1, ], # Always part of main galaxy
       [ 0, 0, 0, 1, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
+    self.classifier.is_unaccreted = np.array([
+      1,  # Never accreted
+      0,  # Merger, except in early snapshots
+      0,  # Always part of main galaxy
+      0,  # CGM -> main galaxy -> CGM
+      ]).astype( bool )
 
     expected = np.array([
+      0,    # Never accreted
       1,    # Merger, except in early snapshots
       0,    # Always part of main galaxy
       0,    # CGM -> main galaxy -> CGM
@@ -659,6 +692,12 @@ class TestFullClassifierPipeline( unittest.TestCase ):
     self.classifier._ind_first_snap = 10
 
     # Prerequisites
+    self.classifier.is_unaccreted = np.array([
+      0,    # Merger, except in early snapshots
+      0,    # Mass Transfer
+      0,    # Always part of main galaxy
+      0,    # CGM -> main galaxy -> CGM
+      ]).astype( bool )
     self.classifier.is_pristine = np.array([
       0,    # Merger, except in early snapshots
       0,    # Mass Transfer
@@ -926,28 +965,6 @@ class TestBoundaryConditions( unittest.TestCase ):
     
   ########################################################################
 
-  def test_is_pristine_bc( self ):
-    '''Test that anything that "accretes" onto the main galaxy at the first `neg` snapshots
-    it's resolved is counted as pristine.
-    '''
-
-    # Setup test data
-    self.classifier.time_in_other_gal_before_acc = np.array([ 200., 50., 200., 200., 200. ])
-    self.classifier._ind_first_acc = np.array([ 1, 2, 2, 3, 4 ])
-    self.classifier._ind_first_snap = 3
-    self.classifier.n_snap = 5
-    self.classifier.n_particle = 5
-    self.classifier.neg = 2
-
-    # Get the actual calculation out
-    actual = self.classifier.identify_pristine()
-
-    # Test that we got out what we should have.
-    expected = np.array([ False, True, True, True, True ])
-    npt.assert_allclose( expected, actual )
-
-  ########################################################################
-
   def test_is_not_preprocessed_bc( self ):
     '''Test that anything that "accretes" onto the main galaxy at the first `neg` snapshots
     it's resolved is *not* counted as preprocessed.
@@ -960,6 +977,7 @@ class TestBoundaryConditions( unittest.TestCase ):
     self.classifier.n_snap = 5
     self.classifier.n_particle = 5
     self.classifier.neg = 2
+    self.classifier.is_unaccreted = np.array([ 0, 0, 0, 0, 0 ]).astype( bool )
 
     # Get the actual calculation out
     actual = self.classifier.identify_preprocessed()

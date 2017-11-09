@@ -43,7 +43,8 @@ class Classifier( object ):
     mtree_halos_index = default,
     halo_file_tag = default,
     not_in_main_gal_key = 'gal_id',
-    classifications_to_save = [ 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', ],
+    classifications_to_save = [ 'is_unaccreted', 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer',
+      'is_wind', ],
     write_events = True,
     events_to_save = [ 'is_in_other_gal', 'is_in_main_gal', 'is_accreted', 'is_ejected', 'redshift_first_acc',
       'ind_first_acc', ],
@@ -171,8 +172,9 @@ class Classifier( object ):
     # Get the primary classifications
     print "Performing the main classifications..."
     sys.stdout.flush()
-    self.is_pristine = self.identify_pristine()
+    self.is_unaccreted = self.identify_unaccreted()
     self.is_preprocessed = self.identify_preprocessed()
+    self.is_pristine = self.identify_pristine()
     self.is_mass_transfer = self.identify_mass_transfer()
     self.is_merger = self.identify_merger()
     self.is_wind = self.identify_wind()
@@ -316,7 +318,7 @@ class Classifier( object ):
     '''Get the radial velocity of particles, relative to the main galaxy.
 
     Returns:
-      v_r ( [n_particle, n_snap] np.array ) : The radial velocity of each particle at that redshift,
+      v_r ( [n_particle, n_snap] np.ndarray ) : The radial velocity of each particle at that redshift,
         relative to the main galaxy.
     '''
 
@@ -422,7 +424,7 @@ class Classifier( object ):
     '''Identify what particles are in a galaxy besides the main galaxy.
 
     Returns:
-      is_in_other_gal ( [n_particle, n_snap-1] np.array of bools) : True if in a galaxy other than the main galaxy at
+      is_in_other_gal ( [n_particle, n_snap-1] np.ndarray of bools) : True if in a galaxy other than the main galaxy at
         that redshift.
     '''
 
@@ -449,7 +451,7 @@ class Classifier( object ):
     at that redshift, even a subhalo galaxy.
 
     Returns:
-      is_in_main_gal ( [n_particle, n_snap-1] np.array of bools) : True if in the main galaxy
+      is_in_main_gal ( [n_particle, n_snap-1] np.ndarray of bools) : True if in the main galaxy
         (and not any other galaxy) at that redshift.
     '''
 
@@ -474,7 +476,7 @@ class Classifier( object ):
     '''Identify potential accretion/ejection events relative to main galaxy at each redshift
 
     Returns:
-      gal_event_id ( [n_particle, n_snap-1] np.array of ints) : GalEvent = 0 (no change), 1 (entering galaxy),
+      gal_event_id ( [n_particle, n_snap-1] np.ndarray of ints) : GalEvent = 0 (no change), 1 (entering galaxy),
         -1 (leaving galaxy) at that redshift
     '''
 
@@ -539,7 +541,8 @@ class Classifier( object ):
     '''Get the cumulative number of accretions so far.
 
     Returns:
-      cum_num_acc ([n_particle, n_snap-1] np.array of ints): Cumulative number of accretion events for that particles.
+      cum_num_acc ([n_particle, n_snap-1] np.ndarray of ints) :
+        Cumulative number of accretion events for that particles.
     '''
 
     # Index to revert order of redshift snapshots
@@ -612,12 +615,13 @@ class Classifier( object ):
 
   def get_time_in_other_gal_before_acc( self ):
     '''Get the amount of time in galaxies besides the main galaxy before being accreted.
-    For a single time in another galaxy, this is the ( age of universe at the last snapshot before the conditions are true ) -
-    ( age of the universe at the last snapshot where the conditions are true ), and generalizes to multiple events in other galaxies.
+    For a single time in another galaxy, this is the ( age of universe at the last snapshot before
+    the conditions are true ) - ( age of the universe at the last snapshot where the conditions are true ),
+    and generalizes to multiple events in other galaxies.
 
     Returns:
-      time_in_other_gal_before_acc ([ n_particle, ] np.array of floats): Time in another galaxy before being first
-        accreted onto the main galaxy.
+      time_in_other_gal_before_acc ([ n_particle, ] np.ndarray of floats) :
+        Time in another galaxy before being first accreted onto the main galaxy.
     '''
 
     is_in_other_gal_before_first_acc = ( self.is_before_first_acc & self.is_in_other_gal[:,0:self.n_snap-1] )
@@ -632,8 +636,8 @@ class Classifier( object ):
     being accreted.
 
     Returns:
-      time_in_other_gal_before_acc_during_interval ([ n_particle, ] np.array of floats): Time in another galaxy before
-        being first accreted onto the main galaxy, within some recent time interval
+      time_in_other_gal_before_acc_during_interval ([ n_particle, ] np.ndarray of floats) :
+        Time in another galaxy before being first accreted onto the main galaxy, within some recent time interval
     '''
 
     # Get the total amount of time before being accreted
@@ -656,21 +660,19 @@ class Classifier( object ):
   # Main Classification Methods
   ########################################################################
 
-  def identify_pristine( self ):
-    '''Identify pristine gas, or "non-externally processed" gas.
+  def identify_unaccreted( self ):
+    '''Boolean for particles never accreted onto the main galaxy.
 
     Returns:
-      is_pristine ( [n_particle] np.array of bools ) : True for particle i if it has never spent some minimum amount
-        of time in another galaxy before being accreted.
+      is_unaccreted ( [n_particle,] np.ndarray of bools ) :
+        True for particle i if it has never been inside the main galaxy.
     '''
 
-    is_pristine = ( self.time_in_other_gal_before_acc < self.t_pro )
+    n_snaps_in_gal = self.is_in_main_gal.sum( axis=1 )
 
-    # Apply "boundary conditions": particles inside galaxy when it's first resolved count as pristine
-    bc_should_be_applied = self.ind_first_acc > self.ind_first_snap - self.neg
-    is_pristine[bc_should_be_applied] = True
+    is_unaccreted = n_snaps_in_gal == 0
 
-    return is_pristine
+    return is_unaccreted
 
   ########################################################################
 
@@ -678,17 +680,38 @@ class Classifier( object ):
     '''Identify pre-proceesed gas, or "externally processed" gas.
 
     Returns:
-      is_preprocessed ( [n_particle] np.array of bools ) : True for particle i if it has spent at least some minimum
+      is_preprocessed ( [n_particle] np.ndarray of bools ) :
+        True for particle i if it has spent at least some minimum
         amount of time in another galaxy before being accreted.
     '''
 
-    is_preprocessed = ( self.time_in_other_gal_before_acc >= self.t_pro )
+    is_preprocessed = ( self.time_in_other_gal_before_acc > self.t_pro )
 
     # Apply "boundary conditions": particles inside galaxy when it's first resolved count as pristine
     bc_should_be_applied = self.ind_first_acc > self.ind_first_snap - self.neg
     is_preprocessed[bc_should_be_applied] = False
 
+    # Make sure that ever particle classified as unaccreted is not also classified as preprocessed
+    is_preprocessed[self.is_unaccreted] = False
+
     return is_preprocessed
+
+  ########################################################################
+
+  def identify_pristine( self ):
+    '''Identify pristine gas, or "non-externally processed" gas.
+
+    Returns:
+      is_pristine ( [n_particle] np.ndarray of bools ) :
+        True for particle i if it has never spent some minimum amount
+        of time in another galaxy before being accreted.
+    '''
+
+    # Anything that's not preprocessed or unaccreted is pristine, by definition
+    is_preprocessed_or_unaccreted = np.ma.mask_or( self.is_preprocessed, self.is_unaccreted )
+    is_pristine = np.invert( is_preprocessed_or_unaccreted )
+
+    return is_pristine
 
   ########################################################################
 
@@ -696,7 +719,8 @@ class Classifier( object ):
     '''Boolean for whether or no particles are from mass transfer
 
     Returns:
-      is_mass_transfer (np.array of bools) : True for particle i if it has been preprocessed but has *not*
+      is_mass_transfer (np.ndarray of bools) :
+        True for particle i if it has been preprocessed but has *not*
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
     has_not_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval < self.t_pro )
@@ -710,7 +734,8 @@ class Classifier( object ):
     '''Boolean for whether or no particles are from galaxies merging.
 
     Returns:
-      is_merger ( [n_particle] np.array of bools ) : True for particle i if it has been preprocessed and has
+      is_merger ( [n_particle] np.ndarray of bools ) :
+        True for particle i if it has been preprocessed and has
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
     has_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval >= self.t_pro )
@@ -724,7 +749,8 @@ class Classifier( object ):
     '''Boolean for whether or not particles are from wind.
 
     Returns:
-      is_wind ( [n_particle] np.array of bools ) : True for particle i if it has been ejected at least once before
+      is_wind ( [n_particle] np.ndarray of bools ) :
+        True for particle i if it has been ejected at least once before
         snapshot n 
     '''
 
