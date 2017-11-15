@@ -392,6 +392,7 @@ class Worldlines( generic_data.GenericData ):
       data_key (str) : What data to get?
       ind_after_first_acc (bool) : If True, get data the index immediately *after* first accretion, instead.
       ind_relative_to_first_acc (int) : Move the snapshot index relative to the snapshot before first accretion.
+      *args, **kwargs : Arguments to be passed to self.get_data_at_ind()
 
     Returns:
       data_first_acc (np.ndarray) : Array of data, the index immediately after first accretion.
@@ -409,8 +410,17 @@ class Worldlines( generic_data.GenericData ):
     return self.get_data_at_ind( data_key, 'ind_first_acc', ind_shift, *args, **kwargs )
 
   def get_data_ind_star( self, data_key, *args, **kwargs ):
+    '''Get data at the snapshot a particle is first identified as a star.
 
-    pass
+    Args:
+      data_key (str) : What data to get?
+      *args, **kwargs : Arguments to be passed to self.get_data_at_ind()
+
+    Returns:
+      data_ind_star (np.ndarray) : Array of data, at the index a particle is first identified as a star.
+    '''
+
+    return self.get_data_at_ind( data_key, 'ind_star', *args, **kwargs )
 
   def get_data_at_ind( self, data_key, ind_key, ind_shift=0, *args, **kwargs ):
     '''Get the data at a specified index for each particle.
