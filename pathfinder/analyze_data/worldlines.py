@@ -385,18 +385,32 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
-  def get_data_first_acc( self, data_key, ind_after_first_acc=False, *args, **kwargs ):
-    '''Get data the snapshot immediately after before accretion.
+  def get_data_first_acc( self, data_key, ind_after_first_acc=False, ind_relative_to_first_acc=0, *args, **kwargs ):
+    '''Get data the snapshot immediately before accretion.
 
     Args:
       data_key (str) : What data to get?
       ind_after_first_acc (bool) : If True, get data the index immediately *after* first accretion, instead.
+      ind_relative_to_first_acc (int) : Move the snapshot index relative to the snapshot before first accretion.
 
     Returns:
       data_first_acc (np.ndarray) : Array of data, the index immediately after first accretion.
     '''
 
-    data = self.get_data( data_key )
+    assert not ( ind_after_first_acc and ( ind_relative_to_first_acc != 0 ) ), "Choose one option."
+
+    if not ind_after_first_acc:
+      ind_shift = 1
+
+    return get_data_at_ind( self, data_key, 'ind_first_acc', ind_shift, *args, **kwargs )
+
+  def get_data_ind_star( self, data_key, ind_shift, *args, **kwargs ):
+
+    pass
+
+  def get_data_at_ind( self, data_key, used_ind_key, ind_shift=0, *args, **kwargs ):
+
+    data = self.get_data( data_key, *args, **kwargs )
 
     if issubclass( data.dtype.type, np.integer ):
       fill_value = d_constants.INT_FILL_VALUE
@@ -405,19 +419,18 @@ class Worldlines( generic_data.GenericData ):
     else:
       raise Exception( "Unrecognized data type, data.dtype = {}".format( data.dtype ) )
 
-    data_first_acc = fill_value*np.ones( self.n_particles, dtype=data.dtype )
+    data_at_ind = fill_value*np.ones( self.n_particles, dtype=data.dtype )
 
-    ind_first_acc = self.get_data( 'ind_first_acc' )
+    specified_ind = self.get_data( used_ind_key, *args, **kwargs )
 
-    valid_inds = np.where( ind_first_acc != d_constants.INT_FILL_VALUE )[0]
-    valid_ind_first_acc = ind_first_acc[valid_inds]
+    valid_inds = np.where( specified_ind != d_constants.INT_FILL_VALUE )[0]
+    valid_specified_ind = specified_ind[valid_inds]
 
-    if not ind_after_first_acc:
-      valid_ind_first_acc += 1
+    valid_specified_ind += ind_shift
 
-    data_first_acc[valid_inds] = data[valid_inds, valid_ind_first_acc]
+    data_at_ind[valid_inds] = data[valid_inds, valid_specified_ind]
 
-    return data_first_acc
+    return data_at_ind
 
   ########################################################################
 
@@ -707,6 +720,32 @@ class Worldlines( generic_data.GenericData ):
 
     self.data['d_sat_scaled_min'] = d_ma.min( axis=1 )
 
+  ########################################################################
+
+  def calc_ind_star( self ):
+    '''Calculate the index at which a particle is first recorded as being a star.
+
+    Modifies:
+      self.data['ind_star'] (np.ndarray of shape (n_particles,)) :
+        self.data['ind_star'][i] = Index at which particle is first recorded as being a star.
+    '''
+
+    ptype = self.get_data( 'PType' )
+
+    is_star = ptype == d_constants.PTYPE_STAR
+
+    # Find the first index the particle was last a gas particle
+    ind_last_gas = np.argmin( is_star, axis=1 )
+
+    # This is correct for most cases.
+    self.data['ind_star'] = ind_last_gas - 1
+
+    # We need to correct entries which are always star or always gas
+    always_star = np.invert( is_star ).sum( axis=1 ) == 0
+    always_gas = is_star.sum( axis=1 ) == 0
+    self.data['ind_star'][always_star] = -1
+    self.data['ind_star'][always_gas] = d_constants.INT_FILL_VALUE
+
 ########################################################################
 ########################################################################
 
@@ -725,6 +764,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     mask_after_first_acc = False,
     mask_before_first_acc = False,
     preserve_mask_shape = False,
+    optional_masks = None,
     *args, **kwargs ):
     '''Get a mask for the data.
 
@@ -749,6 +789,9 @@ class WorldlineDataMasker( generic_data.DataMasker ):
       preserve_mask_shape (bool) :
         If True, don't tile masks that are single dimensional, and one per particle.
 
+      optional_masks (list-like) :
+        If given, the optional masks to include, by name (masks must be available in self.optional_masks).
+
     Returns:
       mask (bool np.ndarray) :
         Mask from all the combinations.
@@ -756,8 +799,8 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
     used_masks = []
     if mask is default:
-      if len( self.masks ) > 0:
-        used_masks.append( self.get_total_mask() )
+      if len( self.masks ) > 0 or len( self.optional_masks ) > 0:
+        used_masks.append( self.get_total_mask( optional_masks=optional_masks ) )
     else:
       
       # Tile mask if it's single-dimensional
@@ -796,11 +839,12 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
   def get_masked_data( self,
     data_key,
-    mask=default,
-    classification=None,
-    mask_after_first_acc=False,
-    mask_before_first_acc=False,
-    preserve_mask_shape=False,
+    mask = default,
+    classification = None,
+    mask_after_first_acc = False,
+    mask_before_first_acc = False,
+    preserve_mask_shape = False,
+    optional_masks = None,
     *args, **kwargs ):
     '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_masked_data.
 
@@ -834,11 +878,12 @@ class WorldlineDataMasker( generic_data.DataMasker ):
     '''
 
     used_mask = self.get_mask(
-      mask=mask,
-      classification=classification,
-      mask_after_first_acc=mask_after_first_acc,
-      mask_before_first_acc=mask_before_first_acc,
-      preserve_mask_shape=preserve_mask_shape,
+      mask = mask,
+      classification = classification,
+      mask_after_first_acc = mask_after_first_acc,
+      mask_before_first_acc = mask_before_first_acc,
+      preserve_mask_shape = preserve_mask_shape,
+      optional_masks = optional_masks,
     )
 
     masked_data = super( WorldlineDataMasker, self ).get_masked_data( data_key, mask=used_mask, *args, **kwargs )

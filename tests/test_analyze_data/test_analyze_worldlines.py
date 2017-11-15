@@ -534,6 +534,25 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     npt.assert_allclose( expected, actual )
 
+  ########################################################################
+
+  def test_calc_ind_star( self ):
+
+    # Setup test data
+    self.worldlines.data['PType'] = np.array([
+      [ 4, 0, 0, ],
+      [ 0, 0, 0, ],
+      [ 4, 4, 0, ],
+      [ 4, 4, 4, ],
+    ])
+
+    self.worldlines.calc_ind_star()
+
+    actual = self.worldlines.data['ind_star']
+    expected = np.array([ 0, d_constants.INT_FILL_VALUE, 1, -1, ])
+
+    npt.assert_allclose( expected, actual )
+
 ########################################################################
 ########################################################################
 

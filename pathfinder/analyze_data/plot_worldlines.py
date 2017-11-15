@@ -328,30 +328,41 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
   ########################################################################
 
-  def plot_hist_2d_with_halos( self,
-    plot_halos = True,
+  def plot_with_halos( self,
+    plot_with_halos_method = 'plot_hist_2d',
     slices = None,
     ax = default,
+    out_dir = None,
+    halo_color = '#4daf4a',
+    halo_linewidth = 3,
+    halo_outline = False,
     *args, **kwargs ):
 
     if ax is default:
       fig = plt.figure( figsize=(10,9), facecolor='white', )
       ax = plt.gca()
 
-    self.plot_hist_2d( ax = ax, slices=slices, *args, **kwargs )
+    used_plot_with_halos_method = getattr( self, plot_with_halos_method )
+    used_plot_with_halos_method( ax = ax, slices=slices, *args, **kwargs )
 
-    if plot_halos:
-      ahf_plotter = plot_ahf.AHFPlotter( self.data_object.ptracks.ahf_reader )
-      snum = self.data_object.ptracks.ahf_reader.mtree_halos[0].index[slices]
-      ahf_plotter.plot_halos_snapshot(
-        snum,
-        ax,
-        color = '#4daf4a',
-        linewidth = 3,
-        hubble_param = self.data_object.ptracks.data_attrs['hubble'],
-        radius_fraction = self.data_object.galids.parameters['galaxy_cut'],
-        length_scale = self.data_object.galids.parameters['length_scale'],
-      )
+    ahf_plotter = plot_ahf.AHFPlotter( self.data_object.ptracks.ahf_reader )
+    snum = self.data_object.ptracks.ahf_reader.mtree_halos[0].index[slices]
+    ahf_plotter.plot_halos_snapshot(
+      snum,
+      ax,
+      color = halo_color,
+      linewidth = halo_linewidth,
+      outline = halo_outline,
+      hubble_param = self.data_object.ptracks.data_attrs['hubble'],
+      radius_fraction = self.data_object.galids.parameters['galaxy_cut'],
+      length_scale = self.data_object.galids.parameters['length_scale'],
+    )
+
+    if out_dir is not None:
+      save_file = '{}_{:03d}.png'.format( self.label, self.data_object.ptracks.snum[slices] )
+      gen_plot.save_fig( out_dir, save_file, fig=fig, dpi=75 )
+
+      plt.close()
 
 
 
