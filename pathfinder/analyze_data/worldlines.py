@@ -399,16 +399,31 @@ class Worldlines( generic_data.GenericData ):
 
     assert not ( ind_after_first_acc and ( ind_relative_to_first_acc != 0 ) ), "Choose one option."
 
-    if not ind_after_first_acc:
-      ind_shift = 1
+    # ind_first_acc is defined as the index at which a particle is first found in a galaxy,
+    # so we need to shift things around accordingly
+    if ind_after_first_acc:
+      ind_shift = 0
+    else:
+      ind_shift = 1 + ind_relative_to_first_acc
 
-    return get_data_at_ind( self, data_key, 'ind_first_acc', ind_shift, *args, **kwargs )
+    return self.get_data_at_ind( data_key, 'ind_first_acc', ind_shift, *args, **kwargs )
 
-  def get_data_ind_star( self, data_key, ind_shift, *args, **kwargs ):
+  def get_data_ind_star( self, data_key, *args, **kwargs ):
 
     pass
 
-  def get_data_at_ind( self, data_key, used_ind_key, ind_shift=0, *args, **kwargs ):
+  def get_data_at_ind( self, data_key, ind_key, ind_shift=0, *args, **kwargs ):
+    '''Get the data at a specified index for each particle.
+
+    Args:
+      data_key (str) : What data to get?
+      ind_key (str) : What index to use?
+      ind_shift (int) : Relative to the index identified by ind_key, how should the index be shifted?
+      *args, **kwargs : Arguments to be passed to self.get_data()
+
+    Returns:
+      data_at_ind (np.ndarray) : Array of data, at the specified index.
+    '''
 
     data = self.get_data( data_key, *args, **kwargs )
 
@@ -421,7 +436,7 @@ class Worldlines( generic_data.GenericData ):
 
     data_at_ind = fill_value*np.ones( self.n_particles, dtype=data.dtype )
 
-    specified_ind = self.get_data( used_ind_key, *args, **kwargs )
+    specified_ind = self.get_data( ind_key, *args, **kwargs )
 
     valid_inds = np.where( specified_ind != d_constants.INT_FILL_VALUE )[0]
     valid_specified_ind = specified_ind[valid_inds]
