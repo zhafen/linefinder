@@ -9,6 +9,7 @@
 import numpy as np
 import os
 
+import galaxy_diver.analyze_data.ahf as analyze_ahf_data
 import galaxy_diver.analyze_data.generic_data as generic_data
 import galaxy_diver.read_data.snapshot as read_snapshot
 import galaxy_diver.utils.astro as astro_tools
@@ -153,6 +154,24 @@ class Worldlines( generic_data.GenericData ):
   @events.deleter
   def events( self ):
     del self._events
+
+  ########################################################################
+
+  @property
+  def halo_data( self ):
+    '''Halo Data.
+
+    TODO:
+      Make it easier to get the parameters to use, without loading as much superfluous data.
+    '''
+  
+    if not hasattr( self, '_halo_data' ):
+      self._halo_data = analyze_ahf_data.HaloData(
+        data_dir = self.galids.parameters['ahf_data_dir'],
+        tag = self.galids.parameters['halo_file_tag'],
+      )
+
+    return self._halo_data
 
   ########################################################################
 

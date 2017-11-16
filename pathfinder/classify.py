@@ -387,7 +387,7 @@ class Classifier( object ):
     if self.velocity_scale == 'Vc(Rvir)':
       return self.get_circular_velocity()
     elif self.velocity_scale == 'Vc(Rgal)':
-      ahf_key_parser = analyze_ahf.AHFKeyParser()
+      ahf_key_parser = analyze_ahf.HaloKeyParser()
       r_gal_key = ahf_key_parser.get_velocity_at_radius_key(
         'Vc',
         self.ptrack_attrs['galaxy_cut'],
