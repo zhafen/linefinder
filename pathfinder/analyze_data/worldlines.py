@@ -164,6 +164,13 @@ class Worldlines( generic_data.GenericData ):
   ########################################################################
 
   @property
+  def length_scale( self ):
+  
+    return self.ptracks.length_scale.values
+
+  ########################################################################
+
+  @property
   def n_snaps( self ):
 
     if not hasattr( self, '_n_snaps' ):
@@ -365,7 +372,6 @@ class Worldlines( generic_data.GenericData ):
       data (np.ndarray) : Array of data.
     '''
     
-
     data_key, tiled_flag = self.key_parser.is_tiled_key( data_key )
 
     data = super( Worldlines, self ).get_processed_data( data_key, *args, **kwargs )

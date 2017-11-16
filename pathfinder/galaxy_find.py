@@ -43,7 +43,7 @@ class ParticleTrackGalaxyFinder( object ):
     ptracks_tag = default,
     galaxy_cut = d_constants.GALAXY_CUT,
     length_scale = d_constants.LENGTH_SCALE,
-    ids_to_return = [ 'gal_id', 'mt_gal_id', 'd_other_gal_scaled', ],
+    ids_to_return = [ 'gal_id', 'mt_gal_id', 'd_other_gal', 'd_other_gal_scaled', ],
     minimum_criteria = 'n_star',
     minimum_value = 10,
     n_processors = 1,
