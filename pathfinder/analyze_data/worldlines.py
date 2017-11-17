@@ -823,6 +823,13 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
+  def calc_ind( self ):
+    '''Just the index for each array.'''
+
+    self.data['ind'] = np.arange( self.n_snaps )
+
+  ########################################################################
+
   def calc_ind_star( self ):
     '''Calculate the index at which a particle is first recorded as being a star.
 
