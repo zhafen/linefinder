@@ -215,6 +215,30 @@ class TestWorldlineGetData( unittest.TestCase ):
     expected = np.array( [ 1., 1., 2., d_constants.FLOAT_FILL_VALUE ] )
     npt.assert_allclose( expected, actual )
 
+  ########################################################################
+
+  @mock.patch( 'galaxy_diver.analyze_data.ahf.HaloData.get_mt_data' )
+  def test_get_data_at_ind_units_used( self, mock_get_mt_data ):
+    '''Test we can get the data at a specified index, including scaling by some unit.
+    '''
+
+    # Setup test data
+    self.worldlines.data['ind_test'] = np.array([ 0, 1, 2, 1, ])
+    self.worldlines.data['test_data'] = np.array([
+      [ 1., 2., 3., ],
+      [ 2., 4., 6., ],
+      [ 3., 6., 9., ],
+      [ 4., 8., 12., ],
+    ])
+    mock_get_mt_data.side_effect = [
+      np.array([ 1., 2., 3., ]),
+    ]
+
+    actual = self.worldlines.get_data_at_ind( 'test_data', 'ind_test', units='Rvir' )
+    expected = np.array([ 1., 2., 3., 4., ])*0.702
+
+    npt.assert_allclose( expected, actual )
+
 ########################################################################
 ########################################################################
 

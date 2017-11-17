@@ -6,6 +6,7 @@
 @status: Development
 '''
 
+import copy
 import numpy as np
 import os
 
@@ -410,6 +411,91 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
+  def get_data_at_ind( self,
+    data_key,
+    ind_key,
+    ind_shift = 0,
+    units = None,
+    units_a_power = 1.,
+    units_h_power = -1.,
+    return_units_only = False,
+    tile_data = False,
+    *args, **kwargs ):
+    '''Get the data at a specified index for each particle.
+
+    Args:
+      data_key (str) : What data to get?
+      ind_key (str) : What index to use?
+      ind_shift (int) : Relative to the index identified by ind_key, how should the index be shifted?
+      units (str) : If given, scale the data by this value, taken from the halo data.
+      units_a_power (float) : If using units from the halo data, multiply by a to this power to convert.
+      units_h_power (float) : If using units from the halo data, multiply by the hubble param to this power to convert.
+      return_units_only (bool) : Return just the units argument. Useful for debugging.
+      tile_data (bool) : If True, tile data before getting the data at a specific index.
+      *args, **kwargs : Arguments to be passed to self.get_data()
+
+    Returns:
+      data_at_ind (np.ndarray) : Array of data, at the specified index.
+    '''
+
+    data = self.get_data( data_key, *args, **kwargs ).copy()
+
+    if tile_data:
+
+      if data.shape == ( self.n_particles, ):
+        data = np.tile( data, ( self.n_snaps, 1) ).transpose()
+
+      elif data.shape == ( self.n_snaps, ):
+        data = np.tile( data, ( self.n_particles, 1) )
+
+      else:
+        raise Exception( "Unrecognized data shape, {}".format( data.shape ) )
+
+    if issubclass( data.dtype.type, np.integer ):
+      fill_value = d_constants.INT_FILL_VALUE
+    elif issubclass( data.dtype.type, np.float ) or issubclass( data.dtype.type, np.float32 ):
+      fill_value = d_constants.FLOAT_FILL_VALUE
+    else:
+      raise Exception( "Unrecognized data type, data.dtype = {}".format( data.dtype ) )
+
+    data_at_ind = fill_value*np.ones( self.n_particles, dtype=data.dtype )
+
+    specified_ind = self.get_data( ind_key, *args, **kwargs )
+
+    # Look only at indices we retrieved successfully
+    valid_inds = np.where( specified_ind != d_constants.INT_FILL_VALUE )[0]
+    valid_specified_ind = specified_ind[valid_inds]
+
+    # Shift the indices by the specified amount, if desired
+    valid_specified_ind += ind_shift
+
+    data_at_ind[valid_inds] = data[valid_inds, valid_specified_ind]
+
+    if units is not None:
+
+      # Get the units out
+      units_arr = self.halo_data.get_mt_data(
+        units,
+        mt_halo_id=self.galids.parameters['main_mt_halo_id'],
+        a_power = units_a_power,
+      ).copy()
+
+      # Get the right indices out
+      units_arr_at_ind = units_arr[valid_specified_ind]
+
+      # Include any factors of h
+      units_arr_at_ind *= self.ptracks.data_attrs['hubble']**units_h_power
+
+      if return_units_only:
+        units_arr_all = fill_value*np.ones( self.n_particles, dtype=data.dtype )
+        units_arr_all[valid_inds] = units_arr_at_ind
+
+        return units_arr_all
+
+      data_at_ind[valid_inds] /= units_arr_at_ind
+
+    return data_at_ind
+
   def get_data_first_acc( self, data_key, ind_after_first_acc=False, ind_relative_to_first_acc=0, *args, **kwargs ):
     '''Get data the snapshot immediately before accretion.
 
@@ -446,41 +532,6 @@ class Worldlines( generic_data.GenericData ):
     '''
 
     return self.get_data_at_ind( data_key, 'ind_star', *args, **kwargs )
-
-  def get_data_at_ind( self, data_key, ind_key, ind_shift=0, *args, **kwargs ):
-    '''Get the data at a specified index for each particle.
-
-    Args:
-      data_key (str) : What data to get?
-      ind_key (str) : What index to use?
-      ind_shift (int) : Relative to the index identified by ind_key, how should the index be shifted?
-      *args, **kwargs : Arguments to be passed to self.get_data()
-
-    Returns:
-      data_at_ind (np.ndarray) : Array of data, at the specified index.
-    '''
-
-    data = self.get_data( data_key, *args, **kwargs )
-
-    if issubclass( data.dtype.type, np.integer ):
-      fill_value = d_constants.INT_FILL_VALUE
-    elif issubclass( data.dtype.type, np.float ) or issubclass( data.dtype.type, np.float32 ):
-      fill_value = d_constants.FLOAT_FILL_VALUE
-    else:
-      raise Exception( "Unrecognized data type, data.dtype = {}".format( data.dtype ) )
-
-    data_at_ind = fill_value*np.ones( self.n_particles, dtype=data.dtype )
-
-    specified_ind = self.get_data( ind_key, *args, **kwargs )
-
-    valid_inds = np.where( specified_ind != d_constants.INT_FILL_VALUE )[0]
-    valid_specified_ind = specified_ind[valid_inds]
-
-    valid_specified_ind += ind_shift
-
-    data_at_ind[valid_inds] = data[valid_inds, valid_specified_ind]
-
-    return data_at_ind
 
   ########################################################################
 
