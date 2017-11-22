@@ -1,1 +1,4 @@
-{}
+{
+  "tests/test_select.py::TestIDSampler::test_identify_duplicate_ids": true, 
+  "tests/test_select.py::TestIDSamplerNoSetUp::test_sample_ids": true
+}

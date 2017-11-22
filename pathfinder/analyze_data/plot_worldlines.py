@@ -329,7 +329,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
   ########################################################################
 
   def plot_with_halos( self,
-    plot_with_halos_method = 'plot_hist_2d',
+    plot_with_halos_method = 'histogram2d',
     slices = None,
     ax = default,
     out_dir = None,
