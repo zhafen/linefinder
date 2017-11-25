@@ -350,17 +350,36 @@ class SnapshotIDSelector( particle_data.ParticleData ):
 class IDSampler( object ):
 
   @utilities.store_parameters
-  def __init__( self, sdir, tag, n_samples=100000, ignore_child_particles=False, ignore_duplicates=False  ):
+  def __init__( self,
+    sdir,
+    tag,
+    n_samples = 100000,
+    ignore_child_particles = False,
+    ignore_duplicates = False,
+    reference_snum_for_duplicates = 600,
+    ):
     '''Sample an ID file to obtain and save a subset of size n_samples.
     Assumes the full set of IDs are saved as ids_full_tag.hdf5, and will save the sampled IDs as ids_tag.hdf5.
 
     Args:
-      sdir (str, required) : Directory the IDs are in, as well as the directory the sampled IDs will be saved in.
-      tag (str, required) : Identifying string for the ID file.
-      n_samples (int, optional) : Number of samples to sample.
-      ignore_child_particles (bool, optional) : Whether or not to ignore particles with non-zero child ID when sampling
-      ignore_duplicates (bool, optional) : Whether or not to ignore particles that have duplicate IDs at the final
-        snapshot.
+      sdir (str, required) :
+        Directory the IDs are in, as well as the directory the sampled IDs will be saved in.
+
+      tag (str, required) :
+        Identifying string for the ID file.
+
+      n_samples (int, optional) :
+        Number of samples to sample.
+
+      ignore_child_particles (bool, optional) :
+        Whether or not to ignore particles with non-zero child ID when sampling
+
+      ignore_duplicates (bool, optional) :
+        Whether or not to ignore particles that have duplicate IDs at the final snapshot.
+
+      reference_snum_for_duplicates (int) :
+        When checking for duplicate IDs, open up a snapshot with this snapshot number
+        and look for duplicate ids within.
     '''
 
     pass
@@ -448,7 +467,7 @@ class IDSampler( object ):
     for ptype in self.f['parameters'].attrs['p_types']:
 
       p_data_kwargs = dict( self.f['parameters/snapshot_parameters'].attrs )
-      p_data_kwargs['snum'] = self.f['parameters'].attrs['snum_end']
+      p_data_kwargs['snum'] = self.reference_snum_for_duplicates
       p_data_kwargs['ptype'] = ptype
       p_data = particle_data.ParticleData( **p_data_kwargs )
 
