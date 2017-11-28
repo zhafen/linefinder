@@ -705,7 +705,7 @@ class Classifier( object ):
 
     Returns:
       is_unaccreted_EP ( [n_particle,n_snap] np.ndarray of bools ) :
-        True for particle i at snpashot j if it has not spent at least t_pro in another galaxy by that point.
+        True for particle i at snapshot j if it has spent at least t_pro in another galaxy by that point.
     '''
 
     unaccreted_tiled = np.tile( self.is_unaccreted, ( self.n_snap, 1) ).transpose()
@@ -715,6 +715,25 @@ class Classifier( object ):
     is_unaccreted_EP = unaccreted_tiled & is_EP
 
     return is_unaccreted_EP
+
+  ########################################################################
+
+  def identify_unaccreted_NEP( self ):
+    '''Identify particles never accreted onto the main galaxy that have not spent at least t_pro in another galaxy
+    by the specified snapshot.
+
+    Returns:
+      is_unaccreted_NEP ( [n_particle,n_snap] np.ndarray of bools ) :
+        True for particle i at snapshot j if it has not spent at least t_pro in another galaxy by that point.
+    '''
+
+    unaccreted_tiled = np.tile( self.is_unaccreted, ( self.n_snap, 1) ).transpose()
+
+    is_NEP = self.cumulative_time_in_other_gal <= self.t_pro
+
+    is_unaccreted_NEP = unaccreted_tiled & is_NEP
+
+    return is_unaccreted_NEP
 
   ########################################################################
 

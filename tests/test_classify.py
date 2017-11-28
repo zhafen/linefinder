@@ -621,6 +621,38 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
       
     npt.assert_allclose( expected, actual, )
 
+  ########################################################################
+
+  def test_identify_unaccreted_NEP( self ):
+    '''Test that we can identiy unaccreted EP gas.
+    '''
+
+    # Test data
+    self.classifier.n_particle = 4
+    self.classifier.is_unaccreted = np.array([
+      1,
+      1,
+      1,
+      0,
+    ]).astype( bool )
+    self.classifier.cumulative_time_in_other_gal = np.array([
+      [ 153., 102., 51., 51.,  0, ],
+      [ 153., 153., 153., 102., 51., ],
+      [ 153., 153, 102., 51., 0, ],
+      [ 153., 153, 102., 51., 0, ],
+    ])
+
+    actual = self.classifier.identify_unaccreted_NEP()
+
+    expected = np.array([
+      [ 0, 0, 1, 1, 1, ],
+      [ 0, 0, 0, 0, 1, ],
+      [ 0, 0, 0, 1, 1, ],
+      [ 0, 0, 0, 0, 0, ], 
+    ]).astype( bool )
+      
+    npt.assert_allclose( expected, actual, )
+
   #########################################################################
 
   def test_identify_mass_transfer( self ):
