@@ -708,7 +708,13 @@ class Classifier( object ):
         True for particle i at snpashot j if it has not spent at least t_pro in another galaxy by that point.
     '''
 
-    pass
+    unaccreted_tiled = np.tile( self.is_unaccreted, ( self.n_snap, 1) ).transpose()
+
+    is_EP = self.cumulative_time_in_other_gal > self.t_pro
+
+    is_unaccreted_EP = unaccreted_tiled & is_EP
+
+    return is_unaccreted_EP
 
   ########################################################################
 

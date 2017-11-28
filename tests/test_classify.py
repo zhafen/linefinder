@@ -392,6 +392,34 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   ########################################################################
 
+  def test_get_cumulative_time_in_other_gal( self ):
+    '''Test that we can correctly get the cumulative time spent in another galaxy.
+    '''
+    
+    # Test Data
+    self.classifier.is_in_other_gal = np.array([
+      [ 1, 1, 0, 1, 0, ],
+      [ 0, 0, 1, 1, 1, ],
+      [ 0, 1, 1, 1, 0, ],
+      ]).astype( bool )
+    self.classifier.dt = np.array([
+       [   51.,   51.,  51.,  51.,  51., ],
+       [   51.,   51.,  51.,  51.,  51., ],
+       [   51.,   51.,  51.,  51.,  51., ],
+     ])
+
+    expected = np.array([
+      [ 153., 102., 51., 51.,  0, ],
+      [ 153., 153., 153., 102., 51., ],
+      [ 153., 153, 102., 51., 0, ],
+    ])
+
+    actual = self.classifier.get_cumulative_time_in_other_gal()
+      
+    npt.assert_allclose( expected, actual, )
+    
+  ########################################################################
+
   def test_time_in_other_gal_before_acc( self ):
 
     # Prerequisites
@@ -563,34 +591,6 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   ########################################################################
 
-  def test_get_cumulative_time_in_other_gal( self ):
-    '''Test that we can correctly get the cumulative time spent in another galaxy.
-    '''
-    
-    # Test Data
-    self.classifier.is_in_other_gal = np.array([
-      [ 1, 1, 0, 1, 0, ],
-      [ 0, 0, 1, 1, 1, ],
-      [ 0, 1, 1, 1, 0, ],
-      ]).astype( bool )
-    self.classifier.dt = np.array([
-       [   51.,   51.,  51.,  51.,  51., ],
-       [   51.,   51.,  51.,  51.,  51., ],
-       [   51.,   51.,  51.,  51.,  51., ],
-     ])
-
-    expected = np.array([
-      [ 153., 102., 51., 51.,  0, ],
-      [ 153., 153., 153., 102., 51., ],
-      [ 153., 153, 102., 51., 0, ],
-    ])
-
-    actual = self.classifier.get_cumulative_time_in_other_gal()
-      
-    npt.assert_allclose( expected, actual, )
-    
-  ########################################################################
-
   def test_identify_unaccreted_EP( self ):
     '''Test that we can identiy unaccreted EP gas.
     '''
@@ -603,6 +603,12 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
       1,
       0,
     ]).astype( bool )
+    self.classifier.cumulative_time_in_other_gal = np.array([
+      [ 153., 102., 51., 51.,  0, ],
+      [ 153., 153., 153., 102., 51., ],
+      [ 153., 153, 102., 51., 0, ],
+      [ 153., 153, 102., 51., 0, ],
+    ])
 
     actual = self.classifier.identify_unaccreted_EP()
 
