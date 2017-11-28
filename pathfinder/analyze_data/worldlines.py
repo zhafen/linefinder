@@ -1066,6 +1066,24 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
     self.mask_data( 'is_accreted', custom_mask=adjusted_accreted_mask )
 
+  ########################################################################
+
+  def select_outside_all_galaxies( self, ptype_value ):
+    '''This seleciton routine selects only particles that are outside all galaxies.
+
+    ptype_value (int) :
+      In the data, what ptype do we select?
+
+    Modifies:
+      self.masks (list) :
+        Adds masks needed to select only particles outside all galaxies.
+    '''
+
+    self.mask_data( 'PType', data_value=ptype_value )
+
+    self.mask_data( 'is_in_main_gal', data_value=False )
+    self.mask_data( 'is_in_other_gal', data_value=False )
+
 ########################################################################
 ########################################################################
 

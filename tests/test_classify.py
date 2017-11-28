@@ -561,6 +561,60 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     npt.assert_allclose( expected, actual, )
 
+  ########################################################################
+
+  def test_get_cumulative_time_in_other_gal( self ):
+    '''Test that we can correctly get the cumulative time spent in another galaxy.
+    '''
+    
+    # Test Data
+    self.classifier.is_in_other_gal = np.array([
+      [ 1, 1, 0, 1, 0, ],
+      [ 0, 0, 1, 1, 1, ],
+      [ 0, 1, 1, 1, 0, ],
+      ]).astype( bool )
+    self.classifier.dt = np.array([
+       [   51.,   51.,  51.,  51.,  51., ],
+       [   51.,   51.,  51.,  51.,  51., ],
+       [   51.,   51.,  51.,  51.,  51., ],
+     ])
+
+    expected = np.array([
+      [ 153., 102., 51., 51.,  0, ],
+      [ 153., 153., 153., 102., 51., ],
+      [ 153., 153, 102., 51., 0, ],
+    ])
+
+    actual = self.classifier.get_cumulative_time_in_other_gal()
+      
+    npt.assert_allclose( expected, actual, )
+    
+  ########################################################################
+
+  def test_identify_unaccreted_EP( self ):
+    '''Test that we can identiy unaccreted EP gas.
+    '''
+
+    # Test data
+    self.classifier.n_particle = 4
+    self.classifier.is_unaccreted = np.array([
+      1,
+      1,
+      1,
+      0,
+    ]).astype( bool )
+
+    actual = self.classifier.identify_unaccreted_EP()
+
+    expected = np.array([
+      [ 1, 1, 0, 0, 0, ],
+      [ 1, 1, 1, 1, 0, ],
+      [ 1, 1, 1, 0, 0, ],
+      [ 0, 0, 0, 0, 0, ], 
+    ]).astype( bool )
+      
+    npt.assert_allclose( expected, actual, )
+
   #########################################################################
 
   def test_identify_mass_transfer( self ):

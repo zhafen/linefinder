@@ -613,6 +613,29 @@ class Classifier( object ):
 
   ########################################################################
 
+  def get_cumulative_time_in_other_gal( self ):
+    '''Get the amount of time in galaxies besides the main galaxy before being accreted.
+
+    For a single time in another galaxy, this is the ( age of universe at the last snapshot before
+    the conditions are true ) - ( age of the universe at the last snapshot where the conditions are true ),
+    and generalizes to multiple events in other galaxies.
+
+    Returns:
+      cumulative_time_in_other_gal ([ n_particle, ] np.ndarray of floats) :
+        Time in another galaxy before being first accreted onto the main galaxy.
+    '''
+    dt_in_other_gal = ( self.dt * self.is_in_other_gal.astype( float ) )
+
+    dt_in_other_gal_reversed = np.flip( dt_in_other_gal, 1 )
+
+    cumulative_time_in_other_gal_reversed = dt_in_other_gal_reversed.cumsum(axis=1)
+
+    cumulative_time_in_other_gal = np.flip( cumulative_time_in_other_gal_reversed, 1 )
+
+    return cumulative_time_in_other_gal
+
+  ########################################################################
+
   def get_time_in_other_gal_before_acc( self ):
     '''Get the amount of time in galaxies besides the main galaxy before being accreted.
     For a single time in another galaxy, this is the ( age of universe at the last snapshot before
@@ -661,7 +684,7 @@ class Classifier( object ):
   ########################################################################
 
   def identify_unaccreted( self ):
-    '''Boolean for particles never accreted onto the main galaxy.
+    '''Identify particles never accreted onto the main galaxy.
 
     Returns:
       is_unaccreted ( [n_particle,] np.ndarray of bools ) :
@@ -673,6 +696,19 @@ class Classifier( object ):
     is_unaccreted = n_snaps_in_gal == 0
 
     return is_unaccreted
+
+  ########################################################################
+
+  def identify_unaccreted_EP( self ):
+    '''Identify particles never accreted onto the main galaxy that have spent at least t_pro in another galaxy
+    by the specified snapshot.
+
+    Returns:
+      is_unaccreted_EP ( [n_particle,n_snap] np.ndarray of bools ) :
+        True for particle i at snpashot j if it has not spent at least t_pro in another galaxy by that point.
+    '''
+
+    pass
 
   ########################################################################
 
@@ -723,6 +759,7 @@ class Classifier( object ):
         True for particle i if it has been preprocessed but has *not*
         spent at least some minimum amount of time in another galaxy in a recent interval.
     '''
+
     has_not_spent_minimum_time = ( self.time_in_other_gal_before_acc_during_interval < self.t_pro )
     is_mass_transfer = (  self.is_preprocessed & has_not_spent_minimum_time )
 
