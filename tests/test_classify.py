@@ -820,6 +820,18 @@ class TestFullClassifierPipeline( unittest.TestCase ):
       [ 1, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
       [ 1, 1, 1, 0, 0, ], # Another test case
       ]).astype( bool )
+    self.classifier.is_unaccreted_EP = np.array([
+      [ 1, 0, 0, 0, 0, ],
+      [ 1, 1, 1, 0, 0, ],
+      [ 1, 1, 0, 0, 0, ],
+      [ 0, 0, 0, 0, 0, ], 
+    ]).astype( bool )
+    self.classifier.is_unaccreted_NEP = np.array([
+      [ 1, 0, 0, 0, 0, ],
+      [ 1, 1, 1, 0, 0, ],
+      [ 1, 1, 0, 0, 0, ],
+      [ 0, 0, 0, 0, 0, ], 
+    ]).astype( bool )
     self.classifier.redshift_first_acc = np.array([ 0., -1., 0.06984665, -1. ])
 
     # Change values from defaults so that we save without issue
