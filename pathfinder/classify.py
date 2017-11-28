@@ -715,6 +715,10 @@ class Classifier( object ):
 
     is_EP = self.cumulative_time_in_other_gal > self.t_pro
 
+    # Correct for length of is_EP (since self.cumulative_time_in_other_gal doesn't extend to all snapshots)
+    values_to_append = np.array( [ False, ]*self.n_particle )
+    is_EP = np.insert( is_EP, -1, values_to_append, axis=1 )
+
     is_unaccreted_EP = unaccreted_tiled & is_EP
 
     return is_unaccreted_EP
@@ -733,6 +737,10 @@ class Classifier( object ):
     unaccreted_tiled = np.tile( self.is_unaccreted, ( self.n_snap, 1) ).transpose()
 
     is_NEP = self.cumulative_time_in_other_gal <= self.t_pro
+
+    # Correct for length of is_NEP (since self.cumulative_time_in_other_gal doesn't extend to all snapshots)
+    values_to_append = np.array( [ True, ]*self.n_particle )
+    is_NEP = np.insert( is_NEP, -1, values_to_append, axis=1 )
 
     is_unaccreted_NEP = unaccreted_tiled & is_NEP
 

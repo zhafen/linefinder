@@ -604,18 +604,18 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
       0,
     ]).astype( bool )
     self.classifier.cumulative_time_in_other_gal = np.array([
-      [ 153., 102., 51., 51.,  0, ],
-      [ 153., 153., 153., 102., 51., ],
-      [ 153., 153, 102., 51., 0, ],
-      [ 153., 153, 102., 51., 0, ],
+      [ 102., 51., 51.,  0, ],
+      [ 153., 153., 102., 51., ],
+      [ 153, 102., 51., 0, ],
+      [ 153, 102., 51., 0, ],
     ])
 
     actual = self.classifier.identify_unaccreted_EP()
 
     expected = np.array([
-      [ 1, 1, 0, 0, 0, ],
-      [ 1, 1, 1, 1, 0, ],
+      [ 1, 0, 0, 0, 0, ],
       [ 1, 1, 1, 0, 0, ],
+      [ 1, 1, 0, 0, 0, ],
       [ 0, 0, 0, 0, 0, ], 
     ]).astype( bool )
       
@@ -636,18 +636,18 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
       0,
     ]).astype( bool )
     self.classifier.cumulative_time_in_other_gal = np.array([
-      [ 153., 102., 51., 51.,  0, ],
-      [ 153., 153., 153., 102., 51., ],
-      [ 153., 153, 102., 51., 0, ],
-      [ 153., 153, 102., 51., 0, ],
+      [ 102., 51., 51.,  0, ],
+      [ 153., 153., 102., 51., ],
+      [ 153, 102., 51., 0, ],
+      [ 153, 102., 51., 0, ],
     ])
 
     actual = self.classifier.identify_unaccreted_NEP()
 
     expected = np.array([
-      [ 0, 0, 1, 1, 1, ],
-      [ 0, 0, 0, 0, 1, ],
+      [ 0, 1, 1, 1, 1, ],
       [ 0, 0, 0, 1, 1, ],
+      [ 0, 0, 1, 1, 1, ],
       [ 0, 0, 0, 0, 0, ], 
     ]).astype( bool )
       
