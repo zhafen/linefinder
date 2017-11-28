@@ -44,10 +44,10 @@ class Classifier( object ):
     halo_file_tag = default,
     not_in_main_gal_key = 'gal_id',
     classifications_to_save = [ 'is_unaccreted', 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer',
-      'is_wind', ],
+      'is_wind', 'is_unaccreted_EP', 'is_unaccreted_NEP', ],
     write_events = True,
     events_to_save = [ 'is_in_other_gal', 'is_in_main_gal', 'is_accreted', 'is_ejected', 'redshift_first_acc',
-      'ind_first_acc', ],
+      'ind_first_acc', 'cumulative_time_in_other_gal', ],
     velocity_scale = d_constants.VELOCITY_SCALE,
     wind_cut = d_constants.WIND_CUT,
     absolute_wind_cut = d_constants.ABSOLUTE_WIND_CUT,
@@ -166,6 +166,7 @@ class Classifier( object ):
     self.cum_num_acc = self.get_cum_num_acc()
     self.is_before_first_acc = self.identify_is_before_first_acc()
     self.redshift_first_acc = self.get_redshift_first_acc()
+    self.cumulative_time_in_other_gal = self.get_cumulative_time_in_other_gal()
     self.time_in_other_gal_before_acc = self.get_time_in_other_gal_before_acc()
     self.time_in_other_gal_before_acc_during_interval = self.get_time_in_other_gal_before_acc_during_interval()
 
@@ -173,6 +174,8 @@ class Classifier( object ):
     print "Performing the main classifications..."
     sys.stdout.flush()
     self.is_unaccreted = self.identify_unaccreted()
+    self.is_unaccreted_EP = self.identify_unaccreted_EP()
+    self.is_unaccreted_NEP = self.identify_unaccreted_NEP()
     self.is_preprocessed = self.identify_preprocessed()
     self.is_pristine = self.identify_pristine()
     self.is_mass_transfer = self.identify_mass_transfer()
@@ -624,7 +627,7 @@ class Classifier( object ):
       cumulative_time_in_other_gal ([ n_particle, ] np.ndarray of floats) :
         Time in another galaxy before being first accreted onto the main galaxy.
     '''
-    dt_in_other_gal = ( self.dt * self.is_in_other_gal.astype( float ) )
+    dt_in_other_gal = ( self.dt * self.is_in_other_gal[:,0:self.n_snap-1].astype( float ) )
 
     dt_in_other_gal_reversed = np.flip( dt_in_other_gal, 1 )
 

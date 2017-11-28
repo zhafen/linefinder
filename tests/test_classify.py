@@ -398,20 +398,20 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
     
     # Test Data
     self.classifier.is_in_other_gal = np.array([
-      [ 1, 1, 0, 1, 0, ],
-      [ 0, 0, 1, 1, 1, ],
+      [ 1, 0, 1, 0, 0, ],
       [ 0, 1, 1, 1, 0, ],
+      [ 1, 1, 1, 0, 0, ],
       ]).astype( bool )
     self.classifier.dt = np.array([
-       [   51.,   51.,  51.,  51.,  51., ],
-       [   51.,   51.,  51.,  51.,  51., ],
-       [   51.,   51.,  51.,  51.,  51., ],
+       [   51.,  51.,  51.,  51., ],
+       [   51.,  51.,  51.,  51., ],
+       [   51.,  51.,  51.,  51., ],
      ])
 
     expected = np.array([
-      [ 153., 102., 51., 51.,  0, ],
-      [ 153., 153., 153., 102., 51., ],
-      [ 153., 153, 102., 51., 0, ],
+      [ 102., 51., 51.,  0, ],
+      [ 153., 153., 102., 51., ],
+      [ 153, 102., 51., 0, ],
     ])
 
     actual = self.classifier.get_cumulative_time_in_other_gal()
@@ -860,6 +860,11 @@ class TestFullClassifierPipeline( unittest.TestCase ):
       [ 1, 1, 1, 1, 1, ], # Always part of main galaxy
       [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
+    self.classifier.cumulative_time_in_other_gal = np.array([
+      [ 153., 102., 51., 51.,  0, ],
+      [ 153., 153., 153., 102., 51., ],
+      [ 153., 153, 102., 51., 0, ],
+    ])
     self.classifier.redshift_first_acc = np.array([ 0., np.nan, 0.06984665, 0.16946003 ])
     self.classifier._ind_first_acc = np.array([ 0, -99999, 1, -99999 ])
 
