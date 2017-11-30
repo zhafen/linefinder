@@ -40,10 +40,13 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
   def plot_classification_bar( self,
     x_pos,
+    classification_list = p_constants.CLASSIFICATIONS_A,
+    classification_colors = p_constants.CLASSIFICATION_COLORS_B,
     ind = 0,
     ax = default,
     width = 0.5,
     add_label = False,
+    alpha = p_constants.CLASSIFICATION_ALPHA,
     *args, **kwargs ):
 
     print( "Plotting bar at x_pos {}".format( x_pos ) )
@@ -54,10 +57,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
       ax = plt.gca()
 
     classification_values = self.data_object.get_categories_selected_quantity_fraction(
-      sl=(slice(None),ind), *args, **kwargs )
+      sl = (slice(None),ind),
+      classification_list = classification_list,
+      *args, **kwargs )
 
     bar_start = 0.
-    for i, key in enumerate( p_constants.CLASSIFICATIONS_A ):
+    for i, key in enumerate( classification_list ):
 
       if add_label:
         label = p_constants.CLASSIFICATION_LABELS[key]
@@ -70,9 +75,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         value,
         width,
         bottom = bar_start,
-        color = p_constants.CLASSIFICATION_COLORS[key],
+        color = classification_colors[key],
         label = label,
-        alpha = p_constants.CLASSIFICATION_ALPHA,
+        alpha = alpha,
       )
 
       bar_start += value
@@ -333,7 +338,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     slices = None,
     ax = default,
     out_dir = None,
-    halo_color = '#4daf4a',
+    halo_color = '#337DB8',
     halo_linewidth = 3,
     halo_outline = False,
     *args, **kwargs ):

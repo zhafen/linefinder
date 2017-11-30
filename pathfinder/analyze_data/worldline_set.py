@@ -73,11 +73,12 @@ class WorldlineSet( utilities.SmartDict ):
   ########################################################################
 
   def plot_classification_bar_same_axis( self,
-    kwargs=default,
+    kwargs = default,
     ind = 0,
     width = 0.5,
     data_order = default,
     legend_args = default,
+    y_label = 'Classification Fraction',
     **default_kwargs ):
 
     fig = plt.figure( figsize=(11,5), facecolor='white' )
@@ -108,7 +109,7 @@ class WorldlineSet( utilities.SmartDict ):
     ax.set_xlim( [-0.5, len(self)-0.5] )
     ax.set_ylim( [0., 1.] )
 
-    ax.set_ylabel( r'$f(M_{\star})$', fontsize=22 )
+    ax.set_ylabel( y_label, fontsize=22 )
 
     redshift = self[key].data_object.get_data( 'redshift' )[ind]
     title_string = r'$z=' + '{:.3f}'.format( redshift ) + '$'
