@@ -753,6 +753,50 @@ class Worldlines( generic_data.GenericData ):
 
   ########################################################################
 
+  def calc_is_classification_NYA( self, classification ):
+    '''Find material with the given classification that is not yet accreted (NYA) onto the main galaxy.
+
+    Args:
+      classification (str) : What classification to get the result for.
+
+    Returns:
+      is_classification_NYA ( [n_particles, n_snaps] np.ndarray ) :
+        The (i,j)th entry is True if particle i is not yet accreted by the jth index.
+    '''
+
+    # Get the classification out first, tiled
+    is_classification_NYA = self.get_processed_data( '{}_tiled'.format( classification ) )
+
+    # Find the indices after accreting
+    ind_first_acc_tiled = self.get_processed_data( 'ind_first_acc_tiled' )
+    ind_tiled = np.tile( range( self.n_snaps ), (self.n_particles, 1) )
+    has_accreted = ind_tiled <= ind_first_acc_tiled
+
+    # Update the classification to mask first accretion.
+    is_classification_NYA[has_accreted] = False
+
+    return is_classification_NYA
+
+  def calc_is_NEP_NYA( self ):
+    '''Find material classified as NEP that is not yet accreted (NYA) onto the main galaxy.
+
+    Modifies:
+      self.data['is_mass_transfer_NYA'] ( np.ndarray ) : Result
+    '''
+
+    self.data['is_NEP_NYA'] = self.calc_is_classification_NYA( 'is_pristine' )
+
+  def calc_is_mass_transfer_NYA( self ):
+    '''Find material classified as mass transfer that is not yet accreted (NYA) onto the main galaxy.
+
+    Modifies:
+      self.data['is_mass_transfer_NYA'] ( np.ndarray ) : Result
+    '''
+
+    self.data['is_mass_transfer_NYA'] = self.calc_is_classification_NYA( 'is_mass_transfer' )
+
+  ########################################################################
+
   def calc_dt( self ):
     '''Calc time difference between snapshots.
 

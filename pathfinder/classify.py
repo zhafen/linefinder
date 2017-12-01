@@ -578,7 +578,7 @@ class Classifier( object ):
     This is defined as the the indice immediately after accretion happens.
 
     Returns:
-      ind_first_acc ([n_particle,] np.ndarray of floats): Redshift of first accretion.
+      ind_first_acc ([n_particle,] np.ndarray of floats): Index of first accretion.
     '''
 
     if not hasattr( self, '_ind_first_acc' ):

@@ -13,7 +13,7 @@ as well as their names.
 
 CLASSIFICATION_LABELS = {
   'all' : 'All',
-  'is_pristine' : 'NEP',
+  'is_pristine' : 'IGM Accretion',
   'is_fresh_accretion' : 'Fresh Accretion',
   'is_NEP_wind_recycling' : 'NEP Wind Recycling',
   'is_wind' : 'Wind',
@@ -55,8 +55,8 @@ CLASSIFICATION_COLORS_B = {
   'is_wind' : '#4CAF00',
   'is_preprocessed' : '#FB9319',
   'is_mass_transfer' : '#FDD30D',
-  'is_merger' : '#FD3410',
-  'is_merger_star' : '#FD3410',
+  'is_merger' : '#E32F0E',
+  'is_merger_star' : '#E32F0E',
   'is_merger_gas' : '#E67711',
   'is_unaccreted' : '#A400AF',
   'is_unaccreted_NEP' : '#6F06C6',
@@ -64,7 +64,7 @@ CLASSIFICATION_COLORS_B = {
 }
 
 # This is used in some cases, e.g. when making bar plots, to make them a little easier to look at.
-CLASSIFICATION_ALPHA = 0.8
+CLASSIFICATION_ALPHA = 0.7
 
 ########################################################################
 # Lists of Classifications Used Together
@@ -123,11 +123,37 @@ CLASSIFICATIONS_CGM_A = [
 
 # This set of classifications is centered around how gas got to the CGM
 CLASSIFICATIONS_CGM_B = [
-  'is_merger_NYA',
   'is_mass_transfer_NYA',
-  'is_pristine_NYA',
   'is_wind',
-  'is_unaccreted_EP',
+  'is_NEP_NYA',
   'is_unaccreted_NEP',
+  'is_unaccreted_EP',
 ]
   
+########################################################################
+# Functions for easier handling of presentation constants
+########################################################################
+
+def get_classifications_variations( classification_list, classification_colors=CLASSIFICATION_COLORS_B ):
+  '''Given a list of classification, fill a dictionary with the corresponding colors and labels.
+  '''
+
+  classifications_variations = {}
+  for classification in classification_list:
+    
+    variation = {}
+      
+    # Make the classification applied
+    if key != 'all':
+      item['classification'] = key
+      item['plot_label'] = None
+     
+    # Give it a color
+    item['color'] = classification_colors[key]
+     
+    # Give it a label
+    item['line_label'] = p_constants.CLASSIFICATION_LABELS[key]
+
+    classifications_variations[classification] = variation
+
+  return classifications_variations

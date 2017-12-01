@@ -489,6 +489,39 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
   ########################################################################
 
+  def test_calc_is_NEP_NYA( self ):
+    '''Test that we can find material classified as NEP that is not yet accreted (NYA) onto the main galaxy.
+    '''
+
+    # Setup test data
+    self.worldlines._n_snaps = 4
+    self.worldlines.data['is_pristine'] = np.array([
+      True,
+      True,
+      True,
+      False,
+    ])
+    self.worldlines.data['ind_first_acc'] = np.array([
+      0,
+      2,
+      1,
+      1,
+    ])
+
+    self.worldlines.calc_is_NEP_NYA()
+
+    actual = self.worldlines.data['is_NEP_NYA']
+    expected = np.array([
+      [ 0, 1, 1, 1, ],
+      [ 0, 0, 0, 1, ],
+      [ 0, 0, 1, 1, ],
+      [ 0, 0, 0, 0, ],
+    ]).astype( bool )
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
   def test_calc_dt( self ):
   
     # Setup test data
