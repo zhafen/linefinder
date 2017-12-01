@@ -587,6 +587,11 @@ class Worldlines( generic_data.GenericData ):
     data_ma = self.get_masked_data( 'M', fix_invalid=True, compress=False, *args, **kwargs )
 
     if quantity == 'mass':
+
+      # Test for the case when everything is masked.
+      if np.invert( data_ma.mask ).sum() == 0:
+        return 0.
+
       selected_quantity = data_ma.sum( axis=0 )
 
       # Replace masked values with 0
@@ -785,6 +790,15 @@ class Worldlines( generic_data.GenericData ):
     '''
 
     self.data['is_NEP_NYA'] = self.calc_is_classification_NYA( 'is_pristine' )
+
+  def calc_is_merger_NYA( self ):
+    '''Find material classified as merger that is not yet accreted (NYA) onto the main galaxy.
+
+    Modifies:
+      self.data['is_merger_NYA'] ( np.ndarray ) : Result
+    '''
+
+    self.data['is_merger_NYA'] = self.calc_is_classification_NYA( 'is_merger' )
 
   def calc_is_mass_transfer_NYA( self ):
     '''Find material classified as mass transfer that is not yet accreted (NYA) onto the main galaxy.
