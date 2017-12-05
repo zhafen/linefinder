@@ -13,8 +13,8 @@ as well as their names.
 
 CLASSIFICATION_LABELS = {
   'all' : 'All',
-  'is_pristine' : 'IGM Accretion',
-  'is_NEP_NYA' : 'IGM Accretion',
+  'is_pristine' : 'NEP',
+  'is_NEP_NYA' : 'Fresh Accretion',
   'is_fresh_accretion' : 'Fresh Accretion',
   'is_NEP_wind_recycling' : 'NEP Wind Recycling',
   'is_wind' : 'Wind',

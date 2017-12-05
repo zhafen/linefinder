@@ -18,6 +18,7 @@ import matplotlib.patheffects as path_effects
 import plot_worldlines
 import worldlines as a_worldlines
 
+import galaxy_diver.plot_data.plotting as gen_plot
 import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
@@ -79,6 +80,8 @@ class WorldlineSet( utilities.SmartDict ):
     data_order = default,
     legend_args = default,
     y_label = 'Classification Fraction',
+    out_dir = None,
+    save_file = 'bar_map.pdf',
     **default_kwargs ):
 
     fig = plt.figure( figsize=(11,5), facecolor='white' )
@@ -119,3 +122,6 @@ class WorldlineSet( utilities.SmartDict ):
       ax.legend(prop={'size':14.5}, ncol=5, loc=(0.,-0.2), fontsize=20)
     else:
       ax.legend( **legend_args )
+
+    if out_dir is not None:
+      gen_plot.save_fig( out_dir, save_file=save_file, fig=fig )
