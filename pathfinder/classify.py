@@ -56,6 +56,7 @@ class Classifier( object ):
     neg = 10,
     main_halo_robustness_criteria = 'n_star',
     main_halo_robustness_value = 100,
+    min_gal_density = 0.1,
     ):
     '''Setup the ID Finder.
 
@@ -124,6 +125,10 @@ class Classifier( object ):
         The main halo is considered resolved if the value of main_halo_robustness_criteria is greater than or equal
         to main_halo_robustness_value.
         By default the main halo is counted as resolved if the n_stars(main halo) >= 100.
+
+      min_gal_density (float):
+        Minimum density (n_particles in 1/cm^3) for gas to be counted as being in a galaxy,
+        on top of being sufficiently close.
     '''
 
     pass
@@ -444,6 +449,18 @@ class Classifier( object ):
     is_in_gal = ( self.ptrack['gal_id'] >= 0 )
 
     is_in_other_gal =  ( is_in_gal & is_not_in_main_gal )
+
+    # If there's a density requirement, apply it.
+    if self.min_gal_density is not None:
+      
+      is_gas = self.ptrack['PType'] == d_constants.PTYPE_GAS
+      is_star = self.ptrack['PType'] == d_constants.PTYPE_STAR
+      has_minimum_density = self.ptrack['Den'] > self.min_gal_density
+
+      is_gas_and_meets_density_requirement = ( is_gas & has_minimum_density )
+      meets_density_requirement = np.ma.mask_or( is_star, is_gas_and_meets_density_requirement )
+
+      is_in_other_gal = ( is_in_other_gal & meets_density_requirement )
 
     return is_in_other_gal
 

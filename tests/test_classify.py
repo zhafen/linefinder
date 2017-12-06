@@ -32,6 +32,7 @@ default_kwargs = {
   't_pro' : 100., 
   't_m' : 500.,
   'velocity_scale' : 'Vc(Rvir)',
+  'min_gal_density' : None,
   }
 
 default_ptrack = {
@@ -213,6 +214,75 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
       [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
       [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
       ]).astype( bool )
+
+    # Run the function
+    actual = self.classifier.identify_is_in_other_gal()
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_identify_is_in_other_gal_density_criterion( self ):
+    '''Test we can identify when a particle is in another galaxy, including some minimum density criterion for gas.
+    '''
+
+    # Change parameters
+    self.classifier.min_gal_density = 0.1
+
+    # Setup Test Data
+    self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['ahf_data_dir'] )
+    self.classifier.ahf_reader.get_mtree_halos( 'snum' )
+    self.classifier.ptrack['Den'] = np.array([
+      [ 0, 0.01, 10., 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+    ])
+    self.classifier.ptrack['PType'] = np.array([
+      [ 0, 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+    ])
+
+    expected = np.array([
+      [ 0, 0, 1, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+    ]).astype( bool )
+
+    # Run the function
+    actual = self.classifier.identify_is_in_other_gal()
+
+    npt.assert_allclose( expected, actual )
+
+  ########################################################################
+
+  def test_identify_is_in_other_gal_density_criterion_ptype( self ):
+    '''Test we can identify when a particle is in another galaxy, including some minimum density criterion for gas.
+    Also make sure that PType is considered.
+    '''
+
+    # Change parameters
+    self.classifier.min_gal_density = 0.1
+
+    # Setup Test Data
+    self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['ahf_data_dir'] )
+    self.classifier.ahf_reader.get_mtree_halos( 'snum' )
+    self.classifier.ptrack['Den'] = np.array([
+      [ 0, 0.01, 10., 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+    ])
+    self.classifier.ptrack['PType'] = np.array([
+      [ 0, 4, 4, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+    ])
+
+    expected = np.array([
+      [ 0, 1, 1, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+    ]).astype( bool )
 
     # Run the function
     actual = self.classifier.identify_is_in_other_gal()
@@ -914,7 +984,13 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
     # Make sure that we've saved our input arguments
     for key in default_kwargs.keys():
-      assert default_kwargs[key] == f['parameters'].attrs[key]
+
+      # We don't store None as None, but a string instead (because None doesn't save well in hdf5)
+      if default_kwargs[key] is None:
+        assert f['parameters'].attrs[key] == 'None'
+
+      else:
+        assert default_kwargs[key] == f['parameters'].attrs[key]
 
 ########################################################################
 ########################################################################
