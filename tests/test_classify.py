@@ -313,6 +313,44 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
   ########################################################################
 
+  def test_identify_is_in_main_gal_density_criterion( self ):
+    '''Test that we can identify when a particle is in the main galaxy, including a density criterion.
+    '''
+
+    # Change paramters
+    self.classifier.min_gal_density = 0.1
+
+    # Test data setup
+    self.classifier.is_in_other_gal = np.array([
+      [ 0, 1, 1, 0, 0, ], # Merger, except in early snapshots
+      [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+    self.classifier.ptrack['Den'] = np.array([
+      [ 0, 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ np.nan, np.nan, 10., 0.01, 0.001, ], # Always part of main galaxy
+      [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+    ])
+    self.classifier.ptrack['PType'] = np.array([
+      [ 4, 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 4, 4, 0, 0, 0, ], # Always part of main galaxy
+      [ 0, 4, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+    ])
+
+    expected = np.array([
+      [ 1, 0, 0, 0, 0, ], # Merger, except in early snapshots
+      [ 1, 1, 1, 0, 0, ], # Always part of main galaxy
+      [ 0, 1, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+      ]).astype( bool )
+
+    # Run the function
+    actual = self.classifier.identify_is_in_main_gal()
+
+    npt.assert_allclose( expected, actual )
+
+
+  ########################################################################
+
   def test_calc_gal_event_id( self ):
 
     # Prerequisite

@@ -128,7 +128,7 @@ class Classifier( object ):
 
       min_gal_density (float):
         Minimum density (n_particles in 1/cm^3) for gas to be counted as being in a galaxy,
-        on top of being sufficiently close.
+        on top of being sufficiently close to the center of said galaxy.
     '''
 
     pass
@@ -452,15 +452,7 @@ class Classifier( object ):
 
     # If there's a density requirement, apply it.
     if self.min_gal_density is not None:
-      
-      is_gas = self.ptrack['PType'] == d_constants.PTYPE_GAS
-      is_star = self.ptrack['PType'] == d_constants.PTYPE_STAR
-      has_minimum_density = self.ptrack['Den'] > self.min_gal_density
-
-      is_gas_and_meets_density_requirement = ( is_gas & has_minimum_density )
-      meets_density_requirement = np.ma.mask_or( is_star, is_gas_and_meets_density_requirement )
-
-      is_in_other_gal = ( is_in_other_gal & meets_density_requirement )
+      is_in_other_gal = ( is_in_other_gal & self.meets_density_requirement )
 
     return is_in_other_gal
 
@@ -488,6 +480,10 @@ class Classifier( object ):
     main_gal_not_resolved_inds = np.where( main_gal_not_resolved )[0]
     is_in_main_gal[slice(None),main_gal_not_resolved_inds] = False
 
+    # If there's a density requirement, apply it.
+    if self.min_gal_density is not None:
+      is_in_main_gal = ( is_in_main_gal & self.meets_density_requirement )
+      
     return is_in_main_gal
 
   ########################################################################
@@ -910,6 +906,23 @@ class Classifier( object ):
         self._ind_first_snap = potential_inds[0]
 
     return self._ind_first_snap
+
+  ########################################################################
+
+  @property
+  def meets_density_requirement( self ):
+    '''Find particles that are either stars or have sufficient density to be counted as part of a galaxy.
+    '''
+      
+    if not hasattr( self, '_meets_density_requirement' ):
+      is_gas = self.ptrack['PType'] == d_constants.PTYPE_GAS
+      is_star = self.ptrack['PType'] == d_constants.PTYPE_STAR
+      has_minimum_density = self.ptrack['Den'] > self.min_gal_density
+
+      is_gas_and_meets_density_requirement = ( is_gas & has_minimum_density )
+      self._meets_density_requirement = np.ma.mask_or( is_star, is_gas_and_meets_density_requirement )
+
+    return self._meets_density_requirement
 
 
 
