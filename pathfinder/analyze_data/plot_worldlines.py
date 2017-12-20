@@ -153,6 +153,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     y_scale = 'log',
     x_label = default, y_label = default,
     classification_list = p_constants.CLASSIFICATIONS_A,
+    classification_colors = p_constants.CLASSIFICATION_COLORS_B,
     *args, **kwargs ):
     '''Make a plot like the top panel of Fig. 3 in Angles-Alcazar+17
 
@@ -191,7 +192,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         x_data,
         y_data,
         linewidth = 3,
-        color = p_constants.CLASSIFICATION_COLORS[key],
+        color = classification_colors[key],
         label = p_constants.CLASSIFICATION_LABELS[key],
       )
 
@@ -224,6 +225,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     x_label = default, y_label = default,
     plot_dividing_line = False,
     classification_list = p_constants.CLASSIFICATIONS_A,
+    classification_colors = p_constants.CLASSIFICATION_COLORS_B,
     *args, **kwargs ):
     '''Make a plot like the bottom panel of Fig. 3 in Angles-Alcazar+17
 
@@ -263,7 +265,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         x_data,
         y_prev,
         y_next,
-        color = p_constants.CLASSIFICATION_COLORS[key],
+        color = classification_colors[key],
         alpha = p_constants.CLASSIFICATION_ALPHA,
       )
 
@@ -272,7 +274,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
           x_data,
           y_next,
           linewidth = 1,
-          color = p_constants.CLASSIFICATION_COLORS[key],
+          color = classification_colors[key],
         )
 
       y_prev = y_next
@@ -282,8 +284,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         (0, 0),
         1,
         1,
-        fc = p_constants.CLASSIFICATION_COLORS[key], 
-        ec = p_constants.CLASSIFICATION_COLORS[key], 
+        fc = classification_colors[key], 
+        ec = classification_colors[key], 
         alpha = p_constants.CLASSIFICATION_ALPHA,
       )
       color_objects.append( color_object )
