@@ -12,6 +12,7 @@ import os
 
 import galaxy_diver.analyze_data.ahf as analyze_ahf_data
 import galaxy_diver.analyze_data.generic_data as generic_data
+import galaxy_diver.analyze_data.simulation_data as simulation_data
 import galaxy_diver.read_data.snapshot as read_snapshot
 import galaxy_diver.utils.astro as astro_tools
 import galaxy_diver.utils.utilities as utilities
@@ -33,7 +34,7 @@ default = object()
 ########################################################################
 ########################################################################
 
-class Worldlines( generic_data.GenericData ):
+class Worldlines( simulation_data.TimeData ):
   '''Wrapper for analysis of all worldline data products. It loads data in on-demand.
   '''
 
@@ -81,7 +82,7 @@ class Worldlines( generic_data.GenericData ):
 
     self.data = {}
 
-    super( Worldlines, self ).__init__( data_masker=data_masker, key_parser=key_parser, **kwargs )
+    super( Worldlines, self ).__init__( data_dir=data_dir, data_masker=data_masker, key_parser=key_parser, **kwargs )
 
   ########################################################################
   # Properties for loading data on the fly
@@ -278,6 +279,44 @@ class Worldlines( generic_data.GenericData ):
       self._redshift = self.ptracks.redshift
 
     return self._redshift
+
+  @redshift.setter                                                                                                      
+  def redshift( self, value ):                                                                                          
+    '''Setting function for simulation redshift property.'''                                                            
+
+    # If we try to set it, make sure that if it already exists we don't change it.                                      
+    if hasattr( self, '_redshift' ):                                                                                    
+
+      if isinstance( value, np.ndarray ) or isinstance( self._redshift, np.ndarray ):                                   
+
+        is_nan = np.any( [ np.isnan( value ), np.isnan( self._redshift ) ], axis=1 )                                    
+        not_nan_inds = np.where( np.invert( is_nan ) )[0]                                                               
+
+        test_value = np.array(value)[not_nan_inds] # Cast as np.ndarray because Pandas arrays can cause trouble.        
+        test_existing_value = np.array(self._redshift)[not_nan_inds]                                                    
+        npt.assert_allclose( test_value, test_existing_value, atol=1e-5 )                                               
+
+        self._redshift = value                                                                                          
+
+      else:                                                                                                             
+        npt.assert_allclose( value, self._redshift, atol=1e-5 )                                                         
+
+    else:                                                                                                               
+      self._redshift = value             
+      
+  ########################################################################
+
+  @property
+  def snum( self ):
+
+    return self.ptracks.data['snum']
+
+  ########################################################################
+
+  @property
+  def hubble_param( self ):
+
+    return self.ptracks.data_attrs['hubble']
 
   ########################################################################
 

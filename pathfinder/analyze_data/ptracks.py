@@ -57,3 +57,17 @@ class PTracks( simulation_data.TimeData ):
     self.data['V'] = np.rollaxis( self.data['V'], 2 )
 
     super( PTracks, self ).__init__( data_dir, snum=self.data['snum'], ahf_index=ahf_index, *args, **kwargs )
+
+  ########################################################################
+
+  @property
+  def snum( self ):
+    
+    return self.data['snum']
+
+  ########################################################################
+
+  @property
+  def hubble_param( self ):
+    
+    return self.data_attrs['hubble']
