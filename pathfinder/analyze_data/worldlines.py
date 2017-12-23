@@ -307,9 +307,9 @@ class Worldlines( simulation_data.TimeData ):
   ########################################################################
 
   @property
-  def snum( self ):
+  def snums( self ):
 
-    return self.ptracks.data['snum']
+    return self.ptracks.snums
 
   ########################################################################
 
