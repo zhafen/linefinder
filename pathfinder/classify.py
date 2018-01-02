@@ -457,11 +457,11 @@ class Classifier( object ):
                 self.ptrack_attrs['galaxy_cut'],
                 self.ptrack_attrs['length_scale'],
             )
-            main_mt_halo_id = self.ptracks_attrs[ 'main_mt_halo_id' ]
+            main_mt_halo_id = self.ptrack_attrs[ 'main_mt_halo_id' ]
             mtree_halo = self.ahf_reader.mtree_halos[main_mt_halo_id]
             return mtree_halo[r_gal_key][ self.ptrack[ 'snum' ] ]
         else:
-            main_mt_halo_id = self.ptracks_attrs[ 'main_mt_halo_id' ]
+            main_mt_halo_id = self.ptrack_attrs[ 'main_mt_halo_id' ]
             mtree_halo = self.ahf_reader.mtree_halos[main_mt_halo_id]
             return mtree_halo[self.velocity_scale][ self.ptrack[ 'snum' ] ]
 
@@ -747,13 +747,13 @@ class Classifier( object ):
         other_gal = self.is_in_other_gal[:, 0:self.n_snap - 1].astype( float )
         dt_in_other_gal = ( self.dt * other_gal )
 
-        dt_in_other_gal_reversed = np.flip( dt_in_other_gal, 1 )
+        dt_in_other_gal_reversed = np.fliplr( dt_in_other_gal )
 
         cumulative_time_in_other_gal_reversed = \
             dt_in_other_gal_reversed.cumsum( axis=1 )
 
-        cumulative_time_in_other_gal = np.flip(
-            cumulative_time_in_other_gal_reversed, 1 )
+        cumulative_time_in_other_gal = np.fliplr(
+            cumulative_time_in_other_gal_reversed )
 
         return cumulative_time_in_other_gal
 

@@ -1,4 +1,1 @@
-{
-  "test_classify.py::TestFullClassifierPipeline::test_full_pipeline": true, 
-  "test_classify.py::TestIdentifyAccrectionEjectionAndMergers::test_get_cumulative_time_in_other_gal": true
-}
+{}
