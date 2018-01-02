@@ -1,1 +1,16 @@
-{}
+{
+  "tests/test_classify.py::TestFullClassifierPipeline::test_full_pipeline": true, 
+  "tests/test_classify.py::TestIdentifyAccrectionEjectionAndMergers::test_get_cumulative_time_in_other_gal": true, 
+  "tests/test_track.py::TestFindIds::test_basic": true, 
+  "tests/test_track.py::TestFindIds::test_no_child_ids": true, 
+  "tests/test_track.py::TestSaveTargetedParticles::test_basic": true, 
+  "tests/test_track.py::TestSaveTargetedParticles::test_has_attributes": true, 
+  "tests/test_track.py::TestSaveTargetedParticles::test_runs": true, 
+  "tests/test_track.py::TestSaveTargetedParticles::test_works_fire1": true, 
+  "tests/test_track.py::TestSaveTargetedParticles::test_works_with_stars": true, 
+  "tests/test_track.py::TestSaveTargetedParticles::test_works_with_stars_early_on": true, 
+  "tests/test_track.py::TestSelectIDs::test_child_id_not_found": true, 
+  "tests/test_track.py::TestSelectIDs::test_runs": true, 
+  "tests/test_track.py::TestSelectIDs::test_works_duplicates": true, 
+  "tests/test_track.py::TestSelectIDs::test_works_simple": true
+}
