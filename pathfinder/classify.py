@@ -56,7 +56,7 @@ class Classifier( object ):
     neg = 10,
     main_halo_robustness_criteria = 'n_star',
     main_halo_robustness_value = 100,
-    min_gal_density = 0.1,
+    min_gal_density = d_constants.GALAXY_DENSITY_CUT,
     ):
     '''Setup the ID Finder.
 
