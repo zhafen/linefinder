@@ -30,98 +30,98 @@ default = object()
 ########################################################################
 
 class WorldlineSet( utilities.SmartDict ):
-  '''Container for multiple Worldlines classes. The nice thing about this class is you can use it like a
-  Worldlines class, with the output being a dictionary of the different sets instead.
-  '''
-
-  def __init__( self, defaults, variations ):
-    '''
-    Args:
-      defaults (dict) : Set of default arguments for loading worldline data.
-      variations (dict of dicts) : Labels and differences in arguments to be passed to Worldlines
+    '''Container for multiple Worldlines classes. The nice thing about this class is you can use it like a
+    Worldlines class, with the output being a dictionary of the different sets instead.
     '''
 
-    # Load the worldline sets
-    worldlines_d = {}
-    for key in variations.keys():
-      
-      kwargs = dict( defaults )
-      for var_key in variations[key].keys():
-        kwargs[var_key] = variations[key][var_key]
+    def __init__( self, defaults, variations ):
+        '''
+        Args:
+            defaults (dict) : Set of default arguments for loading worldline data.
+            variations (dict of dicts) : Labels and differences in arguments to be passed to Worldlines
+        '''
 
-      worldlines_d[key] = { 'data_object' : a_worldlines.Worldlines( label=key, **kwargs ), 'label' : key }
+        # Load the worldline sets
+        worldlines_d = {}
+        for key in variations.keys():
 
-    worldlines_plotters_d = utilities.SmartDict.from_class_and_args( plot_worldlines.WorldlinesPlotter, worldlines_d )
+            kwargs = dict( defaults )
+            for var_key in variations[key].keys():
+                kwargs[var_key] = variations[key][var_key]
 
-    super( WorldlineSet, self ).__init__( worldlines_plotters_d )
+            worldlines_d[key] = { 'data_object' : a_worldlines.Worldlines( label=key, **kwargs ), 'label' : key }
 
-  ########################################################################
-  # Plotting Methods
-  ########################################################################
+        worldlines_plotters_d = utilities.SmartDict.from_class_and_args( plot_worldlines.WorldlinesPlotter, worldlines_d )
 
-  def plot_w_set_same_axis( self,
-    plotting_method,
-    *args, **kwargs ):
+        super( WorldlineSet, self ).__init__( worldlines_plotters_d )
 
-    fig = plt.figure( figsize=(11,5), facecolor='white' )
-    ax = plt.gca()
+    ########################################################################
+    # Plotting Methods
+    ########################################################################
 
-    # The plot itself
-    getattr( self, plotting_method )( ax=ax, *args, **kwargs )
+    def plot_w_set_same_axis( self,
+        plotting_method,
+        *args, **kwargs ):
 
-    ax.legend(loc='upper center', prop={'size':14.5}, fontsize=20)
+        fig = plt.figure( figsize=(11,5), facecolor='white' )
+        ax = plt.gca()
 
-  ########################################################################
+        # The plot itself
+        getattr( self, plotting_method )( ax=ax, *args, **kwargs )
 
-  def plot_classification_bar_same_axis( self,
-    kwargs = default,
-    ind = 0,
-    width = 0.5,
-    data_order = default,
-    legend_args = default,
-    y_label = 'Classification Fraction',
-    out_dir = None,
-    save_file = 'bar_map.pdf',
-    **default_kwargs ):
+        ax.legend(loc='upper center', prop={'size':14.5}, fontsize=20)
 
-    fig = plt.figure( figsize=(11,5), facecolor='white' )
-    ax = plt.gca()
+    ########################################################################
 
-    default_kwargs['width'] = width
-    default_kwargs['ind'] = ind
+    def plot_classification_bar_same_axis( self,
+        kwargs = default,
+        ind = 0,
+        width = 0.5,
+        data_order = default,
+        legend_args = default,
+        y_label = 'Classification Fraction',
+        out_dir = None,
+        save_file = 'bar_map.pdf',
+        **default_kwargs ):
 
-    if data_order is default:
-      data_order = self.keys()
+        fig = plt.figure( figsize=(11,5), facecolor='white' )
+        ax = plt.gca()
 
-    if kwargs is default:
-      kwargs = {}
-      for key in data_order:
-        kwargs[key] = {}
+        default_kwargs['width'] = width
+        default_kwargs['ind'] = ind
 
-    # Pass automated arguments to plot_classification_bar
-    for i, key in enumerate( data_order ):
-      kwargs[key]['ax'] = ax
-      kwargs[key]['x_pos'] = float( i ) - width/2.
-      if i == 0:
-        kwargs[key]['add_label'] = True
+        if data_order is default:
+            data_order = self.keys()
 
-    self.plot_classification_bar.call_custom_kwargs( kwargs, default_kwargs )
+        if kwargs is default:
+            kwargs = {}
+            for key in data_order:
+                kwargs[key] = {}
 
-    plt.xticks( range( len( data_order ) ), data_order, fontsize=22 )
+        # Pass automated arguments to plot_classification_bar
+        for i, key in enumerate( data_order ):
+            kwargs[key]['ax'] = ax
+            kwargs[key]['x_pos'] = float( i ) - width/2.
+            if i == 0:
+                kwargs[key]['add_label'] = True
 
-    ax.set_xlim( [-0.5, len(self)-0.5] )
-    ax.set_ylim( [0., 1.] )
+        self.plot_classification_bar.call_custom_kwargs( kwargs, default_kwargs )
 
-    ax.set_ylabel( y_label, fontsize=22 )
+        plt.xticks( range( len( data_order ) ), data_order, fontsize=22 )
 
-    redshift = self[key].data_object.get_data( 'redshift' )[ind]
-    title_string = r'$z=' + '{:.3f}'.format( redshift ) + '$'
-    ax.set_title( title_string, fontsize=22, )
-    
-    if legend_args is default:
-      ax.legend(prop={'size':14.5}, ncol=5, loc=(0.,-0.2), fontsize=20)
-    else:
-      ax.legend( **legend_args )
+        ax.set_xlim( [-0.5, len(self)-0.5] )
+        ax.set_ylim( [0., 1.] )
 
-    if out_dir is not None:
-      gen_plot.save_fig( out_dir, save_file=save_file, fig=fig )
+        ax.set_ylabel( y_label, fontsize=22 )
+
+        redshift = self[key].data_object.get_data( 'redshift' )[ind]
+        title_string = r'$z=' + '{:.3f}'.format( redshift ) + '$'
+        ax.set_title( title_string, fontsize=22, )
+
+        if legend_args is default:
+            ax.legend(prop={'size':14.5}, ncol=5, loc=(0.,-0.2), fontsize=20)
+        else:
+            ax.legend( **legend_args )
+
+        if out_dir is not None:
+            gen_plot.save_fig( out_dir, save_file=save_file, fig=fig )
