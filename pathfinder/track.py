@@ -48,16 +48,20 @@ class ParticleTracker( object ):
 
         Args:
             out_dir (str) :
-                Output data directory. Also the directory for the file the ids to track should be in.
+                Output data directory. Also the directory for the file the ids
+                to track should be in.
 
             tag (str) :
-                Identifying tag. Currently must be put in manually. Should be the same for all stages of the pipeline.
+                Identifying tag. Currently must be put in manually.
+                Should be the same for all stages of the pipeline.
 
             sdir (str, optional):
-                Simulation data directory. Defaults to same directory the IDs are from.
+                Simulation data directory. Defaults to same directory the IDs
+                are from.
 
             p_types (list of ints, optional):
-                The particle data types to include. Defaults to the values used in the IDs.
+                The particle data types to include. Defaults to the values used
+                in the IDs.
 
             snum_start (int, optional):
                 Starting snapshot. Defaults to the value used in the IDs.
@@ -66,7 +70,8 @@ class ParticleTracker( object ):
                 End snapshot. Defaults to same directory the IDs are from.
 
             snum_step (int, optional):
-                How many snapshots to jump over? Defaults to same directory the IDs are from.
+                How many snapshots to jump over? Defaults to same directory the
+                IDs are from.
 
             n_processors (int, optional) :
                 Number of processors to use.
@@ -77,14 +82,16 @@ class ParticleTracker( object ):
     ########################################################################
 
     def save_particle_tracks( self ):
-        '''Loop over all redshifts, get the data, and save the particle tracks.'''
+        '''Loop over all redshifts, get the data, and save the particle tracks.
+        '''
 
         time_start = time.time()
 
-        print "########################################################################"
+        print "#" * 80
         print "Starting Tracking!"
-        print "########################################################################"
-        print "Tracking particle data from this directory:\n    {}".format( self.sdir )
+        print "#" * 80
+        print "Tracking particle data from this directory:\n    {}".format(
+            self.sdir )
         print "Data will be saved here:\n    {}".format( self.out_dir )
         sys.stdout.flush()
 
@@ -102,11 +109,12 @@ class ParticleTracker( object ):
 
         time_end = time.time()
 
-        print "########################################################################"
+        print "#" * 80
         print "Done Tracking!"
-        print "########################################################################"
+        print "#" * 80
         print "Output file saved as:\n    {}".format( self.outname )
-        print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format( time_end - time_start, (time_end - time_start) / self.ntrack )
+        print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format(
+            time_end - time_start, (time_end - time_start) / self.ntrack )
 
     ########################################################################
 
@@ -114,8 +122,11 @@ class ParticleTracker( object ):
         '''Open the file containing the target ids and retrieve them.
 
         Modifies:
-            self.target_ids (np.array): Fills the array.
-            self.target_child_ids (np.array, optional): Fills the array, if child_ids are included.
+            self.target_ids (np.array):
+                Fills the array.
+
+            self.target_child_ids (np.array, optional): Fills the array, if
+                child_ids are included.
         '''
 
         id_filename = 'ids_{}.hdf5'.format( self.tag )
@@ -153,12 +164,16 @@ class ParticleTracker( object ):
         '''Loop overall redshift snapshots, and get the data.
 
         Returns:
-            ptrack (dict): Structure to hold particle tracks.
-                                          Structure is... ptrack ['varname'] [particle i, snap j, k component]
+            ptrack (dict):
+                Structure to hold particle tracks.
+                Structure is...
+                ptrack ['varname'] [particle i, snap j, k component]
         '''
 
-        self.snaps = np.arange( self.snum_end, self.snum_start-1, -self.snum_step )
-        nsnap = self.snaps.size       # number of redshift snapshots that we follow back
+        self.snaps = np.arange( self.snum_end, self.snum_start - 1,
+                                -self.snum_step )
+        # number of redshift snapshots that we follow back
+        nsnap = self.snaps.size
 
         # Choose between single or double precision.
         myfloat = 'float32'
@@ -169,17 +184,17 @@ class ParticleTracker( object ):
         sys.stdout.flush()
 
         ptrack = {
-            'redshift':np.zeros( nsnap, dtype=myfloat ),
-            'snum':np.zeros( nsnap, dtype='int16' ),
-            'ID':np.zeros( self.ntrack, dtype='int64' ),
-            'PType':np.zeros( self.ntrack, dtype=('int8',(nsnap,)) ),
-            'Den':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-            'SFR':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-            'T':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-            'Z':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-            'M':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-            'P':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
-            'V':np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
+            'redshift': np.zeros( nsnap, dtype=myfloat ),
+            'snum': np.zeros( nsnap, dtype='int16' ),
+            'ID': np.zeros( self.ntrack, dtype='int64' ),
+            'PType': np.zeros( self.ntrack, dtype=('int8', (nsnap,)) ),
+            'Den': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'SFR': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'T': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'Z': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'M': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'P': np.zeros( self.ntrack, dtype=(myfloat, (nsnap, 3)) ),
+            'V': np.zeros( self.ntrack, dtype=(myfloat, (nsnap, 3)) ),
         }
 
         ptrack['ID'] = self.target_ids
@@ -193,19 +208,35 @@ class ParticleTracker( object ):
             time_1 = time.time()
 
             id_finder = IDFinder()
-            dfid, redshift, self.attrs = id_finder.find_ids( self.sdir, snum, self.p_types, self.target_ids, \
-                                                                                      target_child_ids=self.target_child_ids, )
+            dfid, redshift, self.attrs = id_finder.find_ids(
+                self.sdir,
+                snum,
+                self.p_types,
+                self.target_ids,
+                target_child_ids=self.target_child_ids,
+            )
 
             ptrack['redshift'][j] = redshift
             ptrack['snum'][j] = snum
-            ptrack['PType'][:,j] = dfid['PType'].values
-            ptrack['Den'][:,j] = dfid['Den'].values                                                           # cm^(-3)
-            ptrack['SFR'][:,j] = dfid['SFR'].values                                                           # Msun / year   (stellar Age in Myr for star particles)
-            ptrack['T'][:,j] = dfid['T'].values                                                               # Kelvin
-            ptrack['Z'][:,j] = dfid['Z'].values                                                               # Zsun (metal mass fraction in Solar units)
-            ptrack['M'][:,j] = dfid['M'].values                                                               # Msun (particle mass in solar masses)
-            ptrack['P'][:,j,:] = np.array( [ dfid['P0'].values, dfid['P1'].values, dfid['P2'].values ] ).T    # kpc (physical)
-            ptrack['V'][:,j,:] = np.array( [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ] ).T    # km/s (peculiar - need to add H(a)*r contribution)
+            ptrack['PType'][:, j] = dfid['PType'].values
+            # cm^(-3)
+            ptrack['Den'][:, j] = dfid['Den'].values
+            # Msun / year   (stellar Age in Myr for star particles)
+            ptrack['SFR'][:, j] = dfid['SFR'].values
+            # Kelvin
+            ptrack['T'][:, j] = dfid['T'].values
+            # Zsun (metal mass fraction in Solar units)
+            ptrack['Z'][:, j] = dfid['Z'].values
+            # Msun (particle mass in solar masses)
+            ptrack['M'][:, j] = dfid['M'].values
+            # kpc (physical)
+            ptrack['P'][:, j, :] = np.array(
+                [ dfid['P0'].values, dfid['P1'].values, dfid['P2'].values ]
+            ).T
+            # km/s (peculiar - need to add H(a)*r contribution)
+            ptrack['V'][:, j, :] = np.array(
+                [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ]
+            ).T
 
             j += 1
 
@@ -213,7 +244,8 @@ class ParticleTracker( object ):
             time_2 = time.time()
 
             # Print output information.
-            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'.format(  snum, redshift, time_2 - time_1 )
+            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
+                .format(  snum, redshift, time_2 - time_1 )
             sys.stdout.flush()
 
         return ptrack
@@ -221,15 +253,20 @@ class ParticleTracker( object ):
     ########################################################################
 
     def get_tracked_data_parallel( self ):
-        '''Loop overall redshift snapshots, and get the data. This is the parallelized version.
+        '''Loop overall redshift snapshots, and get the data. This is the
+        parallelized version.
 
         Returns:
-            ptrack (dict): Structure to hold particle tracks.
-                                          Structure is... ptrack ['varname'] [particle i, snap j, k component]
+            ptrack (dict):
+                Structure to hold particle tracks.
+                Structure is...
+                ptrack ['varname'] [particle i, snap j, k component]
         '''
 
-        self.snaps = np.arange( self.snum_end, self.snum_start-1, -self.snum_step )
-        nsnap = self.snaps.size       # number of redshift snapshots that we follow back
+        self.snaps = np.arange(
+            self.snum_end, self.snum_start - 1, -self.snum_step )
+        # number of redshift snapshots that we follow back
+        nsnap = self.snaps.size
 
         # Choose between single or double precision.
         myfloat = 'float32'
@@ -245,8 +282,13 @@ class ParticleTracker( object ):
             time_1 = time.time()
 
             id_finder = IDFinder()
-            dfid, redshift, attrs = id_finder.find_ids( self.sdir, snum, self.p_types, self.target_ids, \
-                                                                                      target_child_ids=self.target_child_ids, )
+            dfid, redshift, attrs = id_finder.find_ids(
+                self.sdir,
+                snum,
+                self.p_types,
+                self.target_ids,
+                target_child_ids=self.target_child_ids,
+            )
 
             # Maybe helps stop leaking memory
             del id_finder
@@ -255,27 +297,29 @@ class ParticleTracker( object ):
             time_2 = time.time()
 
             # Print output information.
-            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'.format( snum, redshift, time_2 - time_1 )
+            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
+                .format( snum, redshift, time_2 - time_1 )
             sys.stdout.flush()
 
             return i, dfid, redshift, attrs, snum
 
         all_args = [ arg for arg in enumerate( self.snaps ) ]
 
-        tracked_data_snapshots = mp_utils.parmap( get_tracked_data_snapshot, all_args, self.n_processors )
+        tracked_data_snapshots = mp_utils.parmap(
+            get_tracked_data_snapshot, all_args, self.n_processors )
 
         ptrack = {
-            'redshift' : np.zeros( nsnap, dtype=myfloat ),
-            'snum' : np.zeros( nsnap, dtype='int16' ),
-            'ID' : np.zeros( self.ntrack, dtype='int64' ),
-            'PType' : np.zeros( self.ntrack, dtype=('int8',(nsnap,)) ),
-            'Den' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-            'SFR' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-            'T' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-            'Z' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-            'M' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,)) ),
-            'P' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
-            'V' : np.zeros( self.ntrack, dtype=(myfloat,(nsnap,3)) ),
+            'redshift': np.zeros( nsnap, dtype=myfloat ),
+            'snum': np.zeros( nsnap, dtype='int16' ),
+            'ID': np.zeros( self.ntrack, dtype='int64' ),
+            'PType': np.zeros( self.ntrack, dtype=('int8', (nsnap,)) ),
+            'Den': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'SFR': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'T': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'Z': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'M': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'P': np.zeros( self.ntrack, dtype=(myfloat, (nsnap, 3)) ),
+            'V': np.zeros( self.ntrack, dtype=(myfloat, (nsnap, 3)) ),
         }
 
         ptrack['ID'] = self.target_ids
@@ -283,7 +327,8 @@ class ParticleTracker( object ):
             ptrack['ChildID'] = self.target_child_ids
 
         assert len( tracked_data_snapshots ) == self.snaps.size,\
-            "Unequal sizes, snapshot likely skipped, likely due to a MemoryError!"
+            "Unequal sizes, snapshot likely skipped," + \
+            " likely due to a MemoryError!"
 
         for tracked_data_snapshot in tracked_data_snapshots:
 
@@ -291,14 +336,25 @@ class ParticleTracker( object ):
 
             ptrack['redshift'][j] = redshift
             ptrack['snum'][j] = snum
-            ptrack['PType'][:,j] = dfid['PType'].values
-            ptrack['Den'][:,j] = dfid['Den'].values                                                           # cm^(-3)
-            ptrack['SFR'][:,j] = dfid['SFR'].values                                                           # Msun / year   (stellar Age in Myr for star particles)
-            ptrack['T'][:,j] = dfid['T'].values                                                               # Kelvin
-            ptrack['Z'][:,j] = dfid['Z'].values                                                               # Zsun (metal mass fraction in Solar units)
-            ptrack['M'][:,j] = dfid['M'].values                                                               # Msun (particle mass in solar masses)
-            ptrack['P'][:,j,:] = np.array( [ dfid['P0'].values, dfid['P1'].values, dfid['P2'].values ] ).T    # kpc (physical)
-            ptrack['V'][:,j,:] = np.array( [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ] ).T    # km/s (peculiar - need to add H(a)*r contribution)
+            ptrack['PType'][:, j] = dfid['PType'].values
+            # cm^(-3)
+            ptrack['Den'][:, j] = dfid['Den'].values
+            # Msun / year   (stellar Age in Myr for star particles)
+            ptrack['SFR'][:, j] = dfid['SFR'].values
+            # Kelvin
+            ptrack['T'][:, j] = dfid['T'].values
+            # Zsun (metal mass fraction in Solar units)
+            ptrack['Z'][:, j] = dfid['Z'].values
+            # Msun (particle mass in solar masses)
+            ptrack['M'][:, j] = dfid['M'].values
+            # kpc (physical)
+            ptrack['P'][:, j, :] = np.array(
+                [ dfid['P0'].values, dfid['P1'].values, dfid['P2'].values ]
+            ).T
+            # km/s (peculiar - need to add H(a)*r contribution)
+            ptrack['V'][:, j, :] = np.array(
+                [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ]
+            ).T
 
         return ptrack
 
@@ -313,7 +369,7 @@ class ParticleTracker( object ):
 
         self.outname = 'ptracks_{}.hdf5'.format( self.tag )
 
-        outpath =  os.path.join( self.out_dir, self.outname )
+        outpath = os.path.join( self.out_dir, self.outname )
 
         f = h5py.File( outpath, 'w' )
 
@@ -325,16 +381,18 @@ class ParticleTracker( object ):
         for key in self.attrs.keys():
             f.attrs[key] = self.attrs[key]
 
-        grp = utilities.save_parameters( self, f )
+        utilities.save_parameters( self, f )
 
         # Save the current code version
         f.attrs['pathfinder_version'] = utilities.get_code_version( self )
-        f.attrs['galaxy_diver_version'] = utilities.get_code_version( read_snapshot, instance_type='module' )
+        f.attrs['galaxy_diver_version'] = utilities.get_code_version(
+            read_snapshot, instance_type='module' )
 
         f.close()
 
 ########################################################################
 ########################################################################
+
 
 class IDFinder( object ):
     '''Finds target ids in a single snapshot.
@@ -345,8 +403,16 @@ class IDFinder( object ):
 
     ########################################################################
 
-    def find_ids( self, sdir, snum, p_types, target_ids, target_child_ids=None, ):
-        '''Find the information for particular IDs in a given snapshot, ordered by the ID list you pass.
+    def find_ids(
+        self,
+        sdir,
+        snum,
+        p_types,
+        target_ids,
+        target_child_ids=None,
+    ):
+        '''Find the information for particular IDs in a given snapshot, ordered
+        by the ID list you pass.
 
         Args:
             sdir (str): The targeted simulation directory.
@@ -355,10 +421,16 @@ class IDFinder( object ):
             target_ids (np.array): The particle IDs you want to find.
 
         Returns:
-            dfid (pandas.DataFrame): Dataframe for the selected IDs, ordered by target_ids.
-                    Contains standard particle information, e.g. position, metallicity, etc.
-            redshift (float): Redshift of the snapshot.
-            attrs (dict): Dictionary of attributes of the snapshot
+            dfid (pandas.DataFrame):
+                Dataframe for the selected IDs, ordered by
+                target_ids. Contains standard particle information, e.g.
+                position, metallicity, etc.
+
+            redshift (float):
+                Redshift of the snapshot.
+
+            attrs (dict):
+                Dictionary of attributes of the snapshot
         '''
 
         # Store the target ids for easy access.
@@ -369,7 +441,8 @@ class IDFinder( object ):
         if target_child_ids is not None:
             self.target_child_ids = target_child_ids
 
-        # Make a big list of the relevant particle data, across all the particle data types
+        # Make a big list of the relevant particle data, across all the particle
+        # data types
         self.concatenate_particle_data()
 
         # Find target_ids
@@ -379,14 +452,16 @@ class IDFinder( object ):
 
     ########################################################################
 
-    def concatenate_particle_data(self, verbose=False):
-        '''Get all the particle data for the snapshot in one big array, to allow searching through it.
+    def concatenate_particle_data( self, verbose=False ):
+        '''Get all the particle data for the snapshot in one big array, to allow
+        searching through it.
 
         Args:
             verbose (bool): If True, print additional information.
 
         Modifies:
-            self.full_snap_data (dict): A dictionary of the concatenated particle data.
+            self.full_snap_data (dict):
+            A dictionary of the concatenated particle data.
         '''
 
         if verbose:
@@ -394,20 +469,20 @@ class IDFinder( object ):
             sys.stdout.flush()
 
         full_snap_data = {
-            'ID' : [],
-            'PType' : [],
-            'Den' : [],
-            'SFR' : [],
-            'T' : [],
-            'Z' : [],
-            'M' : [],
-            'P0' : [],
-            'P1' : [],
-            'P2' : [],
-            'V0' : [],
-            'V1' : [],
-            'V2' : [],
-            }
+            'ID': [],
+            'PType': [],
+            'Den': [],
+            'SFR': [],
+            'T': [],
+            'Z': [],
+            'M': [],
+            'P0': [],
+            'P1': [],
+            'P2': [],
+            'V0': [],
+            'V1': [],
+            'V2': [],
+        }
 
         time_start = time.time()
 
@@ -417,16 +492,23 @@ class IDFinder( object ):
         else:
             load_additional_ids = False
 
-
         # Flag for saving header info
         saved_header_info = False
 
         for i, p_type in enumerate( self.p_types ):
 
-            P = read_snapshot.readsnap( self.sdir, self.snum, p_type, load_additional_ids=load_additional_ids, cosmological=1, skip_bh=1, header_only=0 )
+            P = read_snapshot.readsnap(
+                self.sdir,
+                self.snum,
+                p_type,
+                load_additional_ids=load_additional_ids,
+                cosmological=1,
+                skip_bh=1,
+                header_only=0
+            )
 
             if P['k'] < 0:
-                  continue
+                continue
             pnum = P['id'].size
 
             # On the first time through, save global information
@@ -444,24 +526,24 @@ class IDFinder( object ):
                 saved_header_info = True
 
             if verbose:
-                print '       ...  ', pnum, '   type', p_type , ' particles'
+                print '       ...  ', pnum, '   type', p_type, ' particles'
 
             if 'rho' in P:
-                    Den = P['rho']*constants.UNITDENSITY_IN_NUMDEN
+                    Den = P['rho'] * constants.UNITDENSITY_IN_NUMDEN
             else:
-                    Den = [0.,]*pnum
+                    Den = [0., ] * pnum
 
             if 'sfr' in P:
                     sfr = P['sfr']
             else:
-                    sfr = [0.,]*pnum
+                    sfr = [0., ] * pnum
 
             if 'u' in P:
                     T = read_snapshot.gas_temperature( P['u'], P['ne'] )
             else:
-                    T = [0.,]*pnum
+                    T = [0., ] * pnum
 
-            thistype = np.zeros(pnum,dtype='int8')
+            thistype = np.zeros( pnum, dtype='int8' )
             thistype.fill(p_type)
 
             full_snap_data['ID'].append( P['id'] )
@@ -469,14 +551,15 @@ class IDFinder( object ):
             full_snap_data['Den'].append( Den )
             full_snap_data['SFR'].append( sfr )
             full_snap_data['T'].append( T )
-            full_snap_data['Z'].append( P['z'][:,0]/constants.Z_MASSFRAC_SUN )
-            full_snap_data['M'].append( P['m']*constants.UNITMASS_IN_MSUN )
-            full_snap_data['P0'].append( P['p'][:,0] )
-            full_snap_data['P1'].append( P['p'][:,1] )
-            full_snap_data['P2'].append( P['p'][:,2] )
-            full_snap_data['V0'].append( P['v'][:,0] )
-            full_snap_data['V1'].append( P['v'][:,1] )
-            full_snap_data['V2'].append( P['v'][:,2] )
+            full_snap_data['Z'].append(
+                P['z'][:, 0] / constants.Z_MASSFRAC_SUN )
+            full_snap_data['M'].append( P['m'] * constants.UNITMASS_IN_MSUN )
+            full_snap_data['P0'].append( P['p'][:, 0] )
+            full_snap_data['P1'].append( P['p'][:, 1] )
+            full_snap_data['P2'].append( P['p'][:, 2] )
+            full_snap_data['V0'].append( P['v'][:, 0] )
+            full_snap_data['V1'].append( P['v'][:, 1] )
+            full_snap_data['V2'].append( P['v'][:, 2] )
 
             if hasattr( self, 'target_child_ids' ):
                 full_snap_data['ChildID'].append( P['child_id'] )
@@ -484,7 +567,8 @@ class IDFinder( object ):
         time_end = time.time()
 
         if verbose:
-            print 'readsnap done in ... {:.3g} seconds'.format( time_end - time_start )
+            print 'readsnap done in ... {:.3g} seconds'.format(
+                time_end - time_start )
 
         # Convert to numpy arrays
         for key in full_snap_data.keys():
@@ -499,8 +583,10 @@ class IDFinder( object ):
 
         # Setup the index and the way to select the targeted ids
         if hasattr( self, 'target_child_ids' ):
-            index = [ self.full_snap_data['ID'], self.full_snap_data['ChildID'] ]
-            target_selection = list( zip( *[ self.target_ids, self.target_child_ids ] ) )
+            index = [ self.full_snap_data['ID'],
+                      self.full_snap_data['ChildID'] ]
+            target_selection = list(
+                zip( *[ self.target_ids, self.target_child_ids ] ) )
         else:
             index = self.full_snap_data['ID']
             target_selection = self.target_ids
@@ -514,15 +600,16 @@ class IDFinder( object ):
         # Make a data frame selecting only the target ids
         dfid = df.loc[ target_selection ]
 
-        # When particle IDs can't be found the values are automatically replaced by NaNs. This is very good, but
-        # we want to preserve the ids and child ids for the particles we couldn't find.
+        # When particle IDs can't be found the values are automatically replaced
+        # by NaNs. This is very good, but
+        # we want to preserve the ids and child ids for the particles we
+        # couldn't find.
         if hasattr( self, 'target_child_ids' ):
             dfid['ID'] = dfid.index.get_level_values( 0 )
             dfid['ChildID'] = dfid.index.get_level_values( 1 )
 
         assert len( dfid['ID'] ) == len( self.target_ids ), \
-            "Snapshot {} failed, len( df ) = {}, len( self.target_ids ) = {}".format( self.snum, len( dfid['ID'] ),
-                                                                                                                                                                len( self.target_ids ) )
+            "Snapshot {} failed, len( df ) = {}, len( self.target_ids ) = {}".\
+            format( self.snum, len( dfid['ID'] ), len( self.target_ids ) )
 
         return dfid
-
