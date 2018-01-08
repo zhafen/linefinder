@@ -12,7 +12,6 @@ import numpy as np
 import os
 import sys
 import time
-from memory_profiler import profile
 
 import galaxy_diver.galaxy_finder.finder as galaxy_finder
 import galaxy_diver.read_data.ahf as read_ahf
@@ -49,6 +48,7 @@ class ParticleTrackGalaxyFinder( object ):
         minimum_criteria = 'n_star',
         minimum_value = 10,
         n_processors = 1,
+        use_jug = False,
     ):
         '''Initialize.
 
@@ -105,6 +105,10 @@ class ParticleTrackGalaxyFinder( object ):
             n_processors (int) :
                 The number of processors to use. If parallel, expect significant
                 memory usage.
+
+            use_jug (bool) :
+                If True, then parallelization will be done through the Jug
+                Python package (Coelho2017, http://doi.org/10.5334/jors.161)
         '''
 
         pass
@@ -127,7 +131,10 @@ class ParticleTrackGalaxyFinder( object ):
         self.read_data()
 
         if self.n_processors > 1:
-            self.get_galaxy_identification_loop_parallel()
+            if self.use_jug:
+                self.get_galaxy_identification_loop_jug()
+            else:
+                self.get_galaxy_identification_loop_parallel()
         else:
             self.get_galaxy_identification_loop()
 
@@ -152,9 +159,6 @@ class ParticleTrackGalaxyFinder( object ):
             self.ptrack (h5py file) : Loaded tracked particle data.
             self.ahf_reader (AHFReader instance): For the ahf data.
         '''
-
-        # DEBUG
-        print "Reading data."
 
         # Get the tag for particle tracking.
         if self.ptracks_tag is default:
@@ -249,19 +253,12 @@ class ParticleTrackGalaxyFinder( object ):
             self.ptrack_gal_ids (dict) : Where the galaxy IDs are stored.
         '''
 
-        # DEBUG
-        print "About to loop in parallel."
-
-        @profile
         def get_galaxy_and_halo_ids( args ):
             '''Get the galaxy and halo ids for a single snapshot.'''
 
             particle_positions, kwargs = args
 
             time_start = time.time()
-
-            # DEBUG
-            print "Starting galaxy finding for snapshot {}".format( kwargs['snum'] )
 
             # Find the galaxy for a given snapshot
             gal_finder = galaxy_finder.GalaxyFinder(
@@ -339,6 +336,12 @@ class ParticleTrackGalaxyFinder( object ):
             # Try clearing up memory again, in case gal_finder is hanging around
             del galaxy_and_halo_ids
             gc.collect()
+
+    ########################################################################
+
+    def get_galaxy_identification_loop_jug( self ):
+
+        pass
 
     ########################################################################
 
