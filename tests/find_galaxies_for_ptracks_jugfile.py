@@ -10,8 +10,8 @@ parallel_kwargs = {
 
     'galaxy_cut': 0.1,
 
-    'ahf_data_dir': './data/ahf_test_data',
-    'out_dir': './data/tracking_output',
+    'ahf_data_dir': './tests/data/ahf_test_data',
+    'out_dir': './tests/data/tracking_output',
     'ptracks_tag': 'test',
     'tag': 'test_jug',
     'mtree_halos_index': 600,
@@ -23,4 +23,4 @@ parallel_kwargs = {
 
 particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
     **parallel_kwargs )
-particle_track_gal_finder.find_galaxies_for_particle_tracks()
+particle_track_gal_finder.find_galaxies_for_particle_tracks_jug()

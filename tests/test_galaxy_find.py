@@ -11,11 +11,12 @@ from mock import patch
 import numpy.testing as npt
 import os
 import pytest
-import subprocess
+import shutil
 import unittest
 
 import galaxy_diver.galaxy_finder.finder as galaxy_finder
 from pathfinder import galaxy_find
+
 import pathfinder.config as config
 
 ########################################################################
@@ -188,24 +189,26 @@ class TestParticleTrackGalaxyFinderJug( unittest.TestCase ):
         self.mock_code_version = patcher.start()
 
         self.originalfile = './tests/data/tracking_output/ptracks_test.hdf5'
-        self.savefile = './tests/data/tracking_output/galids_test_parallel.hdf5'
+        self.savefile = './tests/data/tracking_output/galids_test_jug.hdf5'
+
+        jugdata_dir = './tests/find_galaxies_for_ptracks_jugfile.jugdata'
 
         if os.path.isfile( self.savefile ):
             os.system( 'rm {}'.format( self.savefile ) )
+        if os.path.isdir( jugdata_dir ):
+            shutil.rmtree( jugdata_dir )
 
     ########################################################################
 
+    @slow
     def test_find_galaxies_for_particle_tracks_parallel( self ):
 
-        #subprocess.call(
-        #    [
-        #        config.JUG_EXEC_PATH,
-        #        "./find_galaxies_for_ptracks_jugfile.py",
-        #        "&",
-        #    ]
-        #)
-        os.system( "{} find_galaxies_for_ptracks_jugfile.py &" )
-        os.system( "{} find_galaxies_for_ptracks_jugfile.py" )
+        os.system( "{} ./tests/find_galaxies_for_ptracks_jugfile.py &".format(
+            config.JUG_EXEC_PATH )
+        )
+        os.system( "{} ./tests/find_galaxies_for_ptracks_jugfile.py".format(
+            config.JUG_EXEC_PATH )
+        )
 
         expected = \
             h5py.File( './tests/data/tracking_output/galids_test.hdf5', 'r' )

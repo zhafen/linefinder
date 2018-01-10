@@ -136,7 +136,7 @@ class ParticleTrackGalaxyFinder( object ):
         else:
             self.get_galaxy_identification_loop()
 
-        self.write_galaxy_identifications()
+        self.write_galaxy_identifications( self.ptrack_gal_ids )
 
         time_end = time.time()
 
@@ -151,33 +151,13 @@ class ParticleTrackGalaxyFinder( object ):
     ########################################################################
 
     def find_galaxies_for_particle_tracks_jug( self ):
-        '''Main function.'''
-
-        self.time_start = time.time()
-
-        print "#" * 80
-        print "Starting Adding Galaxy and Halo IDs!"
-        print "#" * 80
-        print "Using halo data from this directory:\n    {}".format(
-            self.ahf_data_dir )
-        print "Data will be saved here:\n    {}".format( self.out_dir )
-        sys.stdout.flush()
+        '''Main function when using jug'''
 
         self.read_data()
 
-        self.get_galaxy_identification_loop_jug()
+        ptrack_gal_ids = self.get_galaxy_identification_loop_jug()
 
-        jug.Task( self.write_galaxy_identifications() )
-
-        time_end = time.time()
-
-        print "#" * 80
-        print "Done Adding Galaxy and Halo IDs!"
-        print "#" * 80
-        print "The data was saved at:\n    {}".format( self.save_filepath )
-        print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format(
-            time_end - self.time_start,
-            (time_end - self.time_start) / self.n_particles )
+        jug.Task( self.write_galaxy_identifications, ptrack_gal_ids )
 
     ########################################################################
 
@@ -463,11 +443,13 @@ class ParticleTrackGalaxyFinder( object ):
                 del galaxy_and_halo_ids
                 gc.collect()
 
-        jug.Task( store_results, galaxy_and_halo_ids_all )
+            return self.ptrack_gal_ids
+
+        return jug.Task( store_results, galaxy_and_halo_ids_all )
 
     ########################################################################
 
-    def write_galaxy_identifications( self ):
+    def write_galaxy_identifications( self, ptrack_gal_ids ):
         '''Write the data, close the file, and print out information.'''
 
         # Get the number of particles, for use in reporting the time
@@ -480,8 +462,8 @@ class ParticleTrackGalaxyFinder( object ):
         save_filename = 'galids_{}.hdf5'.format( self.tag )
         self.save_filepath = os.path.join( self.out_dir, save_filename )
         f = h5py.File( self.save_filepath )
-        for key in self.ptrack_gal_ids.keys():
-            f.create_dataset( key, data=self.ptrack_gal_ids[key] )
+        for key in ptrack_gal_ids.keys():
+            f.create_dataset( key, data=ptrack_gal_ids[key] )
 
         # Store the main mt halo id
         # (as identified by the larges value at the lowest redshift)
