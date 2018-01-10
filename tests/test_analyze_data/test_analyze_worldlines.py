@@ -6,18 +6,15 @@
 @status: Development
 '''
 
-import copy
 import h5py
 import mock
 import numpy as np
 import numpy.testing as npt
 import os
-import pdb
-import pytest
 import unittest
 
 import pathfinder.analyze_data.worldlines as analyze_worldlines
-import pathfinder.utils.data_constants as d_constants
+import pathfinder.config as config
 import pathfinder.utils.presentation_constants as p_constants
 
 ########################################################################
@@ -104,7 +101,7 @@ class TestWorldlinesDifferentTags( unittest.TestCase ):
       'ahf_data_dir' : './tests/data/ahf_test_data',
       'ahf_index' : 600,
     }
-        
+
     self.worldlines = analyze_worldlines.Worldlines( **self.kwargs )
 
   ########################################################################
@@ -117,7 +114,7 @@ class TestWorldlinesDifferentTags( unittest.TestCase ):
     mock_ptracks.side_effect = [ None, ]
     mock_galids.side_effect = [ None, ]
     mock_classifications.side_effect = [ None, ]
-    
+
     self.worldlines.ptracks
     ptrack_kwargs = {
       'ahf_data_dir' : './tests/data/ahf_test_data',
@@ -193,10 +190,10 @@ class TestWorldlineGetData( unittest.TestCase ):
       [ 4, 0, 0, ],
       [ 4, 0, 0, ],
     ])
-    self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, d_constants.INT_FILL_VALUE, ])
+    self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, config.INT_FILL_VALUE, ])
 
     actual = self.worldlines.get_data_first_acc( 'PType', ind_after_first_acc=True )
-    expected = np.array( [ 4, 4, 0, d_constants.INT_FILL_VALUE ] )
+    expected = np.array( [ 4, 4, 0, config.INT_FILL_VALUE ] )
     npt.assert_allclose( expected, actual )
 
   ########################################################################
@@ -209,10 +206,10 @@ class TestWorldlineGetData( unittest.TestCase ):
       [ 1., 2., 3., ],
       [ 1., 2., 3., ],
     ])
-    self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, d_constants.INT_FILL_VALUE, ])
+    self.worldlines.data['ind_first_acc'] = np.array([ 0, 0, 1, config.INT_FILL_VALUE, ])
 
     actual = self.worldlines.get_data_first_acc( 'Den', ind_after_first_acc=True )
-    expected = np.array( [ 1., 1., 2., d_constants.FLOAT_FILL_VALUE ] )
+    expected = np.array( [ 1., 1., 2., config.FLOAT_FILL_VALUE ] )
     npt.assert_allclose( expected, actual )
 
   ########################################################################
@@ -523,10 +520,10 @@ class TestWorldlineCalcData( unittest.TestCase ):
   ########################################################################
 
   def test_calc_dt( self ):
-  
+
     # Setup test data
     self.worldlines.classifications.data['redshift'] = np.array( [ 0., 0.06984670, 0.16946000, ] )
-    
+
     self.worldlines.calc_dt()
     actual = self.worldlines.data['dt']
     expected = np.array( [ 0.927, 1.177, np.nan ] )*1e3
@@ -537,7 +534,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
   def test_calc_t_EP( self ):
     '''Test basic functionality of calc_t_EP.'''
-  
+
     # Setup test data
     self.worldlines._n_snaps = 4
     self.worldlines._n_particles = 3
@@ -560,7 +557,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     # Actual calculation
     self.worldlines.calc_t_EP()
-    
+
     actual = self.worldlines.data['t_EP']
     expected = np.array([
       3.,
@@ -606,7 +603,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
     self.worldlines.calc_ind_star()
 
     actual = self.worldlines.data['ind_star']
-    expected = np.array([ 0, d_constants.INT_FILL_VALUE, 1, -1, ])
+    expected = np.array([ 0, config.INT_FILL_VALUE, 1, -1, ])
 
     npt.assert_allclose( expected, actual )
 
@@ -696,7 +693,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
   def test_get_masked_data_before_first_acc( self ):
 
-    self.worldlines.events.data['ind_first_acc'] = np.array([ 2, d_constants.INT_FILL_VALUE, 0, 2 ])
+    self.worldlines.events.data['ind_first_acc'] = np.array([ 2, config.INT_FILL_VALUE, 0, 2 ])
 
     actual = self.worldlines.data_masker.get_masked_data( 'T', mask_after_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
     expected = np.array( [ 12212.33984375,   812602.1875, 4107.27490234, ] )
@@ -706,7 +703,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
   def test_get_masked_data_after_first_acc( self ):
 
-    self.worldlines.events.data['ind_first_acc'] = np.array([ 2, d_constants.INT_FILL_VALUE, 0, 2 ])
+    self.worldlines.events.data['ind_first_acc'] = np.array([ 2, config.INT_FILL_VALUE, 0, 2 ])
 
     actual = self.worldlines.data_masker.get_masked_data( 'T', mask_before_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
     expected = np.array( [ 42283.62890625,  20401.44335938,  115423.2109375, ] )
@@ -729,12 +726,12 @@ class TestWorldlineDataMasker( unittest.TestCase ):
         ]),
       }
     )
-  
+
     actual = self.worldlines.data_masker.get_mask()
     expected = self.worldlines.data_masker.masks[0]['mask']
 
     npt.assert_allclose( expected, actual )
-    
+
   ########################################################################
 
   def test_get_masked_data_defaults( self ):

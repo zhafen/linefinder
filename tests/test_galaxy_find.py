@@ -11,10 +11,12 @@ from mock import patch
 import numpy.testing as npt
 import os
 import pytest
+import subprocess
 import unittest
 
 import galaxy_diver.galaxy_finder.finder as galaxy_finder
 from pathfinder import galaxy_find
+import pathfinder.config as config
 
 ########################################################################
 # Useful global test variables
@@ -195,15 +197,15 @@ class TestParticleTrackGalaxyFinderJug( unittest.TestCase ):
 
     def test_find_galaxies_for_particle_tracks_parallel( self ):
 
-        parallel_kwargs = dict( ptrack_gal_finder_kwargs )
-        parallel_kwargs['ptracks_tag'] = 'test'
-        parallel_kwargs['tag'] = 'test_jug'
-        parallel_kwargs['use_jug'] = True
-        parallel_kwargs['n_processors'] = 2
-
-        particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
-            **parallel_kwargs )
-        particle_track_gal_finder.find_galaxies_for_particle_tracks()
+        #subprocess.call(
+        #    [
+        #        config.JUG_EXEC_PATH,
+        #        "./find_galaxies_for_ptracks_jugfile.py",
+        #        "&",
+        #    ]
+        #)
+        os.system( "{} find_galaxies_for_ptracks_jugfile.py &" )
+        os.system( "{} find_galaxies_for_ptracks_jugfile.py" )
 
         expected = \
             h5py.File( './tests/data/tracking_output/galids_test.hdf5', 'r' )

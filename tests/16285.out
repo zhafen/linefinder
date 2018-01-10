@@ -1,0 +1,11 @@
+Finding ids...
+Finding id_type halo_id
+Finding id_type host_halo_id
+Finding id_type gal_id
+Finding id_type host_gal_id
+Finding id_type mt_halo_id
+Finding id_type mt_gal_id
+Finding id_type d_gal
+Finding id_type d_other_gal_scaled
+Snapshot 500 | redshift   0.169 | done in 0.578 seconds
+PID 16285 finishing, PPID 16240.

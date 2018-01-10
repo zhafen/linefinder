@@ -19,7 +19,7 @@ import galaxy_diver.utils.astro as astro_tools
 import galaxy_diver.utils.constants as constants
 import galaxy_diver.utils.utilities as utilities
 
-import utils.data_constants as d_constants
+import config
 
 ########################################################################
 
@@ -55,15 +55,15 @@ class Classifier( object ):
             'is_in_other_gal', 'is_in_main_gal', 'is_accreted',
             'is_ejected', 'redshift_first_acc', 'ind_first_acc',
             'cumulative_time_in_other_gal', ],
-        velocity_scale = d_constants.VELOCITY_SCALE,
-        wind_cut = d_constants.WIND_CUT,
-        absolute_wind_cut = d_constants.ABSOLUTE_WIND_CUT,
-        t_pro = d_constants.T_PRO,
-        t_m = d_constants.T_M,
+        velocity_scale = config.VELOCITY_SCALE,
+        wind_cut = config.WIND_CUT,
+        absolute_wind_cut = config.ABSOLUTE_WIND_CUT,
+        t_pro = config.T_PRO,
+        t_m = config.T_M,
         neg = 10,
         main_halo_robustness_criteria = 'n_star',
         main_halo_robustness_value = 100,
-        min_gal_density = d_constants.GALAXY_DENSITY_CUT,
+        min_gal_density = config.GALAXY_DENSITY_CUT,
     ):
         '''Setup the ID Finder.
 
@@ -696,11 +696,11 @@ class Classifier( object ):
             self._ind_first_acc = np.ma.masked_array(
                 inds_tiled, mask=self.is_before_first_acc ).max( axis=1 )
             self._ind_first_acc = self._ind_first_acc.filled(
-                fill_value = d_constants.INT_FILL_VALUE )
+                fill_value = config.INT_FILL_VALUE )
 
             # Mask the ones that were always part of the galaxy
             always_part_of_gal = self.is_before_first_acc.sum( axis=1 ) == 0
-            self._ind_first_acc[always_part_of_gal] = d_constants.INT_FILL_VALUE
+            self._ind_first_acc[always_part_of_gal] = config.INT_FILL_VALUE
 
         return self._ind_first_acc
 
@@ -1063,8 +1063,8 @@ class Classifier( object ):
         '''
 
         if not hasattr( self, '_meets_density_requirement' ):
-            is_gas = self.ptrack['PType'] == d_constants.PTYPE_GAS
-            is_star = self.ptrack['PType'] == d_constants.PTYPE_STAR
+            is_gas = self.ptrack['PType'] == config.PTYPE_GAS
+            is_star = self.ptrack['PType'] == config.PTYPE_STAR
             has_minimum_density = self.ptrack['Den'] > self.min_gal_density
 
             is_gas_and_meets_density_requirement = (

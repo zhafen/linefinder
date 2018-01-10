@@ -8,6 +8,7 @@
 
 import gc
 import h5py
+import jug
 import numpy as np
 import os
 import sys
@@ -18,7 +19,7 @@ import galaxy_diver.read_data.ahf as read_ahf
 import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
 
-import utils.data_constants as d_constants
+import config
 
 ########################################################################
 
@@ -41,8 +42,8 @@ class ParticleTrackGalaxyFinder( object ):
         halo_file_tag = 'smooth',
         ahf_data_dir = default,
         ptracks_tag = default,
-        galaxy_cut = d_constants.GALAXY_CUT,
-        length_scale = d_constants.LENGTH_SCALE,
+        galaxy_cut = config.GALAXY_CUT,
+        length_scale = config.LENGTH_SCALE,
         ids_to_return = [
             'gal_id', 'mt_gal_id', 'd_other_gal', 'd_other_gal_scaled', ],
         minimum_criteria = 'n_star',
@@ -131,14 +132,42 @@ class ParticleTrackGalaxyFinder( object ):
         self.read_data()
 
         if self.n_processors > 1:
-            if self.use_jug:
-                self.get_galaxy_identification_loop_jug()
-            else:
-                self.get_galaxy_identification_loop_parallel()
+            self.get_galaxy_identification_loop_parallel()
         else:
             self.get_galaxy_identification_loop()
 
         self.write_galaxy_identifications()
+
+        time_end = time.time()
+
+        print "#" * 80
+        print "Done Adding Galaxy and Halo IDs!"
+        print "#" * 80
+        print "The data was saved at:\n    {}".format( self.save_filepath )
+        print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format(
+            time_end - self.time_start,
+            (time_end - self.time_start) / self.n_particles )
+
+    ########################################################################
+
+    def find_galaxies_for_particle_tracks_jug( self ):
+        '''Main function.'''
+
+        self.time_start = time.time()
+
+        print "#" * 80
+        print "Starting Adding Galaxy and Halo IDs!"
+        print "#" * 80
+        print "Using halo data from this directory:\n    {}".format(
+            self.ahf_data_dir )
+        print "Data will be saved here:\n    {}".format( self.out_dir )
+        sys.stdout.flush()
+
+        self.read_data()
+
+        self.get_galaxy_identification_loop_jug()
+
+        jug.Task( self.write_galaxy_identifications() )
 
         time_end = time.time()
 
@@ -340,8 +369,101 @@ class ParticleTrackGalaxyFinder( object ):
     ########################################################################
 
     def get_galaxy_identification_loop_jug( self ):
+        '''Loop over all snapshots and identify the galaxy in each.
+        Use Jug for parallelism.
 
-        pass
+        Modifies:
+            self.ptrack_gal_ids (dict) : Where the galaxy IDs are stored.
+        '''
+
+        def get_galaxy_and_halo_ids( args ):
+            '''Get the galaxy and halo ids for a single snapshot.'''
+
+            particle_positions, kwargs = args
+
+            time_start = time.time()
+
+            # Find the galaxy for a given snapshot
+            gal_finder = galaxy_finder.GalaxyFinder(
+                particle_positions, **kwargs )
+            galaxy_and_halo_ids = gal_finder.find_ids()
+
+            time_end = time.time()
+
+            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
+                .format(
+                    kwargs['snum'],
+                    kwargs['redshift'],
+                    time_end - time_start
+                )
+            sys.stdout.flush()
+
+            # Try to avoid memory leaks
+            del kwargs
+            del gal_finder
+            gc.collect()
+
+            return galaxy_and_halo_ids
+
+        n_snaps = self.ptrack['snum'][...].size
+        n_particles = self.ptrack['P'][...].shape[0]
+
+        # Loop over each included snapshot and submit Jug Tasks
+        galaxy_and_halo_ids_all = []
+        for i in range( n_snaps ):
+
+            # Get the particle positions
+            particle_positions = self.ptrack['P'][...][ :, i ]
+
+            # Get the data parameters to pass to GalaxyFinder
+            kwargs = {
+                'ahf_reader': None,
+                'galaxy_cut': self.galaxy_cut,
+                'length_scale': self.length_scale,
+                'ids_to_return': self.ids_to_return,
+                'minimum_criteria': self.minimum_criteria,
+                'minimum_value': self.minimum_value,
+
+                'redshift': self.ptrack['redshift'][...][ i ],
+                'snum': self.ptrack['snum'][...][ i ],
+                'hubble': self.ptrack.attrs['hubble'],
+                'ahf_data_dir': self.ahf_data_dir,
+                'mtree_halos_index': self.mtree_halos_index,
+                'main_mt_halo_id': self.main_mt_halo_id,
+                'halo_file_tag': self.halo_file_tag,
+            }
+
+            galaxy_and_halo_ids = jug.Task(
+                get_galaxy_and_halo_ids,
+                ( particle_positions, kwargs )
+            )
+
+            galaxy_and_halo_ids_all.append( galaxy_and_halo_ids )
+
+        assert len( galaxy_and_halo_ids_all ) == n_snaps
+
+        # Store the results
+        def store_results( galaxy_and_halo_ids_all ):
+            for i, galaxy_and_halo_ids in enumerate( galaxy_and_halo_ids_all ):
+
+                # Make the arrays to store the data in
+                if not hasattr( self, 'ptrack_gal_ids' ):
+                    self.ptrack_gal_ids = {}
+                    for key in galaxy_and_halo_ids.keys():
+                        dtype = type( galaxy_and_halo_ids[key][0] )
+                        self.ptrack_gal_ids[key] = np.empty(
+                            ( n_particles, n_snaps ), dtype=dtype )
+
+                # Store the data in the primary array
+                for key in galaxy_and_halo_ids.keys():
+                    self.ptrack_gal_ids[key][ :, i ] = galaxy_and_halo_ids[key]
+
+                # Try clearing up memory again, in case gal_finder
+                # is hanging around
+                del galaxy_and_halo_ids
+                gc.collect()
+
+        jug.Task( store_results, galaxy_and_halo_ids_all )
 
     ########################################################################
 

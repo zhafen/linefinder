@@ -22,7 +22,7 @@ import classifications
 import events
 
 import pathfinder.utils.presentation_constants as p_constants
-import pathfinder.utils.data_constants as d_constants
+import pathfinder.config as config
 
 ########################################################################
 
@@ -244,7 +244,7 @@ class Worldlines( simulation_data.TimeData ):
             snapshot_kwargs = {
                 'sdir' : self.ids.snapshot_parameters['sdir'],
                 'snum' : self.ids.parameters['snum_end'],
-                'ptype' : d_constants.PTYPE_GAS,
+                'ptype' : config.PTYPE_GAS,
                 'header_only' : True,
             }
 
@@ -263,7 +263,7 @@ class Worldlines( simulation_data.TimeData ):
             snapshot_kwargs = {
                 'sdir' : self.ids.snapshot_parameters['sdir'],
                 'snum' : self.ids.parameters['snum_end'],
-                'ptype' : d_constants.PTYPE_STAR,
+                'ptype' : config.PTYPE_STAR,
                 'header_only' : True,
             }
 
@@ -494,9 +494,9 @@ class Worldlines( simulation_data.TimeData ):
                 raise Exception( "Unrecognized data shape, {}".format( data.shape ) )
 
         if issubclass( data.dtype.type, np.integer ):
-            fill_value = d_constants.INT_FILL_VALUE
+            fill_value = config.INT_FILL_VALUE
         elif issubclass( data.dtype.type, np.float ) or issubclass( data.dtype.type, np.float32 ):
-            fill_value = d_constants.FLOAT_FILL_VALUE
+            fill_value = config.FLOAT_FILL_VALUE
         else:
             raise Exception( "Unrecognized data type, data.dtype = {}".format( data.dtype ) )
 
@@ -505,7 +505,7 @@ class Worldlines( simulation_data.TimeData ):
         specified_ind = self.get_data( ind_key, *args, **kwargs )
 
         # Look only at indices we retrieved successfully
-        valid_inds = np.where( specified_ind != d_constants.INT_FILL_VALUE )[0]
+        valid_inds = np.where( specified_ind != config.INT_FILL_VALUE )[0]
         valid_specified_ind = specified_ind[valid_inds]
 
         # Shift the indices by the specified amount, if desired
@@ -779,7 +779,7 @@ class Worldlines( simulation_data.TimeData ):
             self.data['is_merger_star'] ( np.ndarray ) : Result.
         '''
 
-        is_star_first_acc = self.get_data_first_acc( 'PType' ) == d_constants.PTYPE_STAR
+        is_star_first_acc = self.get_data_first_acc( 'PType' ) == config.PTYPE_STAR
 
         self.data['is_merger_star'] = np.all( [ is_star_first_acc, self.get_data( 'is_merger' ) ], axis=0 )
 
@@ -794,7 +794,7 @@ class Worldlines( simulation_data.TimeData ):
             self.data['is_merger_gas'] ( np.ndarray ) : Result.
         '''
 
-        is_star_first_acc = self.get_data_first_acc( 'PType' ) == d_constants.PTYPE_GAS
+        is_star_first_acc = self.get_data_first_acc( 'PType' ) == config.PTYPE_GAS
 
         self.data['is_merger_gas'] = np.all( [ is_star_first_acc, self.get_data( 'is_merger' ) ], axis=0 )
 
@@ -868,7 +868,7 @@ class Worldlines( simulation_data.TimeData ):
         dt = time[:-1] - time[1:]
 
         # dt is shorter than the standard array, so we need to pad the array at the final snapshot
-        dt = np.append( dt, d_constants.FLOAT_FILL_VALUE )
+        dt = np.append( dt, config.FLOAT_FILL_VALUE )
 
         self.data['dt'] = dt
 
@@ -940,7 +940,7 @@ class Worldlines( simulation_data.TimeData ):
 
         ptype = self.get_data( 'PType' )
 
-        is_star = ptype == d_constants.PTYPE_STAR
+        is_star = ptype == config.PTYPE_STAR
 
         # Find the first index the particle was last a gas particle
         ind_last_gas = np.argmin( is_star, axis=1 )
@@ -952,7 +952,7 @@ class Worldlines( simulation_data.TimeData ):
         always_star = np.invert( is_star ).sum( axis=1 ) == 0
         always_gas = is_star.sum( axis=1 ) == 0
         self.data['ind_star'][always_star] = -1
-        self.data['ind_star'][always_gas] = d_constants.INT_FILL_VALUE
+        self.data['ind_star'][always_gas] = config.INT_FILL_VALUE
 
 ########################################################################
 ########################################################################
@@ -1119,9 +1119,9 @@ class WorldlineDataMasker( generic_data.DataMasker ):
         '''
 
         if ptype == 'star':
-            ptype_value = d_constants.PTYPE_STAR
+            ptype_value = config.PTYPE_STAR
         elif ptype == 'gas':
-            ptype_value = d_constants.PTYPE_GAS
+            ptype_value = config.PTYPE_GAS
         else:
             raise Exception( "Unrecognized Particle Type, ptype = {}".format( ptype ) )
 
