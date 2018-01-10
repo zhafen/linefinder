@@ -191,12 +191,8 @@ class TestParticleTrackGalaxyFinderJug( unittest.TestCase ):
         self.originalfile = './tests/data/tracking_output/ptracks_test.hdf5'
         self.savefile = './tests/data/tracking_output/galids_test_jug.hdf5'
 
-        jugdata_dir = './tests/find_galaxies_for_ptracks_jugfile.jugdata'
-
         if os.path.isfile( self.savefile ):
             os.system( 'rm {}'.format( self.savefile ) )
-        if os.path.isdir( jugdata_dir ):
-            shutil.rmtree( jugdata_dir )
 
     ########################################################################
 
@@ -217,3 +213,12 @@ class TestParticleTrackGalaxyFinderJug( unittest.TestCase ):
         for key in expected.keys():
             if key != 'parameters':
                 npt.assert_allclose( expected[key], actual[key] )
+
+    ########################################################################
+
+    def tearDown( self ):
+
+        jugdata_dir = './tests/find_galaxies_for_ptracks_jugfile.jugdata'
+
+        if os.path.isdir( jugdata_dir ):
+            shutil.rmtree( jugdata_dir )
