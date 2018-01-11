@@ -17,8 +17,6 @@ parallel_kwargs = {
     'mtree_halos_index': 600,
     'main_mt_halo_id': 0,
     'n_processors': 2,
-
-    'use_jug': True,
 }
 
 particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(

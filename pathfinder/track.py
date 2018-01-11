@@ -8,6 +8,7 @@
 
 import gc
 import h5py
+import jug
 import numpy as np
 import os
 import pandas as pd
@@ -37,6 +38,7 @@ class ParticleTracker( object ):
         self,
         out_dir,
         tag,
+        ids_tag = default,
         sdir = default,
         p_types = default,
         snum_start = default,
@@ -53,7 +55,9 @@ class ParticleTracker( object ):
 
             tag (str) :
                 Identifying tag. Currently must be put in manually.
-                Should be the same for all stages of the pipeline.
+
+            ids_tag (str) :
+                Identifying tag for the ids. Defaults to tag.
 
             sdir (str, optional):
                 Simulation data directory. Defaults to same directory the IDs
@@ -76,6 +80,9 @@ class ParticleTracker( object ):
             n_processors (int, optional) :
                 Number of processors to use.
         '''
+
+        if self.ids_tag is default:
+            self.ids_tag = tag
 
         pass
 
@@ -100,12 +107,12 @@ class ParticleTracker( object ):
 
         # Loop overall redshift snapshots and get the data out
         if self.n_processors > 1:
-            self.ptrack = self.get_tracked_data_parallel()
+            formatted_data = self.get_tracked_data_parallel()
         else:
-            self.ptrack = self.get_tracked_data()
+            formatted_data = self.get_tracked_data()
 
         # Write particle data to the file
-        self.write_tracked_data()
+        self.write_tracked_data( formatted_data )
 
         time_end = time.time()
 
@@ -115,6 +122,23 @@ class ParticleTracker( object ):
         print "Output file saved as:\n    {}".format( self.outname )
         print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format(
             time_end - time_start, (time_end - time_start) / self.ntrack )
+
+    ########################################################################
+
+    def save_particle_tracks_jug( self ):
+        '''Loop over all redshifts, get the data, and save the particle tracks.
+        '''
+
+        # Get the target ids
+        jug.Task( self.get_target_ids )
+
+        tracked_data_snapshots = self.get_tracked_data_jug()
+
+        formatted_data = jug.Task(
+            self.format_tracked_data, tracked_data_snapshots )
+
+        # Write particle data to the file
+        jug.Task( self.write_tracked_data, formatted_data )
 
     ########################################################################
 
@@ -129,7 +153,7 @@ class ParticleTracker( object ):
                 child_ids are included.
         '''
 
-        id_filename = 'ids_{}.hdf5'.format( self.tag )
+        id_filename = 'ids_{}.hdf5'.format( self.ids_tag )
         self.id_filepath = os.path.join( self.out_dir, id_filename )
 
         f = h5py.File( self.id_filepath, 'r' )
@@ -208,7 +232,7 @@ class ParticleTracker( object ):
             time_1 = time.time()
 
             id_finder = IDFinder()
-            dfid, redshift, self.attrs = id_finder.find_ids(
+            dfid, redshift, attrs = id_finder.find_ids(
                 self.sdir,
                 snum,
                 self.p_types,
@@ -248,7 +272,7 @@ class ParticleTracker( object ):
                 .format(  snum, redshift, time_2 - time_1 )
             sys.stdout.flush()
 
-        return ptrack
+        return ptrack, attrs
 
     ########################################################################
 
@@ -332,7 +356,7 @@ class ParticleTracker( object ):
 
         for tracked_data_snapshot in tracked_data_snapshots:
 
-            j, dfid, redshift, self.attrs, snum = tracked_data_snapshot
+            j, dfid, redshift, attrs, snum = tracked_data_snapshot
 
             ptrack['redshift'][j] = redshift
             ptrack['snum'][j] = snum
@@ -356,12 +380,149 @@ class ParticleTracker( object ):
                 [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ]
             ).T
 
-        return ptrack
+        return ptrack, attrs
 
     ########################################################################
 
-    def write_tracked_data( self ):
-        '''Write tracks to a file.'''
+    def get_tracked_data_jug( self ):
+        '''Loop overall redshift snapshots, and get the data. This is the
+        parallelized version that uses Jug
+
+        Returns:
+            ptrack (dict):
+                Structure to hold particle tracks.
+                Structure is...
+                ptrack ['varname'] [particle i, snap j, k component]
+        '''
+
+        self.snaps = np.arange(
+            self.snum_end, self.snum_start - 1, -self.snum_step )
+
+        self.ntrack = self.target_ids.size
+        print "Tracking {} particles...".format( self.ntrack )
+        sys.stdout.flush()
+
+        def get_tracked_data_snapshot( args ):
+
+            i, snum = args
+
+            time_1 = time.time()
+
+            id_finder = IDFinder()
+            dfid, redshift, attrs = id_finder.find_ids(
+                self.sdir,
+                snum,
+                self.p_types,
+                self.target_ids,
+                target_child_ids=self.target_child_ids,
+            )
+
+            # Maybe helps stop leaking memory
+            del id_finder
+            gc.collect()
+
+            time_2 = time.time()
+
+            # Print output information.
+            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
+                .format( snum, redshift, time_2 - time_1 )
+            sys.stdout.flush()
+
+            return i, dfid, redshift, attrs, snum
+
+        tracked_data_snapshots = []
+        for args in enumerate( self.snaps ):
+
+            tracked_data = jug.Task( get_tracked_data_snapshot, args )
+
+            tracked_data_snapshots.append( tracked_data )
+
+        return tracked_data_snapshots
+
+    ########################################################################
+
+    def format_tracked_data( self, tracked_data_snapshots ):
+        '''Format data for storage.
+
+        Args:
+            tracked_data_snapshots (list) :
+                List of unsorted data.
+
+        Returns:
+            ptrack (dict) :
+                Formatted data.
+
+            attrs (dict) :
+                Formatted data attributes.
+        '''
+
+        # number of redshift snapshots that we follow back
+        nsnap = self.snaps.size
+
+        # Choose between single or double precision.
+        myfloat = 'float32'
+
+        ptrack = {
+            'redshift': np.zeros( nsnap, dtype=myfloat ),
+            'snum': np.zeros( nsnap, dtype='int16' ),
+            'ID': np.zeros( self.ntrack, dtype='int64' ),
+            'PType': np.zeros( self.ntrack, dtype=('int8', (nsnap,)) ),
+            'Den': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'SFR': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'T': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'Z': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'M': np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) ),
+            'P': np.zeros( self.ntrack, dtype=(myfloat, (nsnap, 3)) ),
+            'V': np.zeros( self.ntrack, dtype=(myfloat, (nsnap, 3)) ),
+        }
+
+        ptrack['ID'] = self.target_ids
+        if self.target_child_ids is not None:
+            ptrack['ChildID'] = self.target_child_ids
+
+        for tracked_data_snapshot in tracked_data_snapshots:
+
+            j, dfid, redshift, attrs, snum = tracked_data_snapshot
+
+            ptrack['redshift'][j] = redshift
+            ptrack['snum'][j] = snum
+            ptrack['PType'][:, j] = dfid['PType'].values
+            # cm^(-3)
+            ptrack['Den'][:, j] = dfid['Den'].values
+            # Msun / year   (stellar Age in Myr for star particles)
+            ptrack['SFR'][:, j] = dfid['SFR'].values
+            # Kelvin
+            ptrack['T'][:, j] = dfid['T'].values
+            # Zsun (metal mass fraction in Solar units)
+            ptrack['Z'][:, j] = dfid['Z'].values
+            # Msun (particle mass in solar masses)
+            ptrack['M'][:, j] = dfid['M'].values
+            # kpc (physical)
+            ptrack['P'][:, j, :] = np.array(
+                [ dfid['P0'].values, dfid['P1'].values, dfid['P2'].values ]
+            ).T
+            # km/s (peculiar - need to add H(a)*r contribution)
+            ptrack['V'][:, j, :] = np.array(
+                [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ]
+            ).T
+
+        return ptrack, attrs
+
+    ########################################################################
+    ########################################################################
+
+    def write_tracked_data( self, formatted_data ):
+        '''Write tracks to a file.
+
+        Args:
+            formatted_data (dict) :
+                Formatted particle track data.
+
+            attrs (dict):
+                Particle track data attributes.
+        '''
+
+        ptrack, attrs = formatted_data
 
         # Make sure the output location exists
         if not os.path.exists( self.out_dir ):
@@ -374,12 +535,12 @@ class ParticleTracker( object ):
         f = h5py.File( outpath, 'w' )
 
         # Save data
-        for keyname in self.ptrack.keys():
-                f.create_dataset( keyname, data=self.ptrack[keyname] )
+        for keyname in ptrack.keys():
+                f.create_dataset( keyname, data=ptrack[keyname] )
 
         # Save the attributes
-        for key in self.attrs.keys():
-            f.attrs[key] = self.attrs[key]
+        for key in attrs.keys():
+            f.attrs[key] = attrs[key]
 
         utilities.save_parameters( self, f )
 

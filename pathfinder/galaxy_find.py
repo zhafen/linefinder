@@ -49,7 +49,6 @@ class ParticleTrackGalaxyFinder( object ):
         minimum_criteria = 'n_star',
         minimum_value = 10,
         n_processors = 1,
-        use_jug = False,
     ):
         '''Initialize.
 
@@ -106,10 +105,6 @@ class ParticleTrackGalaxyFinder( object ):
             n_processors (int) :
                 The number of processors to use. If parallel, expect significant
                 memory usage.
-
-            use_jug (bool) :
-                If True, then parallelization will be done through the Jug
-                Python package (Coelho2017, http://doi.org/10.5334/jors.161)
         '''
 
         pass
