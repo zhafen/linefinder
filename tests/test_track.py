@@ -522,7 +522,7 @@ class TestSaveTargetedParticlesJug( unittest.TestCase ):
             config.JUG_EXEC_PATH )
         )
 
-        f = h5py.File( './tests/data/tracking_output/ptracks_test.hdf5', 'r' )
+        f = h5py.File( './tests/data/tracking_output/ptracks_test_jug.hdf5', 'r' )
 
         expected_snum = np.arange(600, 490, -50)
         actual_snum = f['snum'][...]

@@ -1,1 +1,3 @@
-{}
+{
+  "test_track.py::TestSaveTargetedParticlesJug::test_basic": true
+}

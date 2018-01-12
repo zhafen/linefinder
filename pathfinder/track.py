@@ -130,7 +130,7 @@ class ParticleTracker( object ):
         '''
 
         # Get the target ids
-        jug.Task( self.get_target_ids )
+        self.get_target_ids()
 
         tracked_data_snapshots = self.get_tracked_data_jug()
 
