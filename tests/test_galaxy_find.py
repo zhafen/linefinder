@@ -197,7 +197,7 @@ class TestParticleTrackGalaxyFinderJug( unittest.TestCase ):
     ########################################################################
 
     @slow
-    def test_find_galaxies_for_particle_tracks_parallel( self ):
+    def test_find_galaxies_for_particle_tracks_jug( self ):
 
         os.system( "{} ./tests/find_galaxies_for_ptracks_jugfile.py &".format(
             config.JUG_EXEC_PATH )

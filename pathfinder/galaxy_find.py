@@ -351,10 +351,29 @@ class ParticleTrackGalaxyFinder( object ):
             self.ptrack_gal_ids (dict) : Where the galaxy IDs are stored.
         '''
 
-        def get_galaxy_and_halo_ids( args ):
+        def get_galaxy_and_halo_ids( i ):
             '''Get the galaxy and halo ids for a single snapshot.'''
 
-            particle_positions, kwargs = args
+            # Get the particle positions
+            particle_positions = self.ptrack['P'][...][ :, i ]
+
+            # Get the data parameters to pass to GalaxyFinder
+            kwargs = {
+                'ahf_reader': None,
+                'galaxy_cut': self.galaxy_cut,
+                'length_scale': self.length_scale,
+                'ids_to_return': self.ids_to_return,
+                'minimum_criteria': self.minimum_criteria,
+                'minimum_value': self.minimum_value,
+
+                'redshift': self.ptrack['redshift'][...][ i ],
+                'snum': self.ptrack['snum'][...][ i ],
+                'hubble': self.ptrack.attrs['hubble'],
+                'ahf_data_dir': self.ahf_data_dir,
+                'mtree_halos_index': self.mtree_halos_index,
+                'main_mt_halo_id': self.main_mt_halo_id,
+                'halo_file_tag': self.halo_file_tag,
+            }
 
             time_start = time.time()
 
@@ -387,30 +406,9 @@ class ParticleTrackGalaxyFinder( object ):
         galaxy_and_halo_ids_all = []
         for i in range( n_snaps ):
 
-            # Get the particle positions
-            particle_positions = self.ptrack['P'][...][ :, i ]
-
-            # Get the data parameters to pass to GalaxyFinder
-            kwargs = {
-                'ahf_reader': None,
-                'galaxy_cut': self.galaxy_cut,
-                'length_scale': self.length_scale,
-                'ids_to_return': self.ids_to_return,
-                'minimum_criteria': self.minimum_criteria,
-                'minimum_value': self.minimum_value,
-
-                'redshift': self.ptrack['redshift'][...][ i ],
-                'snum': self.ptrack['snum'][...][ i ],
-                'hubble': self.ptrack.attrs['hubble'],
-                'ahf_data_dir': self.ahf_data_dir,
-                'mtree_halos_index': self.mtree_halos_index,
-                'main_mt_halo_id': self.main_mt_halo_id,
-                'halo_file_tag': self.halo_file_tag,
-            }
-
             galaxy_and_halo_ids = jug.Task(
                 get_galaxy_and_halo_ids,
-                ( particle_positions, kwargs )
+                i,
             )
 
             galaxy_and_halo_ids_all.append( galaxy_and_halo_ids )
