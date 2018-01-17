@@ -48,6 +48,7 @@ class Classifier( object ):
         classifications_to_save = [
             'is_unaccreted', 'is_pristine', 'is_preprocessed',
             'is_merger', 'is_mass_transfer', 'is_wind',
+            'is_hitherto_EP', 'is_hitherto_NEP',
             'is_unaccreted_EP', 'is_unaccreted_NEP',
         ],
         write_events = True,
@@ -204,6 +205,8 @@ class Classifier( object ):
         # Get the primary classifications
         print "Performing the main classifications..."
         sys.stdout.flush()
+        self.is_hitherto_EP = self.identify_hitherto_EP()
+        self.is_hitherto_NEP = self.identify_hitherto_NEP()
         self.is_unaccreted = self.identify_unaccreted()
         self.is_unaccreted_EP = self.identify_unaccreted_EP()
         self.is_unaccreted_NEP = self.identify_unaccreted_NEP()
@@ -740,9 +743,9 @@ class Classifier( object ):
         are true ), and generalizes to multiple events in other galaxies.
 
         Returns:
-            cumulative_time_in_other_gal ([ n_particle, ] np.ndarray of floats):
-                Time in another galaxy before being first accreted onto
-                the main galaxy.
+            cumulative_time_in_other_gal ([ n_particle, n_snap ]
+                np.ndarray of floats):
+                Time in another galaxy at a given snapshot.
         '''
         other_gal = self.is_in_other_gal[:, 0:self.n_snap - 1].astype( float )
         dt_in_other_gal = ( self.dt * other_gal )
@@ -822,6 +825,50 @@ class Classifier( object ):
     # Main Classification Methods
     ########################################################################
 
+    def identify_hitherto_EP( self ):
+        '''Identify particles that have been processed by another galaxy by
+        the tabulated snapshot.
+
+        Returns:
+            is_hitherto_EP ( [n_particle,n_snap] np.ndarray of bools ) :
+                True for particle i at snapshot j if it has spent at least
+                t_pro in another galaxy by that point.
+        '''
+
+        is_hitherto_EP = self.cumulative_time_in_other_gal > self.t_pro
+
+        # Correct for length of is_EP (since self.cumulative_time_in_other_gal
+        # doesn't extend to all snapshots)
+        values_to_append = np.array( [ False, ] * self.n_particle )
+        is_hitherto_EP = np.insert(
+            is_hitherto_EP, -1, values_to_append, axis=1 )
+
+        return is_hitherto_EP
+
+    ########################################################################
+
+    def identify_hitherto_NEP( self ):
+        '''Identify particles that have been processed by another galaxy by
+        the tabulated snapshot.
+
+        Returns:
+            is_hitherto_EP ( [n_particle,n_snap] np.ndarray of bools ) :
+                True for particle i at snapshot j if it has spent at least
+                t_pro in another galaxy by that point.
+        '''
+
+        is_hitherto_NEP = self.cumulative_time_in_other_gal <= self.t_pro
+
+        # Correct for length of is_NEP (since self.cumulative_time_in_other_gal
+        # doesn't extend to all snapshots)
+        values_to_append = np.array( [ True, ] * self.n_particle )
+        is_hitherto_NEP = np.insert(
+            is_hitherto_NEP, -1, values_to_append, axis=1 )
+
+        return is_hitherto_NEP
+
+    ########################################################################
+
     def identify_unaccreted( self ):
         '''Identify particles never accreted onto the main galaxy.
 
@@ -845,20 +892,14 @@ class Classifier( object ):
         Returns:
             is_unaccreted_EP ( [n_particle,n_snap] np.ndarray of bools ) :
                 True for particle i at snapshot j if it has spent at least
-                t_pro in another galaxy by that point.
+                t_pro in another galaxy by that point and never accretes onto
+                the main galaxy.
         '''
 
         unaccreted_tiled_rot = np.tile( self.is_unaccreted, ( self.n_snap, 1) )
         unaccreted_tiled = unaccreted_tiled_rot.transpose()
 
-        is_EP = self.cumulative_time_in_other_gal > self.t_pro
-
-        # Correct for length of is_EP (since self.cumulative_time_in_other_gal
-        # doesn't extend to all snapshots)
-        values_to_append = np.array( [ False, ] * self.n_particle )
-        is_EP = np.insert( is_EP, -1, values_to_append, axis=1 )
-
-        is_unaccreted_EP = unaccreted_tiled & is_EP
+        is_unaccreted_EP = unaccreted_tiled & self.is_hitherto_EP
 
         return is_unaccreted_EP
 
@@ -877,14 +918,7 @@ class Classifier( object ):
         unaccreted_tiled_rot = np.tile( self.is_unaccreted, ( self.n_snap, 1) )
         unaccreted_tiled = unaccreted_tiled_rot.transpose()
 
-        is_NEP = self.cumulative_time_in_other_gal <= self.t_pro
-
-        # Correct for length of is_NEP (since self.cumulative_time_in_other_gal
-        # doesn't extend to all snapshots)
-        values_to_append = np.array( [ True, ] * self.n_particle )
-        is_NEP = np.insert( is_NEP, -1, values_to_append, axis=1 )
-
-        is_unaccreted_NEP = unaccreted_tiled & is_NEP
+        is_unaccreted_NEP = unaccreted_tiled & self.is_hitherto_NEP
 
         return is_unaccreted_NEP
 
@@ -907,7 +941,7 @@ class Classifier( object ):
                                  self.ind_first_snap - self.neg )
         is_preprocessed[bc_should_be_applied] = False
 
-        # Make sure that ever particle classified as unaccreted is not also
+        # Make sure that every particle classified as unaccreted is not also
         # classified as preprocessed
         is_preprocessed[self.is_unaccreted] = False
 

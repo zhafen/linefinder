@@ -699,6 +699,60 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     ########################################################################
 
+    def test_identify_hitherto_EP( self ):
+        '''Test that we can identify material classified as EP up until
+        this point.
+        '''
+
+        # Test data
+        self.classifier.n_particle = 4
+        self.classifier.cumulative_time_in_other_gal = np.array([
+            [ 102., 51., 51.,  0, ],
+            [ 153., 153., 102., 51., ],
+            [ 153, 102., 51., 0, ],
+            [ 153, 102., 51., 0, ],
+        ])
+
+        actual = self.classifier.identify_hitherto_EP()
+
+        expected = np.array([
+            [ 1, 0, 0, 0, 0, ],
+            [ 1, 1, 1, 0, 0, ],
+            [ 1, 1, 0, 0, 0, ],
+            [ 1, 1, 0, 0, 0, ],
+        ]).astype( bool )
+
+        npt.assert_allclose( expected, actual, )
+
+    ########################################################################
+
+    def test_identify_hitherto_NEP( self ):
+        '''Test that we can identify material classified as NEP up until
+        this point.
+        '''
+
+        # Test data
+        self.classifier.n_particle = 4
+        self.classifier.cumulative_time_in_other_gal = np.array([
+            [ 102., 51., 51.,  0, ],
+            [ 153., 153., 102., 51., ],
+            [ 153, 102., 51., 0, ],
+            [ 153, 102., 51., 0, ],
+        ])
+
+        actual = self.classifier.identify_hitherto_NEP()
+
+        expected = np.array([
+            [ 0, 1, 1, 1, 1, ],
+            [ 0, 0, 0, 1, 1, ],
+            [ 0, 0, 1, 1, 1, ],
+            [ 0, 0, 1, 1, 1, ],
+        ]).astype( bool )
+
+        npt.assert_allclose( expected, actual, )
+
+    ########################################################################
+
     def test_identify_unaccreted_EP( self ):
         '''Test that we can identiy unaccreted EP gas.
         '''
@@ -711,12 +765,12 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
             1,
             0,
         ]).astype( bool )
-        self.classifier.cumulative_time_in_other_gal = np.array([
-            [ 102., 51., 51.,  0, ],
-            [ 153., 153., 102., 51., ],
-            [ 153, 102., 51., 0, ],
-            [ 153, 102., 51., 0, ],
-        ])
+        self.classifier.is_hitherto_EP = np.array([
+            [ 1, 0, 0, 0, 0, ],
+            [ 1, 1, 1, 0, 0, ],
+            [ 1, 1, 0, 0, 0, ],
+            [ 1, 1, 0, 0, 0, ],
+        ]).astype( bool )
 
         actual = self.classifier.identify_unaccreted_EP()
 
@@ -743,12 +797,12 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
             1,
             0,
         ]).astype( bool )
-        self.classifier.cumulative_time_in_other_gal = np.array([
-            [ 102., 51., 51.,  0, ],
-            [ 153., 153., 102., 51., ],
-            [ 153, 102., 51., 0, ],
-            [ 153, 102., 51., 0, ],
-        ])
+        self.classifier.is_hitherto_NEP = np.array([
+            [ 0, 1, 1, 1, 1, ],
+            [ 0, 0, 0, 1, 1, ],
+            [ 0, 0, 1, 1, 1, ],
+            [ 0, 0, 1, 1, 1, ],
+        ]).astype( bool )
 
         actual = self.classifier.identify_unaccreted_NEP()
 
@@ -935,6 +989,18 @@ class TestFullClassifierPipeline( unittest.TestCase ):
             [ 0, 0, 0, 0, 0, ],
         ]).astype( bool )
         self.classifier.is_unaccreted_NEP = np.array([
+            [ 1, 0, 0, 0, 0, ],
+            [ 1, 1, 1, 0, 0, ],
+            [ 1, 1, 0, 0, 0, ],
+            [ 0, 0, 0, 0, 0, ],
+        ]).astype( bool )
+        self.classifier.is_hitherto_EP = np.array([
+            [ 1, 0, 0, 0, 0, ],
+            [ 1, 1, 1, 0, 0, ],
+            [ 1, 1, 0, 0, 0, ],
+            [ 0, 0, 0, 0, 0, ],
+        ]).astype( bool )
+        self.classifier.is_hitherto_NEP = np.array([
             [ 1, 0, 0, 0, 0, ],
             [ 1, 1, 1, 0, 0, ],
             [ 1, 1, 0, 0, 0, ],

@@ -853,6 +853,10 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_EP_instant( self ):
+
+        pass
+
     def calc_dt( self ):
         '''Calc time difference between snapshots.
 
