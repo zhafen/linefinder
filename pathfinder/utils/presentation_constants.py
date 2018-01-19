@@ -28,6 +28,8 @@ CLASSIFICATION_LABELS = {
     'is_unaccreted': 'Unaccreted',
     'is_unaccreted_EP': 'Unaccreted-EP',
     'is_unaccreted_NEP': 'Unaccreted-NEP',
+    'is_hitherto_EP_NYA': 'EP CGM',
+    'is_hitherto_NEP_NYA': 'NEP CGM',
 }
 
 # These are in line with the colors used in Angles-Alcazar2017
@@ -48,6 +50,8 @@ CLASSIFICATION_COLORS_A = {
     'is_unaccreted': '#a65628',
     'is_unaccreted_EP': '#a65628',
     'is_unaccreted_NEP': '#ffff33',
+    'is_hitherto_EP_NYA': '#a65628',
+    'is_hitherto_NEP_NYA': '#ffff33',
 }
 
 # This is the revised colorscheme.
@@ -71,6 +75,8 @@ CLASSIFICATION_COLORS_B = {
     'is_unaccreted': '#A400AF',
     'is_unaccreted_NEP': '#6F06C6',
     'is_unaccreted_EP': '#C60954',
+    'is_hitherto_EP_NYA': '#FB9319',
+    'is_hitherto_NEP_NYA': '#007AAF',
 }
 
 # This is used in some cases, e.g. when making bar plots, to make them a little
@@ -140,6 +146,13 @@ CLASSIFICATIONS_CGM_B = [
     'is_NEP_NYA',
     'is_unaccreted_NEP',
     'is_unaccreted_EP',
+]
+
+# This set of classifications is centered on the origin of the CGM
+CLASSIFICATIONS_CGM_ORIGIN = [
+    'is_wind',
+    'is_hitherto_EP_NYA',
+    'is_hitherto_NEP_NYA',
 ]
 
 ########################################################################

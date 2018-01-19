@@ -313,6 +313,119 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     ########################################################################
 
+    def plot_stacked_radial_data(
+        self,
+        radial_bins,
+        ax = default,
+        x_range = default, y_range = [0., 1.],
+        x_label = default, y_label = default,
+        plot_dividing_line = False,
+        classification_list = p_constants.CLASSIFICATIONS_A,
+        classification_colors = p_constants.CLASSIFICATION_COLORS_B,
+        *args, **kwargs
+    ):
+        '''
+
+        Args:
+            ax (axis object) :
+                What axis to put the plot on. By default, create a new one on a separate figure.
+
+            x_range, y_range (list-like) :
+                [ x_min, x_max ] or [ y_min, y_max ] for the displayed range.
+
+            x_label, y_label (str) :
+                Labels for axis. By default, redshift and f(M_star), respectively.
+
+            plot_dividing_line (bool) :
+                Whether or not to plot a line at the edge between stacked regions.
+        '''
+
+        if ax is default:
+            fig = plt.figure( figsize=(11,5), facecolor='white' )
+            ax = plt.gca()
+
+        y_datas = self.data_object.get_categories_selected_quantity_fraction(
+            radial_bins = radial_bins,
+            classification_list = classification_list,
+            selected_quantity_method = 'get_selected_quantity_radial_bins',
+            *args, **kwargs
+        )
+
+        y_prev = np.zeros( shape=y_datas.values()[0].shape )
+
+        dr = radial_bins[1] - radial_bins[0]
+        x_data = radial_bins[:-1] + dr / 2
+
+        color_objects = []
+        labels = []
+        for key in classification_list[::-1]:
+
+            y_next = y_prev + y_datas[key]
+
+            ax.fill_between(
+                x_data,
+                y_prev,
+                y_next,
+                color = classification_colors[key],
+                alpha = p_constants.CLASSIFICATION_ALPHA,
+            )
+
+            if plot_dividing_line:
+                ax.plot(
+                    x_data,
+                    y_next,
+                    linewidth = 1,
+                    color = classification_colors[key],
+                )
+
+            y_prev = y_next
+
+            # Make virtual artists to allow a legend to appear
+            color_object = matplotlib.patches.Rectangle(
+                (0, 0),
+                1,
+                1,
+                fc = classification_colors[key],
+                ec = classification_colors[key],
+                alpha = p_constants.CLASSIFICATION_ALPHA,
+            )
+            color_objects.append( color_object )
+            labels.append( p_constants.CLASSIFICATION_LABELS[key] )
+
+        if x_range is default:
+            ax.set_xlim( radial_bins.min(), radial_bins.max() )
+        else:
+            ax.set_xlim( x_range )
+
+        if y_range is not default:
+            ax.set_ylim( y_range )
+
+        if y_label is default:
+            y_label = r'Stacked Radial Data'
+        if x_label is default:
+            x_label = r'R'
+
+        ax.set_xlabel( x_label, fontsize=22, )
+        ax.set_ylabel( y_label, fontsize=22, )
+
+        ax.annotate(
+            s=self.label,
+            xy=(0.,1.0225),
+            xycoords='axes fraction',
+            fontsize=22,
+        )
+
+        ax.legend(
+            color_objects,
+            labels,
+            prop={'size':14.5},
+            ncol=5,
+            loc=(0.,-0.28),
+            fontsize=20
+        )
+
+    ########################################################################
+
     def plot_dist_hist( self,
         data_key,
         ax,

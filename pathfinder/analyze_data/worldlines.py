@@ -601,11 +601,14 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     def get_selected_quantity( self, selection_routine='galaxy', ptype='star', quantity='mass', *args, **kwargs ):
-        '''Get the total mass in the main galaxy for a particular particle type.
+        '''Apply a selection routine, and then get out the total mass (or
+        some other quantity) of particles that fulfill that criteria.
 
         Args:
 
-            selection_routine (
+            selection_routine (str) :
+                What selection routine to run. E.g. 'galaxy' selects all
+                particles in the main galaxy.
 
             ptype (str):
                 What particle type inside the galaxy to consider.
@@ -648,17 +651,135 @@ class Worldlines( simulation_data.TimeData ):
             selected_quantity = np.invert( data_ma.mask ).sum( axis=0 )
 
         else:
-            raise Exception( "Unrecognized selected_quantity, selected_quantity = {}".format( selected_quantity ) )
+            raise Exception(
+                "Unrecognized selected_quantity, selected_quantity = {}"
+                .format( selected_quantity )
+            )
 
         return selected_quantity
 
-    def get_categories_selected_quantity( self, classification_list=p_constants.CLASSIFICATIONS_A, *args, **kwargs ):
+    ########################################################################
+
+    def get_selected_quantity_radial_bins(
+        self,
+        selection_routine='galaxy',
+        ptype='star',
+        quantity='mass',
+        radial_bins = np.arange( 0., 1.1, 1.0 ),
+        radial_bin_data_kwargs = {
+            'scale_key': 'Rvir',
+            'scale_a_power': 1.,
+            'scale_h_power': -1.,
+        },
+        *args, **kwargs
+    ):
+        '''Apply a selection routine, and then get out the total mass (or
+        some other quantity) of particles that fulfill that criteria,
+        in specified radial bins.
+
+        Args:
+
+            selection_routine (str) :
+                What selection routine to run. E.g. 'galaxy' selects all
+                particles in the main galaxy.
+
+            ptype (str):
+                What particle type inside the galaxy to consider.
+
+            quantity (str):
+                What quantity to retrieve.
+
+            radial_bins (np.ndarray) :
+                Radial bins to use.
+
+            radial_bin_data_kwargs (dict) :
+                Arguments to change how the data is masked. For example,
+                if you want to scale the data (done by default), use this
+                dictionary to do so. These are arguments that would be passed
+                to self.data_masker.mask_data and in turn
+                self.data_masker.get_processed_data.
+
+            *args, **kwargs :
+                Additional arguments to be passed to self.get_masked_data()
+
+        Returns:
+            selected_quantity (np.ndarray) :
+                Total mass for a particular particle type in the main galaxy
+                (satisfying any additional requirements passed via *args and **kwargs)
+                at each specified redshift.
+        '''
+
+        # Get a fresh start
+        self.data_masker.clear_masks( True )
+
+        # Run the selection routine
+        self.data_masker.run_selection_routine( selection_routine, ptype )
+
+        # Loop over each radial bin and get the results out
+        selected_quantity_radial_bins = []
+        for i in range( radial_bins.size - 1 ):
+
+            r_in = radial_bins[i]
+            r_out = radial_bins[i + 1]
+
+            radial_bin_mask_name = 'R{}'.format( i )
+
+            self.data_masker.mask_data(
+                'R',
+                r_in,
+                r_out,
+                optional_mask = True,
+                mask_name = radial_bin_mask_name,
+                **radial_bin_data_kwargs
+            )
+
+            data_ma = self.get_masked_data(
+                'M',
+                fix_invalid = True,
+                compress = False,
+                optional_masks = [ radial_bin_mask_name ],
+                *args, **kwargs
+            )
+
+            if quantity == 'mass':
+
+                # Test for the case when everything is masked.
+                if np.invert( data_ma.mask ).sum() == 0:
+                    return 0.
+
+                selected_quantity = data_ma.sum( axis=0 )
+
+                # Replace masked values with 0
+                try:
+                    selected_quantity.fill_value = 0.
+                    selected_quantity = selected_quantity.filled()
+
+                except AttributeError:
+                    pass
+
+            selected_quantity_radial_bins.append( selected_quantity )
+
+        return np.array( selected_quantity_radial_bins )
+
+    ########################################################################
+
+    def get_categories_selected_quantity(
+        self,
+        classification_list = p_constants.CLASSIFICATIONS_A,
+        selected_quantity_method = 'get_selected_quantity',
+        *args, **kwargs
+    ):
         '''Get the total mass in the main galaxy for a particular particle type in each
         of a number of classification categories. This is only for particles that are tracked! This is not the real mass!
 
         Args:
             classification_list (list) :
                 What classifications to use.
+
+            selected_quantity_method (str) :
+                Method to use for getting the selected quantity.
+                For example, use 'get_selected_quantity_radial_bins' if you
+                want the selected quantity in, well, radial bins.
 
             *args, **kwargs :
                 Additional arguments to be passed to self.get_masked_data()
@@ -668,22 +789,35 @@ class Worldlines( simulation_data.TimeData ):
                 selected_quantity that fits each classification.
         '''
 
+        selected_quantity_fn = getattr( self, selected_quantity_method )
+
         selected_quantity = {}
         for mass_category in classification_list:
-            selected_quantity[mass_category] = self.get_selected_quantity( classification=mass_category, *args, **kwargs )
+            selected_quantity[mass_category] = selected_quantity_fn(
+                classification=mass_category, *args, **kwargs )
 
         return utilities.SmartDict( selected_quantity )
 
-    def get_categories_selected_quantity_fraction( self,
+    def get_categories_selected_quantity_fraction(
+        self,
         classification_list = p_constants.CLASSIFICATIONS_A,
-        *args, **kwargs ):
-        '''Same as categories_selected_quantity, but as a fraction of the total mass in the main galaxy
-        for a particular particle type.
+        selected_quantity_method = 'get_selected_quantity',
+        *args, **kwargs
+    ):
+        '''Same as categories_selected_quantity, but as a fraction of the total
+        mass in the main galaxy for a particular particle type.
         '''
 
-        categories_mass = self.get_categories_selected_quantity( classification_list=classification_list, *args, **kwargs )
+        categories_selected_quantity = self.get_categories_selected_quantity(
+            classification_list = classification_list,
+            selected_quantity_method = selected_quantity_method,
+            *args, **kwargs
+        )
 
-        return categories_mass/self.get_selected_quantity( *args, **kwargs )
+        selected_quantity_fn = getattr( self, selected_quantity_method )
+
+        return categories_selected_quantity / \
+            selected_quantity_fn( *args, **kwargs )
 
     def get_real_categories_selected_quantity( self,
         classification_list=p_constants.CLASSIFICATIONS_A,
@@ -800,19 +934,33 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_is_classification_NYA( self, classification ):
+    def calc_is_classification_NYA(
+        self,
+        classification,
+        tile_classification = True
+    ):
         '''Find material with the given classification that is not yet accreted (NYA) onto the main galaxy.
 
         Args:
-            classification (str) : What classification to get the result for.
+            classification (str) :
+                What classification to get the result for.
+
+            tile_classification (bool) :
+                If True, then the input classification should be tiled.
 
         Returns:
             is_classification_NYA ( [n_particles, n_snaps] np.ndarray ) :
-                The (i,j)th entry is True if particle i is not yet accreted by the jth index.
+                The (i,j)th entry is True if particle i is not yet
+                accreted by the jth index.
         '''
 
+        if tile_classification:
+            classification_key = '{}_tiled'.format( classification )
+        else:
+            classification_key = classification
+
         # Get the classification out first, tiled
-        is_classification_NYA = self.get_processed_data( '{}_tiled'.format( classification ) )
+        is_classification_NYA = self.get_processed_data( classification_key )
 
         # Find the indices after accreting
         ind_first_acc_tiled = self.get_processed_data( 'ind_first_acc_tiled' )
@@ -833,6 +981,22 @@ class Worldlines( simulation_data.TimeData ):
 
         self.data['is_NEP_NYA'] = self.calc_is_classification_NYA( 'is_pristine' )
 
+    ########################################################################
+
+    def calc_is_hitherto_EP_NYA( self ):
+
+        self.data['is_hitherto_EP_NYA'] = \
+            self.calc_is_classification_NYA( 'is_hitherto_EP',
+                tile_classification = False )
+
+    ########################################################################
+
+    def calc_is_hitherto_NEP_NYA( self ):
+
+        self.data['is_hitherto_NEP_NYA'] = \
+            self.calc_is_classification_NYA( 'is_hitherto_NEP',
+                tile_classification = False )
+
     def calc_is_merger_NYA( self ):
         '''Find material classified as merger that is not yet accreted (NYA) onto the main galaxy.
 
@@ -852,10 +1016,6 @@ class Worldlines( simulation_data.TimeData ):
         self.data['is_mass_transfer_NYA'] = self.calc_is_classification_NYA( 'is_mass_transfer' )
 
     ########################################################################
-
-    def calc_is_EP_instant( self ):
-
-        pass
 
     def calc_dt( self ):
         '''Calc time difference between snapshots.
