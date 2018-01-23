@@ -109,7 +109,8 @@ class WorldlineSet( utilities.SmartDict ):
 
     def store_quantity(
         self,
-        quantity_method = 'get_selected_quantity_categories_fraction',
+        output_filepath,
+        quantity_method = 'get_categories_selected_quantity_fraction',
         *args, **kwargs
     ):
         '''Iterate over each Worldlines class in the set, obtaining a

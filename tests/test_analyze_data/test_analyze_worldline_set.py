@@ -6,6 +6,9 @@
 @status: Development
 '''
 
+import os
+import h5py
+
 import mock
 import unittest
 
@@ -127,6 +130,7 @@ class TestWorldlineSet( unittest.TestCase ):
     ########################################################################
 
     def test_from_tag_expansion( self ):
+        '''Test alternate construction method.'''
 
         w_set = analyze_worldline_set.WorldlineSet.from_tag_expansion(
             defaults,
@@ -139,5 +143,40 @@ class TestWorldlineSet( unittest.TestCase ):
 
         # Finally, just try opening ptracks
         w_set.ptracks
+
+    ########################################################################
+
+########################################################################
+########################################################################
+
+class TestStoreQuantity( unittest.TestCase ):
+
+    ########################################################################
+
+    def setUp( self ):
+
+        # Setup data
+        variations = {
+            'analyze_copy1': { 'tag': 'analyze_copy1' },
+            'analyze_copy2': { 'tag': 'analyze_copy2' },
+        }
+        self.w_set = analyze_worldline_set.WorldlineSet( defaults, variations )
+
+        self.stored_data_file = os.path.join(
+            defaults['data_dir'], 'stored_quantity.hdf5' )
+
+        if os.path.isfile( self.stored_data_file ):
+            os.remove( self.stored_data_file )
+
+    ########################################################################
+
+    def test_store_quantity( self ):
+
+        self.w_set.store_quantity(
+            self.stored_data_file, selection_routine=None )
+
+        f = h5py.File( self.stored_data_file, 'r' )
+
+    ########################################################################
 
 

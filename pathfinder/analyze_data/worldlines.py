@@ -631,13 +631,22 @@ class Worldlines( simulation_data.TimeData ):
         # Run the selection routine
         self.data_masker.run_selection_routine( selection_routine, ptype )
 
-        data_ma = self.get_masked_data( 'M', fix_invalid=True, compress=False, *args, **kwargs )
+        data_ma = self.get_masked_data(
+            'M',
+            fix_invalid = True,
+            compress = False,
+            *args, **kwargs
+        )
 
         if quantity == 'mass':
 
-            # Test for the case when everything is masked.
-            if np.invert( data_ma.mask ).sum() == 0:
-                return 0.
+            try:
+                # Test for the case when everything is masked.
+                if np.invert( data_ma.mask ).sum() == 0:
+                    return 0.
+            # Case when nothing is masked.
+            except AttributeError:
+                pass
 
             selected_quantity = data_ma.sum( axis=0 )
 
@@ -1274,7 +1283,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
         Args:
             selection_routine (str) :
-                What selection routine to run?
+                What selection routine to run? If None, don't run any.
 
             ptype (str) :
                 What particle type to select?
@@ -1283,6 +1292,9 @@ class WorldlineDataMasker( generic_data.DataMasker ):
             self.masks (list) :
                 Clears and adds masks to self.masks.
         '''
+
+        if selection_routine is None:
+            return
 
         if ptype == 'star':
             ptype_value = config.PTYPE_STAR
