@@ -6,7 +6,9 @@
 @status: Development
 '''
 
-import numpy as np
+import glob
+import os
+import string
 
 import matplotlib
 matplotlib.use('PDF')
@@ -37,8 +39,11 @@ class WorldlineSet( utilities.SmartDict ):
     def __init__( self, defaults, variations ):
         '''
         Args:
-            defaults (dict) : Set of default arguments for loading worldline data.
-            variations (dict of dicts) : Labels and differences in arguments to be passed to Worldlines
+            defaults (dict) :
+                Set of default arguments for loading worldline data.
+
+            variations (dict of dicts) :
+                Labels and differences in arguments to be passed to Worldlines
         '''
 
         # Load the worldline sets
@@ -56,12 +61,76 @@ class WorldlineSet( utilities.SmartDict ):
         super( WorldlineSet, self ).__init__( worldlines_plotters_d )
 
     ########################################################################
+
+    @classmethod
+    def from_tag_expansion( cls, defaults, tag_expansion ):
+        '''Create a worldline set using a bash-style expansion for the
+        variations.
+
+        Args:
+            defaults (dict) :
+                Set of default arguments for loading worldline data.
+
+            tag_expansion (str) :
+                String that can be expanded through wildcards to find
+                different worldline data. For example, 'analyze_*' would look
+                for all data files with tags starting with 'analyze' and ending
+                with something else;
+
+        Returns:
+            worldline_set (WorldlineSet instance)
+        '''
+
+        # Get the paths after everything's expanded
+        filepath_unexpanded = os.path.join(
+            defaults['data_dir'],
+            'ptracks_{}.hdf5'.format( tag_expansion ),
+        )
+        filepaths = glob.glob( filepath_unexpanded )
+
+        # Now get the variation dictionary out
+        variations = {}
+        for filepath in filepaths:
+
+            # Get the tag
+            filename = os.path.split( filepath )[1]
+            filename_base = string.split( filename, '.' )[0]
+            tag = filename_base[8:]
+
+            # Add the variation to the dictionary
+            variations[tag] = {}
+            variations[tag]['tag'] = tag
+
+        return cls( defaults, variations )
+
+    ########################################################################
+    # Data Analysis Methods
+    ########################################################################
+
+    def store_quantity(
+        self,
+        quantity_method = 'get_selected_quantity_categories_fraction',
+        *args, **kwargs
+    ):
+        '''Iterate over each Worldlines class in the set, obtaining a
+        specified quantity and then saving that to an .hdf5 file.
+        '''
+
+        quantity_method_used = getattr( self, quantity_method )
+
+        quantities = quantity_method_used(
+            *args, **kwargs
+        )
+
+    ########################################################################
     # Plotting Methods
     ########################################################################
 
-    def plot_w_set_same_axis( self,
+    def plot_w_set_same_axis(
+        self,
         plotting_method,
-        *args, **kwargs ):
+        *args, **kwargs
+    ):
 
         fig = plt.figure( figsize=(11,5), facecolor='white' )
         ax = plt.gca()
@@ -73,7 +142,8 @@ class WorldlineSet( utilities.SmartDict ):
 
     ########################################################################
 
-    def plot_classification_bar_same_axis( self,
+    def plot_classification_bar_same_axis(
+        self,
         kwargs = default,
         ind = 0,
         width = 0.5,
@@ -82,7 +152,8 @@ class WorldlineSet( utilities.SmartDict ):
         y_label = 'Classification Fraction',
         out_dir = None,
         save_file = 'bar_map.pdf',
-        **default_kwargs ):
+        **default_kwargs
+    ):
 
         fig = plt.figure( figsize=(11,5), facecolor='white' )
         ax = plt.gca()

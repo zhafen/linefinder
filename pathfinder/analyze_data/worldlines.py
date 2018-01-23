@@ -108,8 +108,10 @@ class Worldlines( simulation_data.TimeData ):
     def ptracks( self ):
 
         if not hasattr( self, '_ptracks' ):
-            self._ptracks = ptracks.PTracks( self.data_dir, self.ptracks_tag, store_ahf_reader=True,
-                                                                                              **self.ptracks_kwargs )
+            self._ptracks = ptracks.PTracks(
+                self.data_dir, self.ptracks_tag, store_ahf_reader=True,
+                **self.ptracks_kwargs
+            )
 
         return self._ptracks
 
