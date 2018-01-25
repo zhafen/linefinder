@@ -113,17 +113,40 @@ class WorldlineSet( utilities.SmartDict ):
         self,
         output_filepath,
         quantity_method = 'get_categories_selected_quantity_fraction',
+        variations = None,
         *args, **kwargs
     ):
         '''Iterate over each Worldlines class in the set, obtaining a
         specified quantity and then saving that to an .hdf5 file.
+
+        Args:
+            output_filepath (str) :
+                Full path to store the output at.
+
+            quantity_method (str) :
+                What method to use for getting the quantity out.
+
+            variations (dict) :
+                If provided, each Worldlines instance will be called
+                with the different kwargs stored in variations.
+
+            *args, **kwargs :
+                Arguments to be passed to quantity_method.
         '''
 
         quantity_method_used = getattr( self, quantity_method )
 
-        quantities = quantity_method_used(
-            *args, **kwargs
-        )
+        if variations is None:
+            quantities = quantity_method_used(
+                *args, **kwargs
+            )
+        else:
+            assert len(args) == 0, \
+                "variations arg is not compatible with calling" + \
+                " quantity_method with *args."
+
+            quantities = quantity_method_used.call_custom_kwargs(
+                variations, kwargs )
 
         # Setup data to store
         data_to_store = {}

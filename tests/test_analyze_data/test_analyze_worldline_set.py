@@ -140,8 +140,8 @@ class TestWorldlineSet( unittest.TestCase ):
         )
 
         # Make sure the tags are good
-        assert w_set['analyze_copy1'].tag == 'analyze_copy1'
-        assert w_set['analyze_copy2'].tag == 'analyze_copy2'
+        assert w_set['analyze_v1'].tag == 'analyze_v1'
+        assert w_set['analyze_v2'].tag == 'analyze_v2'
 
         # Finally, just try opening ptracks
         w_set.ptracks
@@ -159,8 +159,8 @@ class TestStoreQuantity( unittest.TestCase ):
 
         # Setup data
         variations = {
-            'analyze_copy1': { 'tag': 'analyze_copy1' },
-            'analyze_copy2': { 'tag': 'analyze_copy2' },
+            'analyze_v1': { 'tag': 'analyze_v1' },
+            'analyze_v2': { 'tag': 'analyze_v2' },
         }
         self.w_set = analyze_worldline_set.WorldlineSet( defaults, variations )
 
@@ -182,17 +182,36 @@ class TestStoreQuantity( unittest.TestCase ):
 
         f = h5py.File( self.stored_data_file, 'r' )
 
-        expected_tags = np.array( [ 'analyze_copy1', 'analyze_copy2', ] )
-        expected_fresh_acc = np.array( [ 0.25078213, ]*2 )
+        expected_tags = np.array( [ 'analyze_v1', 'analyze_v2', ] )
+        expected_fresh_acc = np.array( [ 0.50052142, 0.25078213 ] )
 
-        for i, tag in enumerate( expected_tags ):
-            assert tag == f['tags'][...][i]
-        npt.assert_allclose( f['is_fresh_accretion'][...], expected_fresh_acc )
+        for i,tag in enumerate( f['tags'][...] ):
+            assert f['tags'][i]  in expected_tags
+        npt.assert_allclose( f['is_fresh_accretion'], expected_fresh_acc )
 
     ########################################################################
 
     def test_store_quantity_variable_args( self ):
+        '''Test that this works when giving variations to the arguments called.
+        '''
 
-        assert False, "Need to do!"
+        self.w_set.store_quantity(
+            self.stored_data_file,
+            selection_routine = None,
+            quantity_method = 'get_categories_selected_quantity',
+            variations = {
+                'analyze_v1' : { 'sl' : (slice(None),1), },
+                'analyze_v2' : { 'sl' : (slice(None),2), },
+            },
+        )
+
+        f = h5py.File( self.stored_data_file, 'r' )
+
+        expected_tags = np.array( [ 'analyze_v1', 'analyze_v2', ] )
+        expected_fresh_acc = np.array( [ 21203.41601562, 7096.78808594 ] )
+
+        for i,tag in enumerate( f['tags'][...] ):
+            assert f['tags'][i]  in expected_tags
+        npt.assert_allclose( f['is_fresh_accretion'], expected_fresh_acc )
 
 
