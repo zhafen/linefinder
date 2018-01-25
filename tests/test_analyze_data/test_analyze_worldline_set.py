@@ -6,6 +6,8 @@
 @status: Development
 '''
 
+import numpy as np
+import numpy.testing as npt
 import os
 import h5py
 
@@ -173,10 +175,24 @@ class TestStoreQuantity( unittest.TestCase ):
     def test_store_quantity( self ):
 
         self.w_set.store_quantity(
-            self.stored_data_file, selection_routine=None )
+            self.stored_data_file,
+            selection_routine = None,
+            sl = (slice(None),1),
+        )
 
         f = h5py.File( self.stored_data_file, 'r' )
 
+        expected_tags = np.array( [ 'analyze_copy1', 'analyze_copy2', ] )
+        expected_fresh_acc = np.array( [ 0.25078213, ]*2 )
+
+        for i, tag in enumerate( expected_tags ):
+            assert tag == f['tags'][...][i]
+        npt.assert_allclose( f['is_fresh_accretion'][...], expected_fresh_acc )
+
     ########################################################################
+
+    def test_store_quantity_variable_args( self ):
+
+        assert False, "Need to do!"
 
 

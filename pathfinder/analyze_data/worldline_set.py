@@ -7,6 +7,7 @@
 '''
 
 import glob
+import numpy as np
 import os
 import string
 
@@ -21,6 +22,7 @@ import plot_worldlines
 import worldlines as a_worldlines
 
 import galaxy_diver.plot_data.plotting as gen_plot
+import galaxy_diver.utils.hdf5_wrapper as hdf5_wrapper
 import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
@@ -122,6 +124,26 @@ class WorldlineSet( utilities.SmartDict ):
         quantities = quantity_method_used(
             *args, **kwargs
         )
+
+        # Setup data to store
+        data_to_store = {}
+        for data_category in quantities.values()[0].keys():
+            data_to_store[data_category] = []
+
+        # Format the data
+        tags = []
+        for tag, item in quantities.items():
+
+            # Store the data
+            for data_category, inner_item in quantities[tag].items():
+                data_to_store[data_category].append( inner_item )
+
+            # Store what tag was used.
+            tags.append( tag )
+        data_to_store['tags'] = np.array( tags )
+
+        h5_wrapper = hdf5_wrapper.HDF5Wrapper( output_filepath )
+        h5_wrapper.save_data( data_to_store, index_key='tags' )
 
     ########################################################################
     # Plotting Methods
