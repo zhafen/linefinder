@@ -171,6 +171,15 @@ class WorldlineSet( utilities.SmartDict ):
         h5_wrapper.save_data( data_to_store, index_key='tags' )
 
     ########################################################################
+
+    def store_redshift_dependent_quantity(
+        self,
+        *args, **kwargs
+    ):
+
+        pass
+
+    ########################################################################
     # Plotting Methods
     ########################################################################
 
