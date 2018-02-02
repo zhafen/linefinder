@@ -200,8 +200,8 @@ class TestStoreQuantity( unittest.TestCase ):
             selection_routine = None,
             quantity_method = 'get_categories_selected_quantity',
             variations = {
-                'analyze_v1' : { 'sl' : (slice(None),1), },
-                'analyze_v2' : { 'sl' : (slice(None),2), },
+                'analyze_v1': { 'sl': (slice(None), 1), },
+                'analyze_v2': { 'sl': (slice(None), 2), },
             },
         )
 
@@ -213,5 +213,27 @@ class TestStoreQuantity( unittest.TestCase ):
         for i,tag in enumerate( f['tags'][...] ):
             assert f['tags'][i]  in expected_tags
         npt.assert_allclose( f['is_fresh_accretion'], expected_fresh_acc )
+
+    ########################################################################
+
+    @mock.patch(
+        'pathfinder.analyze_data.worldline_set.WorldlineSet.store_quantity' )
+    def test_store_redshift_dependent_quantity( self, mock_store_quantity ):
+
+        self.w_set.store_redshift_dependent_quantity(
+            self.stored_data_file,
+            selection_routine = None,
+            quantity_method = 'get_categories_selected_quantity',
+        )
+
+        mock_store_quantity.assert_called_once_with(
+            self.stored_data_file,
+            selection_routine = None,
+            quantity_method = 'get_categories_selected_quantity',
+            variations = {
+                'analyze_snum600': { 'sl': (slice(None), 0), },
+                'analyze_snum550': { 'sl': (slice(None), 50), },
+            },
+        )
 
 

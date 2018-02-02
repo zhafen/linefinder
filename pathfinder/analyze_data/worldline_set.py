@@ -127,8 +127,10 @@ class WorldlineSet( utilities.SmartDict ):
                 What method to use for getting the quantity out.
 
             variations (dict) :
-                If provided, each Worldlines instance will be called
-                with the different kwargs stored in variations.
+                If provided, we get different quantities from each Worldlines
+                instance by passing different args to quantity_method according
+                to variations. kwargs is taken as the default arguments when
+                none are specified.
 
             *args, **kwargs :
                 Arguments to be passed to quantity_method.
