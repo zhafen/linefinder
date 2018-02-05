@@ -59,9 +59,25 @@ class TestWorldlineSetStartUp( unittest.TestCase ):
         for item in worldline_set:
             assert item in variations
 
-########################################################################
-########################################################################
+    ########################################################################
 
+    def test_from_tag_expansion( self ):
+        '''Test alternate construction method.'''
+
+        w_set = analyze_worldline_set.WorldlineSet.from_tag_expansion(
+            defaults,
+            'analyze_*',
+        )
+
+        # Make sure the tags are good
+        assert w_set['analyze_snum600'].tag == 'analyze_snum600'
+        assert w_set['analyze_snum550'].tag == 'analyze_snum550'
+
+        # Finally, just try opening ptracks
+        w_set.ptracks
+
+########################################################################
+########################################################################
 
 class TestWorldlineSet( unittest.TestCase ):
 
@@ -128,23 +144,6 @@ class TestWorldlineSet( unittest.TestCase ):
         expected = { 'a': 1, 'b': 1, 'c': 1, 'd': 1 }
 
         self.assertEqual( actual, expected )
-
-    ########################################################################
-
-    def test_from_tag_expansion( self ):
-        '''Test alternate construction method.'''
-
-        w_set = analyze_worldline_set.WorldlineSet.from_tag_expansion(
-            defaults,
-            'analyze_*',
-        )
-
-        # Make sure the tags are good
-        assert w_set['analyze_snum600'].tag == 'analyze_snum600'
-        assert w_set['analyze_snum550'].tag == 'analyze_snum550'
-
-        # Finally, just try opening ptracks
-        w_set.ptracks
 
     ########################################################################
 
@@ -220,8 +219,11 @@ class TestStoreQuantity( unittest.TestCase ):
         'pathfinder.analyze_data.worldline_set.WorldlineSet.store_quantity' )
     def test_store_redshift_dependent_quantity( self, mock_store_quantity ):
 
-        self.w_set.store_redshift_dependent_quantity(
-            self.stored_data_file,
+        analyze_worldline_set.store_redshift_dependent_quantity(
+            defaults = defaults,
+            tag_expansion = 'analyze_snum*',
+            output_filepath = self.stored_data_file,
+            max_snum = 600,
             selection_routine = None,
             quantity_method = 'get_categories_selected_quantity',
         )
@@ -238,9 +240,27 @@ class TestStoreQuantity( unittest.TestCase ):
 
     ########################################################################
 
-    def test_store_redshift_dependent_quantity_save_redshift( self ):
-        '''Make sure we store the redshift in the output data.'''
+    def test_store_quantity_variable_args_store_redshift( self ):
+        '''Test that this works when giving variations to the arguments called.
+        Check that we can also store the redshift when doing this.
+        '''
 
-        assert False, "Need to do."
+        self.w_set.store_quantity(
+            self.stored_data_file,
+            selection_routine = None,
+            quantity_method = 'get_categories_selected_quantity',
+            variations = {
+                'analyze_snum600': { 'sl': (slice(None), 1), },
+                'analyze_snum550': { 'sl': (slice(None), 2), },
+            },
+        )
 
+        f = h5py.File( self.stored_data_file, 'r' )
+
+        expected_tags = np.array( [ 'analyze_snum600', 'analyze_snum550', ] )
+        expected_fresh_acc = np.array( [ 21203.41601562, 7096.78808594 ] )
+
+        for i,tag in enumerate( f['tags'][...] ):
+            assert f['tags'][i]  in expected_tags
+        npt.assert_allclose( f['is_fresh_accretion'], expected_fresh_acc )
 

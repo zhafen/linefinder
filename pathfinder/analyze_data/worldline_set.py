@@ -14,9 +14,6 @@ import string
 import matplotlib
 matplotlib.use('PDF')
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.gridspec as gridspec
-import matplotlib.patheffects as path_effects
 
 import plot_worldlines
 import worldlines as a_worldlines
@@ -33,9 +30,11 @@ default = object()
 ########################################################################
 ########################################################################
 
+
 class WorldlineSet( utilities.SmartDict ):
-    '''Container for multiple Worldlines classes. The nice thing about this class is you can use it like a
-    Worldlines class, with the output being a dictionary of the different sets instead.
+    '''Container for multiple Worldlines classes. The nice thing about this
+    class is you can use it like a Worldlines class, with the output being a
+    dictionary of the different sets instead.
     '''
 
     def __init__( self, defaults, variations ):
@@ -56,9 +55,13 @@ class WorldlineSet( utilities.SmartDict ):
             for var_key in variations[key].keys():
                 kwargs[var_key] = variations[key][var_key]
 
-            worldlines_d[key] = { 'data_object' : a_worldlines.Worldlines( label=key, **kwargs ), 'label' : key }
+            worldlines_d[key] = {
+                'data_object': a_worldlines.Worldlines( label=key, **kwargs ),
+                'label': key
+            }
 
-        worldlines_plotters_d = utilities.SmartDict.from_class_and_args( plot_worldlines.WorldlinesPlotter, worldlines_d )
+        worldlines_plotters_d = utilities.SmartDict.from_class_and_args(
+            plot_worldlines.WorldlinesPlotter, worldlines_d )
 
         super( WorldlineSet, self ).__init__( worldlines_plotters_d )
 
@@ -171,15 +174,6 @@ class WorldlineSet( utilities.SmartDict ):
         h5_wrapper.save_data( data_to_store, index_key='tags' )
 
     ########################################################################
-
-    def store_redshift_dependent_quantity(
-        self,
-        *args, **kwargs
-    ):
-
-        pass
-
-    ########################################################################
     # Plotting Methods
     ########################################################################
 
@@ -189,13 +183,13 @@ class WorldlineSet( utilities.SmartDict ):
         *args, **kwargs
     ):
 
-        fig = plt.figure( figsize=(11,5), facecolor='white' )
+        plt.figure( figsize=(11, 5), facecolor='white' )
         ax = plt.gca()
 
         # The plot itself
         getattr( self, plotting_method )( ax=ax, *args, **kwargs )
 
-        ax.legend(loc='upper center', prop={'size':14.5}, fontsize=20)
+        ax.legend(loc='upper center', prop={'size': 14.5}, fontsize=20)
 
     ########################################################################
 
@@ -212,7 +206,7 @@ class WorldlineSet( utilities.SmartDict ):
         **default_kwargs
     ):
 
-        fig = plt.figure( figsize=(11,5), facecolor='white' )
+        fig = plt.figure( figsize=(11, 5), facecolor='white' )
         ax = plt.gca()
 
         default_kwargs['width'] = width
@@ -229,15 +223,16 @@ class WorldlineSet( utilities.SmartDict ):
         # Pass automated arguments to plot_classification_bar
         for i, key in enumerate( data_order ):
             kwargs[key]['ax'] = ax
-            kwargs[key]['x_pos'] = float( i ) - width/2.
+            kwargs[key]['x_pos'] = float( i ) - width / 2.
             if i == 0:
                 kwargs[key]['add_label'] = True
 
-        self.plot_classification_bar.call_custom_kwargs( kwargs, default_kwargs )
+        self.plot_classification_bar.call_custom_kwargs(
+            kwargs, default_kwargs )
 
         plt.xticks( range( len( data_order ) ), data_order, fontsize=22 )
 
-        ax.set_xlim( [-0.5, len(self)-0.5] )
+        ax.set_xlim( [-0.5, len(self) - 0.5] )
         ax.set_ylim( [0., 1.] )
 
         ax.set_ylabel( y_label, fontsize=22 )
@@ -247,9 +242,47 @@ class WorldlineSet( utilities.SmartDict ):
         ax.set_title( title_string, fontsize=22, )
 
         if legend_args is default:
-            ax.legend(prop={'size':14.5}, ncol=5, loc=(0.,-0.2), fontsize=20)
+            ax.legend(prop={'size': 14.5}, ncol=5, loc=(0., -0.2), fontsize=20)
         else:
             ax.legend( **legend_args )
 
         if out_dir is not None:
             gen_plot.save_fig( out_dir, save_file=save_file, fig=fig )
+
+########################################################################
+# Functions that use worldline sets
+########################################################################
+
+
+def store_redshift_dependent_quantity(
+    defaults,
+    tag_expansion,
+    output_filepath,
+    max_snum,
+    *args, **kwargs
+):
+
+    w_set = WorldlineSet.from_tag_expansion( defaults, tag_expansion )
+
+    # Rename keys
+    variations = {}
+    for key, item in w_set.items():
+
+        # Parse the tag for the snapshot number
+        snum_str_ind = key.find( 'snum' )
+        snum_ind_start = snum_str_ind + 4
+        snum_ind_end = snum_str_ind + 4 + len( str( max_snum ) )
+        snum_str = key[snum_ind_start:snum_ind_end]
+        snum = int( snum_str )
+        ind = max_snum - snum
+
+        # Setup variations dict
+        variations[key] = {
+            'sl': (slice(None), ind),
+        }
+
+    w_set.store_quantity(
+        output_filepath,
+        variations = variations,
+        *args, **kwargs
+    )
