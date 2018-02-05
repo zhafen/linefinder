@@ -220,9 +220,7 @@ class TestStoreQuantity( unittest.TestCase ):
     )
     def test_store_redshift_dependent_quantity( self, mock_store_quantity ):
 
-        analyze_worldline_set.store_redshift_dependent_quantity(
-            defaults = defaults,
-            tag_expansion = 'analyze_snum*',
+        self.w_set.store_redshift_dependent_quantity(
             output_filepath = self.stored_data_file,
             max_snum = 600,
             selection_routine = None,

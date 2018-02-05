@@ -174,6 +174,56 @@ class WorldlineSet( utilities.SmartDict ):
         h5_wrapper.save_data( data_to_store, index_key='labels' )
 
     ########################################################################
+
+    def store_redshift_dependent_quantity(
+        self,
+        output_filepath,
+        max_snum,
+        *args, **kwargs
+    ):
+        '''Store a redshift dependent quantity. In particular, this method
+        assumes that the differences between the Worldlines is a redshift
+        difference, and that the label for each Worldlines class contains
+        the relevant snapshot number. It then parses the label for that
+        snapshot number, and passes it to store_dependent_quantity as a key.
+
+        Args:
+            output_filepath (str) :
+                Where to save the output data.
+
+            max_snum (int) :
+                Maximum snapshot number the snapshots can go to. Used for parsing
+                the label as well as specifying the ind.
+
+            *args, **kwargs :
+                Arguments passed to self.store_dependent_quantity()
+        '''
+
+
+        # Rename keys
+        variations = {}
+        for key, item in self.items():
+
+            # Parse the tag for the snapshot number
+            snum_str_ind = key.find( 'snum' )
+            snum_ind_start = snum_str_ind + 4
+            snum_ind_end = snum_str_ind + 4 + len( str( max_snum ) )
+            snum_str = key[snum_ind_start:snum_ind_end]
+            snum = int( snum_str )
+            ind = max_snum - snum
+
+            # Setup variations dict
+            variations[key] = {
+                'sl': (slice(None), ind),
+            }
+
+        self.store_quantity(
+            output_filepath,
+            variations = variations,
+            *args, **kwargs
+        )
+
+    ########################################################################
     # Plotting Methods
     ########################################################################
 
@@ -249,40 +299,3 @@ class WorldlineSet( utilities.SmartDict ):
         if out_dir is not None:
             gen_plot.save_fig( out_dir, save_file=save_file, fig=fig )
 
-########################################################################
-# Functions that use worldline sets
-########################################################################
-
-
-def store_redshift_dependent_quantity(
-    defaults,
-    tag_expansion,
-    output_filepath,
-    max_snum,
-    *args, **kwargs
-):
-
-    w_set = WorldlineSet.from_tag_expansion( defaults, tag_expansion )
-
-    # Rename keys
-    variations = {}
-    for key, item in w_set.items():
-
-        # Parse the tag for the snapshot number
-        snum_str_ind = key.find( 'snum' )
-        snum_ind_start = snum_str_ind + 4
-        snum_ind_end = snum_str_ind + 4 + len( str( max_snum ) )
-        snum_str = key[snum_ind_start:snum_ind_end]
-        snum = int( snum_str )
-        ind = max_snum - snum
-
-        # Setup variations dict
-        variations[key] = {
-            'sl': (slice(None), ind),
-        }
-
-    w_set.store_quantity(
-        output_filepath,
-        variations = variations,
-        *args, **kwargs
-    )

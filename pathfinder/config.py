@@ -34,8 +34,8 @@ PTYPE_STAR = 4
 # and also have all the most important parameters shown in one place.
 
 # The radius of the galaxy is defined as R_{gal} = GALAXY_CUT*LENGTH_SCALE
-LENGTH_SCALE = 'Rstar0.5'
-GALAXY_CUT = 5.0
+LENGTH_SCALE = 'Rvir'
+GALAXY_CUT = 0.1
 
 # Sometimes we may also require the following density cut for material to be
 # part of a galaxy (n_b in cm^-3)
