@@ -159,19 +159,19 @@ class WorldlineSet( utilities.SmartDict ):
             data_to_store[data_category] = []
 
         # Format the data
-        tags = []
-        for tag, item in quantities.items():
+        labels = []
+        for label, item in quantities.items():
 
             # Store the data
-            for data_category, inner_item in quantities[tag].items():
+            for data_category, inner_item in quantities[label].items():
                 data_to_store[data_category].append( inner_item )
 
             # Store what tag was used.
-            tags.append( tag )
-        data_to_store['tags'] = np.array( tags )
+            labels.append( label )
+        data_to_store['labels'] = np.array( labels )
 
         h5_wrapper = hdf5_wrapper.HDF5Wrapper( output_filepath )
-        h5_wrapper.save_data( data_to_store, index_key='tags' )
+        h5_wrapper.save_data( data_to_store, index_key='labels' )
 
     ########################################################################
     # Plotting Methods
