@@ -7,6 +7,7 @@
 '''
 
 import numpy as np
+import numpy.testing as npt
 
 import galaxy_diver.analyze_data.ahf as analyze_ahf_data
 import galaxy_diver.analyze_data.generic_data as generic_data
@@ -244,10 +245,10 @@ class Worldlines( simulation_data.TimeData ):
         if not hasattr( self, '_n_particles_snapshot_gas' ):
 
             snapshot_kwargs = {
-                'sdir' : self.ids.snapshot_parameters['sdir'],
-                'snum' : self.ids.parameters['snum_end'],
-                'ptype' : config.PTYPE_GAS,
-                'header_only' : True,
+                'sdir': self.ids.snapshot_parameters['sdir'],
+                'snum': self.ids.parameters['snum_end'],
+                'ptype': config.PTYPE_GAS,
+                'header_only': True,
             }
 
             snapshot = read_snapshot.readsnap( **snapshot_kwargs )
@@ -263,10 +264,10 @@ class Worldlines( simulation_data.TimeData ):
         if not hasattr( self, '_n_particles_snapshot_star' ):
 
             snapshot_kwargs = {
-                'sdir' : self.ids.snapshot_parameters['sdir'],
-                'snum' : self.ids.parameters['snum_end'],
-                'ptype' : config.PTYPE_STAR,
-                'header_only' : True,
+                'sdir': self.ids.snapshot_parameters['sdir'],
+                'snum': self.ids.parameters['snum_end'],
+                'ptype': config.PTYPE_STAR,
+                'header_only': True,
             }
 
             snapshot = read_snapshot.readsnap( **snapshot_kwargs )
@@ -297,7 +298,7 @@ class Worldlines( simulation_data.TimeData ):
                 is_nan = np.any( [ np.isnan( value ), np.isnan( self._redshift ) ], axis=1 )
                 not_nan_inds = np.where( np.invert( is_nan ) )[0]
 
-                test_value = np.array(value)[not_nan_inds] # Cast as np.ndarray because Pandas arrays can cause trouble.
+                test_value = np.array(value)[not_nan_inds]  # Cast as np.ndarray because Pandas arrays can cause trouble.
                 test_existing_value = np.array(self._redshift)[not_nan_inds]
                 npt.assert_allclose( test_value, test_existing_value, atol=1e-5 )
 
@@ -330,7 +331,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Total mass at the last snapshot.'''
 
         if not hasattr( self, '_m_tot' ):
-            masses = self.get_data( 'M', sl=(slice(None),0), )
+            masses = self.get_data( 'M', sl=(slice(None), 0), )
             masses_no_invalids = np.ma.fix_invalid( masses ).compressed()
             self._m_tot = masses_no_invalids.sum()
 
@@ -344,7 +345,7 @@ class Worldlines( simulation_data.TimeData ):
         '''
 
         if not hasattr( self, '_conversion_factor' ):
-            self._conversion_factor = float( self.n_particles_presampled )/float( self.n_particles )
+            self._conversion_factor = float( self.n_particles_presampled ) / float( self.n_particles )
 
         return self._conversion_factor
 
@@ -357,9 +358,12 @@ class Worldlines( simulation_data.TimeData ):
         if not hasattr( self, '_mass_totals' ):
             self._mass_totals = {}
             for mass_category in [ 'is_pristine', 'is_merger', 'is_mass_transfer', 'is_wind' ]:
-                self._mass_totals[mass_category] = self.get_masked_data( 'M', sl=(slice(None),0),
-                                                                                                                                  classification=mass_category,
-                                                                                                                                  fix_invalid=True, ).sum()
+                self._mass_totals[mass_category] = self.get_masked_data(
+                    'M',
+                    sl=(slice(None), 0),
+                    classification=mass_category,
+                    fix_invalid=True,
+                ).sum()
 
             self._mass_totals = utilities.SmartDict( self._mass_totals )
 
@@ -371,7 +375,7 @@ class Worldlines( simulation_data.TimeData ):
     def mass_fractions( self ):
         '''Get the mass fraction in the last snapshot in the canonical classifications.'''
 
-        return self.mass_totals/self.m_tot
+        return self.mass_totals / self.m_tot
 
     ########################################################################
 
@@ -379,7 +383,7 @@ class Worldlines( simulation_data.TimeData ):
     def real_mass_totals( self ):
         '''Get the total mass (converted from the sample) in the last snapshot in the canonical classifications.'''
 
-        return self.mass_totals*self.conversion_factor
+        return self.mass_totals * self.conversion_factor
 
     ########################################################################
     # Display Information
@@ -455,7 +459,8 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def get_data_at_ind( self,
+    def get_data_at_ind(
+        self,
         data_key,
         ind_key,
         ind_shift = 0,
@@ -464,7 +469,8 @@ class Worldlines( simulation_data.TimeData ):
         units_h_power = -1.,
         return_units_only = False,
         tile_data = False,
-        *args, **kwargs ):
+        *args, **kwargs
+    ):
         '''Get the data at a specified index for each particle.
 
         Args:
@@ -502,7 +508,7 @@ class Worldlines( simulation_data.TimeData ):
         else:
             raise Exception( "Unrecognized data type, data.dtype = {}".format( data.dtype ) )
 
-        data_at_ind = fill_value*np.ones( self.n_particles, dtype=data.dtype )
+        data_at_ind = fill_value * np.ones( self.n_particles, dtype=data.dtype )
 
         specified_ind = self.get_data( ind_key, *args, **kwargs )
 
@@ -531,7 +537,7 @@ class Worldlines( simulation_data.TimeData ):
             units_arr_at_ind *= self.ptracks.data_attrs['hubble']**units_h_power
 
             if return_units_only:
-                units_arr_all = fill_value*np.ones( self.n_particles, dtype=data.dtype )
+                units_arr_all = fill_value * np.ones( self.n_particles, dtype=data.dtype )
                 units_arr_all[valid_inds] = units_arr_at_ind
 
                 return units_arr_all
@@ -598,7 +604,7 @@ class Worldlines( simulation_data.TimeData ):
         n_outside = float( data_ma.mask.sum() )
         n_all = float( data.size )
 
-        return n_outside/n_all
+        return n_outside / n_all
 
     ########################################################################
 
@@ -830,9 +836,11 @@ class Worldlines( simulation_data.TimeData ):
         return categories_selected_quantity / \
             selected_quantity_fn( *args, **kwargs )
 
-    def get_real_categories_selected_quantity( self,
-        classification_list=p_constants.CLASSIFICATIONS_A,
-        *args, **kwargs ):
+    def get_real_categories_selected_quantity(
+        self,
+        classification_list = p_constants.CLASSIFICATIONS_A,
+        *args, **kwargs
+    ):
         '''Get the total mass in the main galaxy for a particular particle type in each
         of a number of classification categories.
 
@@ -853,7 +861,7 @@ class Worldlines( simulation_data.TimeData ):
         # TODO
         raise Exception( "This may not be correct yet!" )
 
-        return categories_mass*self.conversion_factor
+        return categories_mass * self.conversion_factor
 
     ########################################################################
     # Generate Data on the Go
@@ -875,13 +883,13 @@ class Worldlines( simulation_data.TimeData ):
             getattr( self, method_str )()
 
         elif data_key in self.classifications.data.keys():
-            self.data[data_key] =  self.classifications.data[data_key]
+            self.data[data_key] = self.classifications.data[data_key]
 
         elif data_key in self.events.data.keys():
-            self.data[data_key] =  self.events.data[data_key]
+            self.data[data_key] = self.events.data[data_key]
 
         elif data_key in self.galids.data.keys():
-            self.data[data_key] =  self.galids.data[data_key]
+            self.data[data_key] = self.galids.data[data_key]
 
         else:
             raise KeyError( 'NULL data_key, data_key = {}'.format( data_key ) )
@@ -997,7 +1005,8 @@ class Worldlines( simulation_data.TimeData ):
     def calc_is_hitherto_EP_NYA( self ):
 
         self.data['is_hitherto_EP_NYA'] = \
-            self.calc_is_classification_NYA( 'is_hitherto_EP',
+            self.calc_is_classification_NYA(
+                'is_hitherto_EP',
                 tile_classification = False )
 
     ########################################################################
@@ -1005,7 +1014,8 @@ class Worldlines( simulation_data.TimeData ):
     def calc_is_hitherto_NEP_NYA( self ):
 
         self.data['is_hitherto_NEP_NYA'] = \
-            self.calc_is_classification_NYA( 'is_hitherto_NEP',
+            self.calc_is_classification_NYA(
+                'is_hitherto_NEP',
                 tile_classification = False )
 
     def calc_is_merger_NYA( self ):
@@ -1025,6 +1035,16 @@ class Worldlines( simulation_data.TimeData ):
         '''
 
         self.data['is_mass_transfer_NYA'] = self.calc_is_classification_NYA( 'is_mass_transfer' )
+
+    ########################################################################
+
+    def calc_is_IP( self ):
+        '''Calculate internally processed material.'''
+
+        # Find the indices after accreting
+        ind_first_acc_tiled = self.get_processed_data( 'ind_first_acc_tiled' )
+        ind_tiled = np.tile( range( self.n_snaps ), (self.n_particles, 1) )
+        self.data['is_IP'] = ind_tiled <= ind_first_acc_tiled
 
     ########################################################################
 
@@ -1132,6 +1152,7 @@ class Worldlines( simulation_data.TimeData ):
 ########################################################################
 ########################################################################
 
+
 class WorldlineDataMasker( generic_data.DataMasker ):
     '''Data masker for worldline data.'''
 
@@ -1141,14 +1162,16 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
     ########################################################################
 
-    def get_mask( self,
+    def get_mask(
+        self,
         mask = default,
         classification = None,
         mask_after_first_acc = False,
         mask_before_first_acc = False,
         preserve_mask_shape = False,
         optional_masks = None,
-        *args, **kwargs ):
+        *args, **kwargs
+    ):
         '''Get a mask for the data.
 
         Args:
@@ -1202,7 +1225,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
         if mask_after_first_acc or mask_before_first_acc:
 
             assert not ( mask_after_first_acc and mask_before_first_acc ), \
-            "Attempted to mask both before and after first acc."
+                "Attempted to mask both before and after first acc."
 
             ind_first_acc_tiled = self.data_object.get_processed_data( 'ind_first_acc_tiled' )
             ind_tiled = np.tile( range( self.data_object.n_snaps ), (self.data_object.n_particles, 1) )
@@ -1220,7 +1243,8 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
     ########################################################################
 
-    def get_masked_data( self,
+    def get_masked_data(
+        self,
         data_key,
         mask = default,
         classification = None,
@@ -1228,7 +1252,8 @@ class WorldlineDataMasker( generic_data.DataMasker ):
         mask_before_first_acc = False,
         preserve_mask_shape = False,
         optional_masks = None,
-        *args, **kwargs ):
+        *args, **kwargs
+    ):
         '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_masked_data.
 
         Args:
@@ -1340,7 +1365,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
         # Because `is_accreted` has one less column, we need to adjust the shape before we add the mask.
         adjusted_accreted_mask = np.ones( (self.data_object.n_particles, self.data_object.n_snaps) ).astype( bool )
-        adjusted_accreted_mask[:,1:] = np.invert( self.data_object.get_data( 'is_accreted' ) )
+        adjusted_accreted_mask[:, 1:] = np.invert( self.data_object.get_data( 'is_accreted' ) )
 
         self.mask_data( 'is_accreted', custom_mask=adjusted_accreted_mask )
 
@@ -1365,6 +1390,7 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 ########################################################################
 ########################################################################
 
+
 class WorldlineDataKeyParser( generic_data.DataKeyParser ):
 
     ########################################################################
@@ -1376,35 +1402,3 @@ class WorldlineDataKeyParser( generic_data.DataKeyParser ):
             return data_key[:-6], True
         else:
             return data_key, False
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
