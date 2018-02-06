@@ -169,10 +169,10 @@ class WorldlineSet( utilities.SmartDict ):
 
             # Store what tag was used.
             labels.append( label )
-        data_to_store['labels'] = np.array( labels )
+        data_to_store['label'] = np.array( labels )
 
         h5_wrapper = hdf5_wrapper.HDF5Wrapper( output_filepath )
-        h5_wrapper.save_data( data_to_store, index_key='labels' )
+        h5_wrapper.save_data( data_to_store, index_key='label' )
 
     ########################################################################
 
@@ -207,6 +207,8 @@ class WorldlineSet( utilities.SmartDict ):
 
         # Rename keys
         variations = {}
+        labels = []
+        snums = []
         for key, item in self.items():
 
             if choose_snum_by == 'parsing_tag':
@@ -234,11 +236,24 @@ class WorldlineSet( utilities.SmartDict ):
                 'sl': (slice(None), ind),
             }
 
+            # Store the label and snum.
+            labels.append( key )
+            snums.append( snum )
+
+        # Actually store the quantity
         self.store_quantity(
             output_filepath,
             variations = variations,
             *args, **kwargs
         )
+
+        # Now store the snapshots
+        h5_wrapper = hdf5_wrapper.HDF5Wrapper( output_filepath )
+        data_to_store = {
+            'snum': snums,
+            'label': labels,
+        }
+        h5_wrapper.insert_data( new_data=data_to_store, index_key='label' )
 
     ########################################################################
     # Plotting Methods

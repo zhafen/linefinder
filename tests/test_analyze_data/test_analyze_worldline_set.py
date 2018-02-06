@@ -186,8 +186,8 @@ class TestStoreQuantity( unittest.TestCase ):
         expected_tags = np.array( [ 'analyze_snum600', 'analyze_snum550', ] )
         expected_fresh_acc = np.array( [ 0.50052142, 0.25078213 ] )
 
-        for i, tag in enumerate( f['labels'][...] ):
-            assert f['labels'][i] in expected_tags
+        for i, tag in enumerate( f['label'][...] ):
+            assert f['label'][i] in expected_tags
         npt.assert_allclose( f['is_fresh_accretion'], expected_fresh_acc )
 
     ########################################################################
@@ -211,8 +211,8 @@ class TestStoreQuantity( unittest.TestCase ):
         expected_tags = np.array( [ 'analyze_snum600', 'analyze_snum550', ] )
         expected_fresh_acc = np.array( [ 21203.41601562, 7096.78808594 ] )
 
-        for i, tag in enumerate( f['labels'][...] ):
-            assert f['labels'][i] in expected_tags
+        for i, tag in enumerate( f['label'][...] ):
+            assert f['label'][i] in expected_tags
         npt.assert_allclose( f['is_fresh_accretion'], expected_fresh_acc )
 
     ########################################################################
@@ -238,4 +238,34 @@ class TestStoreQuantity( unittest.TestCase ):
                 'analyze_snum600': { 'sl': (slice(None), 0), },
                 'analyze_snum550': { 'sl': (slice(None), 50), },
             },
+        )
+
+    ########################################################################
+
+    @mock.patch(
+        'galaxy_diver.utils.hdf5_wrapper.HDF5Wrapper.insert_data',
+    )
+    @mock.patch(
+        'pathfinder.analyze_data.worldline_set.WorldlineSet.store_quantity',
+    )
+    def test_store_redshift_dependent_quantity_store_snum(
+        self,
+        mock_store_quantity,
+        mock_insert_data,
+    ):
+
+        self.w_set.store_redshift_dependent_quantity(
+            output_filepath = self.stored_data_file,
+            max_snum = 600,
+            choose_snum_by = 'parsing_tag',
+            selection_routine = None,
+            quantity_method = 'get_categories_selected_quantity',
+        )
+
+        mock_insert_data.assert_called_with(
+            new_data = {
+                'snum': [ 550, 600 ],
+                'label': [ 'analyze_snum550', 'analyze_snum600' ],
+            },
+            index_key = 'label',
         )
