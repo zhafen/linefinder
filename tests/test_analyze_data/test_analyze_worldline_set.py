@@ -79,6 +79,7 @@ class TestWorldlineSetStartUp( unittest.TestCase ):
 ########################################################################
 ########################################################################
 
+
 class TestWorldlineSet( unittest.TestCase ):
 
     def setUp( self ):
@@ -150,6 +151,7 @@ class TestWorldlineSet( unittest.TestCase ):
 ########################################################################
 ########################################################################
 
+
 class TestStoreQuantity( unittest.TestCase ):
 
     ########################################################################
@@ -176,7 +178,7 @@ class TestStoreQuantity( unittest.TestCase ):
         self.w_set.store_quantity(
             self.stored_data_file,
             selection_routine = None,
-            sl = (slice(None),1),
+            sl = (slice(None), 1),
         )
 
         f = h5py.File( self.stored_data_file, 'r' )
@@ -184,8 +186,8 @@ class TestStoreQuantity( unittest.TestCase ):
         expected_tags = np.array( [ 'analyze_snum600', 'analyze_snum550', ] )
         expected_fresh_acc = np.array( [ 0.50052142, 0.25078213 ] )
 
-        for i,tag in enumerate( f['labels'][...] ):
-            assert f['labels'][i]  in expected_tags
+        for i, tag in enumerate( f['labels'][...] ):
+            assert f['labels'][i] in expected_tags
         npt.assert_allclose( f['is_fresh_accretion'], expected_fresh_acc )
 
     ########################################################################
@@ -209,8 +211,8 @@ class TestStoreQuantity( unittest.TestCase ):
         expected_tags = np.array( [ 'analyze_snum600', 'analyze_snum550', ] )
         expected_fresh_acc = np.array( [ 21203.41601562, 7096.78808594 ] )
 
-        for i,tag in enumerate( f['labels'][...] ):
-            assert f['labels'][i]  in expected_tags
+        for i, tag in enumerate( f['labels'][...] ):
+            assert f['labels'][i] in expected_tags
         npt.assert_allclose( f['is_fresh_accretion'], expected_fresh_acc )
 
     ########################################################################
@@ -236,4 +238,3 @@ class TestStoreQuantity( unittest.TestCase ):
                 'analyze_snum550': { 'sl': (slice(None), 50), },
             },
         )
-
