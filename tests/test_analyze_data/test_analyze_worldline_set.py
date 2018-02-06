@@ -225,6 +225,7 @@ class TestStoreQuantity( unittest.TestCase ):
         self.w_set.store_redshift_dependent_quantity(
             output_filepath = self.stored_data_file,
             max_snum = 600,
+            choose_snum_by = 'parsing_tag',
             selection_routine = None,
             quantity_method = 'get_categories_selected_quantity',
         )

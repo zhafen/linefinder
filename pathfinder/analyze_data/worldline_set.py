@@ -117,6 +117,7 @@ class WorldlineSet( utilities.SmartDict ):
         output_filepath,
         quantity_method = 'get_categories_selected_quantity_fraction',
         variations = None,
+        verbose = True,
         *args, **kwargs
     ):
         '''Iterate over each Worldlines class in the set, obtaining a
@@ -151,7 +152,7 @@ class WorldlineSet( utilities.SmartDict ):
                 " quantity_method with *args."
 
             quantities = quantity_method_used.call_custom_kwargs(
-                variations, kwargs )
+                variations, kwargs, verbose=verbose )
 
         # Setup data to store
         data_to_store = {}
@@ -179,6 +180,7 @@ class WorldlineSet( utilities.SmartDict ):
         self,
         output_filepath,
         max_snum,
+        choose_snum_by = 'pulling_from_ids',
         *args, **kwargs
     ):
         '''Store a redshift dependent quantity. In particular, this method
@@ -195,21 +197,36 @@ class WorldlineSet( utilities.SmartDict ):
                 Maximum snapshot number the snapshots can go to. Used for parsing
                 the label as well as specifying the ind.
 
+            choose_snum_by (str) :
+                How to to vary the snapshot used when the arguments are passed
+                to the Worldlines.
+
             *args, **kwargs :
                 Arguments passed to self.store_dependent_quantity()
         '''
-
 
         # Rename keys
         variations = {}
         for key, item in self.items():
 
-            # Parse the tag for the snapshot number
-            snum_str_ind = key.find( 'snum' )
-            snum_ind_start = snum_str_ind + 4
-            snum_ind_end = snum_str_ind + 4 + len( str( max_snum ) )
-            snum_str = key[snum_ind_start:snum_ind_end]
-            snum = int( snum_str )
+            if choose_snum_by == 'parsing_tag':
+                # Parse the tag for the snapshot number
+                snum_str_ind = key.find( 'snum' )
+                snum_ind_start = snum_str_ind + 4
+                snum_ind_end = snum_str_ind + 4 + len( str( max_snum ) )
+                snum_str = key[snum_ind_start:snum_ind_end]
+                # Account for when snum isn't 3 digits long
+                if snum_str[2] == '_':
+                    snum_str = snum_str[:2]
+                snum = int( snum_str )
+
+            elif choose_snum_by == 'pulling_from_ids':
+                snum = item.ids.parameters['snum_end']
+
+                # Make sure we have IDs for which is is valid
+                assert snum == item.ids.parameters['snum_start'], \
+                    "Automated snum selection method not valid for given data."
+
             ind = max_snum - snum
 
             # Setup variations dict
@@ -298,4 +315,3 @@ class WorldlineSet( utilities.SmartDict ):
 
         if out_dir is not None:
             gen_plot.save_fig( out_dir, save_file=save_file, fig=fig )
-
