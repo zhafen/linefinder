@@ -7,22 +7,15 @@
 '''
 
 import numpy as np
-import os
 
 import matplotlib
 matplotlib.use('PDF')
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.gridspec as gridspec
-import matplotlib.patheffects as path_effects
 import matplotlib.transforms as transforms
 
 import galaxy_diver.plot_data.generic_plotter as generic_plotter
 import galaxy_diver.plot_data.ahf as plot_ahf
 import galaxy_diver.plot_data.plotting as gen_plot
-import galaxy_diver.plot_data.pu_colormaps as pu_cm
-import galaxy_diver.utils.mp_utils as mp_utils
-import galaxy_diver.utils.utilities as utilities
 
 import pathfinder.utils.presentation_constants as p_constants
 
@@ -34,11 +27,13 @@ default = object()
 ########################################################################
 ########################################################################
 
+
 class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     ########################################################################
 
-    def plot_classification_bar( self,
+    def plot_classification_bar(
+        self,
         x_pos,
         classification_list = p_constants.CLASSIFICATIONS_A,
         classification_colors = p_constants.CLASSIFICATION_COLORS_B,
@@ -47,17 +42,18 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         width = 0.5,
         add_label = False,
         alpha = p_constants.CLASSIFICATION_ALPHA,
-        *args, **kwargs ):
+        *args, **kwargs
+    ):
 
         print( "Plotting bar at x_pos {}".format( x_pos ) )
 
         # Plot
         if ax is default:
-            fig = plt.figure( figsize=(11,5), facecolor='white' )
+            plt.figure( figsize=(11, 5), facecolor='white' )
             ax = plt.gca()
 
         classification_values = self.data_object.get_categories_selected_quantity_fraction(
-            sl = (slice(None),ind),
+            sl = (slice(None), ind),
             classification_list = classification_list,
             *args, **kwargs )
 
@@ -84,7 +80,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     ########################################################################
 
-    def plot_classification_values( self,
+    def plot_classification_values(
+        self,
         values = 'mass_fractions',
         ax = default,
         label = default,
@@ -93,7 +90,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         color = default,
         pointsize = 3000,
         y_range = default,
-        ):
+    ):
         '''Plot overall values from a classification category.
 
         Args:
@@ -114,23 +111,32 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         # Plot
         if ax is default:
-            fig = plt.figure( figsize=(11,5), facecolor='white' )
+            plt.figure( figsize=(11, 5), facecolor='white' )
             ax = plt.gca()
 
         objects = ( 'pristine', 'merger', 'intergalactic\ntransfer', 'wind' )
         x_pos = np.arange(len(objects))
         x_pos_dict = {
-            'is_pristine' : 0,
-            'is_merger' : 1,
-            'is_mass_transfer' : 2,
-            'is_wind' : 3,
+            'is_pristine': 0,
+            'is_merger': 1,
+            'is_mass_transfer': 2,
+            'is_wind': 3,
         }
 
         for i, key in enumerate( classification_values.keys() ):
             if i != 0:
                 label = None
-            ax.scatter( x_pos_dict[key], classification_values[key], c=color, s=pointsize,
-                                        marker='_', linewidths=5, vmin=0.5, vmax=1.5, label=label )
+            ax.scatter(
+                x_pos_dict[key],
+                classification_values[key],
+                c=color,
+                s=pointsize,
+                marker='_',
+                linewidths=5,
+                vmin=0.5,
+                vmax=1.5,
+                label=label
+            )
 
         plt.xticks( x_pos, objects, fontsize=22 )
 
@@ -147,14 +153,18 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     ########################################################################
 
-    def plot_classified_time_dependent_data( self,
+    def plot_classified_time_dependent_data(
+        self,
         ax = default,
+        x_data = 'get_redshift',
+        y_datas = 'get_categories_selected_quantity',
         x_range = [ 0., np.log10(8.) ], y_range = default,
         y_scale = 'log',
         x_label = default, y_label = default,
         classification_list = p_constants.CLASSIFICATIONS_A,
         classification_colors = p_constants.CLASSIFICATION_COLORS_B,
-        *args, **kwargs ):
+        *args, **kwargs
+    ):
         '''Make a plot like the top panel of Fig. 3 in Angles-Alcazar+17
 
         Args:
@@ -175,14 +185,16 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         '''
 
         if ax is default:
-            fig = plt.figure( figsize=(11,5), facecolor='white' )
+            plt.figure( figsize=(11, 5), facecolor='white' )
             ax = plt.gca()
 
-        x_data = np.log10( 1. + self.data_object.get_data( 'redshift' ) )
+        if x_data == 'get_redshift':
+            x_data = np.log10( 1. + self.data_object.get_data( 'redshift' ) )
 
-        y_datas = self.data_object.get_categories_selected_quantity(
-            classification_list=classification_list,
-            *args, **kwargs )
+        if y_datas == 'get_categories_selected_quantity':
+            y_datas = self.data_object.get_categories_selected_quantity(
+                classification_list=classification_list,
+                *args, **kwargs )
 
         for key in classification_list[::-1]:
 
@@ -213,20 +225,25 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ax.set_xlabel( r'z', fontsize=22, )
         ax.set_ylabel( y_label, fontsize=22, )
 
-        ax.annotate( s=self.label, xy=(0.,1.0225), xycoords='axes fraction', fontsize=22,  )
+        ax.annotate( s=self.label, xy=(0., 1.0225), xycoords='axes fraction', fontsize=22, )
 
-        ax.legend( prop={'size':14.5}, ncol=5, loc=(0.,-0.28), fontsize=20 )
+        ax.legend( prop={'size': 14.5}, ncol=5, loc=(0., -0.28), fontsize=20 )
 
     ########################################################################
 
-    def plot_stacked_time_dependent_data( self,
+    def plot_stacked_time_dependent_data(
+        self,
         ax = default,
-        x_range = [ 0., np.log10(8.) ], y_range = [0., 1.],
+        x_data = 'get_redshift',
+        y_datas = 'get_categories_selected_quantity',
+        x_range = [ 0., np.log10(8.)], y_range = [0., 1.],
+        tick_redshifts = np.array( [ 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, ] ),
         x_label = default, y_label = default,
         plot_dividing_line = False,
         classification_list = p_constants.CLASSIFICATIONS_A,
         classification_colors = p_constants.CLASSIFICATION_COLORS_B,
-        *args, **kwargs ):
+        *args, **kwargs
+    ):
         '''Make a plot like the bottom panel of Fig. 3 in Angles-Alcazar+17
 
         Args:
@@ -244,14 +261,16 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         '''
 
         if ax is default:
-            fig = plt.figure( figsize=(11,5), facecolor='white' )
+            plt.figure( figsize=(11, 5), facecolor='white' )
             ax = plt.gca()
 
-        x_data = np.log10( 1. + self.data_object.get_data( 'redshift' ) )
+        if x_data == 'get_redshift':
+            x_data = np.log10( 1. + self.data_object.get_data( 'redshift' ) )
 
-        y_datas = self.data_object.get_categories_selected_quantity_fraction(
-            classification_list = classification_list,
-            *args, **kwargs )
+        if y_datas == 'get_categories_selected_quantity':
+            y_datas = self.data_object.get_categories_selected_quantity_fraction(
+                classification_list = classification_list,
+                *args, **kwargs )
 
         y_prev = np.zeros( shape=y_datas.values()[0].shape )
 
@@ -297,7 +316,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         if y_range is not default:
             ax.set_ylim( y_range )
 
-        tick_redshifts = np.array( [ 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, ] )
         x_tick_values = np.log10( 1. + tick_redshifts )
         plt.xticks( x_tick_values, tick_redshifts )
 
@@ -307,9 +325,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ax.set_xlabel( r'z', fontsize=22, )
         ax.set_ylabel( y_label, fontsize=22, )
 
-        ax.annotate( s=self.label, xy=(0.,1.0225), xycoords='axes fraction', fontsize=22,  )
+        ax.annotate( s=self.label, xy=(0., 1.0225), xycoords='axes fraction', fontsize=22, )
 
-        ax.legend( color_objects, labels, prop={'size':14.5}, ncol=5, loc=(0.,-0.28), fontsize=20 )
+        ax.legend( color_objects, labels, prop={'size': 14.5}, ncol=5, loc=(0., -0.28), fontsize=20 )
 
     ########################################################################
 
@@ -341,7 +359,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         '''
 
         if ax is default:
-            fig = plt.figure( figsize=(11,5), facecolor='white' )
+            plt.figure( figsize=(11, 5), facecolor='white' )
             ax = plt.gca()
 
         y_datas = self.data_object.get_categories_selected_quantity_fraction(
@@ -410,7 +428,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         ax.annotate(
             s=self.label,
-            xy=(0.,1.0225),
+            xy=(0., 1.0225),
             xycoords='axes fraction',
             fontsize=22,
         )
@@ -418,19 +436,21 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ax.legend(
             color_objects,
             labels,
-            prop={'size':14.5},
+            prop={'size': 14.5},
             ncol=5,
-            loc=(0.,-0.28),
+            loc=(0., -0.28),
             fontsize=20
         )
 
     ########################################################################
 
-    def plot_dist_hist( self,
+    def plot_dist_hist(
+        self,
         data_key,
         ax,
         x_label = default,
-        *args, **kwargs ):
+        *args, **kwargs
+    ):
 
         if x_label is default:
             if data_key == 'd_sat_scaled':
@@ -444,11 +464,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         # Add a bar indicating our radial cut
         trans = transforms.blended_transform_factory( ax.transData, ax.transAxes )
         r_cut = self.data_object.galids.parameters['galaxy_cut']
-        ax.plot( [ r_cut, ]*2, [0, 1], color='black', linewidth=3, linestyle='--', transform=trans )
+        ax.plot( [ r_cut, ] * 2, [0, 1], color='black', linewidth=3, linestyle='--', transform=trans )
 
     ########################################################################
 
-    def plot_with_halos( self,
+    def plot_with_halos(
+        self,
         plot_with_halos_method = 'histogram2d',
         slices = None,
         ax = default,
@@ -456,10 +477,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         halo_color = '#337DB8',
         halo_linewidth = 3,
         halo_outline = False,
-        *args, **kwargs ):
+        *args, **kwargs
+    ):
 
         if ax is default:
-            fig = plt.figure( figsize=(10,9), facecolor='white', )
+            fig = plt.figure( figsize=(10, 9), facecolor='white', )
             ax = plt.gca()
 
         used_plot_with_halos_method = getattr( self, plot_with_halos_method )
@@ -483,6 +505,3 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             gen_plot.save_fig( out_dir, save_file, fig=fig, dpi=75 )
 
             plt.close()
-
-
-

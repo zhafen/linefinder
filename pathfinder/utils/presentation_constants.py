@@ -17,6 +17,7 @@ CLASSIFICATION_LABELS = {
     'is_NEP_NYA': 'Fresh Accretion',
     'is_fresh_accretion': 'Fresh Accretion',
     'is_NEP_wind_recycling': 'NEP Wind Recycling',
+    'is_IP': 'IP',
     'is_wind': 'Wind',
     'is_preprocessed': 'EP',
     'is_mass_transfer': 'Intergalactic Transfer',
@@ -64,6 +65,7 @@ CLASSIFICATION_COLORS_B = {
     'is_NEP_NYA': '#007AAF',
     'is_fresh_accretion': '#0A4BC6',
     'is_NEP_wind_recycling': '#07BC6E',
+    'is_IP': '#4CAF00',
     'is_wind': '#4CAF00',
     'is_preprocessed': '#FB9319',
     'is_mass_transfer': '#FDD30D',
@@ -154,36 +156,3 @@ CLASSIFICATIONS_CGM_ORIGIN = [
     'is_hitherto_EP_NYA',
     'is_hitherto_NEP_NYA',
 ]
-
-########################################################################
-# Functions for easier handling of presentation constants
-########################################################################
-
-
-def get_classifications_variations(
-    classification_list,
-    classification_colors=CLASSIFICATION_COLORS_B
-):
-    '''Given a list of classification, fill a dictionary with the corresponding
-    colors and labels.
-    '''
-
-    classifications_variations = {}
-    for key in classification_list:
-
-        variation = {}
-
-        # Make the classification applied
-        if key != 'all':
-            item['classification'] = key
-            item['plot_label'] = None
-
-        # Give it a color
-        item['color'] = classification_colors[key]
-
-        # Give it a label
-        item['line_label'] = p_constants.CLASSIFICATION_LABELS[key]
-
-        classifications_variations[classification] = variation
-
-    return classifications_variations

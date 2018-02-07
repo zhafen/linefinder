@@ -240,12 +240,13 @@ class WorldlineSet( utilities.SmartDict ):
             labels.append( key )
             snums.append( snum )
 
+        # DEBUG
         # Actually store the quantity
-        self.store_quantity(
-            output_filepath,
-            variations = variations,
-            *args, **kwargs
-        )
+        # self.store_quantity(
+        #     output_filepath,
+        #     variations = variations,
+        #     *args, **kwargs
+        # )
 
         # Now store the snapshots
         h5_wrapper = hdf5_wrapper.HDF5Wrapper( output_filepath )
@@ -253,7 +254,11 @@ class WorldlineSet( utilities.SmartDict ):
             'snum': snums,
             'label': labels,
         }
-        h5_wrapper.insert_data( new_data=data_to_store, index_key='label' )
+        h5_wrapper.insert_data(
+            new_data = data_to_store,
+            index_key = 'label',
+            insert_columns = True,
+        )
 
     ########################################################################
     # Plotting Methods
