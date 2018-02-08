@@ -1,1 +1,4 @@
-{}
+{
+  "tests/test_analyze_data/test_analyze_worldline_set.py::TestStoreQuantity::test_store_redshift_dependent_quantity": true, 
+  "tests/test_analyze_data/test_analyze_worldline_set.py::TestStoreQuantity::test_store_redshift_dependent_quantity_store_snum": true
+}

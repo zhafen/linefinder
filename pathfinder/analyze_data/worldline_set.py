@@ -240,13 +240,11 @@ class WorldlineSet( utilities.SmartDict ):
             labels.append( key )
             snums.append( snum )
 
-        # DEBUG
-        # Actually store the quantity
-        # self.store_quantity(
-        #     output_filepath,
-        #     variations = variations,
-        #     *args, **kwargs
-        # )
+        self.store_quantity(
+            output_filepath,
+            variations = variations,
+            *args, **kwargs
+        )
 
         # Now store the snapshots
         h5_wrapper = hdf5_wrapper.HDF5Wrapper( output_filepath )

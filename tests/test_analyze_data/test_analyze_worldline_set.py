@@ -268,4 +268,5 @@ class TestStoreQuantity( unittest.TestCase ):
                 'label': [ 'analyze_snum550', 'analyze_snum600' ],
             },
             index_key = 'label',
+            insert_columns = True,
         )
