@@ -682,7 +682,7 @@ class Worldlines( simulation_data.TimeData ):
         selection_routine='galaxy',
         ptype='star',
         quantity='mass',
-        radial_bins = np.arange( 0., 1.1, 1.0 ),
+        radial_bins = np.arange( 0., 1.1, 0.1 ),
         radial_bin_data_kwargs = {
             'scale_key': 'Rvir',
             'scale_a_power': 1.,

@@ -7,11 +7,11 @@
 '''
 
 import h5py
-import numpy as np
 import os
 
 ########################################################################
 ########################################################################
+
 
 class IDs( object ):
     '''Loads and analyzes data created by select.py
@@ -54,3 +54,12 @@ class IDs( object ):
             snap_param_grp = f['parameters/snapshot_parameters']
             for key in snap_param_grp.attrs.keys():
                 self.snapshot_parameters[key] = snap_param_grp.attrs[key]
+
+            # Store the used data filters
+            self.data_filters = {}
+            filters_grp = f['parameters/data_filters']
+            for filters_subset in filters_grp.keys():
+                subgroup = filters_grp[filters_subset]
+                self.data_filters[filters_subset] = {}
+                for key in subgroup.attrs.keys():
+                    self.data_filters[filters_subset][key] = subgroup.attrs[key]

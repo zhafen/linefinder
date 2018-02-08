@@ -1,4 +1,6 @@
 {
-  "tests/test_analyze_data/test_analyze_worldline_set.py::TestStoreQuantity::test_store_redshift_dependent_quantity": true, 
-  "tests/test_analyze_data/test_analyze_worldline_set.py::TestStoreQuantity::test_store_redshift_dependent_quantity_store_snum": true
+  "tests/test_analyze_data/test_analyze_ids.py::TestGalIDsStartup::test_init": true, 
+  "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineProperties::test_n_particles_snapshot": true, 
+  "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlines::test_get_parameters": true, 
+  "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlines::test_load_ids": true
 }

@@ -242,6 +242,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         plot_dividing_line = False,
         classification_list = p_constants.CLASSIFICATIONS_A,
         classification_colors = p_constants.CLASSIFICATION_COLORS_B,
+        add_legend = True,
+        legend_location = (0., -0.28),
         *args, **kwargs
     ):
         '''Make a plot like the bottom panel of Fig. 3 in Angles-Alcazar+17
@@ -317,7 +319,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             ax.set_ylim( y_range )
 
         x_tick_values = np.log10( 1. + tick_redshifts )
-        plt.xticks( x_tick_values, tick_redshifts )
+        ax.xaxis.set_ticks( x_tick_values )
+        ax.set_xticklabels( tick_redshifts )
 
         if y_label is default:
             y_label = r'$f(M_{\star})$'
@@ -327,7 +330,15 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         ax.annotate( s=self.label, xy=(0., 1.0225), xycoords='axes fraction', fontsize=22, )
 
-        ax.legend( color_objects, labels, prop={'size': 14.5}, ncol=5, loc=(0., -0.28), fontsize=20 )
+        if add_legend:
+            ax.legend(
+                color_objects,
+                labels,
+                prop={'size': 14.5},
+                ncol=5,
+                loc=legend_location,
+                fontsize=20
+            )
 
     ########################################################################
 
