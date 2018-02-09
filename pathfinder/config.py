@@ -10,10 +10,23 @@ For example, this contains the default fill values for invalid data.
 import numpy as np
 
 ########################################################################
+# System Information
 ########################################################################
 
 JUG_PATH = '~/.local/bin/jug'
 JUG_EXEC_PATH = '~/.local/bin/jug-execute'
+
+ACTIVE_SYSTEM = 'Quest'
+
+QUEST_PARAMETERS = {
+    'pathfinder_data_dir': '/projects/b1026/zhafen/pathfinder_data',
+    'ahf_data_dir': '/projects/b1026/zhafen',
+}
+
+STAMPEDE_PARAMETERS = {
+    'pathfinder_data_dir': '/work/03057/zhafen/pathfinder_data',
+    'ahf_data_dir': '/scratch/03057/zhafen',
+}
 
 ########################################################################
 ########################################################################

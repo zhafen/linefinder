@@ -242,6 +242,13 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         plot_dividing_line = False,
         classification_list = p_constants.CLASSIFICATIONS_A,
         classification_colors = p_constants.CLASSIFICATION_COLORS_B,
+        label = default,
+        show_label = True,
+        label_kwargs = {
+            'xy': (0., 1.0225),
+            'xycoords': 'axes fraction',
+            'fontsize': 22,
+        },
         add_legend = True,
         legend_location = (0., -0.28),
         *args, **kwargs
@@ -328,7 +335,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ax.set_xlabel( r'z', fontsize=22, )
         ax.set_ylabel( y_label, fontsize=22, )
 
-        ax.annotate( s=self.label, xy=(0., 1.0225), xycoords='axes fraction', fontsize=22, )
+        if label is default:
+            label = self.label
+
+        if show_label:
+            ax.annotate( s=label, **label_kwargs )
 
         if add_legend:
             ax.legend(

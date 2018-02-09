@@ -152,7 +152,7 @@ CLASSIFICATIONS_CGM_B = [
 
 # This set of classifications is centered on the origin of the CGM
 CLASSIFICATIONS_CGM_ORIGIN = [
-    'is_IP',
-    'is_hitherto_EP_NYA',
     'is_hitherto_NEP_NYA',
+    'is_hitherto_EP_NYA',
+    'is_IP',
 ]
