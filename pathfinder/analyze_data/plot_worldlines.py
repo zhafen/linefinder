@@ -542,6 +542,60 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         '''Plot streamlines. This code largely follows what Daniel did before.
         '''
 
+        def colorline(x, y, z=None, cmap=plt.get_cmap('copper'), norm=plt.Normalize(0.0, 1.0), linewidth=3, alpha=1.0):
+            '''
+            Plot a colored line with coordinates x and y
+            Optionally specify colors in the array z
+            Optionally specify a colormap, a norm function and a line width
+            '''
+
+            # Default colors equally spaced on [0,1]:
+            if z is None:
+                z = np.linspace(0.0, 1.0, len(x))
+
+            # Special case if a single number:
+            if not hasattr(z, "__iter__"):  # to check for numerical input -- this is a hack
+                z = np.array([z])
+
+            z = np.asarray(z)
+
+            segments = make_segments(x, y)
+            lc = LineCollection(segments, array=z, cmap=cmap, norm=norm, linewidth=linewidth, alpha=alpha)
+
+            ax = plt.gca()
+            ax.add_collection(lc)
+
+            return lc
+
+        # --- INTERGALACTIC TRANSFER ---
+        ind_gas_trans = np.where( (ptr['Ptype'][:, i] == 0) & (f['IsMassTransfer'][:] == 1) & (IsInOtherGal[:, i] == 1) & (IsAfterOtherGal[:, i - nstp] == 1) )[0]
+        np.random.shuffle(ind_gas_trans)
+        # for j in range(ind_gas_trans.size):
+        for j in range( np.min([ind_gas_trans.size, ntest]) ):
+            iacc = np.where( IsGasAccreted[ind_gas_trans[j], 0:i] == 1)[0]
+            iaft = np.where( IsAfterOtherGal[ind_gas_trans[j], :] == 1)[0]
+            if (iacc.size == 0) or (iaft.size == 0):
+                continue
+            iacc = iacc[-1]
+            # iaft = iaft[-1]      ## this is the default!
+            iaft = i
+            if iacc > iaft:
+                print 'problemssss...2'
+            continue
+            if (iaft - iacc < 2 * nsmooth):    # not enough snaps to smooth trajectory
+                continue
+            xtrs = daa.mysmooth(r[ind_gas_trans[j], iacc:iaft, 0], nsmooth, sfac=2.)
+            ytrs = daa.mysmooth(r[ind_gas_trans[j], iacc:iaft, 1], nsmooth, sfac=2.)
+            rtrs = np.sqrt(xtrs**2 + ytrs**2)
+            ztrs = z[iacc:iaft]
+            lwtrs = np.linspace(0.1, 1.5, xtrs.size)
+            cltrs = np.linspace(0., 1, xtrs.size)
+            colorline( xtrs, ytrs, z=cltrs, linewidth=lwtrs, cmap=cm.Greens, norm=cl.Normalize(vmin=-0.3, vmax=1.) )
+
+    def plot_streamlines_classifications( self ):
+        '''Plot multiple streamlines.
+        '''
+
         # # --- read main galaxy info
         # if sname[0:3] == 'm13':
         #     grstr = 'gr1'
