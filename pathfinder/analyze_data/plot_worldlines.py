@@ -12,6 +12,7 @@ import matplotlib
 matplotlib.use('PDF')
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
+import matplotlib.collections as collections
 
 import galaxy_diver.plot_data.generic_plotter as generic_plotter
 import galaxy_diver.plot_data.ahf as plot_ahf
@@ -537,10 +538,76 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     ########################################################################
 
     def plot_streamlines(
-        self
+        self,
+        x_key = 'Rx',
+        y_key = 'Ry',
+        start_ind = 0,
+        end_ind = 100,
+        sample_inds = default,
+        sample_size = 10,
+        x_range = default,
+        y_range = default,
+        x_label = 'x position (pkpc)',
+        y_label = 'y position (pkpc)',
+        fontsize = 22,
+        xkcd_mode = False,
+        *args, **kwargs
     ):
         '''Plot streamlines. This code largely follows what Daniel did before.
         '''
+
+        if xkcd_mode:
+            plt.xkcd()
+
+        plt.figure( figsize=(10, 8), facecolor='white' )
+        ax = plt.gca()
+
+        # Slice and dice the data
+        if sample_inds is default:
+            sample_inds = np.random.choice(
+                range( self.data_object.n_particles ), sample_size )
+        sl = ( sample_inds, slice( start_ind, end_ind ) )
+
+        # Get the data out.
+        x_data = self.data_object.get_masked_data(
+            x_key,
+            sl = sl,
+            *args, **kwargs
+        )
+        y_data = self.data_object.get_masked_data(
+            y_key,
+            sl = sl,
+            *args, **kwargs
+        )
+
+        #DEBUG
+        import pdb; pdb.set_trace()
+
+        # Format the data
+        segments = []
+        for i in range( sample_size ):
+            segment = np.array([ x_data[i], y_data[i] ]).transpose()
+
+            segments.append( segment )
+
+        # Plot!
+        lc = collections.LineCollection( segments )
+        ax.add_collection( lc )
+
+        # Set the range
+        if x_range is default:
+            x_range = [ x_data.min(), x_data.max() ]
+        if y_range is default:
+            y_range = [ y_data.min(), y_data.max() ]
+        ax.set_xlim( x_range )
+        ax.set_ylim( y_range )
+
+        # Axis labels
+        ax.set_xlabel( x_label, fontsize=fontsize )
+        ax.set_ylabel( y_label, fontsize=fontsize )
+
+    def plot_streamlines_old( self ):
+        '''This should be deleted.'''
 
         def colorline(x, y, z=None, cmap=plt.get_cmap('copper'), norm=plt.Normalize(0.0, 1.0), linewidth=3, alpha=1.0):
             '''
