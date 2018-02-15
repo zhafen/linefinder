@@ -547,6 +547,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         sample_size = 10,
         x_range = default,
         y_range = default,
+        color = 'k',
         x_label = 'x position (pkpc)',
         y_label = 'y position (pkpc)',
         fontsize = 22,
@@ -591,7 +592,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             segments.append( segment )
 
         # Plot!
-        lc = collections.LineCollection( segments )
+        lc = collections.LineCollection(
+            segments,
+            color = color,
+        )
         ax.add_collection( lc )
 
         # Set the range
