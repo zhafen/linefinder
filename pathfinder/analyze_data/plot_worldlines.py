@@ -549,7 +549,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         sample_size = 10,
         x_range = default,
         y_range = default,
-        color = 'k',
+        color = default,
         x_label = 'x position (pkpc)',
         y_label = 'y position (pkpc)',
         fontsize = 22,
@@ -568,20 +568,28 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         if sample_inds is default:
             if classification is None:
 
-                # Slice and dice the data
-                sample_inds = np.random.choice(
-                    range( self.data_object.n_particles ),
-                    sample_size,
-                )
+                inds_to_sample = range( self.data_object.n_particles )
 
-            # Sample the data according to its classification.
+            # Sample the data according to its classification at a
+            # specified snapshot (index)
             else:
-                classification_data = self.data_object.get_masked_data(
-                    classification,
-                    sl = (slice(None), classification_ind),
+                inds = self.data_object.get_masked_data(
+                    'ind_particle',
+                    tile_data = True,
+                    compress = False,
+                    classification = classification,
                     *args, **kwargs
                 )
 
+                inds_to_sample = inds[:, classification_ind].compressed()
+
+            # Get the indices to sample
+            sample_inds = np.random.choice(
+                inds_to_sample,
+                sample_size,
+            )
+
+        # Make the actual slice to pass to the data.
         sl = ( sample_inds, slice( start_ind, end_ind ) )
 
         # Get the data out.
@@ -604,6 +612,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             segments.append( segment )
 
         # Plot!
+
+        if color is default:
+            color = p_constants.CLASSIFICATION_COLORS_B[classification]
+
         lc = collections.LineCollection(
             segments,
             color = color,
