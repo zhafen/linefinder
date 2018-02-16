@@ -541,6 +541,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         self,
         x_key = 'Rx',
         y_key = 'Ry',
+        classification = None,
+        classification_ind = 0,
         start_ind = 0,
         end_ind = 100,
         sample_inds = default,
@@ -563,10 +565,23 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         plt.figure( figsize=(10, 8), facecolor='white' )
         ax = plt.gca()
 
-        # Slice and dice the data
         if sample_inds is default:
-            sample_inds = np.random.choice(
-                range( self.data_object.n_particles ), sample_size )
+            if classification is None:
+
+                # Slice and dice the data
+                sample_inds = np.random.choice(
+                    range( self.data_object.n_particles ),
+                    sample_size,
+                )
+
+            # Sample the data according to its classification.
+            else:
+                classification_data = self.data_object.get_masked_data(
+                    classification,
+                    sl = (slice(None), classification_ind),
+                    *args, **kwargs
+                )
+
         sl = ( sample_inds, slice( start_ind, end_ind ) )
 
         # Get the data out.
@@ -580,9 +595,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             sl = sl,
             *args, **kwargs
         )
-
-        #DEBUG
-        import pdb; pdb.set_trace()
 
         # Format the data
         segments = []

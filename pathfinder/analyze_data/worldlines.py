@@ -429,7 +429,7 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def get_processed_data( self, data_key, *args, **kwargs ):
+    def get_processed_data( self, data_key, tile_data=False, *args, **kwargs ):
         '''Get data, handling more complex data keys that indicate doing generic things to the data.
 
         Args:
@@ -444,7 +444,7 @@ class Worldlines( simulation_data.TimeData ):
 
         data = super( Worldlines, self ).get_processed_data( data_key, *args, **kwargs )
 
-        if tiled_flag:
+        if tiled_flag or tile_data:
 
             if data.shape == ( self.n_particles, ):
                 data = np.tile( data, ( self.n_snaps, 1) ).transpose()
@@ -1119,9 +1119,16 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     def calc_ind( self ):
-        '''Just the index for each array.'''
+        '''Just the redshift index for each array.'''
 
         self.data['ind'] = np.arange( self.n_snaps )
+
+    ########################################################################
+
+    def calc_ind_particle( self ):
+        '''Just the particle index for each array.'''
+
+        self.data['ind_particle'] = np.arange( self.n_particles )
 
     ########################################################################
 
