@@ -541,6 +541,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         self,
         x_key = 'Rx',
         y_key = 'Ry',
+        x_data_kwargs = {},
+        y_data_kwargs = {},
         classification = None,
         classification_ind = 0,
         start_ind = 0,
@@ -589,19 +591,30 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 sample_size,
             )
 
+        print( "Displaying particles", )
+        print( sample_inds )
+
         # Make the actual slice to pass to the data.
-        sl = ( sample_inds, slice( start_ind, end_ind ) )
+        x_slice = slice( start_ind, end_ind )
+        sl = ( sample_inds, x_slice )
+
+        # Account for possibly tiled x data (typically done if x data is
+        # redshift or something similar).
+        if 'tile_data' in x_data_kwargs:
+            x_sl = x_slice
+        else:
+            x_sl = sl
 
         # Get the data out.
         x_data = self.data_object.get_masked_data(
             x_key,
-            sl = sl,
-            *args, **kwargs
+            sl = x_sl,
+            **x_data_kwargs
         )
         y_data = self.data_object.get_masked_data(
             y_key,
             sl = sl,
-            *args, **kwargs
+            **y_data_kwargs
         )
 
         # Format the data
