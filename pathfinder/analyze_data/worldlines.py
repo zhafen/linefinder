@@ -1081,6 +1081,22 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_age_of_universe( self ):
+        '''Calc time difference between snapshots.
+
+        Modifies:
+            self.data['dt'] (np.ndarray) : self.data['dt'][i] = light_travel_time[i+1] - light_travel_time[i]
+        '''
+
+        # Age of the universe in Myr
+        self.data['age_of_universe'] = astro_tools.age_of_universe(
+            self.get_data( 'redshift' ),
+            h = self.ptracks.data_attrs['hubble'],
+            omega_matter = self.ptracks.data_attrs['omega_matter'],
+        )
+
+    ########################################################################
+
     def calc_dt( self ):
         '''Calc time difference between snapshots.
 
@@ -1091,8 +1107,9 @@ class Worldlines( simulation_data.TimeData ):
         # Age of the universe in Myr
         time = 1e3 * astro_tools.age_of_universe(
             self.get_data( 'redshift' ),
-            h=self.ptracks.data_attrs['hubble'],
-            omega_matter=self.ptracks.data_attrs['omega_matter'] )
+            h = self.ptracks.data_attrs['hubble'],
+            omega_matter = self.ptracks.data_attrs['omega_matter']
+        )
         dt = time[:-1] - time[1:]
 
         # dt is shorter than the standard array, so we need to pad the array at the final snapshot

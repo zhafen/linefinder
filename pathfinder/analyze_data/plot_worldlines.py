@@ -591,7 +591,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 sample_size,
             )
 
-        print( "Displaying particles", )
+        print( "Displaying particles" )
         print( sample_inds )
 
         # Make the actual slice to pass to the data.
