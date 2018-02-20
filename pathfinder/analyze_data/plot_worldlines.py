@@ -549,6 +549,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         end_ind = 100,
         sample_inds = default,
         sample_size = 10,
+        ax = None,
         x_range = default,
         y_range = default,
         color = default,
@@ -564,8 +565,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         if xkcd_mode:
             plt.xkcd()
 
-        plt.figure( figsize=(10, 8), facecolor='white' )
-        ax = plt.gca()
+        if ax is None:
+            plt.figure( figsize=(10, 8), facecolor='white' )
+            ax = plt.gca()
 
         if sample_inds is default:
             if classification is None:
@@ -646,6 +648,62 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         # Axis labels
         ax.set_xlabel( x_label, fontsize=fontsize )
         ax.set_ylabel( y_label, fontsize=fontsize )
+
+    ########################################################################
+
+    def plot_streamlines_vs_time(
+        self,
+        x_key = 'age_of_universe',
+        y_key = 'Ry',
+        ax = None,
+        classification_ind = 0,
+        vert_line_at_classification_ind = True,
+        *args, **kwargs
+    ):
+
+        if ax is None:
+            plt.figure( figsize=(10, 8), facecolor='white' )
+            ax = plt.gca()
+
+        # Setup data kwargs. These will always have to be tiled
+        x_data_kwargs = {
+            'tile_data': True,
+            'tile_dim': 'match_particles',
+        }
+
+        self.plot_streamlines(
+            x_key = x_key,
+            y_key = y_key,
+            classification_ind = classification_ind,
+            ax = ax,
+            x_data_kwargs = x_data_kwargs,
+            *args, **kwargs
+        )
+
+        # Plot a line at the ind at which classifications are determined
+        if vert_line_at_classification_ind:
+
+            #DEBUG
+            import pdb; pdb.set_trace()
+
+            x_value = self.data_object.get_masked_data(
+                x_key,
+                sl = classification_ind,
+            )
+
+            trans = transforms.blended_transform_factory(
+                ax.transData, ax.transAxes )
+
+            ax.plot(
+                [ x_value, ] * 2,
+                [0, 1],
+                color='black',
+                linewidth=3,
+                linestyle='--',
+                transform=trans
+            )
+
+    ########################################################################
 
     def plot_streamlines_old( self ):
         '''This should be deleted.'''
