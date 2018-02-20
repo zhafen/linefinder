@@ -15,6 +15,7 @@ import matplotlib.transforms as transforms
 import matplotlib.collections as collections
 
 import galaxy_diver.plot_data.generic_plotter as generic_plotter
+import galaxy_diver.analyze_data.ahf as analyze_ahf
 import galaxy_diver.plot_data.ahf as plot_ahf
 import galaxy_diver.plot_data.plotting as gen_plot
 
@@ -655,9 +656,15 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         self,
         x_key = 'age_of_universe',
         y_key = 'Ry',
-        ax = None,
         classification_ind = 0,
         vert_line_at_classification_ind = True,
+        ax = None,
+        x_label = 'Age of the Universe (Gyr)',
+        plot_halos = True,
+        halo_y_key = 'Yc',
+        halo_plot_kwargs = {
+            'n_halos': 100,
+        },
         *args, **kwargs
     ):
 
@@ -677,14 +684,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             classification_ind = classification_ind,
             ax = ax,
             x_data_kwargs = x_data_kwargs,
+            x_label = x_label,
             *args, **kwargs
         )
 
         # Plot a line at the ind at which classifications are determined
         if vert_line_at_classification_ind:
-
-            #DEBUG
-            import pdb; pdb.set_trace()
 
             x_value = self.data_object.get_masked_data(
                 x_key,
@@ -701,6 +706,28 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 linewidth=3,
                 linestyle='--',
                 transform=trans
+            )
+
+        # Plot halos
+        if plot_halos:
+
+            w = self.data_object
+
+            ahf_data = analyze_ahf.HaloData(
+                w.ahf_data_dir,
+                tag = w.ahf_tag,
+                index = w.ahf_index,
+            )
+            ahf_plotter = plot_ahf.HaloPlotter( ahf_data )
+
+            ahf_plotter.plot_halo_time(
+                halo_y_key,
+                snums = w.get_masked_data( 'snum' ),
+                subtract_mt_halo_id = w.main_halo_id,
+                ax = ax,
+                hubble_param = w.ptracks.data_attrs['hubble'],
+                omega_matter = w.ptracks.data_attrs['omega_matter'],
+                **halo_plot_kwargs
             )
 
     ########################################################################
