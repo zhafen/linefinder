@@ -558,6 +558,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         y_label = 'y position (pkpc)',
         fontsize = 22,
         xkcd_mode = False,
+        plot_halos = True,
         *args, **kwargs
     ):
         '''Plot streamlines. This code largely follows what Daniel did before.
@@ -628,7 +629,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             segments.append( segment )
 
         # Plot!
-
         if color is default:
             color = p_constants.CLASSIFICATION_COLORS_B[classification]
 
@@ -637,6 +637,28 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             color = color,
         )
         ax.add_collection( lc )
+
+        # Plot halos
+        if plot_halos:
+
+            w = self.data_object
+
+            ahf_data = analyze_ahf.HaloData(
+                w.ahf_data_dir,
+                tag = w.ahf_tag,
+                index = w.ahf_index,
+            )
+            ahf_plotter = plot_ahf.HaloPlotter( ahf_data )
+
+            ahf_plotter.plot_halos_snapshot(
+                snum = w.ahf_index - classification_ind,
+                ax = ax,
+                hubble_param = w.ptracks.data_attrs['hubble'],
+                radius_fraction = w.galids.parameters['galaxy_cut'],
+                length_scale = w.galids.parameters['length_scale'],
+                minimum_criteria = w.galids.parameters['minimum_criteria'],
+                minimum_value = w.galids.parameters['minimum_value'],
+            )
 
         # Set the range
         if x_range is default:
@@ -685,6 +707,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             ax = ax,
             x_data_kwargs = x_data_kwargs,
             x_label = x_label,
+            plot_halos = False,
             *args, **kwargs
         )
 
