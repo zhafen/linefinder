@@ -10,36 +10,6 @@ For example, this contains the default fill values for invalid data.
 import numpy as np
 
 ########################################################################
-# System Information
-########################################################################
-
-JUG_PATH = '~/.local/bin/jug'
-JUG_EXEC_PATH = '~/.local/bin/jug-execute'
-
-ACTIVE_SYSTEM = 'Quest'
-
-QUEST_PARAMETERS = {
-    'pathfinder_data_dir': '/projects/b1026/zhafen/pathfinder_data',
-    'ahf_data_dir': '/projects/b1026/zhafen',
-}
-
-STAMPEDE_PARAMETERS = {
-    'pathfinder_data_dir': '/work/03057/zhafen/pathfinder_data',
-    'ahf_data_dir': '/scratch/03057/zhafen',
-}
-
-########################################################################
-########################################################################
-
-INT_FILL_VALUE = -99999
-FLOAT_FILL_VALUE = np.nan
-
-PTYPE_GAS = 0
-PTYPE_DM = 1
-PTYPE_LOWRES_DM = 2
-PTYPE_STAR = 4
-
-########################################################################
 # Global Default Parameters
 ########################################################################
 # I do it this way that way I can access these global defaults from plotting
@@ -67,3 +37,48 @@ T_PRO = 100.0
 
 # Fiducial time interval during which material can be counted as merger (in Myr)
 T_M = 500.0
+
+########################################################################
+# System Information
+########################################################################
+
+ACTIVE_SYSTEM = 'Quest'
+
+QUEST_PARAMETERS = {
+    'simulation_data_dir': '/projects/b1026/zhafen',
+    'pathfinder_data_dir': '/projects/b1026/zhafen/pathfinder_data',
+    'ahf_data_dir': '/projects/b1026/zhafen',
+}
+
+STAMPEDE_PARAMETERS = {
+    'pathfinder_data_dir': '/work/03057/zhafen/pathfinder_data',
+    'ahf_data_dir': '/scratch/03057/zhafen',
+}
+
+JUG_PATH = '~/.local/bin/jug'
+JUG_EXEC_PATH = '~/.local/bin/jug-execute'
+
+########################################################################
+# Simulation Information
+########################################################################
+
+FULL_SIM_NAME = {
+    'm12i': 'm12i_res7000',
+    'm12f': 'm12f_res7000',
+    'm12m': 'm12m_res7000',
+    'm12imd': 'm12i_res7000_md',
+}
+
+########################################################################
+# Miscellanious values
+########################################################################
+
+# What fill values to use throughout?
+INT_FILL_VALUE = -99999
+FLOAT_FILL_VALUE = np.nan
+
+# What integer particle type does each component correspond to?
+PTYPE_GAS = 0
+PTYPE_DM = 1
+PTYPE_LOWRES_DM = 2
+PTYPE_STAR = 4

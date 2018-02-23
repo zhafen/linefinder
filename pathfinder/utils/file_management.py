@@ -23,6 +23,15 @@ class FileManager( object ):
     ########################################################################
     ########################################################################
 
+    def get_sim_filepath( self, sim_name ):
+
+        return '{}/{}/output'.format(
+            self.system_parameters['simulation_data_dir'],
+            config.FULL_SIM_NAME[sim_name],
+        )
+
+    ########################################################################
+
     def get_pathfinder_analysis_defaults(
         self,
         tag_tail,

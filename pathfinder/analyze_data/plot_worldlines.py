@@ -554,11 +554,15 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         x_range = default,
         y_range = default,
         color = default,
+        zorder = 100.,
+        linewidth = 1.5,
         x_label = 'x position (pkpc)',
         y_label = 'y position (pkpc)',
         fontsize = 22,
         xkcd_mode = False,
         plot_halos = True,
+        halo_radius_fraction = default,
+        halo_length_scale = default,
         *args, **kwargs
     ):
         '''Plot streamlines. This code largely follows what Daniel did before.
@@ -623,7 +627,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         # Format the data
         segments = []
-        for i in range( sample_size ):
+        for i in range( len( sample_inds ) ):
             segment = np.array([ x_data[i], y_data[i] ]).transpose()
 
             segments.append( segment )
@@ -635,13 +639,21 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         lc = collections.LineCollection(
             segments,
             color = color,
+            linewidth = linewidth,
         )
         ax.add_collection( lc )
+
+        lc.set_zorder( zorder )
 
         # Plot halos
         if plot_halos:
 
             w = self.data_object
+
+            if halo_radius_fraction is default:
+                halo_radius_fraction = w.galids.parameters['galaxy_cut']
+            if halo_length_scale is default:
+                halo_length_scale = w.galids.parameters['length_scale']
 
             ahf_data = analyze_ahf.HaloData(
                 w.ahf_data_dir,
@@ -654,8 +666,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 snum = w.ahf_index - classification_ind,
                 ax = ax,
                 hubble_param = w.ptracks.data_attrs['hubble'],
-                radius_fraction = w.galids.parameters['galaxy_cut'],
-                length_scale = w.galids.parameters['length_scale'],
+                radius_fraction = halo_radius_fraction,
+                length_scale = halo_length_scale,
                 minimum_criteria = w.galids.parameters['minimum_criteria'],
                 minimum_value = w.galids.parameters['minimum_value'],
             )
@@ -680,6 +692,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         y_key = 'Ry',
         classification_ind = 0,
         vert_line_at_classification_ind = True,
+        horizontal_line_value = None,
         ax = None,
         x_label = 'Age of the Universe (Gyr)',
         plot_halos = True,
@@ -725,6 +738,19 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             ax.plot(
                 [ x_value, ] * 2,
                 [0, 1],
+                color='black',
+                linewidth=3,
+                linestyle='--',
+                transform=trans
+            )
+        if horizontal_line_value is not None:
+
+            trans = transforms.blended_transform_factory(
+                ax.transAxes, ax.transData )
+
+            ax.plot(
+                [0, 1],
+                [ horizontal_line_value, ] * 2,
                 color='black',
                 linewidth=3,
                 linestyle='--',
