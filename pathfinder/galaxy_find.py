@@ -154,6 +154,8 @@ class ParticleTrackGalaxyFinder( object ):
 
         jug.Task( self.write_galaxy_identifications, ptrack_gal_ids )
 
+        jug.barrier()
+
     ########################################################################
 
     def read_data( self ):

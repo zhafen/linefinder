@@ -57,9 +57,13 @@ class IDs( object ):
 
             # Store the used data filters
             self.data_filters = {}
-            filters_grp = f['parameters/data_filters']
-            for filters_subset in filters_grp.keys():
-                subgroup = filters_grp[filters_subset]
-                self.data_filters[filters_subset] = {}
-                for key in subgroup.attrs.keys():
-                    self.data_filters[filters_subset][key] = subgroup.attrs[key]
+            try:
+                filters_grp = f['parameters/data_filters']
+                for filters_subset in filters_grp.keys():
+                    subgroup = filters_grp[filters_subset]
+                    self.data_filters[filters_subset] = {}
+                    for key in subgroup.attrs.keys():
+                        self.data_filters[filters_subset][key] = \
+                            subgroup.attrs[key]
+            except KeyError:
+                print( "Failed to load data_filters. Using older data?" )
