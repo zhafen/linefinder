@@ -12,9 +12,7 @@ import os
 import pytest
 import unittest
 
-import pathfinder.classify as classify
-import pathfinder.galaxy_find as galaxy_find
-import pathfinder.track as track
+import pathfinder.pathfinder as pathfinder
 
 ########################################################################
 # Global variables
@@ -31,34 +29,34 @@ snap_step = 50
 mtree_halos_index = snap_end
 
 # Information about what the output data should be called.
-outdir =  './tests/data/tracking_output_for_analysis'
+outdir = './tests/data/tracking_output_for_analysis'
 tag = 'analyze'
 
 # Tracking Parameters
 tracker_kwargs = {
-  'out_dir' : outdir,
-  'tag' : tag,
+    'out_dir': outdir,
+    'tag': tag,
 }
 
 # Galaxy Finding Parameters
 gal_finder_kwargs = {
-  'out_dir' : outdir,
-  'tag' : tag,
+    'out_dir': outdir,
+    'tag': tag,
 
-  'ahf_data_dir' : ahf_sdir,
-  'main_mt_halo_id' : 0,
+    'ahf_data_dir': ahf_sdir,
+    'main_mt_halo_id': 0,
 
-  'n_processors' : 1, 
+    'n_processors': 1,
 
-  'length_scale' : 'Rvir',
+    'length_scale': 'Rvir',
 }
 
 # Classifying Parameters
 classifier_kwargs = {
-  'out_dir' : outdir,
-  'tag' : tag,
+    'out_dir': outdir,
+    'tag': tag,
 
-  'velocity_scale' : 'Vc(Rvir)',
+    'velocity_scale': 'Vc(Rvir)',
 }
 
 ptracks_filename = os.path.join( outdir, 'ptracks_analyze.hdf5' )
@@ -77,53 +75,54 @@ slow = pytest.mark.skipif(
 ########################################################################
 ########################################################################
 
+
 class TestFullWorldline( unittest.TestCase ):
-  '''These are really integration tests.'''
+    '''These are really integration tests.'''
 
-  def setUp( self ):
+    def setUp( self ):
 
-    for filename in [ ptracks_filename, galids_filename, classifications_filename, events_filename ]:
-      if os.path.isfile( filename ):
-        os.remove( filename )
+        for filename in [ ptracks_filename, galids_filename, classifications_filename, events_filename ]:
+            if os.path.isfile( filename ):
+                os.remove( filename )
 
-  ########################################################################
+    ########################################################################
 
-  @slow
-  def test_full_pipeline( self ):
-    '''Except the id selecting... This makes sure the full pipeline just runs.'''
+    @slow
+    def test_full_pipeline( self ):
+        '''Except the id selecting... This makes sure the full pipeline just runs.'''
 
-    particle_tracker = track.ParticleTracker( **tracker_kwargs )
-    particle_tracker.save_particle_tracks()
-
-    particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder( **gal_finder_kwargs )
-    particle_track_gal_finder.find_galaxies_for_particle_tracks()
-
-    classifier = classify.Classifier( **classifier_kwargs )
-    classifier.classify_particles()
+        pathfinder.run_pathfinder(
+            tracker_kwargs = tracker_kwargs,
+            gal_finder_kwargs = gal_finder_kwargs,
+            classifier_kwargs = classifier_kwargs,
+            run_id_selection = False,
+            run_id_sampling = False,
+        )
 
 ########################################################################
 ########################################################################
+
 
 class TestCreateAnalysisData( unittest.TestCase ):
-  '''Strictly speaking, these aren't really tests, so much as a kind of hacky way to generate test data for
-  testing the analysis tools. Of course, if they break then something's wrong.'''
+    '''Strictly speaking, these aren't really tests, so much as a kind of hacky way to generate test data for
+    testing the analysis tools. Of course, if they break then something's wrong.'''
 
-  @slow
-  def test_create_classification_data( self ):
+    @slow
+    def test_create_classification_data( self ):
 
-    f = h5py.File( classifications_filename, 'a' )
+        f = h5py.File( classifications_filename, 'a' )
 
-    for key in [ 'is_mass_transfer', 'is_merger', 'is_preprocessed', 'is_pristine', 'is_wind' ]:
-      del f[key]
+        for key in [ 'is_mass_transfer', 'is_merger', 'is_preprocessed', 'is_pristine', 'is_wind' ]:
+            del f[key]
 
-    f['is_mass_transfer'] = np.array( [ 0, 1, 0, 0, ] ).astype( bool )
-    f['is_merger'] = np.array( [ 0, 0, 1, 1, ] ).astype( bool )
-    f['is_preprocessed'] = np.array( [ 0, 1, 1, 1, ] ).astype( bool )
-    f['is_pristine'] = np.array( [ 1, 0, 0, 0, ] ).astype( bool )
-    f['is_wind'] = np.array( [
-      [ 0, 0, 0, ],
-      [ 1, 1, 0, ],
-      [ 1, 1, 1, ],
-      [ 0, 0, 0, ],
-      ] ).astype( bool )
-    f.close()
+        f['is_mass_transfer'] = np.array( [ 0, 1, 0, 0, ] ).astype( bool )
+        f['is_merger'] = np.array( [ 0, 0, 1, 1, ] ).astype( bool )
+        f['is_preprocessed'] = np.array( [ 0, 1, 1, 1, ] ).astype( bool )
+        f['is_pristine'] = np.array( [ 1, 0, 0, 0, ] ).astype( bool )
+        f['is_wind'] = np.array( [
+            [ 0, 0, 0, ],
+            [ 1, 1, 0, ],
+            [ 1, 1, 1, ],
+            [ 0, 0, 0, ],
+        ] ).astype( bool )
+        f.close()
