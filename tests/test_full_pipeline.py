@@ -12,6 +12,7 @@ import os
 import pytest
 import unittest
 
+import pathfinder.config as config
 import pathfinder.pathfinder as pathfinder
 
 ########################################################################
@@ -98,6 +99,28 @@ class TestFullWorldline( unittest.TestCase ):
             run_id_selection = False,
             run_id_sampling = False,
         )
+
+    ########################################################################
+
+    def test_actually_full_pipeline( self ):
+        '''Test that everything runs, including ID selecting.'''
+
+        assert False, "Need to do."
+
+    ########################################################################
+
+    @slow
+    def test_full_pipeline_jug( self ):
+        '''Make sure everything runs and matches, including ID selecting.'''
+
+        os.system( "{} ./tests/pathfinder_jugfile.py &".format(
+            config.JUG_EXEC_PATH )
+        )
+        os.system( "{} ./tests/pathfinder_jugfile.py".format(
+            config.JUG_EXEC_PATH )
+        )
+
+        assert False, "Need to test that everything matches."
 
 ########################################################################
 ########################################################################
