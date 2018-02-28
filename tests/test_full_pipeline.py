@@ -159,7 +159,6 @@ class TestPathfinder( unittest.TestCase ):
             tag = tag,
             selector_kwargs = selector_kwargs,
             sampler_kwargs = sampler_kwargs,
-            tracker_kwargs = tracker_kwargs,
             gal_finder_kwargs = gal_finder_kwargs,
             classifier_kwargs = classifier_kwargs,
         )
