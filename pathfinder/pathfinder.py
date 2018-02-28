@@ -11,11 +11,15 @@ import track
 import galaxy_find
 import classify
 
+import galaxy_diver.utils.utilities as utilities
+
 ########################################################################
 ########################################################################
 
 
 def run_pathfinder(
+    out_dir,
+    tag,
     selector_data_filters = {},
     selector_kwargs = None,
     sampler_kwargs = None,
@@ -31,6 +35,12 @@ def run_pathfinder(
     '''Main function for running pathfinder.
 
     Args:
+        out_dir (str):
+            Output directory to store the data in.
+
+        tag (str):
+            Filename identifier for data products.
+
         selector_data_filters (dict):
             Data filters to pass to select.IDSelector.select_ids()
 
@@ -69,32 +79,62 @@ def run_pathfinder(
 
         run_classifying (bool):
             If True, then run routines for classifying particles.
-
     '''
+
+    # These are kwargs that could be used at any stage of running pathfinder.
+    general_kwargs = {
+        'out_dir': out_dir,
+        'tag': tag,
+    }
 
     # Run the ID Selecting
     if run_id_selection:
+
+        # Update arguments
+        selector_kwargs = utilities.merge_two_dicts(
+            selector_kwargs, general_kwargs )
+
         id_selector = select.IDSelector( **selector_kwargs )
         id_selector.select_ids( selector_data_filters )
 
     # Run the ID Sampling
     if run_id_sampling:
+
+        # Update arguments
+        sampler_kwargs = utilities.merge_two_dicts(
+            sampler_kwargs, general_kwargs )
+
         id_sampler = select.IDSampler( **sampler_kwargs )
         id_sampler.sample_ids()
 
     # Run the Particle Tracking
     if run_tracking:
+
+        # Update arguments
+        tracker_kwargs = utilities.merge_two_dicts(
+            tracker_kwargs, general_kwargs )
+
         particle_tracker = track.ParticleTracker( **tracker_kwargs )
         particle_tracker.save_particle_tracks()
 
     # Run the Galaxy Finding
     if run_galaxy_finding:
+
+        # Update arguments
+        gal_finder_kwargs = utilities.merge_two_dicts(
+            gal_finder_kwargs, general_kwargs )
+
         particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
             **gal_finder_kwargs )
         particle_track_gal_finder.find_galaxies_for_particle_tracks()
 
     # Run the Classification
     if run_classifying:
+
+        # Update arguments
+        classifier_kwargs = utilities.merge_two_dicts(
+            classifier_kwargs, general_kwargs )
+
         classifier = classify.Classifier( **classifier_kwargs )
         classifier.classify_particles()
 

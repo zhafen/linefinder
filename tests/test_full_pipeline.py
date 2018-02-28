@@ -30,16 +30,14 @@ snap_step = 50
 mtree_halos_index = snap_end
 
 # Information about what the output data should be called.
-outdir = './tests/data/tracking_output_for_analysis'
+out_dir = './tests/data/tracking_output_for_analysis'
+out_dir2 = './tests/data/full_pathfinder_output'
 tag = 'analyze'
 
 selector_kwargs = {
     'snum_start': snap_ini,
     'snum_end': snap_end,
     'snum_step': snap_step,
-
-    'out_dir': outdir,
-    'tag': tag,
 
     'p_types': types,
 
@@ -52,21 +50,15 @@ selector_kwargs = {
 }
 
 sampler_kwargs = {
-    'out_dir': outdir,
-    'tag': tag,
+    'n_samples': 2,
 }
 
 # Tracking Parameters
 tracker_kwargs = {
-    'out_dir': outdir,
-    'tag': tag,
 }
 
 # Galaxy Finding Parameters
 gal_finder_kwargs = {
-    'out_dir': outdir,
-    'tag': tag,
-
     'ahf_data_dir': ahf_sdir,
     'main_mt_halo_id': 0,
 
@@ -77,18 +69,15 @@ gal_finder_kwargs = {
 
 # Classifying Parameters
 classifier_kwargs = {
-    'out_dir': outdir,
-    'tag': tag,
-
     'velocity_scale': 'Vc(Rvir)',
 }
 
-ids_full_filename = os.path.join( outdir, 'ids_full_analyze.hdf5' )
-ids_filename = os.path.join( outdir, 'ids_analyze.hdf5' )
-ptracks_filename = os.path.join( outdir, 'ptracks_analyze.hdf5' )
-galids_filename = os.path.join( outdir, 'galids_analyze.hdf5' )
-classifications_filename = os.path.join( outdir, 'classifications_analyze.hdf5' )
-events_filename = os.path.join( outdir, 'events_analyze.hdf5' )
+ids_full_filename = os.path.join( out_dir, 'ids_full_analyze.hdf5' )
+ids_filename = os.path.join( out_dir, 'ids_analyze.hdf5' )
+ptracks_filename = os.path.join( out_dir, 'ptracks_analyze.hdf5' )
+galids_filename = os.path.join( out_dir, 'galids_analyze.hdf5' )
+classifications_filename = os.path.join( out_dir, 'classifications_analyze.hdf5' )
+events_filename = os.path.join( out_dir, 'events_analyze.hdf5' )
 
 ########################################################################
 
@@ -102,19 +91,28 @@ slow = pytest.mark.skipif(
 ########################################################################
 
 
-class TestFullWorldline( unittest.TestCase ):
+class TestPathfinderPartial( unittest.TestCase ):
     '''These are really integration tests.'''
 
     def setUp( self ):
 
-        for filename in [ ptracks_filename, galids_filename, classifications_filename, events_filename ]:
-            if os.path.isfile( filename ):
-                os.remove( filename )
+        file_set = [
+            'ptracks_analyze.hdf5',
+            'galids_analyze.hdf5',
+            'classifications_analyze.hdf5',
+            'events_analyze.hdf5',
+        ]
+        for filename in file_set:
+
+            full_filename = os.path.join( out_dir, filename )
+
+            if os.path.isfile( full_filename ):
+                os.remove( full_filename )
 
     ########################################################################
 
     @slow
-    def test_full_pipeline( self ):
+    def test_pipeline( self ):
         '''Except the id selecting... This makes sure the full pipeline just runs.'''
 
         pathfinder.run_pathfinder(
@@ -125,13 +123,40 @@ class TestFullWorldline( unittest.TestCase ):
             run_id_sampling = False,
         )
 
+########################################################################
+########################################################################
+
+
+class TestPathfinder( unittest.TestCase ):
+    '''These are really integration tests.'''
+
+    def setUp( self ):
+
+        file_set = [
+            'ids_full_analyze.hdf5',
+            'ids_analyze.hdf5',
+            'ptracks_analyze.hdf5',
+            'galids_analyze.hdf5',
+            'classifications_analyze.hdf5',
+            'events_analyze.hdf5',
+        ]
+        for filename in file_set:
+
+            full_filename = os.path.join( out_dir2, filename )
+
+            if os.path.isfile( full_filename ):
+                os.remove( full_filename )
+
+    ########################################################################
     ########################################################################
 
     @slow
-    def test_actually_full_pipeline( self ):
+    def test_full_pipeline( self ):
         '''Test that everything runs, including ID selecting.'''
 
         pathfinder.run_pathfinder(
+            out_dir = out_dir2,
+            tag = tag,
             selector_kwargs = selector_kwargs,
             sampler_kwargs = sampler_kwargs,
             tracker_kwargs = tracker_kwargs,
