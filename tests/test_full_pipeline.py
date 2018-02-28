@@ -43,7 +43,7 @@ selector_kwargs = {
 
     'snapshot_kwargs': {
         'sdir': sdir,
-        'load_additional_ids': False,
+        'load_additional_ids': True,
         'ahf_index': mtree_halos_index,
         'analysis_dir': ahf_sdir,
     }
@@ -132,20 +132,27 @@ class TestPathfinder( unittest.TestCase ):
 
     def setUp( self ):
 
-        file_set = [
-            'ids_full_analyze.hdf5',
-            'ids_analyze.hdf5',
-            'ptracks_analyze.hdf5',
-            'galids_analyze.hdf5',
-            'classifications_analyze.hdf5',
-            'events_analyze.hdf5',
-        ]
-        for filename in file_set:
+        def get_file_set( tag ):
+            '''Get the names of all the files produced.'''
 
-            full_filename = os.path.join( out_dir2, filename )
+            file_set = [
+                'ids_full_{}.hdf5'.format( tag ),
+                'ids_{}.hdf5'.format( tag ),
+                'ptracks_{}.hdf5'.format( tag ),
+                'galids_{}.hdf5'.format( tag ),
+                'classifications_{}.hdf5'.format( tag ),
+                'events_{}.hdf5'.format( tag ),
+            ]
 
-            if os.path.isfile( full_filename ):
-                os.remove( full_filename )
+            return file_set
+
+        # Delete any pre-existing files
+        file_sets = [ get_file_set( 'analyze' ), get_file_set( 'jug' ) ]
+        for file_set_ in file_sets:
+            for filename in file_set_:
+                full_filename = os.path.join( out_dir2, filename )
+                if os.path.isfile( full_filename ):
+                    os.remove( full_filename )
 
     ########################################################################
     ########################################################################

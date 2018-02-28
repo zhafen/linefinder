@@ -16,7 +16,7 @@ mtree_halos_index = snap_end
 
 # Information about what the output data should be called.
 out_dir = './tests/data/full_pathfinder_output'
-tag = 'analyze'
+tag = 'jug'
 
 selector_kwargs = {
     'snum_start': snap_ini,
@@ -27,7 +27,7 @@ selector_kwargs = {
 
     'snapshot_kwargs': {
         'sdir': sdir,
-        'load_additional_ids': False,
+        'load_additional_ids': True,
         'ahf_index': mtree_halos_index,
         'analysis_dir': ahf_sdir,
     }
@@ -56,7 +56,7 @@ classifier_kwargs = {
     'velocity_scale': 'Vc(Rvir)',
 }
 
-pathfinder.run_pathfinder(
+pathfinder.run_pathfinder_jug(
     out_dir = out_dir,
     tag = tag,
     selector_kwargs = selector_kwargs,
