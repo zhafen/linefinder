@@ -25,7 +25,8 @@ import galaxy_diver.utils.utilities as utilities
 class IDSelector( object ):
 
     @utilities.store_parameters
-    def __init__( self,
+    def __init__(
+        self,
         out_dir,
         tag,
         snum_start,
@@ -34,7 +35,7 @@ class IDSelector( object ):
         p_types,
         snapshot_kwargs,
         n_processors=1,
-        ):
+    ):
         '''
         Args:
             out_dir (str) :
@@ -69,7 +70,7 @@ class IDSelector( object ):
     ########################################################################
 
     @utilities.print_timer( 'Selecting all ids took' )
-    def select_ids( self, data_filters ):
+    def select_ids( self, data_filters={} ):
         '''Save a set of all ids that match a set of data filters to a file.
 
         Args:
@@ -273,7 +274,8 @@ class SnapshotIDSelector( particle_data.ParticleData ):
         Built on ParticleData.
 
         Keyword Args:
-            All the usual requirements that would go into particle_data.ParticleData
+            All the usual requirements that would go into
+            particle_data.ParticleData
         '''
 
         super( SnapshotIDSelector, self ).__init__( **kwargs )

@@ -33,6 +33,29 @@ mtree_halos_index = snap_end
 outdir = './tests/data/tracking_output_for_analysis'
 tag = 'analyze'
 
+selector_kwargs = {
+    'snum_start': snap_ini,
+    'snum_end': snap_end,
+    'snum_step': snap_step,
+
+    'out_dir': outdir,
+    'tag': tag,
+
+    'p_types': types,
+
+    'snapshot_kwargs': {
+        'sdir': sdir,
+        'load_additional_ids': False,
+        'ahf_index': mtree_halos_index,
+        'analysis_dir': ahf_sdir,
+    }
+}
+
+sampler_kwargs = {
+    'out_dir': outdir,
+    'tag': tag,
+}
+
 # Tracking Parameters
 tracker_kwargs = {
     'out_dir': outdir,
@@ -102,10 +125,17 @@ class TestFullWorldline( unittest.TestCase ):
 
     ########################################################################
 
+    @slow
     def test_actually_full_pipeline( self ):
         '''Test that everything runs, including ID selecting.'''
 
-        assert False, "Need to do."
+        pathfinder.run_pathfinder(
+            selector_kwargs = selector_kwargs,
+            sampler_kwargs = sampler_kwargs,
+            tracker_kwargs = tracker_kwargs,
+            gal_finder_kwargs = gal_finder_kwargs,
+            classifier_kwargs = classifier_kwargs,
+        )
 
     ########################################################################
 

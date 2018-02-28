@@ -1,1 +1,3 @@
-{}
+{
+  "test_full_pipeline.py::TestFullWorldline::test_actually_full_pipeline": true
+}

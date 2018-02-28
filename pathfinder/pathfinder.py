@@ -16,7 +16,7 @@ import classify
 
 
 def run_pathfinder(
-    selector_data_filters = None,
+    selector_data_filters = {},
     selector_kwargs = None,
     sampler_kwargs = None,
     tracker_kwargs = None,
