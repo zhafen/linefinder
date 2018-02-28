@@ -83,6 +83,8 @@ classifier_kwargs = {
     'velocity_scale': 'Vc(Rvir)',
 }
 
+ids_full_filename = os.path.join( outdir, 'ids_full_analyze.hdf5' )
+ids_filename = os.path.join( outdir, 'ids_analyze.hdf5' )
 ptracks_filename = os.path.join( outdir, 'ptracks_analyze.hdf5' )
 galids_filename = os.path.join( outdir, 'galids_analyze.hdf5' )
 classifications_filename = os.path.join( outdir, 'classifications_analyze.hdf5' )

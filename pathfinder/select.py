@@ -186,8 +186,12 @@ class IDSelector( object ):
 
         time_end = time.time()
 
-        print( "Ptype {}, Snapshot {}, took {:.3g} seconds".format( kwargs['ptype'], kwargs['snum'],
-                                                                                                                                time_end - time_start ) )
+        print( "Ptype {}, Snapshot {}, took {:.3g} seconds".format(
+            kwargs['ptype'],
+            kwargs['snum'],
+            time_end - time_start
+        )
+        )
 
         # Vain effort to free memory (that, stunningly, actually works!!)
         # Though I haven't checked if it works in multiprocessing
@@ -221,7 +225,7 @@ class IDSelector( object ):
     def save_selected_ids( self, selected_ids_formatted, data_filters ):
 
         # Open up the file to save the data in.
-        ids_filename =  'ids_full_{}.hdf5'.format( self.tag )
+        ids_filename = 'ids_full_{}.hdf5'.format( self.tag )
         self.ids_filepath = os.path.join( self.out_dir, ids_filename )
         f = h5py.File( self.ids_filepath, 'a' )
 
@@ -266,6 +270,7 @@ class IDSelector( object ):
 
 ########################################################################
 ########################################################################
+
 
 class SnapshotIDSelector( particle_data.ParticleData ):
 
@@ -349,22 +354,24 @@ class SnapshotIDSelector( particle_data.ParticleData ):
 ########################################################################
 ########################################################################
 
+
 class IDSampler( object ):
 
     @utilities.store_parameters
-    def __init__( self,
-        sdir,
+    def __init__(
+        self,
+        out_dir,
         tag,
         n_samples = 100000,
         ignore_child_particles = False,
         ignore_duplicates = False,
         reference_snum_for_duplicates = 600,
-        ):
+    ):
         '''Sample an ID file to obtain and save a subset of size n_samples.
         Assumes the full set of IDs are saved as ids_full_tag.hdf5, and will save the sampled IDs as ids_tag.hdf5.
 
         Args:
-            sdir (str, required) :
+            out_dir (str, required) :
                 Directory the IDs are in, as well as the directory the sampled IDs will be saved in.
 
             tag (str, required) :
@@ -430,8 +437,8 @@ class IDSampler( object ):
         full_id_filename = 'ids_full_{}.hdf5'.format( self.tag )
         id_filename = 'ids_{}.hdf5'.format( self.tag )
 
-        full_id_filepath = os.path.join( self.sdir, full_id_filename )
-        id_filepath = os.path.join( self.sdir, id_filename )
+        full_id_filepath = os.path.join( self.out_dir, full_id_filename )
+        id_filepath = os.path.join( self.out_dir, id_filename )
 
         shutil.copyfile( full_id_filepath, id_filepath )
 
@@ -499,7 +506,7 @@ class IDSampler( object ):
             if 'target_child_ids' in self.f.keys():
                 ids_set = utilities.arrays_to_set( self.f['target_ids'][...], self.f['target_child_ids'][...] )
             else:
-                ids_set =  set( self.f['target_ids'][...] )
+                ids_set = set( self.f['target_ids'][...] )
 
             if self.ignore_duplicates:
                 print( "  Removing duplicate particles..." )
@@ -564,16 +571,3 @@ class IDSampler( object ):
         self.f['parameters'].attrs['sampled_from_full_id_list'] = True
 
         self.f.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
