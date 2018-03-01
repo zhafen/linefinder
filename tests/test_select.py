@@ -23,43 +23,43 @@ from pathfinder import select
 
 # For IDSelector
 default_kwargs = {
-  'snum_start' : 500,
-  'snum_end' : 600,
-  'snum_step' : 100,
-  'p_types' : [0, 4],
-  'out_dir' : './tests/data/tracking_output',
-  'tag' : 'test',
+  'snum_start': 500,
+  'snum_end': 600,
+  'snum_step': 100,
+  'p_types': [0, 4],
+  'out_dir': './tests/data/tracking_output',
+  'tag': 'test',
 
-  'snapshot_kwargs' : {
-    'sdir' : './tests/data/stars_included_test_data',
-    'load_additional_ids' : True,
-    'ahf_index' : 600,
-    'ahf_data_dir' : './tests/data/ahf_test_data',
+  'snapshot_kwargs': {
+    'sdir': './tests/data/stars_included_test_data',
+    'load_additional_ids': True,
+    'ahf_index': 600,
+    'ahf_data_dir': './tests/data/ahf_test_data',
     },
 }
 
 # For SnapshotIDSelector
 default_snap_kwargs = {
-  'sdir' : './tests/data/stars_included_test_data',
-  'snum' : 500,
-  'ptype' : 0,
-  'load_additional_ids' : False,
-  'ahf_index' : 600,
-  'ahf_data_dir' : './tests/data/ahf_test_data',
+  'sdir': './tests/data/stars_included_test_data',
+  'snum': 500,
+  'ptype': 0,
+  'load_additional_ids': False,
+  'ahf_index': 600,
+  'ahf_data_dir': './tests/data/ahf_test_data',
 }
 
 newids_snap_kwargs = copy.deepcopy( default_snap_kwargs )
 newids_snap_kwargs['load_additional_ids'] = True
 
 default_data_filters = {
-  'radial_cut' : { 'data_key' : 'Rf', 'data_min' : 0., 'data_max' : 1., },
-  'temp_cut' : { 'data_key' : 'T', 'data_min' : 1e4, 'data_max' : 1e6, },
+  'radial_cut': { 'data_key': 'Rf', 'data_min': 0., 'data_max': 1., },
+  'temp_cut': { 'data_key': 'T', 'data_min': 1e4, 'data_max': 1e6, },
 }
 
 id_sampler_kwargs = {
-  'sdir' : './tests/data/tracking_output_for_analysis',
-  'tag' : 'test',
-  'n_samples' : 3,
+  'out_dir': './tests/data/tracking_output_for_analysis',
+  'tag': 'test',
+  'n_samples': 3,
 }
 
 ########################################################################
@@ -89,8 +89,8 @@ class TestSnapshotIDSelector( unittest.TestCase ):
 
     # Expected result from applying the default filters
     expected_dict = {
-      'Rf' : np.array( [ 0, 1, 0, 0, 0, 1 ] ).astype( bool ),
-      'T' : np.array( [ 1, 0, 1, 0, 0, 0 ] ).astype( bool ),
+      'Rf': np.array( [ 0, 1, 0, 0, 0, 1 ] ).astype( bool ),
+      'T': np.array( [ 1, 0, 1, 0, 0, 0 ] ).astype( bool ),
     }
 
     # Apply the filters.
@@ -167,7 +167,7 @@ class TestWithChildIDs( unittest.TestCase ):
 
     for i in range(2):
       npt.assert_allclose( expected[i], actual[i] )
-    
+
   ########################################################################
 
   def test_format_ids( self ):
@@ -304,15 +304,15 @@ class TestIDSelector( unittest.TestCase ):
     # The function itself
     ids = ( self.selected_ids_formatted, self.selected_child_ids_formatted )
     data_filters = {
-      'radial_cut' : {
-        'data_key' : 'Rf',
-        'data_min' : 0.,
-        'data_max' : 1.,
+      'radial_cut': {
+        'data_key': 'Rf',
+        'data_min': 0.,
+        'data_max': 1.,
       },
-      'velocity_cut' : {
-        'data_key' : 'Vf',
-        'data_min' : 0.,
-        'data_max' : 0.5,
+      'velocity_cut': {
+        'data_key': 'Vf',
+        'data_min': 0.,
+        'data_max': 0.5,
       },
     }
     self.id_selector.save_selected_ids( ids, data_filters )
@@ -400,7 +400,7 @@ class TestIDSelector( unittest.TestCase ):
     assert g.attrs['galaxy_diver_version'] is not None
 
 ########################################################################
-    
+
 class TestIDSelectorNoChildIDs( unittest.TestCase ):
 
   def setUp( self ):
@@ -500,7 +500,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
 
     # Sort the arrays, because the order doesn't really matter anyways for the single ID case
     npt.assert_allclose( np.sort( expected ), np.sort( actual ) )
-    
+
   ########################################################################
 
   def test_save_selected_ids( self ):
@@ -540,7 +540,7 @@ class TestIDSamplerNoSetUp( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.filepath = os.path.join( id_sampler_kwargs['sdir'], 'ids_test.hdf5' )
+    self.filepath = os.path.join( id_sampler_kwargs['out_dir'], 'ids_test.hdf5' )
     self.id_sampler = select.IDSampler( **id_sampler_kwargs )
 
     if os.path.isfile( self.filepath ):
@@ -569,7 +569,7 @@ class TestIDSamplerNoSetUp( unittest.TestCase ):
     self.id_sampler.sample_ids()
 
     g = h5py.File( self.filepath, 'r' )
-    
+
     expected = np.array([      15, 10952235,       12])
     actual = g['target_ids']
     npt.assert_allclose( expected, actual )
@@ -585,7 +585,7 @@ class TestIDSampler( unittest.TestCase ):
 
   def setUp( self ):
 
-    self.filepath = os.path.join( id_sampler_kwargs['sdir'], 'ids_test.hdf5' )
+    self.filepath = os.path.join( id_sampler_kwargs['out_dir'], 'ids_test.hdf5' )
     self.id_sampler = select.IDSampler( **id_sampler_kwargs )
 
     np.random.seed( 1234 )
@@ -682,7 +682,7 @@ class TestIDSampler( unittest.TestCase ):
     expected = np.array([ 2, 1, 6, ])
     actual = self.id_sampler.sample_inds
     npt.assert_allclose( expected, actual )
-    
+
   ########################################################################
 
   def test_identify_child_particles( self ):
@@ -762,8 +762,8 @@ class TestIDSampler( unittest.TestCase ):
     self.id_sampler.save_sampled_ids()
 
     g = h5py.File( self.filepath, 'r' )
-    
-    expected = np.array([10952235,       15, 36091289])   
+
+    expected = np.array([10952235,       15, 36091289])
     actual = g['target_ids']
     npt.assert_allclose( expected, actual )
 
@@ -783,12 +783,12 @@ class TestIDSampler( unittest.TestCase ):
     self.id_sampler.save_sampled_ids()
 
     g = h5py.File( self.filepath, 'r' )
-    
-    expected = np.array([       0, 10952235, 36091289])   
+
+    expected = np.array([       0, 10952235, 36091289])
     actual = g['target_ids']
     npt.assert_allclose( expected, actual )
 
-    expected = np.array([ 4, 0, 0, ])   
+    expected = np.array([ 4, 0, 0, ])
     actual = g['target_child_ids']
     npt.assert_allclose( expected, actual )
 

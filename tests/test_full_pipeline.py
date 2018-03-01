@@ -116,6 +116,8 @@ class TestPathfinderPartial( unittest.TestCase ):
         '''Except the id selecting... This makes sure the full pipeline just runs.'''
 
         pathfinder.run_pathfinder(
+            out_dir = out_dir,
+            tag = 'analyze',
             tracker_kwargs = tracker_kwargs,
             gal_finder_kwargs = gal_finder_kwargs,
             classifier_kwargs = classifier_kwargs,
