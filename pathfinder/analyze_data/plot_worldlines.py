@@ -13,6 +13,7 @@ matplotlib.use('PDF')
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.collections as collections
+import matplotlib.cm as cm
 
 import galaxy_diver.plot_data.generic_plotter as generic_plotter
 import galaxy_diver.analyze_data.ahf as analyze_ahf
@@ -625,25 +626,43 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             **y_data_kwargs
         )
 
-        # Format the data
-        segments = []
-        for i in range( len( sample_inds ) ):
-            segment = np.array([ x_data[i], y_data[i] ]).transpose()
-
-            segments.append( segment )
+        z_data = np.linspace(0., 1., x_data.shape[1] )
+        #z_data = self.data_object.get_masked_data(
+        #    'age_of_universe',
+        #    sl = x_slice,
+        #    #**{
+        #    #    'tile_data': True,
+        #    #    'tile_dim': 'match_particles',
+        #    #}
+        #)
 
         # Plot!
         if color is default:
             color = p_constants.CLASSIFICATION_COLORS_B[classification]
 
-        lc = collections.LineCollection(
-            segments,
-            color = color,
-            linewidth = linewidth,
-        )
-        ax.add_collection( lc )
+        # Format the data
+        segments = []
+        for i in range( len( sample_inds ) ):
+            #segment = np.array([ x_data[i], y_data[i] ]).transpose()
 
-        lc.set_zorder( zorder )
+            xs = x_data[i]
+            ys = y_data[i]
+
+            points = np.array([xs, ys]).T.reshape(-1, 1, 2)
+            segments = np.concatenate([points[:-1], points[1:]], axis=1)
+
+            #segments.append( segment )
+            lc = collections.LineCollection(
+                segments,
+                color = color,
+                cmap = cm.Purples_r,
+                norm = plt.Normalize(0, 1),
+                linewidth = linewidth,
+                array = z_data,
+            )
+            ax.add_collection( lc )
+
+            lc.set_zorder( zorder )
 
         # Plot halos
         if plot_halos:
@@ -935,7 +954,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         m_map[m_map < 1e-4] = 1e-4
         vmin = np.log10(m_map.T).max() - 4.5
         vmax = np.log10(m_map.T).max() - 1
-        im = ax.imshow( np.log10( m_map.T ), vmin=vmin, vmax=vmax, cmap=cm.Greys, interpolation='bicubic', origin='low', extent=[xrange[0], xrange[1], yrange[0], yrange[1]], zorder=0 )
+        im = ax.imshow( np.log10( m_map.T ), vmin=vmin, vmax=vmax,
+                       cmap=cm.Greys, interpolation='bicubic', origin='low',
+                       extent=[xrange[0], xrange[1], yrange[0], yrange[1]],
+                       zorder=0 )
 
         # --- PRISTINE ---
         m = ptr['m'][:, i]
@@ -982,7 +1004,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             ztrs = z[iacc:iaft]
             lwtrs = np.linspace(0.1, 1.5, xtrs.size)
             cltrs = np.linspace(0., 1, xtrs.size)
-            daa.colorline( xtrs, ytrs, z=cltrs, linewidth=lwtrs, cmap=cm.Blues, norm=cl.Normalize(vmin=-0.3, vmax=1.) )
+            daa.colorline( xtrs, ytrs, z=cltrs,
+                          linewidth=lwtrs, cmap=cm.Blues,
+                          norm=cl.Normalize(vmin=-0.3, vmax=1.) )
 
         # --- INTERGALACTIC TRANSFER ---
         ind_gas_trans = np.where( (ptr['Ptype'][:, i] == 0) & (f['IsMassTransfer'][:] == 1) & (IsInOtherGal[:, i] == 1) & (IsAfterOtherGal[:, i - nstp] == 1) )[0]
@@ -1007,7 +1031,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             ztrs = z[iacc:iaft]
             lwtrs = np.linspace(0.1, 1.5, xtrs.size)
             cltrs = np.linspace(0., 1, xtrs.size)
-            daa.colorline( xtrs, ytrs, z=cltrs, linewidth=lwtrs, cmap=cm.Greens, norm=cl.Normalize(vmin=-0.3, vmax=1.) )
+            daa.colorline( xtrs, ytrs,
+                          z=cltrs, linewidth=lwtrs,
+                          cmap=cm.Greens,
+                          norm=cl.Normalize(vmin=-0.3, vmax=1.) )
         # ax.scatter( r[ind_gas_trans, i, 0], r[ind_gas_trans, i, 1], s=15, c='lightgreen', edgecolors='green', alpha=0.2, zorder=0 )
 
         # --- plot star particle positions
