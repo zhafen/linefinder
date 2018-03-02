@@ -557,6 +557,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         color = default,
         zorder = 100.,
         linewidth = 1.5,
+        fade_streamlines = True,
         x_label = 'x position (pkpc)',
         y_label = 'y position (pkpc)',
         fontsize = 22,
@@ -566,7 +567,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         halo_length_scale = default,
         *args, **kwargs
     ):
-        '''Plot streamlines. This code largely follows what Daniel did before.
+        '''Plot streamlines. This code largely follows what Daniel did before,
+        at least in ideas.
         '''
 
         if xkcd_mode:
@@ -627,42 +629,39 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         )
 
         z_data = np.linspace(0., 1., x_data.shape[1] )
-        #z_data = self.data_object.get_masked_data(
-        #    'age_of_universe',
-        #    sl = x_slice,
-        #    #**{
-        #    #    'tile_data': True,
-        #    #    'tile_dim': 'match_particles',
-        #    #}
-        #)
 
         # Plot!
         if color is default:
             color = p_constants.CLASSIFICATION_COLORS_B[classification]
 
         # Format the data
-        segments = []
         for i in range( len( sample_inds ) ):
-            #segment = np.array([ x_data[i], y_data[i] ]).transpose()
 
             xs = x_data[i]
             ys = y_data[i]
 
-            points = np.array([xs, ys]).T.reshape(-1, 1, 2)
-            segments = np.concatenate([points[:-1], points[1:]], axis=1)
+            if fade_streamlines:
+                points = np.array([xs, ys]).T.reshape(-1, 1, 2)
+                segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
-            #segments.append( segment )
-            lc = collections.LineCollection(
-                segments,
-                color = color,
-                cmap = cm.Purples_r,
-                norm = plt.Normalize(0, 1),
-                linewidth = linewidth,
-                array = z_data,
-            )
-            ax.add_collection( lc )
+                lc = collections.LineCollection(
+                    segments,
+                    cmap = gen_plot.custom_sequential_colormap( color ),
+                    norm = plt.Normalize(0, 1),
+                    linewidth = linewidth,
+                    array = z_data,
+                )
+                ax.add_collection( lc )
 
-            lc.set_zorder( zorder )
+                lc.set_zorder( zorder )
+            else:
+                ax.plot(
+                    xs,
+                    ys,
+                    linewidth = linewidth,
+                    zorder = zorder,
+                    color = color
+                )
 
         # Plot halos
         if plot_halos:
@@ -713,6 +712,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         vert_line_at_classification_ind = True,
         horizontal_line_value = None,
         ax = None,
+        fade_streamlines = False,
         x_label = 'Age of the Universe (Gyr)',
         plot_halos = True,
         halo_y_key = 'Yc',
@@ -740,6 +740,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             x_data_kwargs = x_data_kwargs,
             x_label = x_label,
             plot_halos = False,
+            fade_streamlines = fade_streamlines,
             *args, **kwargs
         )
 
