@@ -910,22 +910,23 @@ class Worldlines( simulation_data.TimeData ):
             self.data (dict) : If successful, stores the data here.
         '''
 
-        # Check if there's a method for calculating the data key, with name calc_data_key
-        method_str = 'calc_{}'.format( data_key )
-        if hasattr( self, method_str ):
-            getattr( self, method_str )()
+        if super( Worldlines, self ).handle_data_key_error( data_key ):
+            return True
 
         elif data_key in self.classifications.data.keys():
             self.data[data_key] = self.classifications.data[data_key]
+            return True
 
         elif data_key in self.events.data.keys():
             self.data[data_key] = self.events.data[data_key]
+            return True
 
         elif data_key in self.galids.data.keys():
             self.data[data_key] = self.galids.data[data_key]
+            return True
 
         else:
-            raise KeyError( 'NULL data_key, data_key = {}'.format( data_key ) )
+            return False
 
     ########################################################################
 
@@ -1081,15 +1082,17 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_age_of_universe( self ):
-        '''Calc time difference between snapshots.
+    def calc_time( self ):
+        '''Calc current time in the simulation.
 
         Modifies:
-            self.data['dt'] (np.ndarray) : self.data['dt'][i] = light_travel_time[i+1] - light_travel_time[i]
+            self.data['time'] (np.ndarray) :
+                The value at index i is the time in the simulation
+                (i.e. the age of the universe) at that index.
         '''
 
-        # Age of the universe in Myr
-        self.data['age_of_universe'] = astro_tools.age_of_universe(
+        # Age of the universe in Gyr
+        self.data['time'] = astro_tools.age_of_universe(
             self.get_data( 'redshift' ),
             h = self.ptracks.data_attrs['hubble'],
             omega_matter = self.ptracks.data_attrs['omega_matter'],
@@ -1105,11 +1108,7 @@ class Worldlines( simulation_data.TimeData ):
         '''
 
         # Age of the universe in Myr
-        time = 1e3 * astro_tools.age_of_universe(
-            self.get_data( 'redshift' ),
-            h = self.ptracks.data_attrs['hubble'],
-            omega_matter = self.ptracks.data_attrs['omega_matter']
-        )
+        time = 1e3 * self.get_data( 'time' )
         dt = time[:-1] - time[1:]
 
         # dt is shorter than the standard array, so we need to pad the array at the final snapshot
