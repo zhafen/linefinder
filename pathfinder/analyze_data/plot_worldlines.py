@@ -20,6 +20,7 @@ import galaxy_diver.analyze_data.ahf as analyze_ahf
 import galaxy_diver.plot_data.ahf as plot_ahf
 import galaxy_diver.plot_data.plotting as gen_plot
 
+import pathfinder.config as config
 import pathfinder.utils.presentation_constants as p_constants
 
 ########################################################################
@@ -547,6 +548,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         y_data_kwargs = {},
         classification = None,
         classification_ind = 0,
+        t_show = 0.5,
         start_ind = 0,
         end_ind = 100,
         sample_inds = default,
@@ -578,6 +580,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             plt.figure( figsize=(10, 8), facecolor='white' )
             ax = plt.gca()
 
+        if t_show is not None:
+
+            time_key = 'time_as_{}'.format( classification[3:] )
+            self.data_object.data_masker.mask_data( time_key, 0., t_show )
+
         if sample_inds is default:
             if classification is None:
 
@@ -593,6 +600,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     classification = classification,
                     *args, **kwargs
                 )
+
+                print( "Clearing masks!" )
+                self.data_object.data_masker.clear_masks()
 
                 inds_to_sample = inds[:, classification_ind].compressed()
 
@@ -706,7 +716,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     def plot_streamlines_vs_time(
         self,
-        x_key = 'age_of_universe',
+        x_key = 'time',
         y_key = 'Ry',
         classification_ind = 0,
         vert_line_at_classification_ind = True,
@@ -714,11 +724,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ax = None,
         fade_streamlines = False,
         x_label = 'Age of the Universe (Gyr)',
-        plot_halos = True,
+        plot_halos = False,
         halo_y_key = 'Yc',
         halo_plot_kwargs = {
             'n_halos': 100,
         },
+        plot_CGM_region = False,
         *args, **kwargs
     ):
 
@@ -798,6 +809,18 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 omega_matter = w.ptracks.data_attrs['omega_matter'],
                 **halo_plot_kwargs
             )
+
+        # Plot a shaded region showing the CGM
+        if plot_CGM_region:
+
+            for y_dir in [ 1., -1. ]:
+                ax.fill_between(
+                    self.data_object.get_data( 'time' ),
+                    y_dir * config.INNER_CGM_BOUNDARY * self.data_object.r_vir,
+                    y_dir * config.OUTER_CGM_BOUNDARY * self.data_object.r_vir,
+                    color = 'k',
+                    alpha = 0.2,
+                )
 
     ########################################################################
 
