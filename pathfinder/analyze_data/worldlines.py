@@ -910,23 +910,21 @@ class Worldlines( simulation_data.TimeData ):
             self.data (dict) : If successful, stores the data here.
         '''
 
-        if super( Worldlines, self ).handle_data_key_error( data_key ):
-            return True
+        try:
+            super( Worldlines, self ).handle_data_key_error( data_key )
 
-        elif data_key in self.classifications.data.keys():
-            self.data[data_key] = self.classifications.data[data_key]
-            return True
+        except:
+            if data_key in self.classifications.data.keys():
+                self.data[data_key] = self.classifications.data[data_key]
+                return True
 
-        elif data_key in self.events.data.keys():
-            self.data[data_key] = self.events.data[data_key]
-            return True
+            elif data_key in self.events.data.keys():
+                self.data[data_key] = self.events.data[data_key]
+                return True
 
-        elif data_key in self.galids.data.keys():
-            self.data[data_key] = self.galids.data[data_key]
-            return True
+            elif data_key in self.galids.data.keys():
+                self.data[data_key] = self.galids.data[data_key]
 
-        else:
-            return False
 
     ########################################################################
 

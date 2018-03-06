@@ -1,1 +1,4 @@
-{}
+{
+  "tests/test_analyze_data/test_analyze_worldline_set.py": true, 
+  "tests/test_analyze_data/test_analyze_worldlines.py": true
+}
