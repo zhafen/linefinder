@@ -482,7 +482,7 @@ class Classifier( object ):
             self.ptrack['redshift'][0:self.n_snap], (self.n_particle, 1) )
 
         # Age of the universe in Myr
-        time = 1e3 * astro_tools.age_of_universe(
+        time = astro_tools.age_of_universe(
             redshift,
             h=self.ptrack_attrs['hubble'],
             omega_matter=self.ptrack_attrs['omega_matter']

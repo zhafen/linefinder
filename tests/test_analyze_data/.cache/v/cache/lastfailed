@@ -1,6 +1,1 @@
-{
-  "test_analyze_worldline_set.py::TestStoreQuantity::test_store_quantity": true, 
-  "test_analyze_worldline_set.py::TestStoreQuantity::test_store_quantity_variable_args": true, 
-  "test_analyze_worldlines.py::TestWorldlineCalcData::test_calc_dt": true, 
-  "test_analyze_worldlines.py::TestWorldlineGetData::test_handle_data_key_error": true
-}
+{}

@@ -526,7 +526,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     self.worldlines.calc_dt()
     actual = self.worldlines.data['dt']
-    expected = np.array( [ 0.927, 1.177, np.nan ] )*1e3
+    expected = np.array( [ 0.927, 1.177, np.nan ] )
 
     npt.assert_allclose( expected, actual, rtol=1e-3 )
 

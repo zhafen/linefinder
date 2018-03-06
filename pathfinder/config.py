@@ -20,6 +20,10 @@ import numpy as np
 LENGTH_SCALE = 'Rvir'
 GALAXY_CUT = 0.1
 
+# The CGM is defined as INNER_CGM_BOUNDARY*Rvir to OUTER_CGM_BOUNDARY*Rvir
+INNER_CGM_BOUNDARY = 0.1
+OUTER_CGM_BOUNDARY = 1.0
+
 # Sometimes we may also require the following density cut for material to be
 # part of a galaxy (n_b in cm^-3)
 GALAXY_DENSITY_CUT = 0.075  # I.E. nH = 0.1 cm^-3
@@ -32,11 +36,11 @@ VELOCITY_SCALE = 'Vmax'
 WIND_CUT = 1.0
 ABSOLUTE_WIND_CUT = 15.0
 
-# Fiducial threshold processing time, t_{pro}, in Myr.
-T_PRO = 100.0
+# Fiducial threshold processing time, t_{pro}, in Gyr.
+T_PRO = 0.1
 
-# Fiducial time interval during which material can be counted as merger (in Myr)
-T_M = 500.0
+# Fiducial time interval during which material can be counted as merger (in Gyr)
+T_M = 0.5
 
 ########################################################################
 # System Information

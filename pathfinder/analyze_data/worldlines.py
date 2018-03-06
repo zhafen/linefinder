@@ -913,6 +913,7 @@ class Worldlines( simulation_data.TimeData ):
         try:
             super( Worldlines, self ).handle_data_key_error( data_key )
 
+        # We do this second because it involves loading alot of data...
         except:
             if data_key in self.classifications.data.keys():
                 self.data[data_key] = self.classifications.data[data_key]
@@ -924,7 +925,6 @@ class Worldlines( simulation_data.TimeData ):
 
             elif data_key in self.galids.data.keys():
                 self.data[data_key] = self.galids.data[data_key]
-
 
     ########################################################################
 
@@ -1080,6 +1080,50 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_in_CGM( self ):
+        '''Calculate material that is in the CGM.'''
+
+        r = self.get_processed_data(
+            'R',
+            scale_key = 'Rvir',
+            scale_a_power = 1.,
+            scale_h_power = -1.,
+        )
+
+        is_in_CGM = ( r <= config.OUTER_CGM_BOUNDARY ) \
+            & (r >= config.INNER_CGM_BOUNDARY )
+
+        self.data['is_in_CGM'] = is_in_CGM
+
+    ########################################################################
+
+    def calc_is_CGM_merger( self ):
+
+        self.data['is_CGM_merger'] = self.get_data( 'is_in_CGM' ) \
+            & self.get_data( 'is_in_other_gal' )
+
+    ########################################################################
+
+    def calc_is_CGM_EP( self ):
+
+        self.data['is_CGM_EP'] = self.get_data( 'is_in_CGM' ) \
+            & self.get_data( 'is_hitherto_EP_NYA' ) \
+            & np.invert( self.get_data( 'is_in_other_gal' ) )
+
+    ########################################################################
+
+    def calc_is_CGM_NEP( self ):
+
+        self.data['is_CGM_NEP'] = self.get_data( 'is_in_CGM' ) \
+            & self.get_data( 'is_hitherto_NEP_NYA' )
+
+    ########################################################################
+
+    def calc_is_CGM_IP( self ):
+
+        self.data['is_CGM_IP'] = self.get_data( 'is_in_CGM' ) \
+            & self.get_data( 'is_IP' )
+
     def calc_time( self ):
         '''Calc current time in the simulation.
 
@@ -1106,7 +1150,7 @@ class Worldlines( simulation_data.TimeData ):
         '''
 
         # Age of the universe in Myr
-        time = 1e3 * self.get_data( 'time' )
+        time = self.get_data( 'time' )
         dt = time[:-1] - time[1:]
 
         # dt is shorter than the standard array, so we need to pad the array at the final snapshot

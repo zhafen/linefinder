@@ -173,8 +173,8 @@ class TestDerivedFunctions( unittest.TestCase ):
         result = self.classifier.get_time_difference()
 
         # Expected difference in time, from NED's cosmology calculator.
-        travel_time_at_snum_550 = 0.927*1e3 # In Myr
-        travel_time_at_snum_600 = 2.104*1e3 # In Myr
+        travel_time_at_snum_550 = 0.927 # In Gyr
+        travel_time_at_snum_600 = 2.104 # In Gyr
         expected_0 = travel_time_at_snum_550
         expected_1 = travel_time_at_snum_600 - travel_time_at_snum_550
 
@@ -545,7 +545,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
         # Calculated using NED cosmology calculator
         expected = np.array([
-            2.404*1e3, # Merger, except in early snapshots
+            2.404, # Merger, except in early snapshots
             0.,    # Always part of main galaxy
             0.,    # CGM -> main galaxy -> CGM
             ])

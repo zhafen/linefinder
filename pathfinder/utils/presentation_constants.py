@@ -31,6 +31,10 @@ CLASSIFICATION_LABELS = {
     'is_unaccreted_NEP': 'Unaccreted-NEP',
     'is_hitherto_EP_NYA': 'EP CGM',
     'is_hitherto_NEP_NYA': 'NEP CGM',
+    'is_CGM_NEP': 'NEP',
+    'is_CGM_EP': 'EP',
+    'is_CGM_IP': 'IP',
+    'is_CGM_merger': 'merger',
 }
 
 # These are in line with the colors used in Angles-Alcazar2017
@@ -79,6 +83,10 @@ CLASSIFICATION_COLORS_B = {
     'is_unaccreted_EP': '#C60954',
     'is_hitherto_EP_NYA': '#FB9319',
     'is_hitherto_NEP_NYA': '#007AAF',
+    'is_CGM_NEP': '#007AAF',
+    'is_CGM_EP': '#FB9319',
+    'is_CGM_IP': '#4CAF00',
+    'is_CGM_merger': '#E32F0E',
 }
 
 # This is used in some cases, e.g. when making bar plots, to make them a little
@@ -152,7 +160,14 @@ CLASSIFICATIONS_CGM_B = [
 
 # This set of classifications is centered on the origin of the CGM
 CLASSIFICATIONS_CGM_ORIGIN = [
-    'is_hitherto_NEP_NYA',
-    'is_hitherto_EP_NYA',
-    'is_IP',
+    'is_CGM_NEP',
+    'is_CGM_EP',
+    'is_CGM_merger',
+    'is_CGM_IP',
 ]
+# Old classifications
+# CLASSIFICATIONS_CGM_ORIGIN = [
+#     'is_hitherto_NEP_NYA',
+#     'is_hitherto_EP_NYA',
+#     'is_IP',
+# ]
