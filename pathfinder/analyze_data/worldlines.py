@@ -1124,6 +1124,26 @@ class Worldlines( simulation_data.TimeData ):
         self.data['is_CGM_IP'] = self.get_data( 'is_in_CGM' ) \
             & self.get_data( 'is_IP' )
 
+    ########################################################################
+
+    def calc_is_outside_any_gal_EP( self ):
+
+        is_outside_any_gal = self.get_data( 'gal_id' ) == -2
+
+        self.data['is_outside_any_gal_EP'] = is_outside_any_gal \
+            & self.get_data( 'is_hitherto_EP_NYA' )
+
+    ########################################################################
+
+    def calc_is_outside_any_gal_IP( self ):
+
+        is_outside_any_gal = self.get_data( 'gal_id' ) == -2
+
+        self.data['is_outside_any_gal_IP'] = is_outside_any_gal \
+            & self.get_data( 'is_IP' )
+
+    ########################################################################
+
     def calc_time( self ):
         '''Calc current time in the simulation.
 

@@ -35,6 +35,8 @@ CLASSIFICATION_LABELS = {
     'is_CGM_EP': 'EP',
     'is_CGM_IP': 'IP',
     'is_CGM_merger': 'merger',
+    'is_outside_any_gal_EP': 'EP',
+    'is_outside_any_gal_IP': 'IP',
 }
 
 # These are in line with the colors used in Angles-Alcazar2017
@@ -87,6 +89,8 @@ CLASSIFICATION_COLORS_B = {
     'is_CGM_EP': '#FB9319',
     'is_CGM_IP': '#4CAF00',
     'is_CGM_merger': '#E32F0E',
+    'is_outside_any_gal_EP': '#FB9319',
+    'is_outside_any_gal_IP': '#4CAF00',
 }
 
 # This is used in some cases, e.g. when making bar plots, to make them a little

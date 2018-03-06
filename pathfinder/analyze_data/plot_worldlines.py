@@ -550,9 +550,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         classification_ind = 0,
         t_show = 0.5,
         start_ind = 0,
-        end_ind = 100,
+        end_ind = 'time_based',
+        t_end = default,
         sample_inds = default,
         sample_size = 10,
+        convert_x_to_comoving = False,
+        convert_y_to_comoving = False,
         ax = None,
         x_range = default,
         y_range = default,
@@ -567,6 +570,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         plot_halos = True,
         halo_radius_fraction = default,
         halo_length_scale = default,
+        verbose = False,
         *args, **kwargs
     ):
         '''Plot streamlines. This code largely follows what Daniel did before,
@@ -585,6 +589,21 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             time_key = 'time_as_{}'.format( classification[3:] )
             self.data_object.data_masker.mask_data( time_key, 0., t_show )
 
+        # Decide when to stop plotting the streamlines
+        if end_ind == 'time_based':
+
+            # Figure out what time interval overwhich to plot
+            if t_end is default:
+                t_end = t_show
+
+            # Loop through until we get the right time.
+            time = self.data_object.get_data('time')
+            end_ind = start_ind
+            time_end = time[end_ind]
+            while time[start_ind] - time_end <= t_end:
+                time_end = time[end_ind]
+                end_ind += 1
+
         if sample_inds is default:
             if classification is None:
 
@@ -601,7 +620,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     *args, **kwargs
                 )
 
-                print( "Clearing masks!" )
                 self.data_object.data_masker.clear_masks()
 
                 inds_to_sample = inds[:, classification_ind].compressed()
@@ -612,17 +630,18 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 sample_size,
             )
 
-        print( "Displaying particles" )
-        print( sample_inds )
+        if verbose:
+            print( "Displaying particles" )
+            print( sample_inds )
 
         # Make the actual slice to pass to the data.
-        x_slice = slice( start_ind, end_ind )
-        sl = ( sample_inds, x_slice )
+        onedim_slice = slice( start_ind, end_ind )
+        sl = ( sample_inds, onedim_slice )
 
         # Account for possibly tiled x data (typically done if x data is
         # redshift or something similar).
         if 'tile_data' in x_data_kwargs:
-            x_sl = x_slice
+            x_sl = onedim_slice
         else:
             x_sl = sl
 
@@ -638,6 +657,16 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             **y_data_kwargs
         )
 
+        # Convert to comoving
+        if convert_x_to_comoving or convert_y_to_comoving:
+            a = ( 1. + self.data_object.redshift.values[onedim_slice] )**-1.
+
+        if convert_x_to_comoving:
+            x_data /= a
+        if convert_y_to_comoving:
+            y_data /= a
+
+        # Data for the streamlines color
         z_data = np.linspace(0., 1., x_data.shape[1] )
 
         # Plot!
