@@ -548,7 +548,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         y_data_kwargs = {},
         classification = None,
         classification_ind = 0,
-        t_show = 0.5,
+        sample_selected_interval = True,
+        t_show_min = 0.5,
+        t_show_max = 1.0,
         start_ind = 0,
         end_ind = 'time_based',
         t_end = default,
@@ -584,17 +586,18 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             plt.figure( figsize=(10, 8), facecolor='white' )
             ax = plt.gca()
 
-        if t_show is not None:
+        if sample_selected_interval:
 
             time_key = 'time_as_{}'.format( classification[3:] )
-            self.data_object.data_masker.mask_data( time_key, 0., t_show )
+            self.data_object.data_masker.mask_data(
+                time_key, t_show_min, t_show_max )
 
         # Decide when to stop plotting the streamlines
         if end_ind == 'time_based':
 
             # Figure out what time interval overwhich to plot
             if t_end is default:
-                t_end = t_show
+                t_end = t_show_max
 
             # Loop through until we get the right time.
             time = self.data_object.get_data('time')
