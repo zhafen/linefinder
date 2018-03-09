@@ -748,7 +748,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     def plot_streamlines_vs_time(
         self,
         x_key = 'time',
-        y_key = 'Ry',
+        y_key = 'R',
         classification_ind = 0,
         vert_line_at_classification_ind = True,
         sample_selected_interval = False,
@@ -756,6 +756,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ax = None,
         fade_streamlines = False,
         x_label = 'Age of the Universe (Gyr)',
+        y_label = 'Radial Distance (pkpc)',
         plot_halos = False,
         halo_y_key = 'Yc',
         halo_plot_kwargs = {
@@ -783,6 +784,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             ax = ax,
             x_data_kwargs = x_data_kwargs,
             x_label = x_label,
+            y_label = y_label,
             plot_halos = False,
             fade_streamlines = fade_streamlines,
             *args, **kwargs
@@ -846,7 +848,13 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         # Plot a shaded region showing the CGM
         if plot_CGM_region:
 
-            for y_dir in [ 1., -1. ]:
+            # Plot multiple directions only if not using radial distance.
+            if y_key == 'R':
+                y_dirs = [ 1., ]
+            else:
+                y_dirs = [ 1., -1. ]
+
+            for y_dir in y_dirs:
                 ax.fill_between(
                     self.data_object.get_data( 'time' ),
                     y_dir * config.INNER_CGM_BOUNDARY * self.data_object.r_vir,
