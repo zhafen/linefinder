@@ -415,7 +415,12 @@ class Worldlines( simulation_data.TimeData ):
 
         # First, look to see if this data is calculated in some easy to access location
         if data_key in self.data:
-            data = super( Worldlines, self ).get_data( data_key, *args, **kwargs )
+            data = self.data[data_key]
+
+            # Apply the slice if that needs to be done.
+            if 'sl' in kwargs:
+                data = data[kwargs['sl']]
+
             return data
 
         try:
