@@ -419,7 +419,8 @@ class Worldlines( simulation_data.TimeData ):
 
             # Apply the slice if that needs to be done.
             if 'sl' in kwargs:
-                data = data[kwargs['sl']]
+                if kwargs['sl'] is not None:
+                    data = data[kwargs['sl']]
 
             return data
 
