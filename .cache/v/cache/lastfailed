@@ -1,3 +1,16 @@
 {
-  "tests/test_full_pipeline.py::TestPathfinder::test_full_pipeline_jug": true
+  "tests/test_select.py::TestIDSampler::test_choose_particles_to_sample": true, 
+  "tests/test_select.py::TestIDSampler::test_choose_particles_to_sample_child_ids_included": true, 
+  "tests/test_select.py::TestIDSampler::test_choose_particles_to_sample_ignore_child_particles": true, 
+  "tests/test_select.py::TestIDSampler::test_choose_particles_to_sample_ignore_duplicates": true, 
+  "tests/test_select.py::TestIDSampler::test_choose_sample_inds": true, 
+  "tests/test_select.py::TestIDSampler::test_identify_child_particles": true, 
+  "tests/test_select.py::TestIDSampler::test_identify_duplicate_ids": true, 
+  "tests/test_select.py::TestIDSampler::test_identify_duplicate_ids_load_correct_data": true, 
+  "tests/test_select.py::TestIDSampler::test_identify_duplicate_ids_star_gas": true, 
+  "tests/test_select.py::TestIDSampler::test_save_sampled_ids": true, 
+  "tests/test_select.py::TestIDSampler::test_save_sampled_ids_child_ids": true, 
+  "tests/test_select.py::TestIDSamplerNoSetUp::test_copy_and_open_full_ids": true, 
+  "tests/test_select.py::TestIDSamplerNoSetUp::test_sample_ids": true, 
+  "tests/test_select.py::TestIDSelectorJug::test_select_ids_jug": true
 }

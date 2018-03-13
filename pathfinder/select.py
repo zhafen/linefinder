@@ -8,6 +8,7 @@
 
 import gc
 import h5py
+import jug
 import numpy as np
 import os
 import shutil
@@ -97,6 +98,33 @@ class IDSelector( object ):
 
     ########################################################################
 
+    def select_ids_jug( self, data_filters={} ):
+        '''Save a set of all ids that match a set of data filters to a file.
+
+        Args:
+            data_filters (dict of dicts): The data filters to apply.
+        '''
+
+        print( "########################################################################" )
+        print( "Selecting IDs" )
+        print( "########################################################################" )
+        sys.stdout.flush()
+
+        selected_ids = self.get_selected_ids_jug( data_filters )
+
+        selected_ids_formatted = jug.Task(
+            self.format_selected_ids, selected_ids )
+
+        jug.Task( self.save_selected_ids, selected_ids_formatted, data_filters )
+
+        jug.barrier()
+
+        print( "########################################################################" )
+        print( "Done!" )
+        sys.stdout.flush()
+
+    ########################################################################
+
     def get_selected_ids( self, data_filters ):
         '''Get a set of all ids that match a set of data filters.
 
@@ -166,6 +194,39 @@ class IDSelector( object ):
         selected_ids = set.union( *results )
 
         return selected_ids
+
+    ########################################################################
+
+    def get_selected_ids_jug( self, data_filters ):
+        '''Parallel version of self.get_selected_ids(). Requires a lot of memory, because it will have multiple
+        snapshots open at once.
+
+        Args:
+            data_filters (list of dicts): The data filters to apply.
+
+        Returns:
+            selected_ids (set): Set of selected ids.
+        '''
+
+        selected_ids = set()
+
+        args = []
+        for snum in self.snums:
+            for ptype in self.p_types:
+
+                kwargs = dict( self.snapshot_kwargs )
+                kwargs['snum'] = snum
+                kwargs['ptype'] = ptype
+
+                args.append( ( data_filters, kwargs ) )
+
+        results = mp_utils.parmap( self.get_selected_ids_snapshot, args, self.n_processors, set_case=True )
+
+        selected_ids = set.union( *results )
+
+        return selected_ids
+
+    ########################################################################
 
     def get_selected_ids_snapshot( self, args ):
         '''Get the IDs for a particular snapshot. Formatted this way primarily for parallelization.

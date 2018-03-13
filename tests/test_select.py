@@ -14,7 +14,8 @@ import numpy.testing as npt
 import os
 import unittest
 
-from pathfinder import select
+import pathfinder.config as config
+import pathfinder.select as select
 
 ########################################################################
 
@@ -801,12 +802,39 @@ class TestIDSelectorJug( unittest.TestCase ):
 
     def setUp( self ):
 
-        pass
+        self.filepaths = []
+        for end in [ 'ids_full_test.hdf5', 'ids_full_test_jug.hdf5' ]:
+            filepath = os.path.join( default_kwargs['out_dir'],  end )
+
+            self.filepaths.append( filepath )
+
+            if os.path.isfile( filepath ):
+                os.remove( filepath )
 
     ########################################################################
 
     def test_select_ids_jug( self ):
 
-        id_selector = select.IDSelector( **default_kwargs )
+        kwargs = copy.copy( default_kwargs )
 
-        assert False( "Need to do!" )
+        data_filters = {
+            'radial_cut': { 'data_key': 'Rf', 'data_min': 0., 'data_max': 1., },
+        }
+
+        id_selector = select.IDSelector( **kwargs )
+        id_selector.select_ids( data_filters )
+
+        # Run jug version
+        os.system( "{} ./tests/select_jugfile.py &".format(
+            config.JUG_EXEC_PATH )
+        )
+        os.system( "{} ./tests/select_jugfile.py".format(
+            config.JUG_EXEC_PATH )
+        )
+
+        files = []
+        for filepath in self.filepaths:
+            files.append( h5py.File( filepath, 'r' ) )
+
+        assert False, "Need to do."
+
