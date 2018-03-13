@@ -12,7 +12,6 @@ import mock
 import numpy as np
 import numpy.testing as npt
 import os
-import subprocess
 import unittest
 
 import pathfinder.config as config
@@ -845,5 +844,24 @@ class TestIDSelectorJug( unittest.TestCase ):
         for filepath in self.filepaths:
             files.append( h5py.File( filepath, 'r' ) )
 
-        assert False, "Need to do."
+        for key in [ 'target_ids', 'target_child_ids' ]:
 
+            npt.assert_allclose( files[0][key][...], files[1][key][...] )
+
+        for key in files[0]['parameters'].attrs.keys():
+
+            # These shouldn't match
+            if key == 'tag':
+                continue
+
+            try:
+                self.assertEqual(
+                    files[0]['parameters'].attrs[key],
+                    files[1]['parameters'].attrs[key],
+                )
+            # In case it's an array
+            except ValueError:
+                npt.assert_allclose(
+                    files[0]['parameters'].attrs[key],
+                    files[1]['parameters'].attrs[key],
+                )
