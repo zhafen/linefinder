@@ -12,6 +12,7 @@ import mock
 import numpy as np
 import numpy.testing as npt
 import os
+import subprocess
 import unittest
 
 import pathfinder.config as config
@@ -802,14 +803,18 @@ class TestIDSelectorJug( unittest.TestCase ):
 
     def setUp( self ):
 
+        # Remove output
         self.filepaths = []
         for end in [ 'ids_full_test.hdf5', 'ids_full_test_jug.hdf5' ]:
-            filepath = os.path.join( default_kwargs['out_dir'],  end )
+            filepath = os.path.join( default_kwargs['out_dir'], end )
 
             self.filepaths.append( filepath )
 
             if os.path.isfile( filepath ):
                 os.remove( filepath )
+
+        # Remove jugdata
+        os.system( 'rm -r ./tests/*jugdata' )
 
     ########################################################################
 

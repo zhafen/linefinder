@@ -210,7 +210,7 @@ class IDSelector( object ):
 
         selected_ids = set()
 
-        args = []
+        results = []
         for snum in self.snums:
             for ptype in self.p_types:
 
@@ -218,11 +218,19 @@ class IDSelector( object ):
                 kwargs['snum'] = snum
                 kwargs['ptype'] = ptype
 
-                args.append( ( data_filters, kwargs ) )
+                result = jug.Task(
+                    self.get_selected_ids_snapshot,
+                    ( data_filters, kwargs ),
+                )
 
-        results = mp_utils.parmap( self.get_selected_ids_snapshot, args, self.n_processors, set_case=True )
+                results.append( result )
 
-        selected_ids = set.union( *results )
+        def unify_results( given_results ):
+            '''Helper function to get around jug formatting.'''
+
+            return set.union( *given_results )
+
+        selected_ids = jug.Task( unify_results, results )
 
         return selected_ids
 
