@@ -813,6 +813,10 @@ class TestIDSelectorJug( unittest.TestCase ):
             if os.path.isfile( filepath ):
                 os.remove( filepath )
 
+    ########################################################################
+
+    def tearDown( self ):
+
         # Remove jugdata
         os.system( 'rm -r ./tests/*jugdata' )
 
