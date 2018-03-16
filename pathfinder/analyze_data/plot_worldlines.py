@@ -560,6 +560,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ax = None,
         x_range = default,
         y_range = default,
+        x_scale = 'linear',
+        y_scale = 'linear',
         color = default,
         zorder = 100.,
         linewidth = 1.5,
@@ -738,6 +740,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             y_range = [ y_data.min(), y_data.max() ]
         ax.set_xlim( x_range )
         ax.set_ylim( y_range )
+
+        # Set the scale
+        ax.set_xscale( x_scale )
+        ax.set_yscale( y_scale )
 
         # Axis labels
         ax.set_xlabel( x_label, fontsize=fontsize )

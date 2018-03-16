@@ -129,6 +129,10 @@ class ParticleTracker( object ):
         '''Loop over all redshifts, get the data, and save the particle tracks.
         '''
 
+        print "#" * 80
+        print "Starting Tracking!"
+        print "#" * 80
+
         # Get the target ids
         self.get_target_ids()
 

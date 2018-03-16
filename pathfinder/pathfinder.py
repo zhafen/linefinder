@@ -6,6 +6,8 @@
 @status: Development
 '''
 
+import jug
+
 import select
 import track
 import galaxy_find
@@ -205,6 +207,8 @@ def run_pathfinder_jug(
             If True, then run routines for classifying particles.
     '''
 
+    print( "Starting jug thread..." )
+
     # These are kwargs that could be used at any stage of running pathfinder.
     general_kwargs = {
         'out_dir': out_dir,
@@ -219,7 +223,9 @@ def run_pathfinder_jug(
             selector_kwargs, general_kwargs )
 
         id_selector = select.IDSelector( **selector_kwargs )
-        id_selector.select_ids( selector_data_filters )
+        id_selector.select_ids_jug( selector_data_filters )
+
+        jug.barrier()
 
     # Run the ID Sampling
     if run_id_sampling:
@@ -229,7 +235,10 @@ def run_pathfinder_jug(
             sampler_kwargs, general_kwargs )
 
         id_sampler = select.IDSampler( **sampler_kwargs )
-        id_sampler.sample_ids()
+
+        jug.Task( id_sampler.sample_ids )
+
+        jug.barrier()
 
     # Run the Particle Tracking
     if run_tracking:
@@ -239,7 +248,9 @@ def run_pathfinder_jug(
             tracker_kwargs, general_kwargs )
 
         particle_tracker = track.ParticleTracker( **tracker_kwargs )
-        particle_tracker.save_particle_tracks()
+        particle_tracker.save_particle_tracks_jug()
+
+        jug.barrier()
 
     # Run the Galaxy Finding
     if run_galaxy_finding:
@@ -252,6 +263,8 @@ def run_pathfinder_jug(
             **gal_finder_kwargs )
         particle_track_gal_finder.find_galaxies_for_particle_tracks()
 
+        jug.barrier()
+
     # Run the Classification
     if run_classifying:
 
@@ -260,6 +273,6 @@ def run_pathfinder_jug(
             classifier_kwargs, general_kwargs )
 
         classifier = classify.Classifier( **classifier_kwargs )
-        classifier.classify_particles()
+        jug.Task( classifier.classify_particles )
 
 ########################################################################

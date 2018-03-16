@@ -157,6 +157,12 @@ class TestPathfinder( unittest.TestCase ):
                     os.remove( full_filename )
 
     ########################################################################
+
+    def tearDown( self ):
+
+        os.system( "rm -r ./tests/*jugdata" )
+        os.system( "rm -r ./tests/data/full_pathfinder_output/*" )
+
     ########################################################################
 
     @slow

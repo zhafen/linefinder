@@ -93,7 +93,7 @@ class IDSelector( object ):
         self.save_selected_ids( selected_ids_formatted, data_filters )
 
         print( "########################################################################" )
-        print( "Done!" )
+        print( "Done selecting IDs!" )
         sys.stdout.flush()
 
     ########################################################################
@@ -120,7 +120,7 @@ class IDSelector( object ):
         jug.barrier()
 
         print( "########################################################################" )
-        print( "Done!" )
+        print( "Done selecting IDs!" )
         sys.stdout.flush()
 
     ########################################################################
