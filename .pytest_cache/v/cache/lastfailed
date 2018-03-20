@@ -1,0 +1,4 @@
+{
+  "tests/test_full_pipeline.py::TestFullWorldline": true, 
+  "tests/test_full_pipeline.py::TestPathfinder::test_full_pipeline_jug": true
+}

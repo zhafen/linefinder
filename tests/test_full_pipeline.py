@@ -160,7 +160,7 @@ class TestPathfinder( unittest.TestCase ):
 
     def tearDown( self ):
 
-        os.system( "rm -r ./tests/*jugdata" )
+        #os.system( "rm -r ./tests/*jugdata" )
         os.system( "rm -r ./tests/data/full_pathfinder_output/*" )
 
     ########################################################################

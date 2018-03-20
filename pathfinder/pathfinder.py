@@ -7,6 +7,7 @@
 '''
 
 import jug
+import os
 
 import select
 import track
@@ -206,6 +207,10 @@ def run_pathfinder_jug(
         run_classifying (bool):
             If True, then run routines for classifying particles.
     '''
+
+    # Setup jugdata
+    jugdir_tail = '{}.jugdata'.format( tag )
+    jug.set_jugdir( os.path.join( out_dir, jugdir_tail ) )
 
     print( "Starting jug thread..." )
 
