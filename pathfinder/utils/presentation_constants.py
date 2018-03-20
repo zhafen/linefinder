@@ -34,7 +34,7 @@ CLASSIFICATION_LABELS = {
     'is_CGM_NEP': 'NEP',
     'is_CGM_EP': 'EP',
     'is_CGM_IP': 'IP',
-    'is_CGM_merger': 'merger',
+    'is_CGM_merger': 'satellite',
     'is_outside_any_gal_EP': 'EP',
     'is_outside_any_gal_IP': 'IP',
 }
@@ -66,6 +66,7 @@ CLASSIFICATION_COLORS_A = {
 # Wind is on the green border of EP and NEP, and unaccreted is on the purple
 # border of EP and NEP
 CLASSIFICATION_COLORS_B = {
+    None: 'black',
     'all': 'black',
     'is_pristine': '#007AAF',
     'is_NEP_NYA': '#007AAF',
