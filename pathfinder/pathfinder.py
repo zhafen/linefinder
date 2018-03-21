@@ -29,7 +29,7 @@ def run_pathfinder(
     tracker_kwargs = {},
     gal_finder_kwargs = {},
     classifier_kwargs = {},
-    run_id_selection = True,
+    run_id_selecting = True,
     run_id_sampling = True,
     run_tracking = True,
     run_galaxy_finding = True,
@@ -67,7 +67,7 @@ def run_pathfinder(
             Arguments to use when classifying particles.
             Arguments will be passed to classify.Classifier
 
-        run_id_selection (bool):
+        run_id_selecting (bool):
             If True, then run routines for selecting particles.
 
         run_id_sampling (bool):
@@ -91,7 +91,7 @@ def run_pathfinder(
     }
 
     # Run the ID Selecting
-    if run_id_selection:
+    if run_id_selecting:
 
         # Update arguments
         selector_kwargs = utilities.merge_two_dicts(
@@ -153,7 +153,7 @@ def run_pathfinder_jug(
     tracker_kwargs = {},
     gal_finder_kwargs = {},
     classifier_kwargs = {},
-    run_id_selection = True,
+    run_id_selecting = True,
     run_id_sampling = True,
     run_tracking = True,
     run_galaxy_finding = True,
@@ -191,7 +191,7 @@ def run_pathfinder_jug(
             Arguments to use when classifying particles.
             Arguments will be passed to classify.Classifier
 
-        run_id_selection (bool):
+        run_id_selecting (bool):
             If True, then run routines for selecting particles.
 
         run_id_sampling (bool):
@@ -221,7 +221,7 @@ def run_pathfinder_jug(
     }
 
     # Run the ID Selecting
-    if run_id_selection:
+    if run_id_selecting:
 
         # Update arguments
         selector_kwargs = utilities.merge_two_dicts(
@@ -266,7 +266,7 @@ def run_pathfinder_jug(
 
         particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
             **gal_finder_kwargs )
-        particle_track_gal_finder.find_galaxies_for_particle_tracks()
+        particle_track_gal_finder.find_galaxies_for_particle_tracks_jug()
 
         jug.barrier()
 
