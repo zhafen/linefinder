@@ -381,7 +381,8 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def real_mass_totals( self ):
-        '''Get the total mass (converted from the sample) in the last snapshot in the canonical classifications.'''
+        '''Get the total mass (converted from the sample) in the last snapshot
+        in the canonical classifications.'''
 
         return self.mass_totals * self.conversion_factor
 
@@ -875,7 +876,7 @@ class Worldlines( simulation_data.TimeData ):
         return categories_selected_quantity / \
             selected_quantity_fn( *args, **kwargs )
 
-    def get_real_categories_selected_quantity(
+    def get_categories_selected_quantity_extrapolated(
         self,
         classification_list = p_constants.CLASSIFICATIONS_A,
         *args, **kwargs
@@ -896,9 +897,6 @@ class Worldlines( simulation_data.TimeData ):
         '''
 
         categories_mass = self.get_categories_selected_quantity( classification_list=classification_list, *args, **kwargs )
-
-        # TODO
-        raise Exception( "This may not be correct yet!" )
 
         return categories_mass * self.conversion_factor
 

@@ -23,9 +23,18 @@ class FileManager( object ):
     ########################################################################
     ########################################################################
 
-    def get_sim_filepath( self, sim_name ):
+    def get_sim_dir( self, sim_name ):
 
         return '{}/{}/output'.format(
+            self.system_parameters['simulation_data_dir'],
+            config.FULL_SIM_NAME[sim_name],
+        )
+
+    ########################################################################
+
+    def get_metafile_dir( self, sim_name ):
+
+        return '{}/{}'.format(
             self.system_parameters['simulation_data_dir'],
             config.FULL_SIM_NAME[sim_name],
         )
@@ -55,15 +64,15 @@ class FileManager( object ):
         tag = '{}{}'.format( sim_name, tag_tail )
 
         defaults = {
-            'data_dir': '{}/{}_res7000/data'.format(
+            'data_dir': '{}/{}/data'.format(
                 self.system_parameters['pathfinder_data_dir'],
-                sim_name,
+                config.FULL_SIM_NAME[sim_name],
             ),
             'tag': tag,
 
-            'ahf_data_dir': '{}/{}_res7000/halo'.format(
+            'ahf_data_dir': '{}/{}/halo'.format(
                 self.system_parameters['ahf_data_dir'],
-                sim_name,
+                config.FULL_SIM_NAME[sim_name],
             ),
             'ahf_index': ahf_index,
         }
