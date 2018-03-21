@@ -144,6 +144,8 @@ class ParticleTracker( object ):
         # Write particle data to the file
         jug.Task( self.write_tracked_data, formatted_data )
 
+        jug.barrier()
+
     ########################################################################
 
     def get_target_ids( self ):

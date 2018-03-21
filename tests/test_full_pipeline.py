@@ -121,7 +121,7 @@ class TestPathfinderPartial( unittest.TestCase ):
             tracker_kwargs = tracker_kwargs,
             gal_finder_kwargs = gal_finder_kwargs,
             classifier_kwargs = classifier_kwargs,
-            run_id_selection = False,
+            run_id_selecting = False,
             run_id_sampling = False,
         )
 
@@ -190,8 +190,6 @@ class TestPathfinder( unittest.TestCase ):
         os.system( "{} ./tests/pathfinder_jugfile.py".format(
             config.JUG_EXEC_PATH )
         )
-
-        assert False, "Need to test that everything matches."
 
 ########################################################################
 ########################################################################

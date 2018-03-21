@@ -46,7 +46,7 @@ T_M = 0.5
 # System Information
 ########################################################################
 
-ACTIVE_SYSTEM = 'Quest'
+ACTIVE_SYSTEM = 'Stampede2'
 
 QUEST_PARAMETERS = {
     'simulation_data_dir': '/projects/b1026/zhafen',
@@ -56,6 +56,12 @@ QUEST_PARAMETERS = {
 
 STAMPEDE_PARAMETERS = {
     'pathfinder_data_dir': '/work/03057/zhafen/pathfinder_data',
+    'ahf_data_dir': '/scratch/03057/zhafen',
+}
+
+STAMPEDE2_PARAMETERS = {
+    'simulation_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE/core',
+    'pathfinder_data_dir': '/scratch/03057/zhafen/pathfinder_data',
     'ahf_data_dir': '/scratch/03057/zhafen',
 }
 
@@ -69,10 +75,11 @@ JUG_EXEC_PATH = '~/.local/bin/jug-execute'
 FULL_SIM_NAME = {
     'm10q': 'm10q_res250',
     'm11q': 'm11q_res7100',
-    'm12i': 'm12i_res7000',
-    'm12f': 'm12f_res7000',
-    'm12m': 'm12m_res7000',
-    'm12imd': 'm12i_res7000_md',
+    'm11v': 'm11v_res7100',
+    'm12i': 'm12i_res7100',
+    'm12f': 'm12f_res7100',
+    'm12m': 'm12m_res7100',
+    'm12imd': 'm12i_res7100_md',
 }
 
 ########################################################################

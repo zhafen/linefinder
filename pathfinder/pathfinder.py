@@ -21,8 +21,8 @@ import galaxy_diver.utils.utilities as utilities
 
 
 def run_pathfinder(
-    out_dir,
     tag,
+    out_dir,
     selector_data_filters = {},
     selector_kwargs = {},
     sampler_kwargs = {},
@@ -38,11 +38,16 @@ def run_pathfinder(
     '''Main function for running pathfinder.
 
     Args:
+        tag (str):
+            Filename identifier for data products.
+
         out_dir (str):
             Output directory to store the data in.
 
-        tag (str):
-            Filename identifier for data products.
+        sim_name (str):
+            Name of simulation to run pathfinder for. If provided, pathfinder
+            will automatically fill in many arguments using a file_manager
+            and the pathfinder.config file.
 
         selector_data_filters (dict):
             Data filters to pass to select.IDSelector.select_ids()
@@ -255,8 +260,6 @@ def run_pathfinder_jug(
         particle_tracker = track.ParticleTracker( **tracker_kwargs )
         particle_tracker.save_particle_tracks_jug()
 
-        jug.barrier()
-
     # Run the Galaxy Finding
     if run_galaxy_finding:
 
@@ -267,8 +270,6 @@ def run_pathfinder_jug(
         particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
             **gal_finder_kwargs )
         particle_track_gal_finder.find_galaxies_for_particle_tracks_jug()
-
-        jug.barrier()
 
     # Run the Classification
     if run_classifying:
