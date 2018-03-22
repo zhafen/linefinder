@@ -303,6 +303,11 @@ def run_pathfinder_jug(
         gal_finder_kwargs = utilities.merge_two_dicts(
             gal_finder_kwargs, general_kwargs )
 
+        if sim_name is not None:
+
+            if 'ahf_data_dir' not in gal_finder_kwargs:
+                gal_finder_kwargs['ahf_data_dir'] = file_manager.get_halo_dir( sim_name )
+
         particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
             **gal_finder_kwargs )
         particle_track_gal_finder.find_galaxies_for_particle_tracks_jug()
