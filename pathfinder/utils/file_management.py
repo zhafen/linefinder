@@ -41,6 +41,24 @@ class FileManager( object ):
 
     ########################################################################
 
+    def get_halo_dir( self, sim_name ):
+
+        return '{}/{}/halo'.format(
+            self.system_parameters['ahf_data_dir'],
+            config.FULL_SIM_NAME[sim_name],
+        )
+
+    ########################################################################
+
+    def get_pathfinder_dir( self, sim_name ):
+        
+        return '{}/{}/data'.format(
+            self.system_parameters['pathfinder_data_dir'],
+            config.FULL_SIM_NAME[sim_name],
+        )
+
+    ########################################################################
+
     def get_pathfinder_analysis_defaults(
         self,
         tag_tail,
@@ -64,16 +82,10 @@ class FileManager( object ):
         tag = '{}{}'.format( sim_name, tag_tail )
 
         defaults = {
-            'data_dir': '{}/{}/data'.format(
-                self.system_parameters['pathfinder_data_dir'],
-                config.FULL_SIM_NAME[sim_name],
-            ),
+            'data_dir': self.get_pathfinder_dir( sim_name ),
             'tag': tag,
 
-            'ahf_data_dir': '{}/{}/halo'.format(
-                self.system_parameters['ahf_data_dir'],
-                config.FULL_SIM_NAME[sim_name],
-            ),
+            'ahf_data_dir': self.get_halo_dir( sim_name ),
             'ahf_index': ahf_index,
         }
 

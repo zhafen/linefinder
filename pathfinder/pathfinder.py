@@ -14,6 +14,8 @@ import track
 import galaxy_find
 import classify
 
+import utils.file_management as file_management
+
 import galaxy_diver.utils.utilities as utilities
 
 ########################################################################
@@ -22,7 +24,8 @@ import galaxy_diver.utils.utilities as utilities
 
 def run_pathfinder(
     tag,
-    out_dir,
+    out_dir = None,
+    sim_name = None,
     selector_data_filters = {},
     selector_kwargs = {},
     sampler_kwargs = {},
@@ -89,6 +92,13 @@ def run_pathfinder(
             If True, then run routines for classifying particles.
     '''
 
+    if sim_name is not None:
+
+        file_manager = file_management.FileManager()
+
+        if out_dir is None:
+            out_dir = file_manager.get_pathfinder_dir( sim_name )
+
     # These are kwargs that could be used at any stage of running pathfinder.
     general_kwargs = {
         'out_dir': out_dir,
@@ -101,6 +111,15 @@ def run_pathfinder(
         # Update arguments
         selector_kwargs = utilities.merge_two_dicts(
             selector_kwargs, general_kwargs )
+
+        if sim_name is not None:
+            snapshot_kwargs = selector_kwargs['snapshot_kwargs']
+
+            if 'sdir' not in snapshot_kwargs:
+                snapshot_kwargs['sdir'] = file_manager.get_sim_dir( sim_name )
+
+            if 'ahf_data_dir' not in snapshot_kwargs:
+                snapshot_kwargs['ahf_data_dir'] = file_manager.get_halo_dir( sim_name )
 
         id_selector = select.IDSelector( **selector_kwargs )
         id_selector.select_ids( selector_data_filters )
@@ -150,8 +169,9 @@ def run_pathfinder(
 
 
 def run_pathfinder_jug(
-    out_dir,
     tag,
+    out_dir = None,
+    sim_name = None,
     selector_data_filters = {},
     selector_kwargs = {},
     sampler_kwargs = {},
@@ -213,6 +233,13 @@ def run_pathfinder_jug(
             If True, then run routines for classifying particles.
     '''
 
+    if sim_name is not None:
+
+        file_manager = file_management.FileManager()
+
+        if out_dir is None:
+            out_dir = file_manager.get_pathfinder_dir( sim_name )
+
     # Setup jugdata
     jugdir_tail = '{}.jugdata'.format( tag )
     jug.set_jugdir( os.path.join( out_dir, jugdir_tail ) )
@@ -231,6 +258,15 @@ def run_pathfinder_jug(
         # Update arguments
         selector_kwargs = utilities.merge_two_dicts(
             selector_kwargs, general_kwargs )
+
+        if sim_name is not None:
+            snapshot_kwargs = selector_kwargs['snapshot_kwargs']
+
+            if 'sdir' not in snapshot_kwargs:
+                snapshot_kwargs['sdir'] = file_manager.get_sim_dir( sim_name )
+
+            if 'ahf_data_dir' not in snapshot_kwargs:
+                snapshot_kwargs['ahf_data_dir'] = file_manager.get_halo_dir( sim_name )
 
         id_selector = select.IDSelector( **selector_kwargs )
         id_selector.select_ids_jug( selector_data_filters )

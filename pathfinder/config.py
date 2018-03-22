@@ -74,6 +74,7 @@ JUG_EXEC_PATH = '~/.local/bin/jug-execute'
 
 FULL_SIM_NAME = {
     'm10q': 'm10q_res250',
+    'm10v': 'm10v_res250',
     'm11q': 'm11q_res7100',
     'm11v': 'm11v_res7100',
     'm12i': 'm12i_res7100',
