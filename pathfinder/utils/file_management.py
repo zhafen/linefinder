@@ -63,7 +63,9 @@ class FileManager( object ):
         self,
         tag_tail,
         sim_name = 'm12i',
-        ahf_index = 600
+        ahf_index = 600,
+        ids_tag_tail = None,
+        ptracks_tag_tail = None,
     ):
         '''Standard defaults for pathfinder analysis routines.
 
@@ -88,6 +90,12 @@ class FileManager( object ):
             'ahf_data_dir': self.get_halo_dir( sim_name ),
             'ahf_index': ahf_index,
         }
+
+        if ids_tag_tail is not None:
+            defaults['ids_tag'] = '{}{}'.format( sim_name, ids_tag_tail )
+
+        if ptracks_tag_tail is not None:
+            defaults['ptracks_tag'] = '{}{}'.format( sim_name, ptracks_tag_tail )
 
         return defaults
 

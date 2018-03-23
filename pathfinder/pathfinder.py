@@ -271,8 +271,6 @@ def run_pathfinder_jug(
         id_selector = select.IDSelector( **selector_kwargs )
         id_selector.select_ids_jug( selector_data_filters )
 
-        jug.barrier()
-
     # Run the ID Sampling
     if run_id_sampling:
 
