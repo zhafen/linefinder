@@ -7,6 +7,8 @@ of parameters.
 @status: Development
 '''
 
+import os
+
 import pathfinder.config as config
 
 ########################################################################
@@ -23,40 +25,55 @@ class FileManager( object ):
     ########################################################################
     ########################################################################
 
+    def get_sim_subdir( self, sim_name ):
+
+        base_sim_name = sim_name[:4]
+        physics_used = sim_name[4:]
+
+        return os.path.join(
+            config.FULL_PHYSICS_NAME[physics_used],
+            config.FULL_SIM_NAME[base_sim_name],
+        )
+
+    ########################################################################
+
     def get_sim_dir( self, sim_name ):
 
-        return '{}/{}/output'.format(
+        return os.path.join(
             self.system_parameters['simulation_data_dir'],
-            config.FULL_SIM_NAME[sim_name],
+            self.get_sim_subdir( sim_name ),
+            'output',
         )
 
     ########################################################################
 
     def get_metafile_dir( self, sim_name ):
 
-        return '{}/{}'.format(
+        return os.path.join(
             self.system_parameters['simulation_data_dir'],
-            config.FULL_SIM_NAME[sim_name],
+            self.get_sim_subdir( sim_name ),
         )
 
     ########################################################################
 
     def get_halo_dir( self, sim_name ):
 
-        return '{}/{}/halo'.format(
+        return os.path.join(
             self.system_parameters['ahf_data_dir'],
-            config.FULL_SIM_NAME[sim_name],
+            self.get_sim_subdir( sim_name ),
         )
 
     ########################################################################
 
     def get_pathfinder_dir( self, sim_name ):
         
-        return '{}/{}/data'.format(
+        return os.path.join(
             self.system_parameters['pathfinder_data_dir'],
-            config.FULL_SIM_NAME[sim_name],
+            self.get_sim_subdir( sim_name ),
+            'data',
         )
 
+    ########################################################################
     ########################################################################
 
     def get_pathfinder_analysis_defaults(

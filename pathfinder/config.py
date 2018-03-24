@@ -60,7 +60,7 @@ STAMPEDE_PARAMETERS = {
 }
 
 STAMPEDE2_PARAMETERS = {
-    'simulation_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE/core',
+    'simulation_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE',
     'pathfinder_data_dir': '/scratch/03057/zhafen/pathfinder_data',
     'ahf_data_dir': '/scratch/03057/zhafen',
 }
@@ -75,6 +75,7 @@ JUG_EXEC_PATH = '~/.local/bin/jug-execute'
 FULL_SIM_NAME = {
     'm10q': 'm10q_res250',
     'm10v': 'm10v_res250',
+    'm11c': 'm11c_res2100',
     'm11q': 'm11q_res7100',
     'm11v': 'm11v_res7100',
     'm12i': 'm12i_res7100',
@@ -83,6 +84,10 @@ FULL_SIM_NAME = {
     'm12imd': 'm12i_res7100_md',
 }
 
+FULL_PHYSICS_NAME = {
+    '': 'core',
+    'md': 'metal_diffusion',
+}
 ########################################################################
 # Miscellanious values
 ########################################################################
