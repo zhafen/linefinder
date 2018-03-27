@@ -63,6 +63,7 @@ STAMPEDE2_PARAMETERS = {
     'simulation_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE',
     'pathfinder_data_dir': '/scratch/03057/zhafen/pathfinder_data',
     'ahf_data_dir': '/scratch/03057/zhafen',
+    'project_dir' : '/home1/03057/zhafen/repos/CGM_origin',
 }
 
 JUG_PATH = '~/.local/bin/jug'
@@ -81,12 +82,11 @@ FULL_SIM_NAME = {
     'm12i': 'm12i_res7100',
     'm12f': 'm12f_res7100',
     'm12m': 'm12m_res7100',
-    'm12imd': 'm12i_res7100_md',
 }
 
 FULL_PHYSICS_NAME = {
     '': 'core',
-    'md': 'metal_diffusion',
+    '_md': 'metal_diffusion',
 }
 ########################################################################
 # Miscellanious values

@@ -61,6 +61,7 @@ class FileManager( object ):
         return os.path.join(
             self.system_parameters['ahf_data_dir'],
             self.get_sim_subdir( sim_name ),
+            'halo',
         )
 
     ########################################################################
@@ -71,6 +72,15 @@ class FileManager( object ):
             self.system_parameters['pathfinder_data_dir'],
             self.get_sim_subdir( sim_name ),
             'data',
+        )
+
+    ########################################################################
+
+    def get_project_figure_dir( self ):
+
+        return os.path.join(
+            self.system_parameters['project_dir'],
+            'figures',
         )
 
     ########################################################################

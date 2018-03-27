@@ -648,7 +648,7 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def get_selected_quantity( self, selection_routine='galaxy', ptype='star', quantity='mass', *args, **kwargs ):
+    def get_selected_quantity( self, selection_routine='galaxy', ptype='star', quantity='mass', selected_quantity_data_key='M', *args, **kwargs ):
         '''Apply a selection routine, and then get out the total mass (or
         some other quantity) of particles that fulfill that criteria.
 
@@ -678,7 +678,7 @@ class Worldlines( simulation_data.TimeData ):
         self.data_masker.run_selection_routine( selection_routine, ptype )
 
         data_ma = self.get_masked_data(
-            'M',
+            selected_quantity_data_key,
             fix_invalid = True,
             compress = False,
             *args, **kwargs

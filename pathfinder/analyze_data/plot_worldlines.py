@@ -673,6 +673,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         # Data for the streamlines color
         z_data = np.linspace(0., 1., x_data.shape[1] )
 
+        # Make it so that we spend more time at the specified color.
+        # (This goes from 0 to 1, and the more time at 0, the less time
+        # the color is white.)
+        z_data = z_data**2.
+
         # Plot!
         if color is default:
             color = p_constants.CLASSIFICATION_COLORS_B[classification]
@@ -690,8 +695,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 lc = collections.LineCollection(
                     segments,
                     cmap = gen_plot.custom_sequential_colormap( color ),
+                    # color = color,
                     norm = plt.Normalize(0, 1),
-                    linewidth = linewidth,
+                    linewidths = np.linspace( linewidth, 0, x_data.shape[1] ),
                     array = z_data,
                 )
                 ax.add_collection( lc )
