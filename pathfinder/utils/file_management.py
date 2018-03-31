@@ -66,12 +66,12 @@ class FileManager( object ):
 
     ########################################################################
 
-    def get_pathfinder_dir( self, sim_name ):
+    def get_pathfinder_dir( self, sim_name, subdir='data', ):
         
         return os.path.join(
             self.system_parameters['pathfinder_data_dir'],
             self.get_sim_subdir( sim_name ),
-            'data',
+            subdir,
         )
 
     ########################################################################
@@ -116,6 +116,7 @@ class FileManager( object ):
 
             'ahf_data_dir': self.get_halo_dir( sim_name ),
             'ahf_index': ahf_index,
+            'main_halo_id': config.MAIN_MT_HALO_ID[sim_name],
         }
 
         if ids_tag_tail is not None:

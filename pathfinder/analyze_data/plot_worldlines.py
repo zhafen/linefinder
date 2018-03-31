@@ -506,6 +506,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         halo_color = '#337DB8',
         halo_linewidth = 3,
         halo_outline = False,
+        radius_fractions = default,
+        n_halos_plotted = 100,
+        show_valid_halos = True,
         *args, **kwargs
     ):
         '''Plot with halos overlayed on top.
@@ -518,22 +521,29 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         used_plot_with_halos_method = getattr( self, plot_with_halos_method )
         used_plot_with_halos_method( ax = ax, slices=slices, *args, **kwargs )
 
-        ahf_plotter = plot_ahf.AHFPlotter( self.data_object.ptracks.ahf_reader )
+        ahf_plotter = plot_ahf.HaloPlotter( self.data_object.ptracks.halo_data )
         snum = self.data_object.ptracks.ahf_reader.mtree_halos[0].index[slices]
-        ahf_plotter.plot_halos_snapshot(
-            snum,
-            ax,
-            color = halo_color,
-            linewidth = halo_linewidth,
-            outline = halo_outline,
-            hubble_param = self.data_object.ptracks.data_attrs['hubble'],
-            radius_fraction = self.data_object.galids.parameters['galaxy_cut'],
-            length_scale = self.data_object.galids.parameters['length_scale'],
-        )
+
+        if radius_fractions is default:
+            radius_fractions = [ self.data_object.galids.parameters['galaxy_cut'], ]
+
+        for radius_fraction in radius_fractions:
+            ahf_plotter.plot_halos_snapshot(
+                snum,
+                ax,
+                color = halo_color,
+                linewidth = halo_linewidth,
+                outline = halo_outline,
+                hubble_param = self.data_object.ptracks.data_attrs['hubble'],
+                radius_fraction = radius_fraction,
+                length_scale = self.data_object.galids.parameters['length_scale'],
+                n_halos_plotted = n_halos_plotted,
+                show_valid_halos = show_valid_halos,
+            )
 
         if out_dir is not None:
             save_file = '{}_{:03d}.png'.format( self.label, self.data_object.ptracks.snum[slices] )
-            gen_plot.save_fig( out_dir, save_file, fig=fig, dpi=75 )
+            gen_plot.save_fig( out_dir, save_file, fig=fig, resolution=75 )
 
             plt.close()
 

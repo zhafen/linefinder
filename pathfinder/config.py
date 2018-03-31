@@ -76,12 +76,25 @@ JUG_EXEC_PATH = '~/.local/bin/jug-execute'
 FULL_SIM_NAME = {
     'm10q': 'm10q_res250',
     'm10v': 'm10v_res250',
-    'm11c': 'm11c_res2100',
     'm11q': 'm11q_res7100',
     'm11v': 'm11v_res7100',
+    'm11c': 'm11c_res2100',
     'm12i': 'm12i_res7100',
     'm12f': 'm12f_res7100',
     'm12m': 'm12m_res7100',
+}
+MAIN_MT_HALO_ID = {
+    'm10q': 0,
+    'm10v': 2,
+    'm11q': 0,
+    'm11v': 0,
+    'm11c': 0,
+    'm12i': 0,
+    'm12f': 0,
+    'm12m': 0,
+    'm10q_md': 0,
+    'm11q_md': 0,
+    'm12i_md': 0,
 }
 
 FULL_PHYSICS_NAME = {

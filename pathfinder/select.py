@@ -15,6 +15,8 @@ import shutil
 import sys
 import time
 
+import jug.utils as jug_utils
+
 import galaxy_diver.analyze_data.particle_data as particle_data
 import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
@@ -117,7 +119,13 @@ class IDSelector( object ):
 
         jug.Task( self.save_selected_ids, selected_ids_formatted, data_filters )
 
+        # DEBUG
+        ready_flag = jug_utils.identity( True )
+
         jug.barrier()
+
+        # DEBUG
+        ready_flag = jug_utils.identity( ready_flag )
 
         print( "########################################################################" )
         print( "Done selecting IDs!" )
