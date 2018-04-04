@@ -1101,9 +1101,9 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_is_CGM_merger( self ):
+    def calc_is_CGM_satellite( self ):
 
-        self.data['is_CGM_merger'] = self.get_data( 'is_in_CGM' ) \
+        self.data['is_CGM_satellite'] = self.get_data( 'is_in_CGM' ) \
             & self.get_data( 'is_in_other_gal' )
 
     ########################################################################

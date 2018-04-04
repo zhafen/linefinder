@@ -31,12 +31,12 @@ CLASSIFICATION_LABELS = {
     'is_unaccreted_NEP': 'Unaccreted-NEP',
     'is_hitherto_EP_NYA': 'EP CGM',
     'is_hitherto_NEP_NYA': 'NEP CGM',
-    'is_CGM_NEP': 'NEP',
-    'is_CGM_EP': 'EP',
-    'is_CGM_IP': 'IP',
-    'is_CGM_merger': 'satellite',
-    'is_outside_any_gal_EP': 'EP',
-    'is_outside_any_gal_IP': 'IP',
+    'is_CGM_NEP': 'IGM Accretion',
+    'is_CGM_EP': 'Satellite Wind',
+    'is_CGM_IP': 'Wind',
+    'is_CGM_satellite': 'Satellite',
+    'is_outside_any_gal_EP': 'Satellite Wind',
+    'is_outside_any_gal_IP': 'Wind',
 }
 
 # These are in line with the colors used in Angles-Alcazar2017
@@ -89,7 +89,7 @@ CLASSIFICATION_COLORS_B = {
     'is_CGM_NEP': '#007AAF',
     'is_CGM_EP': '#FB9319',
     'is_CGM_IP': '#4CAF00',
-    'is_CGM_merger': '#E32F0E',
+    'is_CGM_satellite': '#E32F0E',
     'is_outside_any_gal_EP': '#FB9319',
     'is_outside_any_gal_IP': '#4CAF00',
 }
@@ -166,9 +166,9 @@ CLASSIFICATIONS_CGM_B = [
 # This set of classifications is centered on the origin of the CGM
 CLASSIFICATIONS_CGM_ORIGIN = [
     'is_CGM_NEP',
-    'is_CGM_EP',
-    'is_CGM_merger',
     'is_CGM_IP',
+    'is_CGM_EP',
+    'is_CGM_satellite',
 ]
 # Old classifications
 # CLASSIFICATIONS_CGM_ORIGIN = [
