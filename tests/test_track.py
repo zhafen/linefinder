@@ -351,6 +351,8 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
         assert 'ChildID' in f.keys()
 
+        assert 'Potential' in f.keys()
+
     ########################################################################
 
     def test_works_with_stars( self ):

@@ -232,7 +232,6 @@ class ParticleTracker( object ):
             ptrack['ChildID'] = self.target_child_ids
 
         j = 0
-
         for snum in self.snaps:
 
             time_1 = time.time()
@@ -267,6 +266,13 @@ class ParticleTracker( object ):
             ptrack['V'][:, j, :] = np.array(
                 [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ]
             ).T
+
+            if 'Potential' in dfid.keys():
+                try:
+                    ptrack['Potential'][:, j] = dfid['Potential'].values
+                except KeyError:
+                    ptrack['Potential'] = np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) )
+                    ptrack['Potential'][:, j] = dfid['Potential'].values
 
             j += 1
 
@@ -727,6 +733,13 @@ class IDFinder( object ):
             full_snap_data['V0'].append( P['v'][:, 0] )
             full_snap_data['V1'].append( P['v'][:, 1] )
             full_snap_data['V2'].append( P['v'][:, 2] )
+
+            # Save the potential, if it exists
+            if 'potential' in P.keys():
+                try:
+                    full_snap_data['Potential'].append( P['potential'] )
+                except KeyError:
+                    full_snap_data['Potential'] = [ P['potential'], ]
 
             if hasattr( self, 'target_child_ids' ):
                 full_snap_data['ChildID'].append( P['child_id'] )

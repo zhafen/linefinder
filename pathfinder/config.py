@@ -64,6 +64,7 @@ STAMPEDE2_PARAMETERS = {
     'pathfinder_data_dir': '/scratch/03057/zhafen/pathfinder_data',
     'ahf_data_dir': '/scratch/03057/zhafen',
     'project_dir' : '/home1/03057/zhafen/repos/CGM_origin',
+    'presentation_dir' : '/work/03057/zhafen/presentation_plots',
 }
 
 JUG_PATH = '~/.local/bin/jug'
@@ -76,6 +77,10 @@ JUG_EXEC_PATH = '~/.local/bin/jug-execute'
 FULL_SIM_NAME = {
     'm10q': 'm10q_res250',
     'm10v': 'm10v_res250',
+    'm10y': 'm10y_res250',
+    'm10z': 'm10z_res250',
+    'm11a': 'm11a_res2100',
+    'm11b': 'm11b_res2100',
     'm11q': 'm11q_res7100',
     'm11v': 'm11v_res7100',
     'm11c': 'm11c_res2100',
@@ -86,6 +91,10 @@ FULL_SIM_NAME = {
 MAIN_MT_HALO_ID = {
     'm10q': 0,
     'm10v': 2,
+    'm10y': 0,
+    'm10z': 0,
+    'm11a': 0,
+    'm11b': 0,
     'm11q': 0,
     'm11v': 0,
     'm11c': 0,

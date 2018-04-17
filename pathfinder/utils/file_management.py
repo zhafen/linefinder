@@ -84,6 +84,12 @@ class FileManager( object ):
         )
 
     ########################################################################
+
+    def get_project_presentation_dir( self ):
+
+        return self.system_parameters['presentation_dir']
+
+    ########################################################################
     ########################################################################
 
     def get_pathfinder_analysis_defaults(
