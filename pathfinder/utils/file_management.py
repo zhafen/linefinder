@@ -2,7 +2,7 @@
 '''Simple functions and variables for easily accessing common files and choices
 of parameters.
 
-@author: Zach Hafen, Daniel Angles-Alcazar
+@author: Zach Hafen
 @contact: zachary.h.hafen@gmail.com
 @status: Development
 '''
