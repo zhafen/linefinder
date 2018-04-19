@@ -1148,6 +1148,31 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_enriched( self ):
+        '''Find the snapshots at which the metallicity is different from the
+        prior snapshot.
+        '''
+        
+        # Set up the data
+        is_enriched_full = np.zeros( self.base_data_shape ).astype( bool )
+
+        # Get values for most of the data
+        met_diff = self.get_data( 'Z' )[:,:-1] - self.get_data( 'Z' )[:,1:]
+        is_enriched = met_diff > 1e-6
+
+        # Get values for the earliest traced snapshot
+        # (We assume enrichement if above the metallicity floor of 1e-3 to 
+        # 1e-4, plus a little room. )
+        is_enriched_first_snap = self.get_data( 'Z' )[:,-1] > 2e-3
+
+        # Combine the data
+        is_enriched_full[:,:-1] = is_enriched
+        is_enriched_full[:,-1] = is_enriched_first_snap
+
+        self.data['is_enriched'] = is_enriched_full
+
+    ########################################################################
+
     def calc_time( self ):
         '''Calc current time in the simulation.
 
