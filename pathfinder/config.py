@@ -42,6 +42,21 @@ T_PRO = 0.1
 # Fiducial time interval during which material can be counted as merger (in Gyr)
 T_M = 0.5
 
+GALAXY_DEFINITIONS = {
+    '' : {
+        'length_scale' : 'Rvir',
+        'galaxy_cut' : 0.1,
+    },
+    '_galdefv1' : {
+        'length_scale' : 'Rvir',
+        'galaxy_cut' : 0.1,
+    },
+    '_galdefv2' : {
+        'length_scale' : 'Rstar0.5',
+        'galaxy_cut' : 5.0,
+    },
+}
+
 ########################################################################
 # System Information
 ########################################################################
