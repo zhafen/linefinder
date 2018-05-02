@@ -1148,28 +1148,57 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_is_enriched( self ):
+    def calc_is_after_enrichment( self ):
         '''Find the snapshots at which the metallicity is different from the
         prior snapshot.
         '''
         
         # Set up the data
-        is_enriched_full = np.zeros( self.base_data_shape ).astype( bool )
+        is_after_enrichment_full = np.zeros( self.base_data_shape )
+        is_after_enrichment_full = is_after_enrichment_full.astype( bool )
 
         # Get values for most of the data
         met_diff = self.get_data( 'Z' )[:,:-1] - self.get_data( 'Z' )[:,1:]
-        is_enriched = met_diff > 1e-6
+        is_after_enrichment = met_diff > 1e-6
 
         # Get values for the earliest traced snapshot
         # (We assume enrichement if above the metallicity floor of 1e-3 to 
         # 1e-4, plus a little room. )
-        is_enriched_first_snap = self.get_data( 'Z' )[:,-1] > 2e-3
+        is_after_enrichment_first_snap = self.get_data( 'Z' )[:,-1] > 2e-3
 
         # Combine the data
-        is_enriched_full[:,:-1] = is_enriched
-        is_enriched_full[:,-1] = is_enriched_first_snap
+        is_after_enrichment_full[:,:-1] = is_after_enrichment
+        is_after_enrichment_full[:,-1] = is_after_enrichment_first_snap
 
-        self.data['is_enriched'] = is_enriched_full
+        self.data['is_after_enrichment'] = is_after_enrichment_full
+
+    ########################################################################
+
+    def calc_is_before_enrichment( self ):
+        '''Find the snapshots at which the metallicity is different from the
+        next snapshot.
+        '''
+        
+        # Set up the data
+        is_before_enrichment = np.zeros( self.base_data_shape ).astype( bool )
+
+        # Get the values
+        after_enrichment_vals = self.get_data( 'is_after_enrichment' )[:,:-1]
+        is_before_enrichment[:,1:] = after_enrichment_vals
+
+        self.data['is_before_enrichment'] = is_before_enrichment
+
+    ########################################################################
+
+    def calc_is_enriched( self ):
+        '''Find the snapshots at which the metallicity is different from the
+        either the next snapshot or the previous snapshot.
+        '''
+
+        self.data['is_enriched'] = np.ma.mask_or(
+            self.get_data( 'is_after_enrichment' ),
+            self.get_data( 'is_before_enrichment' ),
+        )
 
     ########################################################################
 

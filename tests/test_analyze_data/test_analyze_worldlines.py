@@ -530,7 +530,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
-    def test_calc_is_enriched( self ):
+    def test_calc_is_after_enrichment( self ):
         '''Test that we can find when a particle is enriched.
         '''
 
@@ -550,11 +550,69 @@ class TestWorldlineCalcData( unittest.TestCase ):
         ]).astype( bool )
 
         # Actual calculation
+        self.worldlines.calc_is_after_enrichment()
+
+        actual = self.worldlines.data['is_after_enrichment']
+
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
+    def test_calc_is_before_enrichment( self ):
+        '''Test that we can find when a particle is enriched.
+        '''
+
+        # Setup test data
+        self.worldlines.data['Z'] = 10.**np.array([
+            [ -2., -4., -4., ],
+            [ -1., -2., -4., ],
+            [ -4., -4., -4., ],
+            [ 0., -1., -2., ],
+        ])
+
+        expected = np.array([
+            [ 0, 1, 0, ],
+            [ 0, 1, 1, ],
+            [ 0, 0, 0, ],
+            [ 0, 1, 1, ],
+        ]).astype( bool )
+
+        # Actual calculation
+        self.worldlines.calc_is_before_enrichment()
+
+        actual = self.worldlines.data['is_before_enrichment']
+
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
+    def test_calc_is_enriched( self ):
+        '''Test that we can find when a particle is enriched.
+        '''
+
+        # Setup test data
+        self.worldlines.data['Z'] = 10.**np.array([
+            [ -2., -4., -4., ],
+            [ -1., -2., -4., ],
+            [ -4., -4., -4., ],
+            [ 0., -1., -2., ],
+        ])
+
+        expected = np.array([
+            [ 1, 1, 0, ],
+            [ 1, 1, 1, ],
+            [ 0, 0, 0, ],
+            [ 1, 1, 1, ],
+        ]).astype( bool )
+
+        # Actual calculation
         self.worldlines.calc_is_enriched()
 
         actual = self.worldlines.data['is_enriched']
 
         npt.assert_allclose( expected, actual )
+
+    ########################################################################
 
     ########################################################################
 
