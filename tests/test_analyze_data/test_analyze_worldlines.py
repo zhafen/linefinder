@@ -614,6 +614,47 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
+    def test_calc_is_enriched_in_mgal( self ):
+        '''Test that we can find when a particle is enriched, and inside
+        the radius of the main galaxy.
+        '''
+
+        # Setup test data
+        self.worldlines.data['is_enriched'] = np.array([
+            [ 1, 1, 0, ],
+            [ 1, 1, 1, ],
+            [ 0, 0, 0, ],
+            [ 1, 1, 1, ],
+        ]).astype( bool )
+        self.worldlines.data['gal_id'] = np.array([
+            [ -2, 15, -2, ],
+            [ 5, -2, 1, ],
+            [ -2, -2, -2, ],
+            [ -2, -2, 5, ],
+        ])
+        self.worldlines.data['mt_gal_id'] = np.array([
+            [ -2, -2, -2, ],
+            [ 0, -2, 1, ],
+            [ -2, -2, -2, ],
+            [ -2, -2, 0, ],
+        ])
+
+        expected = np.array([
+            [ 0, 0, 0, ],
+            [ 1, 0, 0, ],
+            [ 0, 0, 0, ],
+            [ 0, 0, 1, ],
+        ]).astype( bool )
+
+        # Actual calculation
+        self.worldlines.calc_is_enriched_in_mgal()
+
+        actual = self.worldlines.data['is_enriched_in_mgal']
+
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
     def test_calc_is_enriched_in_ogal( self ):
         '''Test that we can find when a particle is enriched, and inside
         the radius of another galaxy.
