@@ -1202,6 +1202,31 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_enriched_in_ogal( self ):
+        '''Find the snapshots at which the metallicity is different from the
+        either the next snapshot or the previous snapshot, and the particle
+        is inside the radius of another galaxy (note that no density threshold
+        is applied).
+        '''
+
+        # Get when not in the radius of the main galaxy
+        mt_gal_id = self.get_data( 'mt_gal_id' )
+        main_mt_halo_id = self.galids.parameters['main_mt_halo_id']
+        is_not_in_main_gal = mt_gal_id != main_mt_halo_id
+
+        # Get when in the radius of any galaxy
+        gal_id = self.get_data( 'gal_id' )
+        is_in_gal = gal_id != -2
+
+        # Get when in the radius of a galaxy other than the main galaxy
+        is_in_ogal = is_in_gal & is_not_in_main_gal
+
+        # Now get when enriched and in another galaxy.
+        self.data['is_enriched_in_ogal'] = \
+            is_in_ogal & self.get_data( 'is_enriched' )
+
+    ########################################################################
+
     def calc_time( self ):
         '''Calc current time in the simulation.
 
