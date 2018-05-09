@@ -428,17 +428,17 @@ class TestWorldlineCalcData( unittest.TestCase ):
         ]
 
         # Setup test Data
-        self.worldlines.data['Den'] = np.array([
-            [ 0.5, 0.5, 1.5, ],
-            [ 0.5, 1.5, 1.5, ],
-            [ 1.5, 1.5, 1.5, ],
-            [ 0.5, 0.5, 0.5, ],
-        ])*config.GALAXY_DENSITY_CUT
+        self.worldlines.data['is_in_main_gal'] = np.array([
+            [ 1, 1, 0, ],
+            [ 1, 0, 0, ],
+            [ 0, 1, 1, ],
+            [ 0, 0, 0, ],
+        ])
 
         expected = np.array([
+            [ 0, 0, 0, ],
             [ 0, 1, 0, ],
-            [ 0, 0, 0, ],
-            [ 0, 0, 0, ],
+            [ 1, 0, 0, ],
             [ 1, 0, 1, ],
         ]).astype( bool )
 

@@ -1094,9 +1094,7 @@ class Worldlines( simulation_data.TimeData ):
         is_in_CGM = ( r <= config.OUTER_CGM_BOUNDARY ) \
             & (r >= config.INNER_CGM_BOUNDARY )
 
-        is_not_CGM_density = self.get_data( 'Den' ) > config.GALAXY_DENSITY_CUT
-
-        is_in_CGM[is_not_CGM_density] = False
+        is_in_CGM = is_in_CGM & np.invert( self.get_data( 'is_in_main_gal' ) )
 
         self.data['is_in_CGM'] = is_in_CGM
 
