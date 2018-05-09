@@ -1036,8 +1036,6 @@ class Worldlines( simulation_data.TimeData ):
 
         self.data['is_NEP_NYA'] = self.calc_is_classification_NYA( 'is_pristine' )
 
-    ########################################################################
-
     def calc_is_hitherto_EP_NYA( self ):
 
         self.data['is_hitherto_EP_NYA'] = \
@@ -1045,14 +1043,13 @@ class Worldlines( simulation_data.TimeData ):
                 'is_hitherto_EP',
                 tile_classification = False )
 
-    ########################################################################
-
     def calc_is_hitherto_NEP_NYA( self ):
 
         self.data['is_hitherto_NEP_NYA'] = \
             self.calc_is_classification_NYA(
                 'is_hitherto_NEP',
-                tile_classification = False )
+                tile_classification = False
+            )
 
     def calc_is_merger_NYA( self ):
         '''Find material classified as merger that is not yet accreted (NYA) onto the main galaxy.
@@ -1096,6 +1093,10 @@ class Worldlines( simulation_data.TimeData ):
 
         is_in_CGM = ( r <= config.OUTER_CGM_BOUNDARY ) \
             & (r >= config.INNER_CGM_BOUNDARY )
+
+        is_not_CGM_density = self.get_data( 'Den' ) > config.GALAXY_DENSITY_CUT
+
+        is_in_CGM[is_not_CGM_density] = False
 
         self.data['is_in_CGM'] = is_in_CGM
 

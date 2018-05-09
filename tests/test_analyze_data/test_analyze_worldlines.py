@@ -415,6 +415,41 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
+    @mock.patch( 'pathfinder.analyze_data.worldlines.Worldlines.get_processed_data' )
+    def test_is_in_CGM( self, mock_get_processed_data ):
+
+        mock_get_processed_data.side_effect = [
+            np.array([ 
+                [ 0.05, 0.15, 1.1 ],
+                [ 0.05, 0.15, 1.1 ],
+                [ 0.5, 0.05, 0.5 ],
+                [ 0.5, 0.05, 0.5 ],
+            ])
+        ]
+
+        # Setup test Data
+        self.worldlines.data['Den'] = np.array([
+            [ 0.5, 0.5, 1.5, ],
+            [ 0.5, 1.5, 1.5, ],
+            [ 1.5, 1.5, 1.5, ],
+            [ 0.5, 0.5, 0.5, ],
+        ])*config.GALAXY_DENSITY_CUT
+
+        expected = np.array([
+            [ 0, 1, 0, ],
+            [ 0, 0, 0, ],
+            [ 0, 0, 0, ],
+            [ 1, 0, 1, ],
+        ]).astype( bool )
+
+        self.worldlines.calc_is_in_CGM()
+
+        actual = self.worldlines.data['is_in_CGM']
+
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
     def test_calc_is_fresh_accretion( self ):
 
         # Setup test data
