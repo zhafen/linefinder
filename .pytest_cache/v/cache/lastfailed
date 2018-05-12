@@ -1,5 +1,6 @@
 {
   "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineCalcData": true, 
+  "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineCalcData::test_calc_ind_first_in_mgal": true, 
   "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineDataKeyParser": true, 
   "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineDataMasker": true, 
   "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineGetData": true, 
