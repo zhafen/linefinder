@@ -450,6 +450,31 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
+    def test_is_IP( self ):
+
+        # Setup test data
+        self.worldlines.data['is_in_main_gal'] = np.array([
+            [ 0, 0, 0, ],
+            [ 1, 0, 0, ],
+            [ 1, 0, 1, ],
+            [ 0, 1, 0, ],
+        ]).astype( bool )
+
+        expected = np.array([
+            [ 0, 0, 0, ],
+            [ 1, 0, 0, ],
+            [ 1, 1, 1, ],
+            [ 1, 1, 0, ],
+        ]).astype( bool )
+
+        self.worldlines.calc_is_IP()
+
+        actual = self.worldlines.data['is_IP']
+
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
     def test_calc_is_fresh_accretion( self ):
 
         # Setup test data

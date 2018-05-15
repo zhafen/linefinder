@@ -1072,12 +1072,15 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     def calc_is_IP( self ):
-        '''Calculate internally processed material.'''
+        '''Calculate internally processed material, defined as all material
+        that has been inside the main galaxy.
+        '''
 
-        # Find the indices after accreting
-        ind_first_acc_tiled = self.get_processed_data( 'ind_first_acc_tiled' )
-        ind_tiled = np.tile( range( self.n_snaps ), (self.n_particles, 1) )
-        self.data['is_IP'] = ind_tiled <= ind_first_acc_tiled
+        is_in_main_gal = self.get_data( 'is_in_main_gal' )
+
+        summed = is_in_main_gal[:,::-1].cumsum( axis=1 )[:,::-1]
+
+        self.data['is_IP'] = summed.astype( bool )
 
     ########################################################################
 
