@@ -9,6 +9,8 @@ For example, this contains the default fill values for invalid data.
 
 import numpy as np
 
+import utils.presentation_constants as p_constants
+
 ########################################################################
 # Global Default Parameters
 ########################################################################
@@ -99,9 +101,14 @@ FULL_SIM_NAME = {
     'm11q': 'm11q_res7100',
     'm11v': 'm11v_res7100',
     'm11c': 'm11c_res2100',
-    'm12i': 'm12i_res7100',
+    'm12b': 'm12b_res7100',
+    'm12c': 'm12c_res7100',
     'm12f': 'm12f_res7100',
+    'm12i': 'm12i_res7100',
     'm12m': 'm12m_res7100',
+    'm12r': 'm12r_res7100',
+    'm12w': 'm12w_res7100',
+    'm12z': 'm12z_res4200',
 }
 MAIN_MT_HALO_ID = {
     'm10q': 0,
@@ -118,7 +125,12 @@ MAIN_MT_HALO_ID = {
     'm12m': 0,
     'm10q_md': 0,
     'm11q_md': 0,
+    'm12b_md': 0,
+    'm12c_md': 0,
     'm12i_md': 0,
+    'm12r_md': 0,
+    'm12w_md': 0,
+    'm12z_md': 0,
 }
 
 FULL_PHYSICS_NAME = {
@@ -138,3 +150,9 @@ PTYPE_GAS = 0
 PTYPE_DM = 1
 PTYPE_LOWRES_DM = 2
 PTYPE_STAR = 4
+
+########################################################################
+# Presentation information
+########################################################################
+
+COLORSCHEME = p_constants.CLASSIFICATION_COLORS_B

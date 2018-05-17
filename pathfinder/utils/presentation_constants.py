@@ -8,6 +8,9 @@ different categories of accretion, as well as their names.
 @status: Development
 '''
 
+import numpy as np
+import matplotlib.colors as colors
+
 ########################################################################
 ########################################################################
 
@@ -65,7 +68,19 @@ CLASSIFICATION_COLORS_A = {
 # Externally-processed are warm colors, Non-externally-processed are cool colors
 # Wind is on the green border of EP and NEP, and unaccreted is on the purple
 # border of EP and NEP
+
+# This set is revised again to have greater variation in brightness
+# Revised to have greater variation in brightness
 CLASSIFICATION_COLORS_B = {
+    None: 'black',
+    'is_CGM_NEP': colors.hsv_to_rgb( np.array([ 0.55047619,  0.8,  0.825 ]) ),
+    'is_CGM_IP': colors.hsv_to_rgb( np.array([ 0.26095238,  0.8,  0.9 ]) ),
+    'is_CGM_EP': colors.hsv_to_rgb( np.array([ 0.09057971,  0.8,  0.7 ]) ),
+    'is_CGM_satellite': colors.hsv_to_rgb( np.array([ 0.02614379,  0.8, 0.4 ]) ),
+}
+
+# These are the colors that were revised only once
+CLASSIFICATION_COLORS_C = {
     None: 'black',
     'all': 'black',
     'is_pristine': '#007AAF',
@@ -96,7 +111,7 @@ CLASSIFICATION_COLORS_B = {
 
 # This is used in some cases, e.g. when making bar plots, to make them a little
 # easier to look at.
-CLASSIFICATION_ALPHA = 0.7
+CLASSIFICATION_ALPHA = 1.0
 
 ########################################################################
 # Lists of Classifications Used Together
