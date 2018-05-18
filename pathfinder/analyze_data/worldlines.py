@@ -802,7 +802,8 @@ class Worldlines( simulation_data.TimeData ):
 
                 # Test for the case when everything is masked.
                 if np.invert( data_ma.mask ).sum() == 0:
-                    return 0.
+                    selected_quantity_radial_bins.append( 0. )
+                    continue
 
                 selected_quantity = data_ma.sum( axis=0 )
 
@@ -1607,6 +1608,12 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
         self.mask_data( 'is_in_main_gal', data_value=False )
         self.mask_data( 'is_in_other_gal', data_value=False )
+
+    ########################################################################
+
+    def select_in_CGM( self, ptype_value ):
+
+        self.mask_data( 'is_in_CGM', data_value=True )
 
 ########################################################################
 ########################################################################

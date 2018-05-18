@@ -87,7 +87,7 @@ args_to_use = trove_manager.get_next_args_to_use()
 sim_name = args_to_use[0]
 snum = args_to_use[1]
 galdef = args_to_use[2]
-ptracks_tag = ptracks_tag_format.format( *args_to_use[-1] )
+ptracks_tag = ptracks_tag_format.format( *args_to_use[:-1] )
 tag = tag_format.format( *args_to_use )
 
 galdef_dict = p_config.GALAXY_DEFINITIONS[galdef]
@@ -97,6 +97,8 @@ print( "Running data {}".format( tag ) )
 p_types = [ 0, 4, ]
 
 selector_kwargs = {
+    'tag' : ptracks_tag,
+
     'snum_start': snum,
     'snum_end': snum,
     'snum_step': 1,
@@ -114,11 +116,15 @@ selector_data_filters = {
 }
 
 sampler_kwargs = {
+    'tag' : ptracks_tag,
+
     'ignore_duplicates': True,
 }
 
 # Tracking Parameters
 tracker_kwargs = {
+    'tag' : ptracks_tag,
+
     'p_types': p_types,
 
     'snum_start': 1,
