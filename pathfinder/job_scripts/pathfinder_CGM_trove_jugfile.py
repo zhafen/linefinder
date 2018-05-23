@@ -24,7 +24,7 @@ sim_names = [
     # 'm11q_md',
     # 'm12i_md',
     'm12b_md',
-    # 'm12c_md',
+    'm12c_md',
     'm12z_md',
     'm12r_md',
     'm12w_md',
@@ -66,14 +66,14 @@ snums = [
 ]
 galdefs = [
     # '',
-    '_galdefv1',
+    # '_galdefv1',
     '_galdefv2',
 ]
 
 # Get the file format
 ptracks_tag_format = '{}_CGM_snum{}'
 tag_format = '{}{}'.format( ptracks_tag_format, '{}' )
-file_format =  'ptracks_{}.hdf5'.format( ptracks_tag_format )
+file_format =  'classifications_{}.hdf5'.format( tag_format )
 
 # Start up a trove manager and use it to get next args
 trove_manager = trove_management.PathfinderTroveManager(
@@ -144,7 +144,7 @@ classifier_kwargs = {
     'ptracks_tag' : ptracks_tag,
 }
 
-pathfinder.run_pathfinder_jug(
+pathfinder.run_pathfinder(
     sim_name = sim_name,
     tag = tag,
     selector_data_filters = selector_data_filters,
@@ -153,9 +153,9 @@ pathfinder.run_pathfinder_jug(
     tracker_kwargs = tracker_kwargs,
     gal_finder_kwargs = gal_finder_kwargs,
     classifier_kwargs = classifier_kwargs,
-    # run_id_selecting = False,
-    # run_id_sampling = False,
-    # run_tracking = False,
-    # run_galaxy_finding = False,
+    run_id_selecting = False,
+    run_id_sampling = False,
+    run_tracking = False,
+    run_galaxy_finding = False,
     # run_classifying = False,
 )

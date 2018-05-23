@@ -73,10 +73,19 @@ CLASSIFICATION_COLORS_A = {
 # Revised to have greater variation in brightness
 CLASSIFICATION_COLORS_B = {
     None: 'black',
-    'is_CGM_NEP': colors.hsv_to_rgb( np.array([ 0.55047619,  0.8,  0.825 ]) ),
-    'is_CGM_IP': colors.hsv_to_rgb( np.array([ 0.26095238,  0.8,  0.9 ]) ),
-    'is_CGM_EP': colors.hsv_to_rgb( np.array([ 0.09057971,  0.8,  0.7 ]) ),
-    'is_CGM_satellite': colors.hsv_to_rgb( np.array([ 0.02614379,  0.8, 0.4 ]) ),
+    'is_CGM_NEP': colors.hsv_to_rgb( np.array([ 200./360., 0.72,  0.7 ]) ),
+    'is_CGM_IP': colors.hsv_to_rgb( np.array([ 140./360., 0.72, 0.8 ]) ),
+    'is_CGM_EP': colors.hsv_to_rgb( np.array([ 32.6/360.,  0.72,  0.7 ]) ),
+    'is_CGM_satellite': colors.hsv_to_rgb( np.array([ 9.4/360,  0.8, 0.5 ]) ),
+}
+# This set is revised again to have greater variation in brightness
+# Revised to have greater variation in brightness
+CLASSIFICATION_COLORS_D = {
+    None: 'black',
+    'is_CGM_NEP': colors.hsv_to_rgb( np.array([ 158.4/360.,  1.0,  0.89 ]) ),
+    'is_CGM_IP': colors.hsv_to_rgb( np.array([ 299./360,  0.5, 0.63 ]) ),
+    'is_CGM_EP': colors.hsv_to_rgb( np.array([ 331.7/360.,  0.3,  0.45 ]) ),
+    'is_CGM_satellite': colors.hsv_to_rgb( np.array([ 0.0,  1.0,  0.38 ]) ),
 }
 
 # These are the colors that were revised only once

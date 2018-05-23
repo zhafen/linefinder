@@ -156,6 +156,8 @@ def run_pathfinder(
             gal_finder_kwargs, general_kwargs )
 
         if sim_name is not None:
+            if 'ahf_data_dir' not in gal_finder_kwargs:
+                gal_finder_kwargs['ahf_data_dir'] = file_manager.get_halo_dir( sim_name )
             if 'main_mt_halo_id' not in gal_finder_kwargs:
                 gal_finder_kwargs['main_mt_halo_id'] = pathfinder_config.MAIN_MT_HALO_ID[sim_name]
 
