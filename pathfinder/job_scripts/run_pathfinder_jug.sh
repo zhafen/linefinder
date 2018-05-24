@@ -15,7 +15,7 @@
 
 JUGFILE=/home1/03057/zhafen/repos/pathfinder/pathfinder/job_scripts/pathfinder_CGM_trove_jugfile.py
 
-for i in $(seq 1); do jug execute $JUGFILE & done
+for i in $(seq 5); do jug execute $JUGFILE & done
 
 while ! jug check $JUGFILE; do
    jug sleep-until $JUGFILE 

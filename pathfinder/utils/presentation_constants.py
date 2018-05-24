@@ -15,6 +15,7 @@ import matplotlib.colors as colors
 ########################################################################
 
 CLASSIFICATION_LABELS = {
+    None: 'All',
     'all': 'All',
     'is_pristine': 'NEP',
     'is_NEP_NYA': 'Fresh Accretion',

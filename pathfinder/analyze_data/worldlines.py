@@ -1613,6 +1613,8 @@ class WorldlineDataMasker( generic_data.DataMasker ):
 
     def select_in_CGM( self, ptype_value ):
 
+        self.mask_data( 'PType', data_value=ptype_value )
+
         self.mask_data( 'is_in_CGM', data_value=True )
 
 ########################################################################

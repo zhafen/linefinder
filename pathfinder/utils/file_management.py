@@ -183,7 +183,8 @@ class FileManager( object ):
         self,
         tag_tail,
         default_sim_name = 'm12i',
-        sim_names = [ 'm12i', 'm12m', 'm12f', 'm12imd' ],
+        sim_names = [ 'm12i', 'm12m', 'm12f', ],
+        galdef = '',
         *args, **kwargs
     ):
         '''Standard defaults and variations for pathfinder analysis routines.
@@ -208,18 +209,25 @@ class FileManager( object ):
                 Commonly used variations dictionary.
         '''
 
+        used_tag_tail = '{}{}'.format( tag_tail, galdef )
+
         pathfinder_analysis_defaults = self.get_pathfinder_analysis_defaults(
-            tag_tail,
+            used_tag_tail,
             sim_name = default_sim_name,
+            ptracks_tag_tail = tag_tail,
+            ids_tag_tail = tag_tail,
             *args, **kwargs
         )
 
         pathfinder_analysis_variations = \
             self.get_pathfinder_analysis_variations(
-                tag_tail,
+                used_tag_tail,
                 default_sim_name = default_sim_name,
                 sim_names = sim_names,
+                ptracks_tag_tail = tag_tail,
+                ids_tag_tail = tag_tail,
                 *args, **kwargs
             )
 
         return pathfinder_analysis_defaults, pathfinder_analysis_variations
+

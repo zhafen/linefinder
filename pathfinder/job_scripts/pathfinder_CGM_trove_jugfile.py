@@ -66,7 +66,7 @@ snums = [
 ]
 galdefs = [
     # '',
-    # '_galdefv1',
+    '_galdefv1',
     '_galdefv2',
 ]
 
@@ -144,7 +144,7 @@ classifier_kwargs = {
     'ptracks_tag' : ptracks_tag,
 }
 
-pathfinder.run_pathfinder(
+pathfinder.run_pathfinder_jug(
     sim_name = sim_name,
     tag = tag,
     selector_data_filters = selector_data_filters,
