@@ -19,8 +19,8 @@ import utils.presentation_constants as p_constants
 # and also have all the most important parameters shown in one place.
 
 # The radius of the galaxy is defined as R_{gal} = GALAXY_CUT*LENGTH_SCALE
-LENGTH_SCALE = 'Rvir'
-GALAXY_CUT = 0.1
+LENGTH_SCALE = 'Rstar0.5'
+GALAXY_CUT = 5.0
 
 # The CGM is defined as INNER_CGM_BOUNDARY*Rvir to OUTER_CGM_BOUNDARY*Rvir
 INNER_CGM_BOUNDARY = 0.1
@@ -46,8 +46,8 @@ T_M = 0.5
 
 GALAXY_DEFINITIONS = {
     '' : {
-        'length_scale' : 'Rvir',
-        'galaxy_cut' : 0.1,
+        'length_scale' : 'Rstar0.5',
+        'galaxy_cut' : 5.0,
     },
     '_galdefv1' : {
         'length_scale' : 'Rvir',

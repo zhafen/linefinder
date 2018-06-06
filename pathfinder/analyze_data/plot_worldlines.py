@@ -18,6 +18,7 @@ import galaxy_diver.plot_data.generic_plotter as generic_plotter
 import galaxy_diver.analyze_data.ahf as analyze_ahf
 import galaxy_diver.plot_data.ahf as plot_ahf
 import galaxy_diver.plot_data.plotting as gen_plot
+import galaxy_diver.utils.astro as astro_utils
 
 import pathfinder.config as config
 import pathfinder.utils.presentation_constants as p_constants
@@ -243,6 +244,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         y_datas = 'get_categories_selected_quantity',
         x_range = [ 0., np.log10(8.)], y_range = [0., 1.],
         tick_redshifts = np.array( [ 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, ] ),
+        time_x_axis = False,
+        twin_redshift = False,
         x_label = default, y_label = default,
         plot_dividing_line = False,
         classification_list = p_constants.CLASSIFICATIONS_A,
@@ -256,6 +259,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         },
         add_legend = True,
         legend_location = (0., -0.28),
+        hubble = None,
+        omega_matter = None,
         *args, **kwargs
     ):
         '''Make a plot like the bottom panel of Fig. 3 in Angles-Alcazar+17
@@ -330,14 +335,42 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         if y_range is not default:
             ax.set_ylim( y_range )
 
-        x_tick_values = np.log10( 1. + tick_redshifts )
-        ax.xaxis.set_ticks( x_tick_values )
-        ax.set_xticklabels( tick_redshifts )
+        if not time_x_axis:
+            x_tick_values = np.log10( 1. + tick_redshifts )
+            ax.xaxis.set_ticks( x_tick_values )
+            ax.set_xticklabels( tick_redshifts )
+
+        if twin_redshift:
+            tick_times = astro_utils.age_of_universe(
+                tick_redshifts,
+                h = hubble,
+                omega_matter = omega_matter,
+                )
+
+            # Make sure we aren't trying to plot ticks that would go out of bounds,
+            # because that breaks things
+            ax2_ticks = []
+            ax2_tick_labels = []
+            x_range = ax.get_xlim()
+            for ax2_tick, ax2_tick_label in zip( tick_times, tick_redshifts ):
+                if ( ax2_tick > x_range[0] ) and ( ax2_tick < x_range[1] ):
+                    ax2_ticks.append( ax2_tick )
+                    ax2_tick_labels.append( ax2_tick_label )
+
+            # Add a second axis for plotting
+            ax2 = ax.twiny()
+            ax2.set_xlim( x_range )
+            ax2.set_xticks( ax2_ticks )
+            ax2.set_xticklabels( ax2_tick_labels )
+            ax2.set_xlabel( r'z', fontsize=22, labelpad=10 )
 
         if y_label is default:
             y_label = r'$f(M_{\star})$'
 
-        ax.set_xlabel( r'z', fontsize=22, )
+        if not time_x_axis:
+            ax.set_xlabel( r'z', fontsize=22, )
+        else:
+            ax.set_xlabel( r'Age of Universe (Gyr)', fontsize=22, )
         ax.set_ylabel( y_label, fontsize=22, )
 
         if label is default:
@@ -347,13 +380,16 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             ax.annotate( s=label, **label_kwargs )
 
         if add_legend:
+            color_objects = color_objects[::-1]
+            labels = labels[::-1]
             ax.legend(
                 color_objects,
                 labels,
-                prop={'size': 14.5},
+                prop={'size': 16},
                 ncol=5,
-                loc=legend_location,
-                fontsize=20
+                bbox_to_anchor = legend_location,
+                loc='center',
+                fontsize=20,
             )
 
     ########################################################################
