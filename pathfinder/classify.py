@@ -629,14 +629,14 @@ class Classifier( object ):
         # Condition 4
         is_gas = ( self.ptrack['PType'][:, 0:self.n_snap - 1] == 0 )
         # Condition 5
-        is_outside_any_gal = ( self.ptrack['gal_id'][:, 0:self.n_snap - 1] < 0 )
+        is_not_in_other_gal = np.invert( self.is_in_other_gal[:, 0:self.n_snap - 1] )
 
         is_ejected = (
             is_outside_before_inside_after &
             has_minimum_vr_in_vc &
             has_minimum_vr &
             is_gas &
-            is_outside_any_gal
+            is_not_in_other_gal
         )
 
         return is_ejected
