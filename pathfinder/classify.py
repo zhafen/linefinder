@@ -55,7 +55,7 @@ class Classifier( object ):
         events_to_save = [
             'is_in_other_gal', 'is_in_main_gal', 'is_accreted',
             'is_ejected', 'redshift_first_acc', 'ind_first_acc',
-            'cumulative_time_in_other_gal', ],
+            'cumulative_time_in_other_gal', 'gal_event_id', ],
         velocity_scale = config.VELOCITY_SCALE,
         wind_cut = config.WIND_CUT,
         absolute_wind_cut = config.ABSOLUTE_WIND_CUT,
@@ -393,7 +393,7 @@ class Classifier( object ):
             v = self.ptrack['V'][:, i] - main_mt_halo_v[i][np.newaxis]
             p = self.ptrack['P'][:, i] - main_mt_halo_p[i][np.newaxis]
 
-            r_i = np.sqrt( p**2. ).sum( axis=1 )
+            r_i = np.sqrt( ( p**2. ).sum( axis=1 ) )
 
             v_r_i = ( v * p ).sum( axis=1 )/r_i
 
