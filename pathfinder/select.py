@@ -119,13 +119,7 @@ class IDSelector( object ):
 
         jug.Task( self.save_selected_ids, selected_ids_formatted, data_filters )
 
-        # DEBUG
-        ready_flag = jug_utils.identity( True )
-
         jug.barrier()
-
-        # DEBUG
-        ready_flag = jug_utils.identity( ready_flag )
 
         print( "########################################################################" )
         print( "Done selecting IDs!" )
@@ -236,7 +230,29 @@ class IDSelector( object ):
         def unify_results( given_results ):
             '''Helper function to get around jug formatting.'''
 
-            return set.union( *given_results )
+            for i, data in enumerate( given_results ):
+
+                #DEBUG
+                import pdb; pdb.set_trace()
+
+                data = np.array( list( data ) )
+
+                # The np method (which is supposedly faster) doesn't work for
+                # results that contain child IDs too
+                if len( data.shape ) == 2:
+                    return set.union( *given_results )
+
+                print( "Adding data set {}, consisting of {} ids".format(
+                        i,
+                        data.shape,
+                    )
+                )
+                try:
+                    combined = np.union1d( combined, data )
+                except NameError:
+                    combined = data
+                    
+            return combined
 
         selected_ids = jug.Task( unify_results, results )
 
@@ -264,10 +280,10 @@ class IDSelector( object ):
         time_end = time.time()
 
         print( "Ptype {}, Snapshot {}, took {:.3g} seconds".format(
-            kwargs['ptype'],
-            kwargs['snum'],
-            time_end - time_start
-        )
+                kwargs['ptype'],
+                kwargs['snum'],
+                time_end - time_start
+            )
         )
 
         # Vain effort to free memory (that, stunningly, actually works!!)
@@ -421,7 +437,7 @@ class SnapshotIDSelector( particle_data.ParticleData ):
             ids_set (set) : IDs as a set.
         '''
 
-        # When not loading IDs
+        # When not loading Child IDs
         if not isinstance( selected_ids, tuple ):
             return set( selected_ids )
 

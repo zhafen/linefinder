@@ -390,15 +390,12 @@ class Classifier( object ):
         v_r = []
         for i in range(self.n_snap):
 
-            # Get the radial velocity of the particles
-            v_r_i = scipy.spatial.distance.cdist(
-                self.ptrack[ 'V' ][:, i], main_mt_halo_v[i][np.newaxis] )\
-                .flatten()
+            v = self.ptrack['V'][:, i] - main_mt_halo_v[i][np.newaxis]
+            p = self.ptrack['P'][:, i] - main_mt_halo_p[i][np.newaxis]
 
-            # Get the radial distance of the particles for the hubble flow.
-            r_i = scipy.spatial.distance.cdist(
-                self.ptrack[ 'P' ][:, i], main_mt_halo_p[i][np.newaxis] )\
-                .flatten()
+            r_i = np.sqrt( p**2. ).sum( axis=1 )
+
+            v_r_i = ( v * p ).sum( axis=1 )/r_i
 
             # Add the hubble flow.
             hubble_factor = astro_tools.hubble_parameter(
@@ -406,7 +403,8 @@ class Classifier( object ):
                 h=self.ptrack_attrs['hubble'],
                 omega_matter=self.ptrack_attrs['omega_matter'],
                 omega_lambda=self.ptrack_attrs['omega_lambda'],
-                units='1/s' )
+                units='1/s'
+            )
             v_r_i += hubble_factor * r_i * constants.UNITLENGTH_IN_CM / \
                 constants.UNITVELOCITY_IN_CM_PER_S
 

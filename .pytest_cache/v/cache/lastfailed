@@ -1,6 +1,7 @@
 {
   "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineCalcData::test_calc_ind_first_in_mgal": true, 
   "tests/test_full_pipeline.py::TestFullWorldline": true, 
+  "tests/test_select.py::TestIDSelectorJug::test_select_ids_jug": true, 
   "tests/test_utils/test_trove_management.py::TestPathfinderTroveManager::test_data_files": true, 
   "tests/test_utils/test_trove_management.py::TestPathfinderTroveManager::test_get_incomplete_combinations": true, 
   "tests/test_utils/test_trove_management.py::TestPathfinderTroveManager::test_get_incomplete_data_files": true, 

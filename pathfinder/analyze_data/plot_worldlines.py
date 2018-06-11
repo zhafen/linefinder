@@ -242,7 +242,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ax = default,
         x_data = 'get_redshift',
         y_datas = 'get_categories_selected_quantity',
-        x_range = [ 0., np.log10(8.)], y_range = [0., 1.],
+        x_range = [ 0., np.log10(8.) ], y_range = [0., 1.],
         tick_redshifts = np.array( [ 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, ] ),
         time_x_axis = False,
         twin_redshift = False,
@@ -258,9 +258,13 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             'fontsize': 22,
         },
         add_legend = True,
-        legend_location = (0., -0.28),
         hubble = None,
         omega_matter = None,
+        legend_kwargs = {
+            'loc' : 'center',
+            'bbox_to_anchor' : (0.5, -0.3),
+            'ncol' : 3,
+        },
         *args, **kwargs
     ):
         '''Make a plot like the bottom panel of Fig. 3 in Angles-Alcazar+17
@@ -385,11 +389,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             ax.legend(
                 color_objects,
                 labels,
-                prop={'size': 16},
-                ncol=5,
-                bbox_to_anchor = legend_location,
-                loc='center',
-                fontsize=20,
+                prop = {'size': 16},
+                fontsize = 20,
+                **legend_kwargs
             )
 
     ########################################################################
