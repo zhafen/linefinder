@@ -1293,6 +1293,9 @@ class Worldlines( simulation_data.TimeData ):
                 self.data['t_EP'][i] = time particle i spent in another galaxy prior to first accretion.
         '''
 
+        #DEBUG
+        import pdb; pdb.set_trace()
+
         # Make sure we have a fresh slate to work with.
         self.data_masker.clear_masks()
 
@@ -1427,12 +1430,15 @@ class WorldlineDataMasker( generic_data.DataMasker ):
         '''
 
         used_masks = []
+
         if mask is default:
             if len( self.masks ) > 0 or len( self.optional_masks ) > 0:
                 total_mask = self.get_total_mask(
                     optional_masks=optional_masks
                 )
-                if len( total_mask ) > 0:
+                if type( total_mask ) == np.ndarray:
+                    used_masks.append( total_mask )
+                elif total_mask:
                     used_masks.append( total_mask )
         else:
 

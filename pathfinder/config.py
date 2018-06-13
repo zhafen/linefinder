@@ -56,6 +56,8 @@ GALAXY_DEFINITIONS = {
     '_galdefv2' : {
         'length_scale' : 'Rstar0.5',
         'galaxy_cut' : 5.0,
+        'length_scale_gap' : 'Rstar0.5',
+        'gap_cut' : 0.2,
     },
 }
 
@@ -80,8 +82,16 @@ STAMPEDE2_PARAMETERS = {
     'simulation_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE',
     'pathfinder_data_dir': '/scratch/03057/zhafen/pathfinder_data',
     'ahf_data_dir': '/scratch/03057/zhafen',
-    'project_dir' : '/home1/03057/zhafen/repos/CGM_origin',
-    'presentation_dir' : '/work/03057/zhafen/presentation_plots',
+
+    'project' : {
+        'CGM_origin' : {
+            'project_dir' : '/home1/03057/zhafen/repos/CGM_origin',
+            'presentation_dir' : '/work/03057/zhafen/presentation_plots',
+        },
+        'galaxy_origin' : {
+            'project_dir' : '/home1/03057/zhafen/repos/galaxy_origin',
+        },
+    },
 }
 
 JUG_PATH = '~/.local/bin/jug'

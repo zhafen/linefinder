@@ -17,10 +17,15 @@ import pathfinder.config as config
 
 class FileManager( object ):
 
-    def __init__( self ):
+    def __init__( self, project=None ):
+        self.project = project
 
         parameters_name = '{}_PARAMETERS'.format( config.ACTIVE_SYSTEM.upper() )
         self.system_parameters = getattr( config, parameters_name )
+
+        if project is not None:
+            self.project_parameters = \
+                self.system_parameters['project'][self.project]
 
     ########################################################################
     ########################################################################
@@ -79,7 +84,7 @@ class FileManager( object ):
     def get_project_figure_dir( self ):
 
         return os.path.join(
-            self.system_parameters['project_dir'],
+            self.project_parameters['project_dir'],
             'figures',
         )
 
@@ -87,7 +92,7 @@ class FileManager( object ):
 
     def get_project_presentation_dir( self ):
 
-        return self.system_parameters['presentation_dir']
+        return self.project_parameters['presentation_dir'],
 
     ########################################################################
     ########################################################################
