@@ -199,6 +199,7 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def n_snaps( self ):
+        '''Number of snapshots, i.e. data points on the time axis.'''
 
         if not hasattr( self, '_n_snaps' ):
             self._n_snaps = self.ptracks.base_data_shape[1]
@@ -1428,7 +1429,11 @@ class WorldlineDataMasker( generic_data.DataMasker ):
         used_masks = []
         if mask is default:
             if len( self.masks ) > 0 or len( self.optional_masks ) > 0:
-                used_masks.append( self.get_total_mask( optional_masks=optional_masks ) )
+                total_mask = self.get_total_mask(
+                    optional_masks=optional_masks
+                )
+                if len( total_mask ) > 0:
+                    used_masks.append( total_mask )
         else:
 
             # Tile mask if it's single-dimensional

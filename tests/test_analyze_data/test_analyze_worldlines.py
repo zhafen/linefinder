@@ -756,35 +756,36 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
-    def test_calc_ind_first_in_mgal( self ):
-
-        # Setup test data
-        self.worldlines.data['ind_first_acc'] = np.array([
-            -2,
-            -2,
-            1,
-            1,
-        ])
-        self.worldlines.data['is_enriched_in_mgal'] = np.array([
-            [ 0, 0, 0, ],
-            [ 0, 1, 0, ],
-            [ 1, 0, 0, ],
-            [ 1, 1, 1, ],
-        ]).astype( bool )
-
-        expected = np.array([
-            -2,
-            1,
-            1,
-            2,
-        ])
-
-        # Actual calculation
-        self.worldlines.calc_ind_first_in_mgal()
-
-        actual = self.worldlines.data['ind_first_in_mgal']
-
-        npt.assert_allclose( expected, actual )
+# This test is no longer relevant
+#     def test_calc_ind_first_in_mgal( self ):
+# 
+#         # Setup test data
+#         self.worldlines.data['ind_first_acc'] = np.array([
+#             -2,
+#             -2,
+#             1,
+#             1,
+#         ])
+#         self.worldlines.data['is_enriched_in_mgal'] = np.array([
+#             [ 0, 0, 0, ],
+#             [ 0, 1, 0, ],
+#             [ 1, 0, 0, ],
+#             [ 1, 1, 1, ],
+#         ]).astype( bool )
+# 
+#         expected = np.array([
+#             -2,
+#             1,
+#             1,
+#             2,
+#         ])
+# 
+#         # Actual calculation
+#         self.worldlines.calc_ind_first_in_mgal()
+# 
+#         actual = self.worldlines.data['ind_first_in_mgal']
+# 
+#         npt.assert_allclose( expected, actual )
 
     ########################################################################
 
