@@ -148,9 +148,6 @@ class IDSelector( object ):
 
                 time_start = time.time()
 
-                #DEBUG
-                import pdb; pdb.set_trace()
-
                 snapshot_id_selector = SnapshotIDSelector( **kwargs )
                 selected_ids_snapshot = snapshot_id_selector.select_ids_snapshot( data_filters )
 
@@ -415,9 +412,6 @@ class SnapshotIDSelector( particle_data.ParticleData ):
             ids : IDs for particles that match the filtered requirements.
             child_ids (optional) : Child IDs for the particles that match the filtered requirements.
         '''
-
-        #DEBUG
-        import pdb; pdb.set_trace()
 
         ids = self.data_masker.get_masked_data( 'ID' )
 
