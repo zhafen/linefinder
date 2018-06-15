@@ -55,7 +55,8 @@ class Classifier( object ):
         events_to_save = [
             'is_in_other_gal', 'is_in_main_gal', 'is_accreted',
             'is_ejected', 'redshift_first_acc', 'ind_first_acc',
-            'cumulative_time_in_other_gal', 'gal_event_id', ],
+            'cumulative_time_in_other_gal', 'gal_event_id',
+            'time_in_other_gal_before_acc_during_interval' ],
         velocity_scale = config.VELOCITY_SCALE,
         wind_cut = config.WIND_CUT,
         absolute_wind_cut = config.ABSOLUTE_WIND_CUT,

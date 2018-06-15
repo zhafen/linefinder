@@ -56,6 +56,10 @@ GALAXY_DEFINITIONS = {
     '_galdefv2' : {
         'length_scale' : 'Rstar0.5',
         'galaxy_cut' : 5.0,
+
+        't_pro' : 0.1,
+        't_m' : 0.5,
+
         'length_scale_gap' : 'Rstar0.5',
         'gap_cut' : 0.2,
     },

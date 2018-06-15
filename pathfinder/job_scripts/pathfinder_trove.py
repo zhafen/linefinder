@@ -128,9 +128,9 @@ pathfinder.run_pathfinder(
     tracker_kwargs = tracker_kwargs,
     gal_finder_kwargs = gal_finder_kwargs,
     classifier_kwargs = classifier_kwargs,
-    run_id_selecting = False,
-    run_id_sampling = False,
-    run_tracking = False,
-    run_galaxy_finding = False,
+    # run_id_selecting = False,
+    # run_id_sampling = False,
+    # run_tracking = False,
+    # run_galaxy_finding = False,
     # run_classifying = False,
 )

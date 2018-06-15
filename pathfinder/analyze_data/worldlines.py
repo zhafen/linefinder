@@ -1293,9 +1293,6 @@ class Worldlines( simulation_data.TimeData ):
                 self.data['t_EP'][i] = time particle i spent in another galaxy prior to first accretion.
         '''
 
-        #DEBUG
-        import pdb; pdb.set_trace()
-
         # Make sure we have a fresh slate to work with.
         self.data_masker.clear_masks()
 
@@ -1310,7 +1307,7 @@ class Worldlines( simulation_data.TimeData ):
 
         # Save the data, with fully masked data filled in with 0's (because that's how long it's spent)
         t_EP.fill_value = 0.
-        self.data['t_EP'] = t_EP.filled()
+        self.data['t_EP'] = t_EP.filled() * 1e3 # It's typically easier to look at this in Gyr
 
         # Clear the masks again so we don't affect future things.
         self.data_masker.clear_masks()

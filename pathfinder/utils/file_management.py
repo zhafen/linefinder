@@ -92,7 +92,7 @@ class FileManager( object ):
 
     def get_project_presentation_dir( self ):
 
-        return self.project_parameters['presentation_dir'],
+        return self.project_parameters['presentation_dir']
 
     ########################################################################
     ########################################################################
