@@ -14,8 +14,8 @@ import os
 import sys
 import time
 
+import galaxy_diver.analyze_data.halo_data as halo_data
 import galaxy_diver.galaxy_finder.finder as galaxy_finder
-import galaxy_diver.read_data.ahf as read_ahf
 import galaxy_diver.utils.mp_utils as mp_utils
 import galaxy_diver.utils.utilities as utilities
 
@@ -40,7 +40,7 @@ class ParticleTrackGalaxyFinder( object ):
         main_mt_halo_id,
         mtree_halos_index = None,
         halo_file_tag = 'smooth',
-        ahf_data_dir = default,
+        halo_data_dir = default,
         ptracks_tag = default,
         galaxy_cut = config.GALAXY_CUT,
         length_scale = config.LENGTH_SCALE,
@@ -65,16 +65,16 @@ class ParticleTrackGalaxyFinder( object ):
                 the most massive halo at z=0 *may not* be the main halo.
 
             mtree_halos_index (str or int) :
-                The index argument to pass to AHFReader.get_mtree_halos().
+                The index argument to pass to HaloData.get_mtree_halos().
                 For most cases this should be the final snapshot number, but see
-                AHFReader.get_mtree_halos's documentation.
+                HaloData.get_mtree_halos's documentation.
 
             halo_file_tag (str) :
                 What halo files to load (e.g. defaults to loading
                 `halo_00000_smooth.dat`, etc.)?
 
-            ahf_data_dir (str, optional) :
-                Directory the AHF data is in. Defaults to the directory the
+            halo_data_dir (str, optional) :
+                Directory the halo data is in. Defaults to the directory the
                 simulation data is stored in, as found in the ptracks file.
 
             ptracks_tag (str, optional) :
@@ -120,7 +120,7 @@ class ParticleTrackGalaxyFinder( object ):
         print "Starting Adding Galaxy and Halo IDs!"
         print "#" * 80
         print "Using halo data from this directory:\n    {}".format(
-            self.ahf_data_dir )
+            self.halo_data_dir )
         print "Data will be saved here:\n    {}".format( self.out_dir )
         sys.stdout.flush()
 
@@ -163,7 +163,7 @@ class ParticleTrackGalaxyFinder( object ):
 
         Modifies:
             self.ptrack (h5py file) : Loaded tracked particle data.
-            self.ahf_reader (AHFReader instance): For the ahf data.
+            self.halo_data (HaloData instance): For the halo data.
         '''
 
         # Get the tag for particle tracking.
@@ -175,11 +175,11 @@ class ParticleTrackGalaxyFinder( object ):
         self.ptrack_filepath = os.path.join( self.out_dir, ptrack_filename )
         self.ptrack = h5py.File( self.ptrack_filepath, 'r' )
 
-        if self.ahf_data_dir is default:
-            self.ahf_data_dir = self.ptrack['parameters'].attrs['sdir']
+        if self.halo_data_dir is default:
+            self.halo_data_dir = self.ptrack['parameters'].attrs['sdir']
 
-        # Load the ahf data
-        self.ahf_reader = read_ahf.AHFReader( self.ahf_data_dir )
+        # Load the halo data
+        self.halo_data = halo_data.HaloData( self.halo_data_dir )
 
     ########################################################################
 
@@ -199,7 +199,7 @@ class ParticleTrackGalaxyFinder( object ):
 
             # Get the data parameters to pass to GalaxyFinder
             kwargs = {
-                'ahf_reader': self.ahf_reader,
+                'halo_data': self.halo_data,
                 'galaxy_cut': self.galaxy_cut,
                 'length_scale': self.length_scale,
                 'ids_to_return': self.ids_to_return,
@@ -209,7 +209,7 @@ class ParticleTrackGalaxyFinder( object ):
                 'redshift': self.ptrack['redshift'][...][ i ],
                 'snum': self.ptrack['snum'][...][ i ],
                 'hubble': self.ptrack.attrs['hubble'],
-                'ahf_data_dir': self.ahf_data_dir,
+                'halo_data_dir': self.halo_data_dir,
                 'mtree_halos_index': self.mtree_halos_index,
                 'main_mt_halo_id': self.main_mt_halo_id,
                 'halo_file_tag': self.halo_file_tag,
@@ -300,7 +300,7 @@ class ParticleTrackGalaxyFinder( object ):
 
             # Get the data parameters to pass to GalaxyFinder
             kwargs = {
-                'ahf_reader': None,
+                'halo_data': None,
                 'galaxy_cut': self.galaxy_cut,
                 'length_scale': self.length_scale,
                 'ids_to_return': self.ids_to_return,
@@ -310,7 +310,7 @@ class ParticleTrackGalaxyFinder( object ):
                 'redshift': self.ptrack['redshift'][...][ i ],
                 'snum': self.ptrack['snum'][...][ i ],
                 'hubble': self.ptrack.attrs['hubble'],
-                'ahf_data_dir': self.ahf_data_dir,
+                'halo_data_dir': self.halo_data_dir,
                 'mtree_halos_index': self.mtree_halos_index,
                 'main_mt_halo_id': self.main_mt_halo_id,
                 'halo_file_tag': self.halo_file_tag,
@@ -361,7 +361,7 @@ class ParticleTrackGalaxyFinder( object ):
 
             # Get the data parameters to pass to GalaxyFinder
             kwargs = {
-                'ahf_reader': None,
+                'halo_data': None,
                 'galaxy_cut': self.galaxy_cut,
                 'length_scale': self.length_scale,
                 'ids_to_return': self.ids_to_return,
@@ -371,7 +371,7 @@ class ParticleTrackGalaxyFinder( object ):
                 'redshift': self.ptrack['redshift'][...][ i ],
                 'snum': self.ptrack['snum'][...][ i ],
                 'hubble': self.ptrack.attrs['hubble'],
-                'ahf_data_dir': self.ahf_data_dir,
+                'halo_data_dir': self.halo_data_dir,
                 'mtree_halos_index': self.mtree_halos_index,
                 'main_mt_halo_id': self.main_mt_halo_id,
                 'halo_file_tag': self.halo_file_tag,
@@ -464,12 +464,12 @@ class ParticleTrackGalaxyFinder( object ):
         # (as identified by the larges value at the lowest redshift)
         if self.main_mt_halo_id is None:
             try:
-                indice = self.ahf_reader.mtree_halos[0].index.max()
+                indice = self.halo_data.mtree_halos[0].index.max()
             except AttributeError:
-                self.ahf_reader.get_mtree_halos(
+                self.halo_data.get_mtree_halos(
                     self.mtree_halos_index, self.halo_file_tag )
-                indice = self.ahf_reader.mtree_halos[0].index.max()
-            m_vir_z0 = self.ahf_reader.get_mtree_halo_quantity(
+                indice = self.halo_data.mtree_halos[0].index.max()
+            m_vir_z0 = self.halo_data.get_mtree_halo_quantity(
                 quantity='Mvir', indice=indice,
                 index=self.mtree_halos_index, tag=self.halo_file_tag )
             f.attrs['main_mt_halo_id'] = m_vir_z0.argmax()
@@ -481,6 +481,6 @@ class ParticleTrackGalaxyFinder( object ):
         # Save the current code version
         f.attrs['pathfinder_version'] = utilities.get_code_version( self )
         f.attrs['galaxy_diver_version'] = utilities.get_code_version(
-            read_ahf, instance_type='module' )
+            galaxy_finder, instance_type='module' )
 
         f.close()

@@ -388,7 +388,27 @@ class Worldlines( simulation_data.TimeData ):
         return self.mass_totals * self.conversion_factor
 
     ########################################################################
-    # Display Information
+    # Top Level Functions
+    ########################################################################
+
+    def clear_data( self ):
+        '''Clear all loaded data.'''
+
+        data_types = [
+            'ids',
+            'ptracks',
+            'galids',
+            'classifications',
+            'events'
+        ]
+    
+        for data_type in data_types:
+
+            data_attr = '_{}'.format( data_type )
+
+            if hasattr( self, data_attr ):
+                delattr( self, data_attr )
+
     ########################################################################
 
     def get_parameters( self ):
@@ -431,7 +451,7 @@ class Worldlines( simulation_data.TimeData ):
             return data
 
         # A lot of the data can be calculated from the particle tracks data, so we can also try to access it from there.
-        except KeyError:
+        except KeyError, AttributeError:
             data = self.ptracks.get_data( data_key, *args, **kwargs )
             return data
 
@@ -649,7 +669,16 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def get_selected_quantity( self, selection_routine='galaxy', ptype='star', quantity='mass', selected_quantity_data_key='M', *args, **kwargs ):
+    def get_selected_quantity(
+            self,
+            selection_routine='galaxy',
+            ptype='star',
+            quantity='mass',
+            low_memory_mode=False,
+            selected_quantity_data_key='M',
+            *args,
+            **kwargs
+        ):
         '''Apply a selection routine, and then get out the total mass (or
         some other quantity) of particles that fulfill that criteria.
 
@@ -664,6 +693,10 @@ class Worldlines( simulation_data.TimeData ):
 
             quantity (str):
                 What quantity of the galaxy to retrieve.
+
+            low_memory_mode (bool):
+                If True, unload the data after getting the quantity
+                (saves memory at the cost of convenience).
 
             *args, **kwargs :
                 Additional arguments to be passed to self.get_masked_data()
@@ -714,6 +747,9 @@ class Worldlines( simulation_data.TimeData ):
                 .format( selected_quantity )
             )
 
+        if low_memory_mode:
+            self.clear_data()
+
         return selected_quantity
 
     ########################################################################
@@ -729,6 +765,7 @@ class Worldlines( simulation_data.TimeData ):
             'scale_a_power': 1.,
             'scale_h_power': -1.,
         },
+        low_memory_mode=False,
         *args, **kwargs
     ):
         '''Apply a selection routine, and then get out the total mass (or
@@ -756,6 +793,10 @@ class Worldlines( simulation_data.TimeData ):
                 dictionary to do so. These are arguments that would be passed
                 to self.data_masker.mask_data and in turn
                 self.data_masker.get_processed_data.
+
+            low_memory_mode (bool):
+                If True, unload the data after getting the quantity
+                (saves memory at the cost of convenience).
 
             *args, **kwargs :
                 Additional arguments to be passed to self.get_masked_data()
@@ -817,6 +858,9 @@ class Worldlines( simulation_data.TimeData ):
                     pass
 
             selected_quantity_radial_bins.append( selected_quantity )
+
+        if low_memory_mode:
+            self.clear_data()
 
         return np.array( selected_quantity_radial_bins )
 
@@ -920,7 +964,7 @@ class Worldlines( simulation_data.TimeData ):
             super( Worldlines, self ).handle_data_key_error( data_key )
 
         # We do this second because it involves loading alot of data...
-        except:
+        except KeyError:
             if data_key in self.classifications.data.keys():
                 self.data[data_key] = self.classifications.data[data_key]
                 return True
@@ -1089,17 +1133,25 @@ class Worldlines( simulation_data.TimeData ):
     def calc_is_in_CGM( self ):
         '''Calculate material that is in the CGM.'''
 
-        r = self.get_processed_data(
+        r_rvir = self.get_processed_data(
             'R',
             scale_key = 'Rvir',
             scale_a_power = 1.,
             scale_h_power = -1.,
         )
+        is_in_CGM_rvir = ( r_rvir <= config.OUTER_CGM_BOUNDARY ) \
+            & ( r_rvir >= config.INNER_CGM_BOUNDARY )
 
-        is_in_CGM = ( r <= config.OUTER_CGM_BOUNDARY ) \
-            & (r >= config.INNER_CGM_BOUNDARY )
+        r_gal_length_scale = self.get_processed_data(
+            'R',
+            scale_key = self.galids.parameters['length_scale'],
+            scale_a_power = 1.,
+            scale_h_power = -1.,
+        )
+        is_in_CGM_length_scale = r_gal_length_scale > (1. + config.F_GAP ) * \
+            self.galids.parameters['galaxy_cut']
 
-        is_in_CGM = is_in_CGM & np.invert( self.get_data( 'is_in_main_gal' ) )
+        is_in_CGM = is_in_CGM_rvir & is_in_CGM_length_scale
 
         self.data['is_in_CGM'] = is_in_CGM
 

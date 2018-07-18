@@ -223,10 +223,10 @@ class WorldlineSet( utilities.SmartDict ):
                 snum = int( snum_str )
 
             elif choose_snum_by == 'pulling_from_ids':
-                snum = item.ids.parameters['snum_end']
+                snum = item.data_object.ids.parameters['snum_end']
 
                 # Make sure we have IDs for which is is valid
-                assert snum == item.ids.parameters['snum_start'], \
+                assert snum == item.data_object.ids.parameters['snum_start'], \
                     "Automated snum selection method not valid for given data."
 
             ind = max_snum - snum

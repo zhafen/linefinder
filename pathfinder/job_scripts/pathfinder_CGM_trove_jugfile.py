@@ -10,11 +10,11 @@ import pathfinder.utils.trove_management as trove_management
 sim_names = [
     # 'm10q',
     # 'm10v',
-    'm10y',
+    # 'm10y',
     # 'm10z',
     # 'm11q',
     # 'm11v',
-    'm11a',
+    # 'm11a',
     # 'm11b',
     # 'm11c',
     # 'm12i',
@@ -22,40 +22,44 @@ sim_names = [
     # 'm12m',
     # 'm10q_md',
     # 'm11q_md',
+    'm11d_md',
+    'm11e_md',
+    'm11h_md',
+    'm11i_md',
     # 'm12i_md',
     # 'm12b_md',
     # 'm12c_md',
     # 'm12z_md',
     # 'm12r_md',
-    'm12w_md',
+    # 'm12w_md',
 ]
 snums = [
-    600,
-    578,
-    556,
-    534,
-    513,
-    492,
-    486,
-    471,
+    # 600,
+    # 578,
+    # 556,
+    # 534,
+    # 513,
+    # 492,
+    # 486,
+    # 471,
     465, # z = 0.25
-    451,
-    431,
-    412,
-    392,
-    382, # z = 0.5
-    373,
-    354,
-    335,
-    316,
-    297,
-    277, # z = 1
-    242,
-    214,
+    # 451,
+    # 431,
+    # 412,
+    # 392,
+    # 382, # z = 0.5
+    # 373,
+    # 354,
+    # 335,
+    # 316,
+    # 297,
+    # 277, # z = 1
+    # 242,
+    # 214,
     172, # z = 2
-    156,
-    142,
-    120, # z = 3
+    # 156,
+    # 142,
+    # 120, # z = 3
     # 88,
     # 67,
     # 52,
@@ -73,7 +77,7 @@ galdefs = [
 # Get the file format
 ptracks_tag_format = '{}_CGM_snum{}'
 tag_format = '{}{}'.format( ptracks_tag_format, '{}' )
-file_format =  'galids_{}.hdf5'.format( tag_format )
+file_format =  'ptracks_{}.hdf5'.format( ptracks_tag_format )
 
 # Start up a trove manager and use it to get next args
 trove_manager = trove_management.PathfinderTroveManager(
@@ -153,9 +157,9 @@ pathfinder.run_pathfinder_jug(
     tracker_kwargs = tracker_kwargs,
     gal_finder_kwargs = gal_finder_kwargs,
     classifier_kwargs = classifier_kwargs,
-    run_id_selecting = False,
-    run_id_sampling = False,
-    run_tracking = False,
+    # run_id_selecting = False,
+    # run_id_sampling = False,
+    # run_tracking = False,
     # run_galaxy_finding = False,
     # run_classifying = False,
 )

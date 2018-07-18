@@ -22,9 +22,11 @@ import utils.presentation_constants as p_constants
 LENGTH_SCALE = 'Rstar0.5'
 GALAXY_CUT = 5.0
 
-# The CGM is defined as INNER_CGM_BOUNDARY*Rvir to OUTER_CGM_BOUNDARY*Rvir
+# The CGM is defined as max( (1. + F_GAP)*Rgal, INNER_CGM_BOUNDARY*Rvir )
+#  to OUTER_CGM_BOUNDARY*Rvir.
 INNER_CGM_BOUNDARY = 0.1
 OUTER_CGM_BOUNDARY = 1.0
+F_GAP = 0.2
 
 # Sometimes we may also require the following density cut for material to be
 # part of a galaxy (n_b in cm^-3)
@@ -59,9 +61,6 @@ GALAXY_DEFINITIONS = {
 
         't_pro' : 0.1,
         't_m' : 0.5,
-
-        'length_scale_gap' : 'Rstar0.5',
-        'gap_cut' : 0.2,
     },
 }
 
@@ -91,6 +90,7 @@ STAMPEDE2_PARAMETERS = {
         'CGM_origin' : {
             'project_dir' : '/home1/03057/zhafen/repos/CGM_origin',
             'presentation_dir' : '/work/03057/zhafen/presentation_plots',
+            'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_origin',
         },
         'galaxy_origin' : {
             'project_dir' : '/home1/03057/zhafen/repos/galaxy_origin',
@@ -115,6 +115,10 @@ FULL_SIM_NAME = {
     'm11q': 'm11q_res7100',
     'm11v': 'm11v_res7100',
     'm11c': 'm11c_res2100',
+    'm11d': 'm11d_res7100',
+    'm11e': 'm11e_res7100',
+    'm11h': 'm11h_res7100',
+    'm11i': 'm11i_res7100',
     'm12b': 'm12b_res7100',
     'm12c': 'm12c_res7100',
     'm12f': 'm12f_res7100',
@@ -137,6 +141,10 @@ MAIN_MT_HALO_ID = {
     'm12i': 0,
     'm12f': 0,
     'm12m': 0,
+    'm11d_md': 0,
+    'm11e_md': 0,
+    'm11h_md': 0,
+    'm11i_md': 0,
     'm10q_md': 0,
     'm11q_md': 0,
     'm12b_md': 0,
@@ -145,6 +153,33 @@ MAIN_MT_HALO_ID = {
     'm12r_md': 0,
     'm12w_md': 0,
     'm12z_md': 0,
+}
+
+MASS_BINS = {
+    'm10q': 'm10',
+    'm10v': 'm10',
+    'm10y': 'm10',
+    'm10z': 'm10',
+    'm11a': 'm10',
+    'm11b': 'm10',
+    'm11i': 'm10',
+    'm11q': 'm11',
+    'm11v': 'm11',
+    'm11d': 'm11',
+    'm11e': 'm11',
+    'm11h': 'm11',
+    'm11c': 'm11',
+    'm12i': 'm12',
+    'm12f': 'm12',
+    'm12m': 'm12',
+    'm10q_md': 'm10',
+    'm11q_md': 'm11',
+    'm12b_md': 'm12',
+    'm12c_md': 'm12',
+    'm12i_md': 'm12',
+    'm12r_md': 'm12',
+    'm12w_md': 'm12',
+    'm12z_md': 'm12',
 }
 
 FULL_PHYSICS_NAME = {

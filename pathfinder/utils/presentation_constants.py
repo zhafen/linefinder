@@ -35,10 +35,11 @@ CLASSIFICATION_LABELS = {
     'is_unaccreted_NEP': 'Unaccreted-NEP',
     'is_hitherto_EP_NYA': 'EP CGM',
     'is_hitherto_NEP_NYA': 'NEP CGM',
+    'is_in_CGM' : 'All CGM',
     'is_CGM_NEP': 'IGM Accretion',
     'is_CGM_EP': 'Satellite Wind',
     'is_CGM_IP': 'Wind',
-    'is_CGM_satellite': 'Satellite',
+    'is_CGM_satellite': 'Satellite ISM',
     'is_outside_any_gal_EP': 'Satellite Wind',
     'is_outside_any_gal_IP': 'Wind',
 }
@@ -73,7 +74,9 @@ CLASSIFICATION_COLORS_A = {
 # This set is revised again to have greater variation in brightness
 # Revised to have greater variation in brightness
 CLASSIFICATION_COLORS_B = {
+    'all' : 'black',
     None: 'black',
+    'is_in_CGM': 'black',
     'is_CGM_NEP': colors.hsv_to_rgb( np.array([ 200./360., 0.72,  0.7 ]) ),
     'is_CGM_IP': colors.hsv_to_rgb( np.array([ 140./360., 0.72, 0.8 ]) ),
     'is_outside_any_gal_IP': colors.hsv_to_rgb( np.array([ 140./360., 0.72, 0.8 ]) ),

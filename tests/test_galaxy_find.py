@@ -29,7 +29,7 @@ gal_finder_kwargs = {
     'redshift': 0.16946003,
     'snum': 500,
     'hubble': 0.70199999999999996,
-    'ahf_data_dir': './tests/data/ahf_test_data',
+    'halo_data_dir': './tests/data/ahf_test_data',
     'mtree_halos_index': 600,
     'main_mt_halo_id': 0,
     'halo_file_tag': 'smooth',
@@ -52,7 +52,7 @@ ptrack_gal_finder_kwargs = {
 
     'galaxy_cut': 0.1,
 
-    'ahf_data_dir': './tests/data/ahf_test_data',
+    'halo_data_dir': './tests/data/ahf_test_data',
     'out_dir': './tests/data/tracking_output',
     'tag': 'test',
     'mtree_halos_index': 600,
