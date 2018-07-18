@@ -5,7 +5,7 @@ import pathfinder.pathfinder as pathfinder
 
 # Information about the input data
 sdir = './tests/data/test_data_with_new_id_scheme'
-ahf_sdir = './tests/data/ahf_test_data'
+halo_data_dir = './tests/data/ahf_test_data'
 types = [ 0, 4, ]
 snap_ini = 500
 snap_end = 600
@@ -29,7 +29,7 @@ selector_kwargs = {
         'sdir': sdir,
         'load_additional_ids': True,
         'ahf_index': mtree_halos_index,
-        'analysis_dir': ahf_sdir,
+        'analysis_dir': halo_data_dir,
     }
 }
 
@@ -43,7 +43,7 @@ tracker_kwargs = {
 
 # Galaxy Finding Parameters
 gal_finder_kwargs = {
-    'ahf_data_dir': ahf_sdir,
+    'halo_data_dir': halo_data_dir,
     'main_mt_halo_id': 0,
 
     'length_scale': 'Rvir',

@@ -23,7 +23,7 @@ from pathfinder import classify
 ########################################################################
 
 default_kwargs = {
-    'ahf_data_dir': './tests/data/ahf_test_data',
+    'halo_data_dir': './tests/data/ahf_test_data',
     'out_dir': './tests/data/tracking_output',
     'tag': 'test_classify',
     'neg': 1,
@@ -206,7 +206,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
 
     def test_identify_is_in_other_gal( self ):
 
-        self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['ahf_data_dir'] )
+        self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['halo_data_dir'] )
         self.classifier.ahf_reader.get_mtree_halos( 'snum' )
 
         expected = np.array([
@@ -230,7 +230,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
         self.classifier.min_gal_density = 0.1
 
         # Setup Test Data
-        self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['ahf_data_dir'] )
+        self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['halo_data_dir'] )
         self.classifier.ahf_reader.get_mtree_halos( 'snum' )
         self.classifier.ptrack['Den'] = np.array([
             [ 0, 0.01, 10., 0, 0, ], # Merger, except in early snapshots
@@ -265,7 +265,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
         self.classifier.min_gal_density = 0.1
 
         # Setup Test Data
-        self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['ahf_data_dir'] )
+        self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['halo_data_dir'] )
         self.classifier.ahf_reader.get_mtree_halos( 'snum' )
         self.classifier.ptrack['Den'] = np.array([
             [ 0, 0.01, 10., 0, 0, ], # Merger, except in early snapshots
@@ -398,7 +398,7 @@ class TestIdentifyAccrectionEjectionAndMergers( unittest.TestCase ):
     def test_identify_ejection( self ):
 
         # Prerequisites
-        self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['ahf_data_dir'] )
+        self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['halo_data_dir'] )
         self.classifier.ahf_reader.get_mtree_halos( 'snum' )
 
         expected = np.array([
@@ -944,7 +944,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
         self.classifier.ptrack_filename = 'test_ptrack_filename'
         self.classifier.galfind_filename = 'test_galfind_filename'
 
-        self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['ahf_data_dir'] )
+        self.classifier.ahf_reader = read_ahf.AHFReader( default_kwargs['halo_data_dir'] )
 
         # Add some properties that we're not testing in this test.
         self.classifier._main_mt_halo_first_snap = 10
@@ -1061,7 +1061,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
             [ 153., 153., 153., 102., 51., ],
             [ 153., 153, 102., 51., 0, ],
         ])
-        self.time_in_other_gal_before_acc_during_interval = np.array(
+        self.classifier.time_in_other_gal_before_acc_during_interval = np.array(
             [ 1., 2., 3., ]
         )
         self.classifier.redshift_first_acc = np.array([ 0., np.nan, 0.06984665, 0.16946003 ])
@@ -1348,7 +1348,7 @@ class TestVelocityScale( unittest.TestCase ):
             self.classifier.velocity_scale = 'Vc(3.0Rstar0.5)'
 
             # Load necessary data structures
-            self.classifier.ahf_reader = read_ahf.AHFReader( self.classifier.ahf_data_dir )
+            self.classifier.ahf_reader = read_ahf.AHFReader( self.classifier.halo_data_dir )
 
             actual = self.classifier.get_velocity_scale()
             expected = np.array([ 5., 4., 3., ])
@@ -1390,7 +1390,7 @@ class TestVelocityScale( unittest.TestCase ):
             self.classifier.velocity_scale = 'Vc(Rgal)'
 
             # Load necessary data structures
-            self.classifier.ahf_reader = read_ahf.AHFReader( self.classifier.ahf_data_dir )
+            self.classifier.ahf_reader = read_ahf.AHFReader( self.classifier.halo_data_dir )
 
             actual = self.classifier.get_velocity_scale()
             expected = np.array([ 5., 4., 3., ])

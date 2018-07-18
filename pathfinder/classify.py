@@ -41,7 +41,7 @@ class Classifier( object ):
         tag,
         ptracks_tag = default,
         galids_tag = default,
-        ahf_data_dir = default,
+        halo_data_dir = default,
         mtree_halos_index = default,
         halo_file_tag = default,
         not_in_main_gal_key = 'gal_id',
@@ -82,7 +82,7 @@ class Classifier( object ):
             galids_tag (str, optional) :
                 Identifying tag for the galaxy_finder data. Defaults to 'tag'.
 
-            ahf_data_dir (str, optional) :
+            halo_data_dir (str, optional) :
                 Data directory for AHF data.
                 Default value is whatever is stored in the galids file.
 
@@ -168,7 +168,7 @@ class Classifier( object ):
         print "Using tracked particle data from this directory:\n    {}".format(
             self.out_dir )
         print "Using halo data from this directory:\n    {}".format(
-            self.ahf_data_dir )
+            self.halo_data_dir )
         print "Data will be saved here:\n    {}".format(
             self.out_dir )
         sys.stdout.flush()
@@ -260,8 +260,8 @@ class Classifier( object ):
                 self.ptrack_attrs[ key ] = f.attrs[ key ]
 
             if store_parameters:
-                if self.ahf_data_dir is default:
-                    self.ahf_data_dir = f['parameters'].attrs['ahf_data_dir']
+                if self.halo_data_dir is default:
+                    self.halo_data_dir = f['parameters'].attrs['halo_data_dir']
                 if self.mtree_halos_index is default:
                     self.mtree_halos_index = \
                         f['parameters'].attrs['mtree_halos_index']
@@ -292,7 +292,7 @@ class Classifier( object ):
         self.n_particle = self.ptrack['ID'].size
 
         # Get the AHF data files.
-        self.ahf_reader = read_ahf.AHFReader( self.ahf_data_dir )
+        self.ahf_reader = read_ahf.AHFReader( self.halo_data_dir )
         self.ahf_reader.get_mtree_halos( self.mtree_halos_index,
                                          self.halo_file_tag )
 
