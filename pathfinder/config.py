@@ -73,18 +73,18 @@ ACTIVE_SYSTEM = 'Stampede2'
 QUEST_PARAMETERS = {
     'simulation_data_dir': '/projects/b1026/zhafen',
     'pathfinder_data_dir': '/projects/b1026/zhafen/pathfinder_data',
-    'ahf_data_dir': '/projects/b1026/zhafen',
+    'halo_data_dir': '/projects/b1026/zhafen',
 }
 
 STAMPEDE_PARAMETERS = {
     'pathfinder_data_dir': '/work/03057/zhafen/pathfinder_data',
-    'ahf_data_dir': '/scratch/03057/zhafen',
+    'halo_data_dir': '/scratch/03057/zhafen',
 }
 
 STAMPEDE2_PARAMETERS = {
     'simulation_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE',
     'pathfinder_data_dir': '/scratch/03057/zhafen/pathfinder_data',
-    'ahf_data_dir': '/scratch/03057/zhafen',
+    'halo_data_dir': '/scratch/03057/zhafen',
 
     'project' : {
         'CGM_origin' : {
@@ -162,17 +162,17 @@ MASS_BINS = {
     'm10z': 'm10',
     'm11a': 'm10',
     'm11b': 'm10',
-    'm11i': 'm10',
     'm11q': 'm11',
     'm11v': 'm11',
-    'm11d': 'm11',
-    'm11e': 'm11',
-    'm11h': 'm11',
     'm11c': 'm11',
     'm12i': 'm12',
     'm12f': 'm12',
     'm12m': 'm12',
     'm10q_md': 'm10',
+    'm11i_md': 'm10',
+    'm11d_md': 'm11',
+    'm11e_md': 'm11',
+    'm11h_md': 'm11',
     'm11q_md': 'm11',
     'm12b_md': 'm12',
     'm12c_md': 'm12',

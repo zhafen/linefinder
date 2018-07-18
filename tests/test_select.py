@@ -32,7 +32,7 @@ default_kwargs = {
         'sdir': './tests/data/stars_included_test_data',
         'load_additional_ids': True,
         'ahf_index': 600,
-        'ahf_data_dir': './tests/data/ahf_test_data',
+        'halo_data_dir': './tests/data/ahf_test_data',
     },
 }
 
@@ -43,7 +43,7 @@ default_snap_kwargs = {
     'ptype': 0,
     'load_additional_ids': False,
     'ahf_index': 600,
-    'ahf_data_dir': './tests/data/ahf_test_data',
+    'halo_data_dir': './tests/data/ahf_test_data',
 }
 
 newids_snap_kwargs = copy.deepcopy( default_snap_kwargs )
@@ -707,10 +707,10 @@ class TestIDSampler( unittest.TestCase ):
         actual = self.id_sampler.identify_duplicate_ids()
 
         expected_kwargs = dict( default_snap_kwargs )
-        del expected_kwargs['ahf_data_dir']
+        del expected_kwargs['halo_data_dir']
         expected_kwargs['load_additional_ids'] = True
         expected_kwargs['snum'] = 600
-        expected_kwargs['analysis_dir'] = default_snap_kwargs['ahf_data_dir']
+        expected_kwargs['analysis_dir'] = default_snap_kwargs['halo_data_dir']
 
         expected_kwargs0 = dict( expected_kwargs )
         expected_kwargs0['ptype'] = 0

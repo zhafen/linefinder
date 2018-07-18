@@ -64,7 +64,7 @@ class FileManager( object ):
     def get_halo_dir( self, sim_name ):
 
         return os.path.join(
-            self.system_parameters['ahf_data_dir'],
+            self.system_parameters['halo_data_dir'],
             self.get_sim_subdir( sim_name ),
             'halo',
         )
@@ -125,7 +125,7 @@ class FileManager( object ):
             'data_dir': self.get_pathfinder_dir( sim_name ),
             'tag': tag,
 
-            'ahf_data_dir': self.get_halo_dir( sim_name ),
+            'halo_data_dir': self.get_halo_dir( sim_name ),
             'ahf_index': ahf_index,
             'main_halo_id': config.MAIN_MT_HALO_ID[sim_name],
         }

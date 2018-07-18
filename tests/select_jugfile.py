@@ -13,7 +13,7 @@ kwargs = {
         'sdir': './tests/data/stars_included_test_data',
         'load_additional_ids': True,
         'ahf_index': 600,
-        'ahf_data_dir': './tests/data/ahf_test_data',
+        'halo_data_dir': './tests/data/ahf_test_data',
     },
 }
 

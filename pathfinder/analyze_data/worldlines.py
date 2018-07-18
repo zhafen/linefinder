@@ -175,7 +175,7 @@ class Worldlines( simulation_data.TimeData ):
 
         if not hasattr( self, '_halo_data' ):
             self._halo_data = analyze_ahf_data.HaloData(
-                data_dir = self.ahf_data_dir,
+                data_dir = self.halo_data_dir,
                 tag = self.galids.parameters['halo_file_tag'],
             )
 
@@ -1359,7 +1359,7 @@ class Worldlines( simulation_data.TimeData ):
 
         # Save the data, with fully masked data filled in with 0's (because that's how long it's spent)
         t_EP.fill_value = 0.
-        self.data['t_EP'] = t_EP.filled() * 1e3 # It's typically easier to look at this in Gyr
+        self.data['t_EP'] = t_EP.filled() * 1e3 # It's typically easier to look at this in Myr
 
         # Clear the masks again so we don't affect future things.
         self.data_masker.clear_masks()

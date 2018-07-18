@@ -424,22 +424,20 @@ class TestWorldlineCalcData( unittest.TestCase ):
                 [ 0.05, 0.15, 1.1 ],
                 [ 0.5, 0.05, 0.5 ],
                 [ 0.5, 0.05, 0.5 ],
+            ]),
+            np.array([ 
+                [ 2, 10, 10 ],
+                [ 10, 3, 10 ],
+                [ 5, 5, 10 ],
+                [ 2, 10, 10 ],
             ])
         ]
 
-        # Setup test Data
-        self.worldlines.data['is_in_main_gal'] = np.array([
-            [ 1, 1, 0, ],
-            [ 1, 0, 0, ],
-            [ 0, 1, 1, ],
-            [ 0, 0, 0, ],
-        ])
-
         expected = np.array([
-            [ 0, 0, 0, ],
             [ 0, 1, 0, ],
-            [ 1, 0, 0, ],
-            [ 1, 0, 1, ],
+            [ 0, 0, 0, ],
+            [ 0, 0, 1, ],
+            [ 0, 0, 1, ],
         ]).astype( bool )
 
         self.worldlines.calc_is_in_CGM()
@@ -830,8 +828,8 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
         actual = self.worldlines.data['t_EP']
         expected = np.array([
-            3.,
-            7.,
+            3000.,
+            7000.,
             0.,
         ])
 
