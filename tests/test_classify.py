@@ -1061,6 +1061,9 @@ class TestFullClassifierPipeline( unittest.TestCase ):
             [ 153., 153., 153., 102., 51., ],
             [ 153., 153, 102., 51., 0, ],
         ])
+        self.time_in_other_gal_before_acc_during_interval = np.array(
+            [ 1., 2., 3., ]
+        )
         self.classifier.redshift_first_acc = np.array([ 0., np.nan, 0.06984665, 0.16946003 ])
         self.classifier._ind_first_acc = np.array([ 0, -99999, 1, -99999 ])
 

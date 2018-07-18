@@ -10,7 +10,7 @@ parallel_kwargs = {
 
     'galaxy_cut': 0.1,
 
-    'halo_data': './tests/data/ahf_test_data',
+    'halo_data_dir': './tests/data/ahf_test_data',
     'out_dir': './tests/data/tracking_output',
     'ptracks_tag': 'test',
     'tag': 'test_jug',
