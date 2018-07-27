@@ -33,6 +33,7 @@ default_kwargs = {
         'load_additional_ids': True,
         'ahf_index': 600,
         'halo_data_dir': './tests/data/ahf_test_data',
+        'length_scale_used': 'Rvir',
     },
 }
 
@@ -44,6 +45,7 @@ default_snap_kwargs = {
     'load_additional_ids': False,
     'ahf_index': 600,
     'halo_data_dir': './tests/data/ahf_test_data',
+    'length_scale_used': 'Rvir',
 }
 
 newids_snap_kwargs = copy.deepcopy( default_snap_kwargs )
@@ -711,6 +713,7 @@ class TestIDSampler( unittest.TestCase ):
         expected_kwargs['load_additional_ids'] = True
         expected_kwargs['snum'] = 600
         expected_kwargs['analysis_dir'] = default_snap_kwargs['halo_data_dir']
+        del expected_kwargs['length_scale_used']
 
         expected_kwargs0 = dict( expected_kwargs )
         expected_kwargs0['ptype'] = 0

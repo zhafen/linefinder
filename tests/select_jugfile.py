@@ -14,6 +14,7 @@ kwargs = {
         'load_additional_ids': True,
         'ahf_index': 600,
         'halo_data_dir': './tests/data/ahf_test_data',
+        'length_scale_used': 'Rvir',
     },
 }
 
