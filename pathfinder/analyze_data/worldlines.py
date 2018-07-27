@@ -1428,7 +1428,7 @@ class Worldlines( simulation_data.TimeData ):
 ########################################################################
 
 
-class WorldlineDataMasker( generic_data.DataMasker ):
+class WorldlineDataMasker( simulation_data.TimeDataMasker ):
     '''Data masker for worldline data.'''
 
     def __init__( self, worldlines ):

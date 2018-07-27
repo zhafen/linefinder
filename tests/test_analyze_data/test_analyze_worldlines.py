@@ -1014,6 +1014,41 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
     ########################################################################
 
+    def test_get_masked_data_over_time( self ):
+
+        # Mock data
+        self.worldlines.data['A'] = np.array([
+            [ 1., 2., 3., ],
+            [ 4., 5., 6., ],
+            [ 7., 8., 9, ],
+            [ 10., 11., 12., ],
+        ])
+        self.worldlines.data['is_class_A'] = np.array([
+            [ 0, 1, 0, ],
+            [ 1, 1, 0, ],
+            [ 0, 1, 1, ],
+            [ 1, 0, 1, ],
+        ]).astype( bool )
+        
+        # Mask data
+        self.worldlines.data_masker.mask_data( 'T', 4500., np.inf )
+
+        # Actual calculation
+        actual = self.worldlines.get_masked_data_over_time(
+            'A',
+            snum = 550,
+        )
+
+        # Comparison
+        expected = np.array([
+            [ 1., 2., 3., ],
+            [ 4., 5., 6., ],
+        ])
+
+        npt.assert_allclose( actual, expected )
+
+    ########################################################################
+
     def test_get_mask_mismatch_dims( self ):
 
         actual = self.worldlines.data_masker.get_mask( np.array([ True, False, True, False ]) )
