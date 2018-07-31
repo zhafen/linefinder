@@ -454,6 +454,10 @@ class Worldlines( simulation_data.TimeData ):
         except KeyError, AttributeError:
             data = self.ptracks.get_data( data_key, *args, **kwargs )
             return data
+        # TODO: Fix the structure s.t. it's improved from this.
+        except AssertionError:
+            data = self.ptracks.get_data( data_key, *args, **kwargs )
+            return data
 
     ########################################################################
 
@@ -1577,6 +1581,68 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         )
 
         masked_data = super( WorldlineDataMasker, self ).get_masked_data( data_key, mask=used_mask, *args, **kwargs )
+
+        return masked_data
+
+    ########################################################################
+
+    def get_masked_data_over_time(
+        self,
+        data_key,
+        mask = default,
+        classification = None,
+        mask_after_first_acc = False,
+        mask_before_first_acc = False,
+        preserve_mask_shape = False,
+        optional_masks = None,
+        *args, **kwargs
+    ):
+        '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_masked_data.
+
+        Args:
+            data_key (str) :
+                Data to get.
+
+            mask (np.array) :
+                Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).
+
+            classification (str) :
+                If provided, only select particles that meet this classification, as given in
+                self.data_object.classifications.data
+
+            tile_classification_mask (bool) :
+                Whether or not to tile the classification mask. True for most data that's time dependent, but False
+                for data that's one value per particle.
+
+            mask_after_first_acc (bool) :
+                If True, only select particles above first accretion.
+
+            mask_before_first_acc (bool) :
+                If True, only select particles after first accretion.
+
+            preserve_mask_shape (bool) :
+                If True, don't tile masks that are single dimensional, and one per particle.
+
+        Returns:
+            masked_data (np.array) :
+                Flattened array of masked data.
+        '''
+
+        used_mask = self.get_mask(
+            mask = mask,
+            classification = classification,
+            mask_after_first_acc = mask_after_first_acc,
+            mask_before_first_acc = mask_before_first_acc,
+            preserve_mask_shape = preserve_mask_shape,
+            optional_masks = optional_masks,
+        )
+
+        super_class = super( WorldlineDataMasker, self )
+        masked_data = super_class.get_masked_data_over_time(
+            data_key,
+            mask = used_mask,
+            *args, **kwargs
+        )
 
         return masked_data
 

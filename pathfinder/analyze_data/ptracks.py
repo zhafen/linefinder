@@ -56,7 +56,7 @@ class PTracks( simulation_data.TimeData ):
         self.data['P'] = np.rollaxis( self.data['P'], 2 )
         self.data['V'] = np.rollaxis( self.data['V'], 2 )
 
-        super( PTracks, self ).__init__( data_dir, snum=self.data['snum'], ahf_index=ahf_index, *args, **kwargs )
+        super( PTracks, self ).__init__( data_dir=data_dir, snum=self.data['snum'], ahf_index=ahf_index, *args, **kwargs )
 
     ########################################################################
 

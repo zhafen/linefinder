@@ -1036,6 +1036,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
         # Actual calculation
         actual = self.worldlines.get_masked_data_over_time(
             'A',
+            classification = 'is_class_A',
             snum = 550,
         )
 
