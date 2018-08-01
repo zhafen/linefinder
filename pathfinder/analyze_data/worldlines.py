@@ -465,7 +465,6 @@ class Worldlines( simulation_data.TimeData ):
         self,
         data_key,
         tile_data = False,
-        tile_dim = default,
         *args, **kwargs
     ):
         '''Get data, handling more complex data keys that indicate doing generic
@@ -482,43 +481,20 @@ class Worldlines( simulation_data.TimeData ):
                 If True, tile data along a given direction. This is usually for
                 data formatting purposes.
 
-            tile_dim (str) :
-                If the data is tiled, what dimension of the data should match?
-                Options:
-                    default :
-                        Tiles according to data_size.
-                    'match_snaps' :
-                        The data is tiled such that the new shape is
-                        (self.n_snaps, data_size).
-                    'match_particles' :
-                        The data is tiled such that the new shape is
-                        (data_size, self.n_particles).
-
         Returns:
             data (np.ndarray) : Array of data.
         '''
 
         data_key, tiled_flag = self.key_parser.is_tiled_key( data_key )
 
+        if tiled_flag:
+            tile_data = True
+
         data = super( Worldlines, self ).get_processed_data(
-            data_key, *args, **kwargs )
-
-        if tiled_flag or tile_data:
-
-            if tile_dim is default:
-                if data.shape == ( self.n_particles, ):
-                    tile_dim = 'match_snaps'
-                elif data.shape == ( self.n_snaps, ):
-                    tile_dim = 'match_particles'
-                else:
-                    raise Exception(
-                        "Unrecognized data shape, {}".format( data.shape ) )
-
-            if tile_dim == 'match_snaps':
-                data = np.tile( data, ( self.n_snaps, 1) ).transpose()
-
-            elif tile_dim == 'match_particles':
-                data = np.tile( data, ( self.n_particles, 1) )
+            data_key,
+            tile_data = tile_data,
+            *args, **kwargs
+        )
 
         return data
 
