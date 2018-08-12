@@ -44,6 +44,7 @@ class ParticleTrackGalaxyFinder( object ):
         ptracks_tag = default,
         galaxy_cut = config.GALAXY_CUT,
         length_scale = config.LENGTH_SCALE,
+        mt_length_scale = config.MT_LENGTH_SCALE,
         ids_to_return = [
             'gal_id', 'mt_gal_id', 'd_other_gal', 'd_other_gal_scaled', ],
         minimum_criteria = 'n_star',
@@ -87,6 +88,9 @@ class ParticleTrackGalaxyFinder( object ):
             length_scale (str, optional) :
                 Anything within galaxy_cut*length_scale is counted as being
                 inside the galaxy.
+
+            mt_length_scale (str, optional) :
+                Same as length_scale, but for merger tree galaxies
 
             ids_to_return (list of strs, optional):
                 The types of id you want to get out.
@@ -202,6 +206,7 @@ class ParticleTrackGalaxyFinder( object ):
                 'halo_data': self.halo_data,
                 'galaxy_cut': self.galaxy_cut,
                 'length_scale': self.length_scale,
+                'mt_length_scale': self.mt_length_scale,
                 'ids_to_return': self.ids_to_return,
                 'minimum_criteria': self.minimum_criteria,
                 'minimum_value': self.minimum_value,
@@ -303,6 +308,7 @@ class ParticleTrackGalaxyFinder( object ):
                 'halo_data': None,
                 'galaxy_cut': self.galaxy_cut,
                 'length_scale': self.length_scale,
+                'mt_length_scale': self.mt_length_scale,
                 'ids_to_return': self.ids_to_return,
                 'minimum_criteria': self.minimum_criteria,
                 'minimum_value': self.minimum_value,
@@ -364,6 +370,7 @@ class ParticleTrackGalaxyFinder( object ):
                 'halo_data': None,
                 'galaxy_cut': self.galaxy_cut,
                 'length_scale': self.length_scale,
+                'mt_length_scale': self.mt_length_scale,
                 'ids_to_return': self.ids_to_return,
                 'minimum_criteria': self.minimum_criteria,
                 'minimum_value': self.minimum_value,

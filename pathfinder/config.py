@@ -20,7 +20,8 @@ import utils.presentation_constants as p_constants
 
 # The radius of the galaxy is defined as R_{gal} = GALAXY_CUT*LENGTH_SCALE
 LENGTH_SCALE = 'Rstar0.5'
-GALAXY_CUT = 5.0
+MT_LENGTH_SCALE = 'sRstar0.5'
+GALAXY_CUT = 4.0
 
 # The CGM is defined as max( (1. + F_GAP)*Rgal, INNER_CGM_BOUNDARY*Rvir )
 #  to OUTER_CGM_BOUNDARY*Rvir.
@@ -30,7 +31,7 @@ F_GAP = 0.2
 
 # Sometimes we may also require the following density cut for material to be
 # part of a galaxy (n_b in cm^-3)
-GALAXY_DENSITY_CUT = 0.075  # I.E. nH = 0.1 cm^-3
+GALAXY_DENSITY_CUT = 0.1
 
 # The ejection velocity necessary to be counted as a wind is defined as
 # v_{wind} = WIND_CUT*VELOCITY_SCALE
@@ -60,6 +61,14 @@ GALAXY_DEFINITIONS = {
         'galaxy_cut' : 5.0,
 
         't_pro' : 0.1,
+        't_m' : 0.5,
+    },
+    '_galdefv3' : {
+        'length_scale' : 'Rstar0.5',
+        'mt_length_scale' : 'sRstar0.5',
+        'galaxy_cut' : 4.0,
+
+        't_pro' : 0.03,
         't_m' : 0.5,
     },
 }

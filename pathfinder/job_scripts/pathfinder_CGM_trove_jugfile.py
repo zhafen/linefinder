@@ -8,30 +8,30 @@ import pathfinder.utils.trove_management as trove_management
 ########################################################################
 
 sim_names = [
-    # 'm10q',
-    # 'm10v',
-    # 'm10y',
-    # 'm10z',
-    # 'm11q',
-    # 'm11v',
-    # 'm11a',
-    # 'm11b',
-    # 'm11c',
-    # 'm12i',
-    # 'm12f',
-    # 'm12m',
-    # 'm10q_md',
-    # 'm11q_md',
+    'm10q',
+    'm10v',
+    'm10y',
+    'm10z',
+    'm11q',
+    'm11v',
+    'm11a',
+    'm11b',
+    'm11c',
+    'm12i',
+    'm12f',
+    'm12m',
     'm11d_md',
     'm11e_md',
     'm11h_md',
     'm11i_md',
+    'm12b_md',
+    'm12c_md',
+    'm12z_md',
+    'm12r_md',
+    'm12w_md',
+    # 'm10q_md',
+    # 'm11q_md',
     # 'm12i_md',
-    # 'm12b_md',
-    # 'm12c_md',
-    # 'm12z_md',
-    # 'm12r_md',
-    # 'm12w_md',
 ]
 snums = [
     # 600,
@@ -71,7 +71,8 @@ snums = [
 galdefs = [
     # '',
     # '_galdefv1',
-    '_galdefv2',
+    # '_galdefv2',
+    '_galdefv3',
 ]
 
 # Get the file format
@@ -141,6 +142,7 @@ gal_finder_kwargs = {
     'ptracks_tag' : ptracks_tag,
     'galaxy_cut' : galdef_dict['galaxy_cut'],
     'length_scale' : galdef_dict['length_scale'],
+    'mt_length_scale' : galdef_dict['mt_length_scale'],
 }
 
 # Classifying Parameters
@@ -160,6 +162,6 @@ pathfinder.run_pathfinder_jug(
     run_id_selecting = False,
     run_id_sampling = False,
     run_tracking = False,
-    # run_galaxy_finding = False,
+    run_galaxy_finding = False,
     # run_classifying = False,
 )

@@ -11,11 +11,10 @@
 #SBATCH --mail-type=begin
 #SBATCH --mail-type=fail
 #SBATCH --mail-type=end
-#SBATCH --account=TG-AST150059
 
 JUGFILE=/home1/03057/zhafen/repos/pathfinder/pathfinder/job_scripts/pathfinder_CGM_trove_jugfile.py
 
-for i in $(seq 9); do jug execute $JUGFILE & done
+for i in $(seq 4); do jug execute $JUGFILE & done
 
 while ! jug check $JUGFILE; do
    jug sleep-until $JUGFILE 
