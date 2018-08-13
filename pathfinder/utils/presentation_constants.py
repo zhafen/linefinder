@@ -83,6 +83,7 @@ CLASSIFICATION_COLORS_B = {
     'is_CGM_EP': colors.hsv_to_rgb( np.array([ 32.6/360.,  0.72,  0.7 ]) ),
     'is_outside_any_gal_EP': colors.hsv_to_rgb( np.array([ 32.6/360.,  0.72,  0.7 ]) ),
     'is_CGM_satellite': colors.hsv_to_rgb( np.array([ 9.4/360,  0.8, 0.5 ]) ),
+    'is_in_galaxy_halo_interface': colors.hsv_to_rgb( np.array([ 302./360, .6, .8 ]) ),
 }
 # This set is revised again to have greater variation in brightness
 # Revised to have greater variation in brightness

@@ -1137,6 +1137,36 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_in_galaxy_halo_interface( self ):
+        '''Calculate material that is in the CGM.'''
+
+        r_rvir = self.get_processed_data(
+            'R',
+            scale_key = 'Rvir',
+            scale_a_power = 1.,
+            scale_h_power = -1.,
+        )
+        r_gal_length_scale = self.get_processed_data(
+            'R',
+            scale_key = self.galids.parameters['length_scale'],
+            scale_a_power = 1.,
+            scale_h_power = -1.,
+        )
+        is_in_outer_boundary = (
+            ( r_rvir < config.INNER_CGM_BOUNDARY ) |
+            ( r_gal_length_scale < (1. + config.F_GAP ) * \
+            self.galids.parameters['galaxy_cut'] )
+        )
+
+        is_in_interface = (
+            is_in_outer_boundary &
+            np.invert( self.get_data( 'is_in_main_gal' ) )
+        )
+
+        self.data['is_in_galaxy_halo_interface'] = is_in_interface
+
+    ########################################################################
+
     def calc_is_CGM_satellite( self ):
 
         self.data['is_CGM_satellite'] = self.get_data( 'is_in_CGM' ) \
