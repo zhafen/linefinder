@@ -877,12 +877,13 @@ class Worldlines( simulation_data.TimeData ):
         selected_quantity = {}
         for mass_category in classification_list:
             selected_quantity[mass_category] = selected_quantity_fn(
-                classification=mass_category, *args, **kwargs )
+                classification = mass_category, *args, **kwargs )
 
         return utilities.SmartDict( selected_quantity )
 
     def get_categories_selected_quantity_fraction(
         self,
+        normalization_category,
         classification_list = p_constants.CLASSIFICATIONS_A,
         selected_quantity_method = 'get_selected_quantity',
         *args, **kwargs
@@ -899,8 +900,12 @@ class Worldlines( simulation_data.TimeData ):
 
         selected_quantity_fn = getattr( self, selected_quantity_method )
 
-        return categories_selected_quantity / \
-            selected_quantity_fn( *args, **kwargs )
+        normalization = selected_quantity_fn(
+            classification=normalization_category,
+            *args, **kwargs
+        )
+
+        return categories_selected_quantity / normalization
 
     def get_categories_selected_quantity_extrapolated(
         self,
