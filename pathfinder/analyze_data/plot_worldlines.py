@@ -231,7 +231,14 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ax.set_xlabel( r'z', fontsize=22, )
         ax.set_ylabel( y_label, fontsize=22, )
 
-        ax.annotate( s=self.label, xy=(0., 1.0225), xycoords='axes fraction', fontsize=22, )
+        ax.annotate(
+            s = self.label,
+            #xy = (0., 1.0225),
+            xy = (0., 1.0),
+            xycoords = 'axes fraction',
+            va = 'bottom',
+            fontsize = 22,
+        )
 
         ax.legend( prop={'size': 14.5}, ncol=5, loc=(0., -0.28), fontsize=20 )
 
@@ -616,6 +623,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         fade_streamlines = True,
         x_label = 'x position (pkpc)',
         y_label = 'y position (pkpc)',
+        plot_xlabel = True,
+        plot_ylabel = True,
         fontsize = 22,
         xkcd_mode = False,
         plot_halos = True,
@@ -690,17 +699,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         onedim_slice = slice( start_ind, end_ind )
         sl = ( sample_inds, onedim_slice )
 
-        # Account for possibly tiled x data (typically done if x data is
-        # redshift or something similar).
-        if 'tile_data' in x_data_kwargs:
-            x_sl = onedim_slice
-        else:
-            x_sl = sl
-
         # Get the data out.
         x_data = self.data_object.get_masked_data(
             x_key,
-            sl = x_sl,
+            sl = sl,
             **x_data_kwargs
         )
         y_data = self.data_object.get_masked_data(
@@ -800,8 +802,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ax.set_yscale( y_scale )
 
         # Axis labels
-        ax.set_xlabel( x_label, fontsize=fontsize )
-        ax.set_ylabel( y_label, fontsize=fontsize )
+        if plot_xlabel:
+            ax.set_xlabel( x_label, fontsize=fontsize )
+        if plot_ylabel:
+            ax.set_ylabel( y_label, fontsize=fontsize )
 
     ########################################################################
 
