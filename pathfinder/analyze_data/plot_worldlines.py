@@ -631,6 +631,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         halo_radius_fraction = default,
         halo_length_scale = default,
         verbose = False,
+        return_y_max = False,
         *args, **kwargs
     ):
         '''Plot streamlines. This code largely follows what Daniel did before,
@@ -807,6 +808,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         if plot_ylabel:
             ax.set_ylabel( y_label, fontsize=fontsize )
 
+        if return_y_max:
+            return np.nanmax( y_data )
+
     ########################################################################
 
     def plot_streamlines_vs_time(
@@ -827,6 +831,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             'n_halos': 100,
         },
         plot_CGM_region = False,
+        return_y_max = False,
         *args, **kwargs
     ):
 
@@ -840,7 +845,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             'tile_dim': 'match_particles',
         }
 
-        self.plot_streamlines(
+        y_max = self.plot_streamlines(
             x_key = x_key,
             y_key = y_key,
             classification_ind = classification_ind,
@@ -851,6 +856,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             y_label = y_label,
             plot_halos = False,
             fade_streamlines = fade_streamlines,
+            return_y_max = return_y_max,
             *args, **kwargs
         )
 
@@ -921,8 +927,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             for y_dir in y_dirs:
                 ax.fill_between(
                     self.data_object.get_data( 'time' ),
-                    y_dir * config.INNER_CGM_BOUNDARY * self.data_object.r_vir,
-                    y_dir * config.OUTER_CGM_BOUNDARY * self.data_object.r_vir,
+                    y_dir * self.data_object.inner_CGM_boundary,
+                    y_dir * self.data_object.outer_CGM_boundary,
                     color = 'k',
                     alpha = 0.2,
                 )
+
+        if return_y_max:
+            return y_max

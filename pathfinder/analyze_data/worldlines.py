@@ -314,6 +314,57 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     @property
+    def r_gal( self ):
+
+        if not hasattr( self, '_r_gal' ):
+            length_scale = self.galids.parameters['mt_length_scale']
+            galaxy_cut = self.galids.parameters['galaxy_cut']
+            self._r_gal = self.halo_data.get_mt_data(
+                length_scale,
+                a_power = 1.
+            ) * galaxy_cut / self.ptracks.data_attrs['hubble']
+
+        return self._r_gal
+
+    ########################################################################
+
+    @property
+    def inner_CGM_boundary( self ):
+
+        if not hasattr( self, '_inner_CGM_boundary' ):
+
+            # Get the inner CGM radius as construed by the galaxy radius
+            inner_r_gal = np.zeros( self.n_snaps )
+            inner_r_gal_part = self.r_gal * ( 1. + config.F_GAP ) 
+            inner_r_gal[:inner_r_gal_part.size] = inner_r_gal_part
+
+            # Get the inner CGM radius as construed by the virial radisu
+            inner_r_vir = config.INNER_CGM_BOUNDARY * np.array( self.r_vir )
+
+            # Maximize the two
+            self._inner_CGM_boundary = np.max(
+                [ inner_r_gal, inner_r_vir ],
+                axis = 0,
+            )
+
+        return self._inner_CGM_boundary
+
+    ########################################################################
+
+    @property
+    def outer_CGM_boundary( self ):
+
+        if not hasattr( self, '_outer_CGM_boundary' ):
+
+            self._outer_CGM_boundary = (
+                config.OUTER_CGM_BOUNDARY * np.array( self.r_vir )
+            )
+
+        return self._outer_CGM_boundary
+
+    ########################################################################
+
+    @property
     def snums( self ):
 
         return self.ptracks.snums
