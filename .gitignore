@@ -1,3 +1,6 @@
 *.pyc
 *.swp
 *.ropeproject
+.cache/
+.python_cache/
+.pytest_cache/
