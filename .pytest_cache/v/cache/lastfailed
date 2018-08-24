@@ -1,5 +1,4 @@
 {
-  "tests/test_analyze_data/test_analyze_worldline_set.py::TestStoreQuantity::test_store_quantity": true, 
   "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineCalcData::test_calc_ind_first_in_mgal": true, 
   "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineGetData::test_get_data_vr": true, 
   "tests/test_full_pipeline.py::TestFullWorldline": true, 

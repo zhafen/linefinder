@@ -175,10 +175,15 @@ class TestStoreQuantity( unittest.TestCase ):
 
     def test_store_quantity( self ):
 
+        # Setup dummy data for the normalization
+        for w in self.w_set.values():
+            w.data['is_A'] = np.ones( (4, 3) ).astype( 'bool' )
+
         self.w_set.store_quantity(
             self.stored_data_file,
             selection_routine = None,
             sl = (slice(None), 1),
+            normalization_category = 'is_A',
         )
 
         f = h5py.File( self.stored_data_file, 'r' )
