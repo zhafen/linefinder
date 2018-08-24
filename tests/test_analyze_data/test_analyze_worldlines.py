@@ -428,7 +428,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
             np.array([ 
                 [ 2, 10, 10 ],
                 [ 10, 3, 10 ],
-                [ 5, 5, 10 ],
+                [ 3, 3, 10 ],
                 [ 2, 10, 10 ],
             ])
         ]
