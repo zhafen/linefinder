@@ -2,8 +2,6 @@
   "tests/test_analyze_data/test_analyze_worldline_set.py::TestStoreQuantity::test_store_quantity": true, 
   "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineCalcData::test_calc_ind_first_in_mgal": true, 
   "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineGetData::test_get_data_vr": true, 
-  "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineGetStellarMass::test_get_selected_quantity": true, 
-  "tests/test_analyze_data/test_analyze_worldlines.py::TestWorldlineGetStellarMass::test_get_selected_quantity_redshift": true, 
   "tests/test_full_pipeline.py::TestFullWorldline": true, 
   "tests/test_utils/test_trove_management.py::TestPathfinderTroveManager::test_data_files": true, 
   "tests/test_utils/test_trove_management.py::TestPathfinderTroveManager::test_get_incomplete_combinations": true, 

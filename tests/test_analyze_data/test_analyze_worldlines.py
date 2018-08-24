@@ -281,7 +281,7 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
             [ 1, 1, 0, ],
             [ 1, 1, 0, ],
             [ 1, 0, 0, ],
-        ])
+        ]).astype( bool )
         self.worldlines.classifications.data['is_merger'] = np.array([
             1, 0, 0, 0, 0, 0, ]).astype( bool )
         self.worldlines.classifications.data['is_mass_transfer'] = np.array([
@@ -296,6 +296,7 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
     def test_get_selected_quantity( self ):
 
         actual = self.worldlines.get_categories_selected_quantity_fraction(
+            normalization_category = 'is_in_main_gal',
             sl = (slice(None),1),
             classification_list = p_constants.CLASSIFICATIONS_B,
         )
@@ -314,6 +315,7 @@ class TestWorldlineGetStellarMass( unittest.TestCase ):
     def test_get_selected_quantity_redshift( self ):
 
         actual = self.worldlines.get_categories_selected_quantity_fraction(
+            normalization_category = 'is_in_main_gal',
             classification_list = p_constants.CLASSIFICATIONS_B,
         )
         expected = {
