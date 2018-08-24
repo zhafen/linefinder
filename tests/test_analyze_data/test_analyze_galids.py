@@ -15,7 +15,7 @@ import pdb
 import pytest
 import unittest
 
-import pathfinder.analyze_data.galids as analyze_galids
+import linefinder.analyze_data.galids as analyze_galids
 
 ########################################################################
 # Commonly useful input variables

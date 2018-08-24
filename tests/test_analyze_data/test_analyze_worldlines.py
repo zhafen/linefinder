@@ -13,9 +13,9 @@ import numpy.testing as npt
 import os
 import unittest
 
-import pathfinder.analyze_data.worldlines as analyze_worldlines
-import pathfinder.config as config
-import pathfinder.utils.presentation_constants as p_constants
+import linefinder.analyze_data.worldlines as analyze_worldlines
+import linefinder.config as config
+import linefinder.utils.presentation_constants as p_constants
 
 ########################################################################
 # Commonly useful input variables
@@ -106,9 +106,9 @@ class TestWorldlinesDifferentTags( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.analyze_data.classifications.Classifications.__init__' )
-    @mock.patch( 'pathfinder.analyze_data.galids.GalIDs.__init__' )
-    @mock.patch( 'pathfinder.analyze_data.ptracks.PTracks.__init__' )
+    @mock.patch( 'linefinder.analyze_data.classifications.Classifications.__init__' )
+    @mock.patch( 'linefinder.analyze_data.galids.GalIDs.__init__' )
+    @mock.patch( 'linefinder.analyze_data.ptracks.PTracks.__init__' )
     def test_different_tags( self, mock_ptracks, mock_galids, mock_classifications ):
 
         mock_ptracks.side_effect = [ None, ]
@@ -167,7 +167,7 @@ class TestWorldlineGetData( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.analyze_data.worldlines.Worldlines.calc_method', create=True )
+    @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.calc_method', create=True )
     def test_handle_data_key_error( self, mock_calc_method ):
 
         self.worldlines.handle_data_key_error( 'method' )
@@ -417,7 +417,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.analyze_data.worldlines.Worldlines.get_processed_data' )
+    @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.get_processed_data' )
     def test_is_in_CGM( self, mock_get_processed_data ):
 
         mock_get_processed_data.side_effect = [
@@ -525,7 +525,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.analyze_data.worldlines.Worldlines.get_data_first_acc' )
+    @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.get_data_first_acc' )
     def test_calc_is_merger_star( self, mock_get_data_first_acc ):
 
         # Setup test data
@@ -541,7 +541,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.analyze_data.worldlines.Worldlines.get_data_first_acc' )
+    @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.get_data_first_acc' )
     def test_calc_is_merger_star( self, mock_get_data_first_acc ):
 
         # Setup test data

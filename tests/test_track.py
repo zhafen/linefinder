@@ -16,8 +16,8 @@ import pytest
 import shutil
 import unittest
 
-from pathfinder import track
-import pathfinder.config as config
+from linefinder import track
+import linefinder.config as config
 import galaxy_dive.read_data.snapshot as readsnap
 import galaxy_dive.utils.constants as constants
 

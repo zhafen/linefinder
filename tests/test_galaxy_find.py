@@ -15,9 +15,9 @@ import shutil
 import unittest
 
 import galaxy_dive.galaxy_finder.finder as galaxy_finder
-from pathfinder import galaxy_find
+from linefinder import galaxy_find
 
-import pathfinder.config as config
+import linefinder.config as config
 
 ########################################################################
 # Useful global test variables

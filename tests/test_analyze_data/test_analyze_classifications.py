@@ -15,7 +15,7 @@ import pdb
 import pytest
 import unittest
 
-import pathfinder.analyze_data.classifications as analyze_classifications
+import linefinder.analyze_data.classifications as analyze_classifications
 
 ########################################################################
 # Commonly useful input variables

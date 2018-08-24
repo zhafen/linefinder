@@ -1,9 +1,9 @@
 import sys
 
-import pathfinder.config as p_config
-import pathfinder.pathfinder as pathfinder
-import pathfinder.utils.file_management as file_management
-import pathfinder.utils.trove_management as trove_management
+import linefinder.config as p_config
+import linefinder.linefinder as linefinder
+import linefinder.utils.file_management as file_management
+import linefinder.utils.trove_management as trove_management
 
 ########################################################################
 
@@ -152,7 +152,7 @@ classifier_kwargs = {
     'ptracks_tag' : ptracks_tag,
 }
 
-pathfinder.run_pathfinder_jug(
+linefinder.run_linefinder_jug(
     sim_name = sim_name,
     tag = tag,
     selector_data_filters = selector_data_filters,

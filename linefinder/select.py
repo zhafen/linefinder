@@ -353,7 +353,7 @@ class IDSelector( object ):
         grp.attrs['n_processors'] = self.n_processors
 
         # Save the current code versions
-        f.attrs['pathfinder_version'] = utilities.get_code_version( self )
+        f.attrs['linefinder_version'] = utilities.get_code_version( self )
         f.attrs['galaxy_dive_version'] = utilities.get_code_version( particle_data, instance_type='module' )
 
         f.close()

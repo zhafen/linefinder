@@ -1,4 +1,4 @@
-import pathfinder.galaxy_find as galaxy_find
+import linefinder.galaxy_find as galaxy_find
 
 parallel_kwargs = {
     'length_scale': 'Rvir',

@@ -1,4 +1,4 @@
-import pathfinder.pathfinder as pathfinder
+import linefinder.linefinder as linefinder
 
 ########################################################################
 # Global variables
@@ -15,7 +15,7 @@ snap_step = 50
 mtree_halos_index = snap_end
 
 # Information about what the output data should be called.
-out_dir = './tests/data/full_pathfinder_output'
+out_dir = './tests/data/full_linefinder_output'
 tag = 'jug'
 
 selector_kwargs = {
@@ -55,7 +55,7 @@ classifier_kwargs = {
     'velocity_scale': 'Vc(Rvir)',
 }
 
-pathfinder.run_pathfinder_jug(
+linefinder.run_linefinder_jug(
     out_dir = out_dir,
     tag = tag,
     selector_kwargs = selector_kwargs,

@@ -9,7 +9,7 @@ of parameters.
 
 import os
 
-import pathfinder.config as config
+import linefinder.config as config
 
 ########################################################################
 ########################################################################
@@ -71,10 +71,10 @@ class FileManager( object ):
 
     ########################################################################
 
-    def get_pathfinder_dir( self, sim_name, subdir='data', ):
+    def get_linefinder_dir( self, sim_name, subdir='data', ):
         
         return os.path.join(
-            self.system_parameters['pathfinder_data_dir'],
+            self.system_parameters['linefinder_data_dir'],
             self.get_sim_subdir( sim_name ),
             subdir,
         )
@@ -97,7 +97,7 @@ class FileManager( object ):
     ########################################################################
     ########################################################################
 
-    def get_pathfinder_analysis_defaults(
+    def get_linefinder_analysis_defaults(
         self,
         tag_tail,
         sim_name = 'm12i',
@@ -105,7 +105,7 @@ class FileManager( object ):
         ids_tag_tail = None,
         ptracks_tag_tail = None,
     ):
-        '''Standard defaults for pathfinder analysis routines.
+        '''Standard defaults for linefinder analysis routines.
 
         Args:
             tag_tail (str) :
@@ -122,7 +122,7 @@ class FileManager( object ):
         tag = '{}{}'.format( sim_name, tag_tail )
 
         defaults = {
-            'data_dir': self.get_pathfinder_dir( sim_name ),
+            'data_dir': self.get_linefinder_dir( sim_name ),
             'tag': tag,
 
             'halo_data_dir': self.get_halo_dir( sim_name ),
@@ -140,14 +140,14 @@ class FileManager( object ):
 
     ########################################################################
 
-    def get_pathfinder_analysis_variations(
+    def get_linefinder_analysis_variations(
         self,
         tag_tail,
         default_sim_name = 'm12i',
         sim_names = [ 'm12i', 'm12m', 'm12f', 'm12imd' ],
         *args, **kwargs
     ):
-        '''Standard default variations for pathfinder analysis routines.
+        '''Standard default variations for linefinder analysis routines.
 
         Args:
             tag_tail (str) :
@@ -161,7 +161,7 @@ class FileManager( object ):
 
             *args, **kwargs :
                 Other arguments passed to
-                self.get_pathfinder_analysis_defaults()
+                self.get_linefinder_analysis_defaults()
 
         Returns:
             variations (dict of dicts) :
@@ -172,7 +172,7 @@ class FileManager( object ):
         for sim_name in sim_names:
 
             if sim_name != default_sim_name:
-                variations[sim_name] = self.get_pathfinder_analysis_defaults(
+                variations[sim_name] = self.get_linefinder_analysis_defaults(
                     tag_tail = tag_tail,
                     sim_name = sim_name,
                     *args, **kwargs
@@ -184,7 +184,7 @@ class FileManager( object ):
 
     ########################################################################
 
-    def get_pathfinder_analysis_defaults_and_variations(
+    def get_linefinder_analysis_defaults_and_variations(
         self,
         tag_tail,
         default_sim_name = 'm12i',
@@ -192,7 +192,7 @@ class FileManager( object ):
         galdef = '',
         *args, **kwargs
     ):
-        '''Standard defaults and variations for pathfinder analysis routines.
+        '''Standard defaults and variations for linefinder analysis routines.
 
         Args:
             tag_tail (str) :
@@ -206,8 +206,8 @@ class FileManager( object ):
 
             *args, **kwargs :
                 Other arguments passed to
-                self.get_pathfinder_analysis_defaults() and
-                self.get_pathfinder_analysis_variations() and
+                self.get_linefinder_analysis_defaults() and
+                self.get_linefinder_analysis_variations() and
 
         Returns:
             variations (dict of dicts) :
@@ -216,7 +216,7 @@ class FileManager( object ):
 
         used_tag_tail = '{}{}'.format( tag_tail, galdef )
 
-        pathfinder_analysis_defaults = self.get_pathfinder_analysis_defaults(
+        linefinder_analysis_defaults = self.get_linefinder_analysis_defaults(
             used_tag_tail,
             sim_name = default_sim_name,
             ptracks_tag_tail = tag_tail,
@@ -224,8 +224,8 @@ class FileManager( object ):
             *args, **kwargs
         )
 
-        pathfinder_analysis_variations = \
-            self.get_pathfinder_analysis_variations(
+        linefinder_analysis_variations = \
+            self.get_linefinder_analysis_variations(
                 used_tag_tail,
                 default_sim_name = default_sim_name,
                 sim_names = sim_names,
@@ -234,5 +234,5 @@ class FileManager( object ):
                 *args, **kwargs
             )
 
-        return pathfinder_analysis_defaults, pathfinder_analysis_variations
+        return linefinder_analysis_defaults, linefinder_analysis_variations
 

@@ -11,7 +11,7 @@ import os
 
 import galaxy_dive.data_management.trove_management as trove_management
 
-import pathfinder.utils.file_management as file_management
+import linefinder.utils.file_management as file_management
 
 ########################################################################
 ########################################################################
@@ -35,7 +35,7 @@ class PathfinderTroveManager( trove_management.TroveManager ):
 
         file_manager = file_management.FileManager()
 
-        data_dir = file_manager.get_pathfinder_dir( args[0] )
+        data_dir = file_manager.get_linefinder_dir( args[0] )
 
         filename = self.file_format.format( *args )
 

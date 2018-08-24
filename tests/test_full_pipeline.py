@@ -12,8 +12,8 @@ import os
 import pytest
 import unittest
 
-import pathfinder.config as config
-import pathfinder.pathfinder as pathfinder
+import linefinder.config as config
+import linefinder.linefinder as linefinder
 
 ########################################################################
 # Global variables
@@ -31,7 +31,7 @@ mtree_halos_index = snap_end
 
 # Information about what the output data should be called.
 out_dir = './tests/data/tracking_output_for_analysis'
-out_dir2 = './tests/data/full_pathfinder_output'
+out_dir2 = './tests/data/full_linefinder_output'
 tag = 'analyze'
 
 selector_kwargs = {
@@ -116,7 +116,7 @@ class TestPathfinderPartial( unittest.TestCase ):
     def test_pipeline( self ):
         '''Except the id selecting... This makes sure the full pipeline just runs.'''
 
-        pathfinder.run_pathfinder(
+        linefinder.run_linefinder(
             out_dir = out_dir,
             tag = 'analyze',
             tracker_kwargs = tracker_kwargs,
@@ -162,7 +162,7 @@ class TestPathfinder( unittest.TestCase ):
     def tearDown( self ):
 
         #os.system( "rm -r ./tests/*jugdata" )
-        os.system( "rm -r ./tests/data/full_pathfinder_output/*" )
+        os.system( "rm -r ./tests/data/full_linefinder_output/*" )
 
     ########################################################################
 
@@ -170,7 +170,7 @@ class TestPathfinder( unittest.TestCase ):
     def test_full_pipeline( self ):
         '''Test that everything runs, including ID selecting.'''
 
-        pathfinder.run_pathfinder(
+        linefinder.run_linefinder(
             out_dir = out_dir2,
             tag = tag,
             selector_kwargs = selector_kwargs,
@@ -185,10 +185,10 @@ class TestPathfinder( unittest.TestCase ):
     def test_full_pipeline_jug( self ):
         '''Make sure everything runs and matches, including ID selecting.'''
 
-        os.system( "{} ./tests/pathfinder_jugfile.py &".format(
+        os.system( "{} ./tests/linefinder_jugfile.py &".format(
             config.JUG_EXEC_PATH )
         )
-        os.system( "{} ./tests/pathfinder_jugfile.py".format(
+        os.system( "{} ./tests/linefinder_jugfile.py".format(
             config.JUG_EXEC_PATH )
         )
 

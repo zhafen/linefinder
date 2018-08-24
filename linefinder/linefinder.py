@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Main file for running pathfinder.
+'''Main file for running linefinder.
 
 @author: Zach Hafen
 @contact: zachary.h.hafen@gmail.com
@@ -9,7 +9,7 @@
 import jug
 import os
 
-import config as pathfinder_config
+import config as linefinder_config
 import select
 import track
 import galaxy_find
@@ -23,7 +23,7 @@ import galaxy_dive.utils.utilities as utilities
 ########################################################################
 
 
-def run_pathfinder(
+def run_linefinder(
     tag,
     out_dir = None,
     sim_name = None,
@@ -39,7 +39,7 @@ def run_pathfinder(
     run_galaxy_finding = True,
     run_classifying = True,
 ):
-    '''Main function for running pathfinder.
+    '''Main function for running linefinder.
 
     Args:
         tag (str):
@@ -49,9 +49,9 @@ def run_pathfinder(
             Output directory to store the data in.
 
         sim_name (str):
-            Name of simulation to run pathfinder for. If provided, pathfinder
+            Name of simulation to run linefinder for. If provided, linefinder
             will automatically fill in many arguments using a file_manager
-            and the pathfinder.config file.
+            and the linefinder.config file.
 
         selector_data_filters (dict):
             Data filters to pass to select.IDSelector.select_ids()
@@ -98,9 +98,9 @@ def run_pathfinder(
         file_manager = file_management.FileManager()
 
         if out_dir is None:
-            out_dir = file_manager.get_pathfinder_dir( sim_name )
+            out_dir = file_manager.get_linefinder_dir( sim_name )
 
-    # These are kwargs that could be used at any stage of running pathfinder.
+    # These are kwargs that could be used at any stage of running linefinder.
     general_kwargs = {
         'out_dir': out_dir,
         'tag': tag,
@@ -123,7 +123,7 @@ def run_pathfinder(
                 snapshot_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
 
             if 'main_halo_id' not in snapshot_kwargs:
-                snapshot_kwargs['main_halo_id'] = pathfinder_config.MAIN_MT_HALO_ID[sim_name]
+                snapshot_kwargs['main_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
         id_selector = select.IDSelector( **selector_kwargs )
         id_selector.select_ids( selector_data_filters )
@@ -159,7 +159,7 @@ def run_pathfinder(
             if 'halo_data_dir' not in gal_finder_kwargs:
                 gal_finder_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
             if 'main_mt_halo_id' not in gal_finder_kwargs:
-                gal_finder_kwargs['main_mt_halo_id'] = pathfinder_config.MAIN_MT_HALO_ID[sim_name]
+                gal_finder_kwargs['main_mt_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
         particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
             **gal_finder_kwargs )
@@ -177,7 +177,7 @@ def run_pathfinder(
 
 ########################################################################
 
-def run_pathfinder_jug(
+def run_linefinder_jug(
     tag,
     out_dir = None,
     sim_name = None,
@@ -193,7 +193,7 @@ def run_pathfinder_jug(
     run_galaxy_finding = True,
     run_classifying = True,
 ):
-    '''Main function for running pathfinder.
+    '''Main function for running linefinder.
 
     Args:
         out_dir (str):
@@ -247,7 +247,7 @@ def run_pathfinder_jug(
         file_manager = file_management.FileManager()
 
         if out_dir is None:
-            out_dir = file_manager.get_pathfinder_dir( sim_name )
+            out_dir = file_manager.get_linefinder_dir( sim_name )
 
     # Setup jugdata
     jugdir_tail = '{}.jugdata'.format( tag )
@@ -255,7 +255,7 @@ def run_pathfinder_jug(
 
     print( "Starting jug thread..." )
 
-    # These are kwargs that could be used at any stage of running pathfinder.
+    # These are kwargs that could be used at any stage of running linefinder.
     general_kwargs = {
         'out_dir': out_dir,
         'tag': tag,
@@ -278,7 +278,7 @@ def run_pathfinder_jug(
                 snapshot_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
 
             if 'main_halo_id' not in snapshot_kwargs:
-                snapshot_kwargs['main_halo_id'] = pathfinder_config.MAIN_MT_HALO_ID[sim_name]
+                snapshot_kwargs['main_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
         id_selector = select.IDSelector( **selector_kwargs )
         id_selector.select_ids_jug( selector_data_filters )
@@ -319,7 +319,7 @@ def run_pathfinder_jug(
                 gal_finder_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
 
             if 'main_mt_halo_id' not in gal_finder_kwargs:
-                gal_finder_kwargs['main_mt_halo_id'] = pathfinder_config.MAIN_MT_HALO_ID[sim_name]
+                gal_finder_kwargs['main_mt_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
 
         particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(

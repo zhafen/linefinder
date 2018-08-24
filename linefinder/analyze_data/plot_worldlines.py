@@ -20,8 +20,8 @@ import galaxy_dive.plot_data.ahf as plot_ahf
 import galaxy_dive.plot_data.plotting as gen_plot
 import galaxy_dive.utils.astro as astro_utils
 
-import pathfinder.config as config
-import pathfinder.utils.presentation_constants as p_constants
+import linefinder.config as config
+import linefinder.utils.presentation_constants as p_constants
 
 ########################################################################
 

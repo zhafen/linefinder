@@ -22,8 +22,8 @@ import galids
 import classifications
 import events
 
-import pathfinder.utils.presentation_constants as p_constants
-import pathfinder.config as config
+import linefinder.utils.presentation_constants as p_constants
+import linefinder.config as config
 
 ########################################################################
 

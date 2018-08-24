@@ -1,4 +1,4 @@
-import pathfinder.select as select
+import linefinder.select as select
 
 # For IDSelector
 kwargs = {

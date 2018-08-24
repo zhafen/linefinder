@@ -16,7 +16,7 @@ import pdb
 import unittest
 
 import galaxy_dive.read_data.ahf as read_ahf
-from pathfinder import classify
+from linefinder import classify
 
 ########################################################################
 # Global Variables Useful for Testing
@@ -1301,7 +1301,7 @@ class TestVelocityScale( unittest.TestCase ):
 
     ########################################################################
 
-    @patch( 'pathfinder.classify.Classifier.get_circular_velocity' )
+    @patch( 'linefinder.classify.Classifier.get_circular_velocity' )
     def test_get_velocity_scale_v_circ( self, mock_get_v_circ ):
         '''Test that we can still access the old way of getting the velocity scale
         '''

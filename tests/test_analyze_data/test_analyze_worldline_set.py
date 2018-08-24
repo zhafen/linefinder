@@ -14,7 +14,7 @@ import h5py
 import mock
 import unittest
 
-import pathfinder.analyze_data.worldline_set as analyze_worldline_set
+import linefinder.analyze_data.worldline_set as analyze_worldline_set
 
 ########################################################################
 # Commonly useful input variables
@@ -29,7 +29,7 @@ defaults = {
 
 class TestWorldlineSetStartUp( unittest.TestCase ):
 
-    @mock.patch( 'pathfinder.analyze_data.worldlines.Worldlines.__init__' )
+    @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.__init__' )
     def test_init( self, mock_constructor ):
 
         variations = {
@@ -104,8 +104,8 @@ class TestWorldlineSet( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.analyze_data.worldlines.Worldlines.foo.bar', create=True, new=1 )
-    @mock.patch( 'pathfinder.analyze_data.worldlines.Worldlines.foo', create=True )
+    @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.foo.bar', create=True, new=1 )
+    @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.foo', create=True )
     def test_getattr_nested( self, mock_foo ):
 
         actual = self.worldline_set.data_object.foo.bar
@@ -115,7 +115,7 @@ class TestWorldlineSet( unittest.TestCase ):
 
     #########################################################################
 
-    @mock.patch( 'pathfinder.analyze_data.worldlines.Worldlines.foo', create=True )
+    @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.foo', create=True )
     def test_getmethod( self, mock_foo ):
 
         def side_effects( x ):
@@ -130,8 +130,8 @@ class TestWorldlineSet( unittest.TestCase ):
 
     #########################################################################
 
-    @mock.patch( 'pathfinder.analyze_data.classifications.Classifications.__init__' )
-    @mock.patch( 'pathfinder.analyze_data.classifications.Classifications.foo', create=True )
+    @mock.patch( 'linefinder.analyze_data.classifications.Classifications.__init__' )
+    @mock.patch( 'linefinder.analyze_data.classifications.Classifications.foo', create=True )
     def test_getmethod_nested( self, mock_foo, mock_constructor ):
 
         def side_effects( x, **kwargs ):
@@ -223,7 +223,7 @@ class TestStoreQuantity( unittest.TestCase ):
     ########################################################################
 
     @mock.patch(
-        'pathfinder.analyze_data.worldline_set.WorldlineSet.store_quantity',
+        'linefinder.analyze_data.worldline_set.WorldlineSet.store_quantity',
     )
     def test_store_redshift_dependent_quantity( self, mock_store_quantity ):
 
@@ -251,7 +251,7 @@ class TestStoreQuantity( unittest.TestCase ):
         'galaxy_dive.utils.hdf5_wrapper.HDF5Wrapper.insert_data',
     )
     @mock.patch(
-        'pathfinder.analyze_data.worldline_set.WorldlineSet.store_quantity',
+        'linefinder.analyze_data.worldline_set.WorldlineSet.store_quantity',
     )
     def test_store_redshift_dependent_quantity_store_snum(
         self,

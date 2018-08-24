@@ -14,8 +14,8 @@ import numpy.testing as npt
 import os
 import unittest
 
-import pathfinder.config as config
-import pathfinder.select as select
+import linefinder.config as config
+import linefinder.select as select
 
 ########################################################################
 
@@ -216,8 +216,8 @@ class TestIDSelector( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.select.SnapshotIDSelector.__init__' )
-    @mock.patch( 'pathfinder.select.SnapshotIDSelector.select_ids_snapshot' )
+    @mock.patch( 'linefinder.select.SnapshotIDSelector.__init__' )
+    @mock.patch( 'linefinder.select.SnapshotIDSelector.select_ids_snapshot' )
     def test_get_selected_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
         # Mock setup
@@ -244,8 +244,8 @@ class TestIDSelector( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.select.SnapshotIDSelector.__init__' )
-    @mock.patch( 'pathfinder.select.IDSelector.get_selected_ids_snapshot' )
+    @mock.patch( 'linefinder.select.SnapshotIDSelector.__init__' )
+    @mock.patch( 'linefinder.select.IDSelector.get_selected_ids_snapshot' )
     def test_get_selected_ids_parallel( self, mock_get_selected_ids_snapshot, mock_constructor, ):
 
         self.id_selector.n_processors = 2
@@ -343,13 +343,13 @@ class TestIDSelector( unittest.TestCase ):
             for inner_key, data_filter_inner in data_filter.items():
                 assert data_filter_inner == g['parameters/data_filters'][key].attrs[inner_key]
 
-        assert g.attrs['pathfinder_version'] is not None
+        assert g.attrs['linefinder_version'] is not None
         assert g.attrs['galaxy_dive_version'] is not None
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.select.SnapshotIDSelector.__init__' )
-    @mock.patch( 'pathfinder.select.SnapshotIDSelector.select_ids_snapshot' )
+    @mock.patch( 'linefinder.select.SnapshotIDSelector.__init__' )
+    @mock.patch( 'linefinder.select.SnapshotIDSelector.select_ids_snapshot' )
     def test_select_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
         # Make sure there's nothing in our way, bwahahah
@@ -397,7 +397,7 @@ class TestIDSelector( unittest.TestCase ):
             else:
                 assert default_kwargs[key] == g['parameters'].attrs[key]
 
-        assert g.attrs['pathfinder_version'] is not None
+        assert g.attrs['linefinder_version'] is not None
         assert g.attrs['galaxy_dive_version'] is not None
 
 ########################################################################
@@ -425,8 +425,8 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.select.SnapshotIDSelector.__init__' )
-    @mock.patch( 'pathfinder.select.SnapshotIDSelector.select_ids_snapshot' )
+    @mock.patch( 'linefinder.select.SnapshotIDSelector.__init__' )
+    @mock.patch( 'linefinder.select.SnapshotIDSelector.select_ids_snapshot' )
     def test_get_selected_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
         # Mock setup
@@ -453,8 +453,8 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.select.SnapshotIDSelector.__init__' )
-    @mock.patch( 'pathfinder.select.IDSelector.get_selected_ids_snapshot' )
+    @mock.patch( 'linefinder.select.SnapshotIDSelector.__init__' )
+    @mock.patch( 'linefinder.select.IDSelector.get_selected_ids_snapshot' )
     def test_get_selected_ids_parallel( self, mock_get_selected_ids_snapshot, mock_constructor, ):
 
         self.id_selector.n_processors = 2
@@ -531,7 +531,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
             else:
                 assert default_kwargs[key] == g['parameters'].attrs[key]
 
-        assert g.attrs['pathfinder_version'] is not None
+        assert g.attrs['linefinder_version'] is not None
         assert g.attrs['galaxy_dive_version'] is not None
 
 ########################################################################
@@ -628,7 +628,7 @@ class TestIDSampler( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.select.IDSampler.identify_duplicate_ids' )
+    @mock.patch( 'linefinder.select.IDSampler.identify_duplicate_ids' )
     def test_choose_particles_to_sample_ignore_duplicates( self, mock_identify_duplicate_ids ):
 
         mock_identify_duplicate_ids.side_effect = [ set([ 0, 15, 12 ]), ]
@@ -647,7 +647,7 @@ class TestIDSampler( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'pathfinder.select.IDSampler.identify_child_particles' )
+    @mock.patch( 'linefinder.select.IDSampler.identify_child_particles' )
     def test_choose_particles_to_sample_ignore_child_particles( self, mock_identify_child_particles ):
 
         # Create some child ids

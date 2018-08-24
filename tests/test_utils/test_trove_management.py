@@ -7,8 +7,8 @@ import numpy.testing as npt
 import os
 import unittest
 
-import pathfinder.utils.trove_management as p_trove_management
-import pathfinder.utils.file_management as file_management
+import linefinder.utils.trove_management as p_trove_management
+import linefinder.utils.file_management as file_management
 
 ########################################################################
 
@@ -54,7 +54,7 @@ class TestPathfinderTroveManager( unittest.TestCase ):
 
         file_manager = file_management.FileManager()
         expected = os.path.join(
-            file_manager.get_pathfinder_dir( 'm12i' ),
+            file_manager.get_linefinder_dir( 'm12i' ),
             'galids_m12i_snum500.hdf5',
         )
             

@@ -486,7 +486,7 @@ class ParticleTrackGalaxyFinder( object ):
         utilities.save_parameters( self, f )
 
         # Save the current code version
-        f.attrs['pathfinder_version'] = utilities.get_code_version( self )
+        f.attrs['linefinder_version'] = utilities.get_code_version( self )
         f.attrs['galaxy_dive_version'] = utilities.get_code_version(
             galaxy_finder, instance_type='module' )
 

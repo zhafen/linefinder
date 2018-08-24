@@ -1,4 +1,4 @@
-import pathfinder.track as track
+import linefinder.track as track
 
 kwargs = {
     'sdir': './tests/data/test_data_with_new_id_scheme',

@@ -15,7 +15,7 @@ import pdb
 import pytest
 import unittest
 
-import pathfinder.analyze_data.ptracks as analyze_ptracks
+import linefinder.analyze_data.ptracks as analyze_ptracks
 
 ########################################################################
 

@@ -81,18 +81,18 @@ ACTIVE_SYSTEM = 'Stampede2'
 
 QUEST_PARAMETERS = {
     'simulation_data_dir': '/projects/b1026/zhafen',
-    'pathfinder_data_dir': '/projects/b1026/zhafen/pathfinder_data',
+    'linefinder_data_dir': '/projects/b1026/zhafen/linefinder_data',
     'halo_data_dir': '/projects/b1026/zhafen',
 }
 
 STAMPEDE_PARAMETERS = {
-    'pathfinder_data_dir': '/work/03057/zhafen/pathfinder_data',
+    'linefinder_data_dir': '/work/03057/zhafen/linefinder_data',
     'halo_data_dir': '/scratch/03057/zhafen',
 }
 
 STAMPEDE2_PARAMETERS = {
     'simulation_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE',
-    'pathfinder_data_dir': '/scratch/03057/zhafen/pathfinder_data',
+    'linefinder_data_dir': '/scratch/03057/zhafen/linefinder_data',
     'halo_data_dir': '/scratch/03057/zhafen',
 
     'project' : {
