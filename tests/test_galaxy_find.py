@@ -32,12 +32,17 @@ gal_finder_kwargs = {
     'halo_data_dir': './tests/data/ahf_test_data',
     'mtree_halos_index': 600,
     'main_mt_halo_id': 0,
+    'mt_length_scale' : 'Rvir',
     'halo_file_tag': 'smooth',
 
     'galaxy_cut': 0.1,
     'ids_to_return': [
-        'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id',
-        'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_other_gal_scaled', ],
+        'gal_id',
+        'host_gal_id',
+        'mt_gal_id',
+        'd_gal',
+        'd_other_gal_scaled',
+    ],
     'minimum_criteria': 'n_star',
     'minimum_value': 0,
 }
@@ -45,10 +50,15 @@ gal_finder_kwargs = {
 ptrack_gal_finder_kwargs = {
     'length_scale': 'Rvir',
     'ids_to_return': [
-        'halo_id', 'host_halo_id', 'gal_id', 'host_gal_id',
-        'mt_halo_id', 'mt_gal_id', 'd_gal', 'd_other_gal_scaled', ],
+        'gal_id',
+        'host_gal_id',
+        'mt_gal_id',
+        'd_gal',
+        'd_other_gal_scaled',
+    ],
     'minimum_criteria': 'n_star',
     'minimum_value': 0,
+    'mt_length_scale' : 'Rvir',
 
     'galaxy_cut': 0.1,
 

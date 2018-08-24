@@ -47,6 +47,7 @@ gal_finder_kwargs = {
     'main_mt_halo_id': 0,
 
     'length_scale': 'Rvir',
+    'mt_length_scale': 'Rvir',
 }
 
 # Classifying Parameters

@@ -65,6 +65,7 @@ gal_finder_kwargs = {
     'n_processors': 1,
 
     'length_scale': 'Rvir',
+    'mt_length_scale': 'Rvir',
 }
 
 # Classifying Parameters
