@@ -14,11 +14,11 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.collections as collections
 
-import galaxy_diver.plot_data.generic_plotter as generic_plotter
-import galaxy_diver.analyze_data.ahf as analyze_ahf
-import galaxy_diver.plot_data.ahf as plot_ahf
-import galaxy_diver.plot_data.plotting as gen_plot
-import galaxy_diver.utils.astro as astro_utils
+import galaxy_dive.plot_data.generic_plotter as generic_plotter
+import galaxy_dive.analyze_data.ahf as analyze_ahf
+import galaxy_dive.plot_data.ahf as plot_ahf
+import galaxy_dive.plot_data.plotting as gen_plot
+import galaxy_dive.utils.astro as astro_utils
 
 import pathfinder.config as config
 import pathfinder.utils.presentation_constants as p_constants

@@ -18,9 +18,9 @@ import matplotlib.pyplot as plt
 import plot_worldlines
 import worldlines as a_worldlines
 
-import galaxy_diver.plot_data.plotting as gen_plot
-import galaxy_diver.utils.hdf5_wrapper as hdf5_wrapper
-import galaxy_diver.utils.utilities as utilities
+import galaxy_dive.plot_data.plotting as gen_plot
+import galaxy_dive.utils.hdf5_wrapper as hdf5_wrapper
+import galaxy_dive.utils.utilities as utilities
 
 ########################################################################
 

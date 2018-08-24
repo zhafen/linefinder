@@ -17,9 +17,9 @@ import time
 
 import jug.utils as jug_utils
 
-import galaxy_diver.analyze_data.particle_data as particle_data
-import galaxy_diver.utils.mp_utils as mp_utils
-import galaxy_diver.utils.utilities as utilities
+import galaxy_dive.analyze_data.particle_data as particle_data
+import galaxy_dive.utils.mp_utils as mp_utils
+import galaxy_dive.utils.utilities as utilities
 
 ########################################################################
 ########################################################################
@@ -354,7 +354,7 @@ class IDSelector( object ):
 
         # Save the current code versions
         f.attrs['pathfinder_version'] = utilities.get_code_version( self )
-        f.attrs['galaxy_diver_version'] = utilities.get_code_version( particle_data, instance_type='module' )
+        f.attrs['galaxy_dive_version'] = utilities.get_code_version( particle_data, instance_type='module' )
 
         f.close()
 

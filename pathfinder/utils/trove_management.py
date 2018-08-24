@@ -9,7 +9,7 @@
 import itertools
 import os
 
-import galaxy_diver.data_management.trove_management as trove_management
+import galaxy_dive.data_management.trove_management as trove_management
 
 import pathfinder.utils.file_management as file_management
 

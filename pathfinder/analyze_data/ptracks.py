@@ -10,7 +10,7 @@ import h5py
 import numpy as np
 import os
 
-import galaxy_diver.analyze_data.simulation_data as simulation_data
+import galaxy_dive.analyze_data.simulation_data as simulation_data
 
 ########################################################################
 ########################################################################

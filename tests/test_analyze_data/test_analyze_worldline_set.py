@@ -248,7 +248,7 @@ class TestStoreQuantity( unittest.TestCase ):
     ########################################################################
 
     @mock.patch(
-        'galaxy_diver.utils.hdf5_wrapper.HDF5Wrapper.insert_data',
+        'galaxy_dive.utils.hdf5_wrapper.HDF5Wrapper.insert_data',
     )
     @mock.patch(
         'pathfinder.analyze_data.worldline_set.WorldlineSet.store_quantity',

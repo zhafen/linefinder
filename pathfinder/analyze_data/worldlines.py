@@ -9,12 +9,12 @@
 import numpy as np
 import numpy.testing as npt
 
-import galaxy_diver.analyze_data.ahf as analyze_ahf_data
-import galaxy_diver.analyze_data.generic_data as generic_data
-import galaxy_diver.analyze_data.simulation_data as simulation_data
-import galaxy_diver.read_data.snapshot as read_snapshot
-import galaxy_diver.utils.astro as astro_tools
-import galaxy_diver.utils.utilities as utilities
+import galaxy_dive.analyze_data.ahf as analyze_ahf_data
+import galaxy_dive.analyze_data.generic_data as generic_data
+import galaxy_dive.analyze_data.simulation_data as simulation_data
+import galaxy_dive.read_data.snapshot as read_snapshot
+import galaxy_dive.utils.astro as astro_tools
+import galaxy_dive.utils.utilities as utilities
 
 import ids
 import ptracks

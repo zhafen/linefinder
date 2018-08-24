@@ -147,7 +147,7 @@ class TestWorldlineGetData( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'galaxy_diver.analyze_data.simulation_data.SimulationData.get_data' )
+    @mock.patch( 'galaxy_dive.analyze_data.simulation_data.SimulationData.get_data' )
     def test_basic( self, mock_get_data ):
 
         self.worldlines.get_data( 'Rx' )
@@ -225,7 +225,7 @@ class TestWorldlineGetData( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'galaxy_diver.analyze_data.ahf.HaloData.get_mt_data' )
+    @mock.patch( 'galaxy_dive.analyze_data.ahf.HaloData.get_mt_data' )
     def test_get_data_at_ind_units_used( self, mock_get_mt_data ):
         '''Test we can get the data at a specified index, including scaling by some unit.
         '''

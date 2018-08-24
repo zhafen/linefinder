@@ -14,10 +14,10 @@ import os
 import sys
 import time
 
-import galaxy_diver.analyze_data.halo_data as halo_data
-import galaxy_diver.galaxy_finder.finder as galaxy_finder
-import galaxy_diver.utils.mp_utils as mp_utils
-import galaxy_diver.utils.utilities as utilities
+import galaxy_dive.analyze_data.halo_data as halo_data
+import galaxy_dive.galaxy_finder.finder as galaxy_finder
+import galaxy_dive.utils.mp_utils as mp_utils
+import galaxy_dive.utils.utilities as utilities
 
 import config
 
@@ -487,7 +487,7 @@ class ParticleTrackGalaxyFinder( object ):
 
         # Save the current code version
         f.attrs['pathfinder_version'] = utilities.get_code_version( self )
-        f.attrs['galaxy_diver_version'] = utilities.get_code_version(
+        f.attrs['galaxy_dive_version'] = utilities.get_code_version(
             galaxy_finder, instance_type='module' )
 
         f.close()

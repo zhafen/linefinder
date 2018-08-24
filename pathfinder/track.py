@@ -15,10 +15,10 @@ import pandas as pd
 import sys
 import time
 
-import galaxy_diver.read_data.snapshot as read_snapshot
-import galaxy_diver.utils.constants as constants
-import galaxy_diver.utils.mp_utils as mp_utils
-import galaxy_diver.utils.utilities as utilities
+import galaxy_dive.read_data.snapshot as read_snapshot
+import galaxy_dive.utils.constants as constants
+import galaxy_dive.utils.mp_utils as mp_utils
+import galaxy_dive.utils.utilities as utilities
 
 ########################################################################
 
@@ -558,7 +558,7 @@ class ParticleTracker( object ):
 
         # Save the current code version
         f.attrs['pathfinder_version'] = utilities.get_code_version( self )
-        f.attrs['galaxy_diver_version'] = utilities.get_code_version(
+        f.attrs['galaxy_dive_version'] = utilities.get_code_version(
             read_snapshot, instance_type='module' )
 
         f.close()

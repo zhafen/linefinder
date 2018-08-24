@@ -197,7 +197,7 @@ class TestIDSelector( unittest.TestCase ):
     def setUp( self ):
 
         # Mock the code version so we don't repeatedly change test data
-        patcher = mock.patch( 'galaxy_diver.utils.utilities.get_code_version' )
+        patcher = mock.patch( 'galaxy_dive.utils.utilities.get_code_version' )
         self.addCleanup( patcher.stop )
         self.mock_code_version = patcher.start()
 
@@ -344,7 +344,7 @@ class TestIDSelector( unittest.TestCase ):
                 assert data_filter_inner == g['parameters/data_filters'][key].attrs[inner_key]
 
         assert g.attrs['pathfinder_version'] is not None
-        assert g.attrs['galaxy_diver_version'] is not None
+        assert g.attrs['galaxy_dive_version'] is not None
 
     ########################################################################
 
@@ -398,7 +398,7 @@ class TestIDSelector( unittest.TestCase ):
                 assert default_kwargs[key] == g['parameters'].attrs[key]
 
         assert g.attrs['pathfinder_version'] is not None
-        assert g.attrs['galaxy_diver_version'] is not None
+        assert g.attrs['galaxy_dive_version'] is not None
 
 ########################################################################
 
@@ -407,7 +407,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
     def setUp( self ):
 
         # Mock the code version so we don't repeatedly change test data
-        patcher = mock.patch( 'galaxy_diver.utils.utilities.get_code_version' )
+        patcher = mock.patch( 'galaxy_dive.utils.utilities.get_code_version' )
         self.addCleanup( patcher.stop )
         self.mock_code_version = patcher.start()
 
@@ -532,7 +532,7 @@ class TestIDSelectorNoChildIDs( unittest.TestCase ):
                 assert default_kwargs[key] == g['parameters'].attrs[key]
 
         assert g.attrs['pathfinder_version'] is not None
-        assert g.attrs['galaxy_diver_version'] is not None
+        assert g.attrs['galaxy_dive_version'] is not None
 
 ########################################################################
 ########################################################################
@@ -699,9 +699,9 @@ class TestIDSampler( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'galaxy_diver.analyze_data.simulation_data.SnapshotData.get_data' )
-    @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
-    @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.__init__' )
+    @mock.patch( 'galaxy_dive.analyze_data.simulation_data.SnapshotData.get_data' )
+    @mock.patch( 'galaxy_dive.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
+    @mock.patch( 'galaxy_dive.analyze_data.particle_data.ParticleData.__init__' )
     def test_identify_duplicate_ids_load_correct_data( self, mock_p_data, mock_find_duplicate_ids, mock_get_data ):
 
         mock_p_data.side_effect = [ None, None, ]
@@ -726,7 +726,7 @@ class TestIDSampler( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
+    @mock.patch( 'galaxy_dive.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
     def test_identify_duplicate_ids( self, mock_find_duplicate_ids ):
 
         mock_find_duplicate_ids.side_effect = [ np.array([ 36091289, 3211791 ]), np.array([ 24565150, ]) ]
@@ -739,8 +739,8 @@ class TestIDSampler( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'galaxy_diver.analyze_data.simulation_data.SnapshotData.get_data' )
-    @mock.patch( 'galaxy_diver.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
+    @mock.patch( 'galaxy_dive.analyze_data.simulation_data.SnapshotData.get_data' )
+    @mock.patch( 'galaxy_dive.analyze_data.particle_data.ParticleData.find_duplicate_ids' )
     def test_identify_duplicate_ids_star_gas( self, mock_find_duplicate_ids, mock_get_data ):
         '''Test we can identify duplicates when one of the particles is gas, and the other is star.
         '''

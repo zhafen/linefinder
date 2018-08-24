@@ -15,7 +15,7 @@ import pandas as pd
 import pdb
 import unittest
 
-import galaxy_diver.read_data.ahf as read_ahf
+import galaxy_dive.read_data.ahf as read_ahf
 from pathfinder import classify
 
 ########################################################################
@@ -909,7 +909,7 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
     def setUp( self ):
         # Mock the code version so we don't repeatedly change test data
-        patcher = patch( 'galaxy_diver.utils.utilities.get_code_version' )
+        patcher = patch( 'galaxy_dive.utils.utilities.get_code_version' )
         self.addCleanup( patcher.stop )
         self.mock_code_version = patcher.start()
 
