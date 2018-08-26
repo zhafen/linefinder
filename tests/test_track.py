@@ -302,7 +302,7 @@ class TestFindIds( unittest.TestCase ):
 
         expected = {
             'ID': target_ids,
-            'Den': np.array([ 3.12611002e-08,   2.98729116e-09, 0. ])*constants.UNITDENSITY_IN_NUMDEN
+            'Den': np.array([ 3.12611002e-08,   2.98729116e-09, np.nan ])*constants.UNITDENSITY_IN_NUMDEN
         }
 
         dfid, redshift, attrs = self.fn( sdir, snum, p_types, target_ids, \
@@ -370,7 +370,12 @@ class TestSaveTargetedParticles( unittest.TestCase ):
         actual_id = f['ID'][...]
         npt.assert_allclose( expected_id, actual_id )
 
-        expected_rho_500 = np.array([ 2.98729116e-09,   3.12611002e-08,   8.95081308e-04, 0. ])*constants.UNITDENSITY_IN_NUMDEN
+        expected_rho_500 = np.array([
+            2.98729116e-09,
+            3.12611002e-08,
+            8.95081308e-04,
+            np.nan,
+        ])*constants.UNITDENSITY_IN_NUMDEN
         actual_rho_500 = f['Den'][...][:,-1]
         npt.assert_allclose( expected_rho_500, actual_rho_500 )
 
@@ -415,7 +420,7 @@ class TestSaveTargetedParticles( unittest.TestCase ):
         actual_id = f['ID'][...]
         npt.assert_allclose( expected_id, actual_id )
 
-        expected_rho_500 = np.array([ 2.98729116e-09,   3.12611002e-08,   8.95081308e-04, 0. ])*constants.UNITDENSITY_IN_NUMDEN
+        expected_rho_500 = np.array([ 2.98729116e-09,   3.12611002e-08,   8.95081308e-04, np.nan ])*constants.UNITDENSITY_IN_NUMDEN
         actual_rho_500 = f['Den'][...][:,-1]
         npt.assert_allclose( expected_rho_500, actual_rho_500 )
 

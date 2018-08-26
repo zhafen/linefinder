@@ -20,6 +20,8 @@ import galaxy_dive.utils.constants as constants
 import galaxy_dive.utils.mp_utils as mp_utils
 import galaxy_dive.utils.utilities as utilities
 
+import config as linefinder_config
+
 ########################################################################
 
 # For catching default values
@@ -704,17 +706,17 @@ class IDFinder( object ):
             if 'rho' in P:
                     Den = P['rho'] * constants.UNITDENSITY_IN_NUMDEN
             else:
-                    Den = [0., ] * pnum
+                    Den = [ linefinder_config.FLOAT_FILL_VALUE, ] * pnum
 
             if 'sfr' in P:
                     sfr = P['sfr']
             else:
-                    sfr = [0., ] * pnum
+                    sfr = [ linefinder_config.FLOAT_FILL_VALUE, ] * pnum
 
             if 'u' in P:
                     T = read_snapshot.gas_temperature( P['u'], P['ne'] )
             else:
-                    T = [0., ] * pnum
+                    T = [ linefinder_config.FLOAT_FILL_VALUE, ] * pnum
 
             thistype = np.zeros( pnum, dtype='int8' )
             thistype.fill(p_type)
