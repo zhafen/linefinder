@@ -97,12 +97,12 @@ STAMPEDE2_PARAMETERS = {
 
     'project' : {
         'CGM_origin' : {
-            'project_dir' : '/home1/03057/zhafen/repos/CGM_origin',
+            'project_dir' : '/home1/03057/zhafen/papers/CGM_origin',
             'presentation_dir' : '/work/03057/zhafen/presentation_plots',
             'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_origin',
         },
         'galaxy_origin' : {
-            'project_dir' : '/home1/03057/zhafen/repos/galaxy_origin',
+            'project_dir' : '/home1/03057/zhafen/papers/galaxy_origin',
         },
     },
 }

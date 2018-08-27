@@ -1744,6 +1744,25 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
 
     ########################################################################
 
+    def select_ptype( self, ptype_value ):
+        '''Simple selection routine for only selecting particle type.
+
+        Args:
+            selection_routine (str) :
+                What selection routine to run? If None, don't run any.
+
+            ptype (str) :
+                What particle type to select?
+
+        Modifies:
+            self.masks (list) :
+                Clears and adds masks to self.masks.
+        '''
+
+        self.mask_data( 'PType', data_value=ptype_value )
+
+    ########################################################################
+
     def select_galaxy( self, ptype_value ):
         '''This selection routine selects only particles in a galaxy.
 
