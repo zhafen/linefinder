@@ -1,6 +1,8 @@
 # linefinder
 A tool for finding the worldlines of Lagrangian parcels of mass, in the context of hydrodynamic simulations of galaxy formation.
 
+Fundamental parts of this code are based on previous work by Daniel Anglés-Alcázar.
+
 ## Installation
 
 `pip install linefinder`
