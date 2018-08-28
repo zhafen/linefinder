@@ -84,6 +84,20 @@ CLASSIFICATION_COLORS_B = {
     'is_outside_any_gal_EP': colors.hsv_to_rgb( np.array([ 32.6/360.,  0.72,  0.7 ]) ),
     'is_CGM_satellite': colors.hsv_to_rgb( np.array([ 9.4/360,  0.8, 0.5 ]) ),
     'is_in_galaxy_halo_interface': colors.hsv_to_rgb( np.array([ 302./360, .6, .8 ]) ),
+    # These are older colors used for Galaxy Data
+    'is_pristine': list( colors.hex2color( '#007AAF' ) ),
+    'is_NEP_NYA': list( colors.hex2color( '#007AAF' ) ),
+    'is_fresh_accretion': list( colors.hex2color( '#0A4BC6' ) ),
+    'is_NEP_wind_recycling': list( colors.hex2color( '#07BC6E' ) ),
+    'is_IP': list( colors.hex2color( '#4CAF00' ) ),
+    'is_wind': list( colors.hex2color( '#4CAF00' ) ),
+    'is_preprocessed': list( colors.hex2color( '#FB9319' ) ),
+    'is_mass_transfer': list( colors.hex2color( '#FDD30D' ) ),
+    'is_mass_transfer_NYA': list( colors.hex2color( '#FDD30D' ) ),
+    'is_merger': list( colors.hex2color( '#E32F0E' ) ),
+    'is_merger_NYA': list( colors.hex2color( '#E32F0E' ) ),
+    'is_merger_star': list( colors.hex2color( '#E32F0E' ) ),
+    'is_merger_gas': list( colors.hex2color( '#E67711' ) ),
 }
 # This set is revised again to have greater variation in brightness
 # Revised to have greater variation in brightness

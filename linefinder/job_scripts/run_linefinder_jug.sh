@@ -12,10 +12,12 @@
 #SBATCH --mail-type=fail
 #SBATCH --mail-type=end
 
-JUGFILE=/home1/03057/zhafen/repos/linefinder/linefinder/job_scripts/linefinder_CGM_trove_jugfile.py
+JUGFILE=/home1/03057/zhafen/repos/linefinder/linefinder/job_scripts/linefinder_trove_jugfile.py
 
+# Run JUG
 for i in $(seq 4); do jug execute $JUGFILE & done
 
+# Workaround to check if JUG is done
 while ! jug check $JUGFILE; do
    jug sleep-until $JUGFILE 
 done
