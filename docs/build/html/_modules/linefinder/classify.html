@@ -1,0 +1,1186 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>linefinder.classify &#8212; linefinder 0.8.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for linefinder.classify</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&#39;&#39;&#39;Tools for categorizing particles into different accretion modes.</span>
+
+<span class="sd">@author: Daniel Angles-Alcazar, Zach Hafen</span>
+<span class="sd">@contact: zachary.h.hafen@gmail.com</span>
+<span class="sd">@status: Development</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">scipy.spatial</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.ahf</span> <span class="k">as</span> <span class="nn">analyze_ahf</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.read_data.ahf</span> <span class="k">as</span> <span class="nn">read_ahf</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.utils.astro</span> <span class="k">as</span> <span class="nn">astro_tools</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.utils.constants</span> <span class="k">as</span> <span class="nn">constants</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.utils.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
+
+<span class="kn">import</span> <span class="nn">config</span>
+
+<span class="c1">########################################################################</span>
+
+<span class="n">default</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1">########################################################################</span>
+
+
+<div class="viewcode-block" id="Classifier"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier">[docs]</a><span class="k">class</span> <span class="nc">Classifier</span><span class="p">(</span> <span class="nb">object</span> <span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Loads the tracked particle data, and uses that to classify the particles</span>
+<span class="sd">    into different categories.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@utilities</span><span class="o">.</span><span class="n">store_parameters</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">out_dir</span><span class="p">,</span>
+        <span class="n">tag</span><span class="p">,</span>
+        <span class="n">ptracks_tag</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">galids_tag</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">halo_data_dir</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">mtree_halos_index</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">halo_file_tag</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">not_in_main_gal_key</span> <span class="o">=</span> <span class="s1">&#39;gal_id&#39;</span><span class="p">,</span>
+        <span class="n">classifications_to_save</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;is_unaccreted&#39;</span><span class="p">,</span> <span class="s1">&#39;is_pristine&#39;</span><span class="p">,</span> <span class="s1">&#39;is_preprocessed&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;is_merger&#39;</span><span class="p">,</span> <span class="s1">&#39;is_mass_transfer&#39;</span><span class="p">,</span> <span class="s1">&#39;is_wind&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;is_hitherto_EP&#39;</span><span class="p">,</span> <span class="s1">&#39;is_hitherto_NEP&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;is_unaccreted_EP&#39;</span><span class="p">,</span> <span class="s1">&#39;is_unaccreted_NEP&#39;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">write_events</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">events_to_save</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;is_in_other_gal&#39;</span><span class="p">,</span> <span class="s1">&#39;is_in_main_gal&#39;</span><span class="p">,</span> <span class="s1">&#39;is_accreted&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;is_ejected&#39;</span><span class="p">,</span> <span class="s1">&#39;redshift_first_acc&#39;</span><span class="p">,</span> <span class="s1">&#39;ind_first_acc&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;cumulative_time_in_other_gal&#39;</span><span class="p">,</span> <span class="s1">&#39;gal_event_id&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;time_in_other_gal_before_acc_during_interval&#39;</span> <span class="p">],</span>
+        <span class="n">velocity_scale</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VELOCITY_SCALE</span><span class="p">,</span>
+        <span class="n">wind_cut</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">WIND_CUT</span><span class="p">,</span>
+        <span class="n">absolute_wind_cut</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">ABSOLUTE_WIND_CUT</span><span class="p">,</span>
+        <span class="n">t_pro</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">T_PRO</span><span class="p">,</span>
+        <span class="n">t_m</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">T_M</span><span class="p">,</span>
+        <span class="n">neg</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">main_halo_robustness_criteria</span> <span class="o">=</span> <span class="s1">&#39;n_star&#39;</span><span class="p">,</span>
+        <span class="n">main_halo_robustness_value</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">min_gal_density</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">GALAXY_DENSITY_CUT</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Setup the ID Finder.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            out_dir (str) :</span>
+<span class="sd">                Data directory for tracked particle data.</span>
+
+<span class="sd">            tag (str) :</span>
+<span class="sd">                Identifying tag. Currently must be put in manually.</span>
+
+<span class="sd">            ptracks_tag (str, optional) :</span>
+<span class="sd">                Identifying tag for the ptrack data. Defaults to &#39;tag&#39;.</span>
+
+<span class="sd">            galids_tag (str, optional) :</span>
+<span class="sd">                Identifying tag for the galaxy_finder data. Defaults to &#39;tag&#39;.</span>
+
+<span class="sd">            halo_data_dir (str, optional) :</span>
+<span class="sd">                Data directory for AHF data.</span>
+<span class="sd">                Default value is whatever is stored in the galids file.</span>
+
+<span class="sd">            mtree_halos_index (int, optional) :</span>
+<span class="sd">                The index argument to pass to AHFReader.get_mtree_halos().</span>
+<span class="sd">                For most cases this should be the final snapshot number, but</span>
+<span class="sd">                see AHFReader.get_mtree_halos&#39;s documentation.</span>
+<span class="sd">                Default value is whatever is stored in the galids file.</span>
+
+<span class="sd">            halo_file_tag (str, optional) :</span>
+<span class="sd">                What halo files to load and use? Defaults to whatever is stored</span>
+<span class="sd">                in the galids file.</span>
+
+<span class="sd">            not_in_main_gal_key (str, optional) :</span>
+<span class="sd">                The galaxy_finder data key used to identify when not in a main</span>
+<span class="sd">                galaxy. &#39;gal_id&#39; is the default, meaning if a particle is in the</span>
+<span class="sd">                main galaxy and isn&#39;t inside another galaxy then it&#39;s</span>
+<span class="sd">                counted as in part of the main galaxy. Another potential option</span>
+<span class="sd">                is &#39;halo_id&#39;.</span>
+
+<span class="sd">            classifications_to_save (list of strs, optional) :</span>
+<span class="sd">                What classifications to write to a file.</span>
+
+<span class="sd">            write_events (bool, optional) :</span>
+<span class="sd">                Whether or not to save events in a particle&#39;s history to a file,</span>
+<span class="sd">                e.g. when it&#39;s ejected.</span>
+
+<span class="sd">            events_to_save (list of strs, optional) :</span>
+<span class="sd">                What events to write to a file.</span>
+
+<span class="sd">            velocity_scale (float) :</span>
+<span class="sd">                What the velocity scale of the galaxy is (for applying velocity</span>
+<span class="sd">                cuts).</span>
+
+<span class="sd">            wind_cut (float, optional) :</span>
+<span class="sd">                The minimum radial velocity (in units of the main galaxy</span>
+<span class="sd">                velocity scale) a particle must have to be considered ejection.</span>
+
+<span class="sd">            absolute_wind_cut (float, optional) :</span>
+<span class="sd">                The minimum radial velocity (in km/s ) a particle must have to</span>
+<span class="sd">                be considered ejection.</span>
+
+<span class="sd">            t_pro (float, optional) :</span>
+<span class="sd">                The processing time, i.e. the minimum time (in Myr) a particle</span>
+<span class="sd">                must reside in a galaxy to not count as pristine gas.</span>
+
+<span class="sd">            t_m (float, optional) :</span>
+<span class="sd">                Externally-processed mass is required to spend at least t_pro</span>
+<span class="sd">                during the interval t_m prior to accretion to qualify</span>
+<span class="sd">                as a *merger*.</span>
+
+<span class="sd">            neg (int, optional) :</span>
+<span class="sd">                Number of earliest indices for which we neglect</span>
+<span class="sd">                accretion/ejection events. If each indice corresponds to a</span>
+<span class="sd">                snapshot, then it&#39;s the number of snapshots</span>
+
+<span class="sd">            main_halo_robustness_criteria (str) &amp;</span>
+<span class="sd">            main_halo_robustness_value (int or float) :</span>
+<span class="sd">                The main halo is considered resolved if the value of</span>
+<span class="sd">                main_halo_robustness_criteria is greater than or equal</span>
+<span class="sd">                to main_halo_robustness_value.</span>
+<span class="sd">                By default the main halo is counted as resolved if the</span>
+<span class="sd">                n_stars(main halo) &gt;= 100.</span>
+
+<span class="sd">            min_gal_density (float):</span>
+<span class="sd">                Minimum density (n_particles in 1/cm^3) for gas to be counted as</span>
+<span class="sd">                being in a galaxy, on top of being sufficiently close to the</span>
+<span class="sd">                center of said galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">pass</span>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.classify_particles"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.classify_particles">[docs]</a>    <span class="k">def</span> <span class="nf">classify_particles</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Run the full classification suite.&#39;&#39;&#39;</span>
+
+        <span class="c1"># Print out starting information</span>
+        <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
+        <span class="nb">print</span> <span class="s2">&quot;Starting Classifying!&quot;</span>
+        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
+        <span class="nb">print</span> <span class="s2">&quot;Using tracked particle data from this directory:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span> <span class="p">)</span>
+        <span class="nb">print</span> <span class="s2">&quot;Using halo data from this directory:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="p">)</span>
+        <span class="nb">print</span> <span class="s2">&quot;Data will be saved here:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span> <span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="c1"># Get the data files out</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_data_files</span><span class="p">()</span>
+
+        <span class="c1"># Do the auxiliary calculations</span>
+        <span class="nb">print</span> <span class="s2">&quot;Calculating radial velocity, circular velocity, and dt...&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_difference</span><span class="p">()</span>
+
+        <span class="c1"># Do the first wave of classifications</span>
+        <span class="nb">print</span> <span class="s2">&quot;Identifying accretion, ejection, etc...&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_in_other_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_is_in_other_gal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_in_main_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_is_in_main_gal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gal_event_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_gal_event_id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_accreted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_accretion</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_ejected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_ejection</span><span class="p">()</span>
+
+        <span class="c1"># Information on what happens before accretion.</span>
+        <span class="nb">print</span> <span class="s2">&quot;Figuring out what happens before first accretion...&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cum_num_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cum_num_acc</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_before_first_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_is_before_first_acc</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redshift_first_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_redshift_first_acc</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cumulative_time_in_other_gal</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_cumulative_time_in_other_gal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_in_other_gal_before_acc</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_time_in_other_gal_before_acc</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_in_other_gal_before_acc_during_interval</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_time_in_other_gal_before_acc_during_interval</span><span class="p">()</span>
+
+        <span class="c1"># Get the primary classifications</span>
+        <span class="nb">print</span> <span class="s2">&quot;Performing the main classifications...&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_hitherto_EP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_hitherto_EP</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_hitherto_NEP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_hitherto_NEP</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_unaccreted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_unaccreted</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_unaccreted_EP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_unaccreted_EP</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_unaccreted_NEP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_unaccreted_NEP</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_preprocessed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_preprocessed</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_pristine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_pristine</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_mass_transfer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_mass_transfer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_merger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_merger</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_wind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_wind</span><span class="p">()</span>
+
+        <span class="c1"># Save the results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_classifications</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifications_to_save</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_events</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">events_to_save</span> <span class="p">)</span>
+
+        <span class="c1"># Print out end information</span>
+        <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
+        <span class="nb">print</span> <span class="s2">&quot;Done Classifying!&quot;</span>
+        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
+        <span class="nb">print</span> <span class="s2">&quot;Output file saved as:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classification_filepath</span> <span class="p">)</span>
+        <span class="nb">print</span> <span class="s2">&quot;Took </span><span class="si">{:.3g}</span><span class="s2"> seconds, or </span><span class="si">{:.3g}</span><span class="s2"> seconds per particle!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">,</span> <span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.read_data_files"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.read_data_files">[docs]</a>    <span class="k">def</span> <span class="nf">read_data_files</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Read the relevant data files, and store the data in a dictionary for</span>
+<span class="sd">        easy access later on.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="nb">print</span> <span class="s2">&quot;Reading data...&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">def</span> <span class="nf">load_data_into_ptrack</span><span class="p">(</span> <span class="n">filename</span><span class="p">,</span> <span class="n">store_parameters</span><span class="o">=</span><span class="kc">False</span> <span class="p">):</span>
+
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">filename</span> <span class="p">)</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Store the particle track data in a dictionary</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s1">&#39;parameters&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span> <span class="n">key</span> <span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span> <span class="n">key</span> <span class="p">][</span><span class="o">...</span><span class="p">]</span>
+
+            <span class="c1"># Store the ptrack attributes</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span> <span class="n">key</span> <span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span> <span class="n">key</span> <span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">store_parameters</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtree_halos_index</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mtree_halos_index</span> <span class="o">=</span> \
+                        <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;mtree_halos_index&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_file_tag</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">halo_file_tag</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;halo_file_tag&#39;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">parameter_key</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;galaxy_cut&#39;</span><span class="p">,</span> <span class="s1">&#39;length_scale&#39;</span><span class="p">,</span> <span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span> <span class="n">parameter_key</span> <span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">parameter_key</span><span class="p">]</span>
+
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># Get the tag for particle tracking.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks_tag</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ptracks_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span>
+
+        <span class="c1"># Get the tag for galaxy finding.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">galids_tag</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">galids_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span>
+
+        <span class="c1"># Load Particle Tracking and Galaxy Finding Data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_filename</span> <span class="o">=</span> <span class="s1">&#39;ptracks_</span><span class="si">{}</span><span class="s1">.hdf5&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks_tag</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">galfind_filename</span> <span class="o">=</span> <span class="s1">&#39;galids_</span><span class="si">{}</span><span class="s1">.hdf5&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">galids_tag</span> <span class="p">)</span>
+        <span class="n">load_data_into_ptrack</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_filename</span> <span class="p">)</span>
+        <span class="n">load_data_into_ptrack</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">galfind_filename</span><span class="p">,</span> <span class="kc">True</span> <span class="p">)</span>
+
+        <span class="c1"># Set useful state variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="c1"># Get the AHF data files.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ahf_reader</span> <span class="o">=</span> <span class="n">read_ahf</span><span class="o">.</span><span class="n">AHFReader</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ahf_reader</span><span class="o">.</span><span class="n">get_mtree_halos</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtree_halos_index</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">halo_file_tag</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.save_classifications"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.save_classifications">[docs]</a>    <span class="k">def</span> <span class="nf">save_classifications</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">classifications_to_save</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Save the results of running the classifier.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            classifications_to_save (list of strs) :</span>
+<span class="sd">                What classifications to save to the file.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Open up the file to save the data in.</span>
+        <span class="n">classification_filename</span> <span class="o">=</span> <span class="s1">&#39;classifications_</span><span class="si">{}</span><span class="s1">.hdf5&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classification_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span>
+                                                     <span class="n">classification_filename</span> <span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">classification_filepath</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span> <span class="p">)</span>
+
+        <span class="c1"># Save the data</span>
+        <span class="k">for</span> <span class="n">classification</span> <span class="ow">in</span> <span class="n">classifications_to_save</span><span class="p">:</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">classification</span> <span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span> <span class="n">classification</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span> <span class="p">)</span>
+
+        <span class="n">utilities</span><span class="o">.</span><span class="n">save_parameters</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">f</span> <span class="p">)</span>
+
+        <span class="c1"># Save the current code versions</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;linefinder_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">get_code_version</span><span class="p">(</span> <span class="bp">self</span> <span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;galaxy_dive_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">get_code_version</span><span class="p">(</span>
+            <span class="n">read_ahf</span><span class="p">,</span>
+            <span class="n">instance_type</span><span class="o">=</span><span class="s1">&#39;module&#39;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Save the snapshot number when the main halo is first resolved.</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_first_snap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_mt_halo_first_snap</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;ind_first_snap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind_first_snap</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.save_events"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.save_events">[docs]</a>    <span class="k">def</span> <span class="nf">save_events</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">events_to_save</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Save the particular events, identified during the classification process.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            events_to_save (list of strs) : What events to save to the file.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Open up the file to save the data in.</span>
+        <span class="n">events_filename</span> <span class="o">=</span> <span class="s1">&#39;events_</span><span class="si">{}</span><span class="s1">.hdf5&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">events_filename</span> <span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">events_filepath</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span> <span class="p">)</span>
+
+        <span class="c1"># Save the data</span>
+        <span class="k">for</span> <span class="n">event_type</span> <span class="ow">in</span> <span class="n">events_to_save</span><span class="p">:</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span> <span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span> <span class="p">)</span>
+
+        <span class="n">utilities</span><span class="o">.</span><span class="n">save_parameters</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">f</span> <span class="p">)</span>
+
+        <span class="c1"># Save the current code versions</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;linefinder_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">get_code_version</span><span class="p">(</span> <span class="bp">self</span> <span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;galaxy_dive_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">get_code_version</span><span class="p">(</span>
+            <span class="n">read_ahf</span><span class="p">,</span> <span class="n">instance_type</span><span class="o">=</span><span class="s1">&#39;module&#39;</span> <span class="p">)</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Auxilliary Calculations</span>
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.get_radial_velocity"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.get_radial_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">get_radial_velocity</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the radial velocity of particles, relative to the main galaxy.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            v_r ( [n_particle, n_snap] np.ndarray ) : The radial velocity of</span>
+<span class="sd">            each particle at that redshift, relative to the main galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Get the position and velocity of the main galaxy</span>
+        <span class="n">main_mt_halo_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ahf_reader</span><span class="o">.</span><span class="n">get_pos_or_vel</span><span class="p">(</span>
+            <span class="s1">&#39;pos&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span> <span class="s1">&#39;snum&#39;</span> <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">main_mt_halo_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ahf_reader</span><span class="o">.</span><span class="n">get_pos_or_vel</span><span class="p">(</span>
+            <span class="s1">&#39;vel&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span> <span class="s1">&#39;snum&#39;</span> <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Apply cosmological corrections to the position of the main galaxy</span>
+        <span class="n">main_mt_halo_p</span> <span class="o">*=</span> <span class="mf">1.</span> <span class="o">/</span> \
+            <span class="p">(</span> <span class="mf">1.</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">][:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="p">)</span> <span class="o">/</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Loop over each redshift</span>
+        <span class="n">v_r</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span><span class="p">):</span>
+
+            <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;V&#39;</span><span class="p">][:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">main_mt_halo_v</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">][:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">main_mt_halo_p</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+            <span class="n">r_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="p">(</span> <span class="n">p</span><span class="o">**</span><span class="mf">2.</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span> <span class="p">)</span>
+
+            <span class="n">v_r_i</span> <span class="o">=</span> <span class="p">(</span> <span class="n">v</span> <span class="o">*</span> <span class="n">p</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span><span class="o">/</span><span class="n">r_i</span>
+
+            <span class="c1"># Add the hubble flow.</span>
+            <span class="n">hubble_factor</span> <span class="o">=</span> <span class="n">astro_tools</span><span class="o">.</span><span class="n">hubble_parameter</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">h</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">],</span>
+                <span class="n">omega_matter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;omega_matter&#39;</span><span class="p">],</span>
+                <span class="n">omega_lambda</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;omega_lambda&#39;</span><span class="p">],</span>
+                <span class="n">units</span><span class="o">=</span><span class="s1">&#39;1/s&#39;</span>
+            <span class="p">)</span>
+            <span class="n">v_r_i</span> <span class="o">+=</span> <span class="n">hubble_factor</span> <span class="o">*</span> <span class="n">r_i</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">UNITLENGTH_IN_CM</span> <span class="o">/</span> \
+                <span class="n">constants</span><span class="o">.</span><span class="n">UNITVELOCITY_IN_CM_PER_S</span>
+
+            <span class="n">v_r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">v_r_i</span> <span class="p">)</span>
+
+        <span class="c1"># Format the output</span>
+        <span class="n">v_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">v_r</span> <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">v_r</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.get_circular_velocity"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.get_circular_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">get_circular_velocity</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the circular velocity of the halo (measured at Rvir).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            v_c : Circular velocity of the halo in km/s, indexed the same way</span>
+<span class="sd">            that ahf_reader.mtree_halos[i] is.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Get the virial radius and mass of the main galaxy</span>
+        <span class="n">r_vir_kpc</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">ahf_reader</span><span class="o">.</span><span class="n">mtree_halos</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Rvir&#39;</span><span class="p">][</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span> <span class="s1">&#39;snum&#39;</span> <span class="p">]</span> <span class="p">]</span>
+        <span class="n">m_vir_msun</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">ahf_reader</span><span class="o">.</span><span class="n">mtree_halos</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Mvir&#39;</span><span class="p">][</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span> <span class="s1">&#39;snum&#39;</span> <span class="p">]</span> <span class="p">]</span>
+
+        <span class="c1"># Convert r_vir and m_vir to physical units</span>
+        <span class="n">r_vir_kpc</span> <span class="o">*=</span> \
+            <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span> <span class="mf">1.</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">]</span> <span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">]</span>
+        <span class="n">m_vir_msun</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">]</span>
+
+        <span class="n">v_c</span> <span class="o">=</span> <span class="n">astro_tools</span><span class="o">.</span><span class="n">circular_velocity</span><span class="p">(</span> <span class="n">r_vir_kpc</span><span class="p">,</span> <span class="n">m_vir_msun</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">v_c</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.get_velocity_scale"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.get_velocity_scale">[docs]</a>    <span class="k">def</span> <span class="nf">get_velocity_scale</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the characteristic velocity scale.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            velocity_scale (np.ndarray): Velocity of the halo in proper km/s.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_scale</span> <span class="o">==</span> <span class="s1">&#39;Vc(Rvir)&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_circular_velocity</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_scale</span> <span class="o">==</span> <span class="s1">&#39;Vc(Rgal)&#39;</span><span class="p">:</span>
+            <span class="n">ahf_key_parser</span> <span class="o">=</span> <span class="n">analyze_ahf</span><span class="o">.</span><span class="n">HaloKeyParser</span><span class="p">()</span>
+            <span class="n">r_gal_key</span> <span class="o">=</span> <span class="n">ahf_key_parser</span><span class="o">.</span><span class="n">get_velocity_at_radius_key</span><span class="p">(</span>
+                <span class="s1">&#39;Vc&#39;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;galaxy_cut&#39;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;length_scale&#39;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">main_mt_halo_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="p">]</span>
+            <span class="n">mtree_halo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ahf_reader</span><span class="o">.</span><span class="n">mtree_halos</span><span class="p">[</span><span class="n">main_mt_halo_id</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">mtree_halo</span><span class="p">[</span><span class="n">r_gal_key</span><span class="p">][</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span> <span class="s1">&#39;snum&#39;</span> <span class="p">]</span> <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">main_mt_halo_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="p">]</span>
+            <span class="n">mtree_halo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ahf_reader</span><span class="o">.</span><span class="n">mtree_halos</span><span class="p">[</span><span class="n">main_mt_halo_id</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">mtree_halo</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">velocity_scale</span><span class="p">][</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span> <span class="s1">&#39;snum&#39;</span> <span class="p">]</span> <span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.get_time_difference"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.get_time_difference">[docs]</a>    <span class="k">def</span> <span class="nf">get_time_difference</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the time between snapshots.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dt ([n_particle, n_snap-1] np.array): Time between snapshots in Myr.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Replicate redshifts self.ptrack indexing (last one removed)</span>
+        <span class="n">redshift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span><span class="p">],</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+
+        <span class="c1"># Age of the universe in Myr</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">astro_tools</span><span class="o">.</span><span class="n">age_of_universe</span><span class="p">(</span>
+            <span class="n">redshift</span><span class="p">,</span>
+            <span class="n">h</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">],</span>
+            <span class="n">omega_matter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;omega_matter&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">time</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">dt</span></div>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Auxilliary Classification Methods</span>
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_is_in_other_gal"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_is_in_other_gal">[docs]</a>    <span class="k">def</span> <span class="nf">identify_is_in_other_gal</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify what particles are in a galaxy besides the main galaxy.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_in_other_gal ( [n_particle, n_snap-1] np.ndarray of bools) :</span>
+<span class="sd">                True if in a galaxy other than the main galaxy at</span>
+<span class="sd">                that redshift.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Get the ID of the main halo for a given snapshot</span>
+        <span class="c1"># (remember that the mtree halo ID isn&#39;t the same as the ID at a given</span>
+        <span class="c1"># snapshot).</span>
+        <span class="n">main_mt_halo_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span>
+        <span class="n">main_mtree_halo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ahf_reader</span><span class="o">.</span><span class="n">mtree_halos</span><span class="p">[</span> <span class="n">main_mt_halo_id</span> <span class="p">]</span>
+        <span class="n">main_halo_id</span> <span class="o">=</span> <span class="n">main_mtree_halo</span><span class="p">[</span> <span class="s1">&#39;ID&#39;</span> <span class="p">][</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span> <span class="s1">&#39;snum&#39;</span> <span class="p">]</span> <span class="p">]</span>
+        <span class="n">main_halo_id_tiled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span> <span class="n">main_halo_id</span><span class="p">,</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="c1"># Check if we&#39;re inside the galaxy/halo other than the main galaxy</span>
+        <span class="c1"># This step is necessary, and the inverse of it is not redundant,</span>
+        <span class="c1"># because it removes anything that&#39;s in the</span>
+        <span class="c1"># main halo *and* that&#39;s the least massive galaxy it&#39;s in.</span>
+        <span class="n">is_not_in_main_gal</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">not_in_main_gal_key</span><span class="p">]</span> <span class="o">!=</span>
+                               <span class="n">main_halo_id_tiled</span> <span class="p">)</span>
+        <span class="n">is_in_gal</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;gal_id&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="p">)</span>
+
+        <span class="n">is_in_other_gal</span> <span class="o">=</span> <span class="p">(</span> <span class="n">is_in_gal</span> <span class="o">&amp;</span> <span class="n">is_not_in_main_gal</span> <span class="p">)</span>
+
+        <span class="c1"># If there&#39;s a density requirement, apply it.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_gal_density</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">is_in_other_gal</span> <span class="o">=</span> <span class="p">(</span> <span class="n">is_in_other_gal</span> <span class="o">&amp;</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">meets_density_requirement</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_in_other_gal</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_is_in_main_gal"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_is_in_main_gal">[docs]</a>    <span class="k">def</span> <span class="nf">identify_is_in_main_gal</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify what particles are in a main galaxy. They must be in the</span>
+<span class="sd">        main galaxy *and* not inside any other galaxy</span>
+<span class="sd">        at that redshift, even a subhalo galaxy.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_in_main_gal ( [n_particle, n_snap-1] np.ndarray of bools) :</span>
+<span class="sd">                True if in the main galaxy</span>
+<span class="sd">                (and not any other galaxy) at that redshift.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">is_not_in_other_gal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_in_other_gal</span> <span class="p">)</span>
+
+        <span class="c1"># If we&#39;re literally inside the main galaxy</span>
+        <span class="n">ptrack_mt_gal_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;mt_gal_id&#39;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span><span class="p">]</span>
+        <span class="n">main_mt_halo_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span>
+        <span class="n">is_in_main_gal_literal</span> <span class="o">=</span> <span class="p">(</span> <span class="n">ptrack_mt_gal_id</span> <span class="o">==</span> <span class="n">main_mt_halo_id</span> <span class="p">)</span>
+
+        <span class="c1"># Find if particles are inside/outside of main galaxy at each redshift</span>
+        <span class="n">is_in_main_gal</span> <span class="o">=</span> <span class="p">(</span> <span class="n">is_in_main_gal_literal</span> <span class="o">&amp;</span> <span class="n">is_not_in_other_gal</span> <span class="p">)</span>
+
+        <span class="c1"># Correct for boundary conditions</span>
+        <span class="n">main_gal_not_resolved</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">&lt;</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">main_mt_halo_first_snap</span> <span class="p">)</span>
+        <span class="n">main_gal_not_resolved_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">main_gal_not_resolved</span> <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">is_in_main_gal</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">main_gal_not_resolved_inds</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># If there&#39;s a density requirement, apply it.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_gal_density</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">is_in_main_gal</span> <span class="o">=</span> <span class="p">(</span> <span class="n">is_in_main_gal</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">meets_density_requirement</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_in_main_gal</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.calc_gal_event_id"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.calc_gal_event_id">[docs]</a>    <span class="k">def</span> <span class="nf">calc_gal_event_id</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify potential accretion/ejection events relative to main galaxy</span>
+<span class="sd">        at each redshift</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            gal_event_id ( [n_particle, n_snap-1] np.ndarray of ints) :</span>
+<span class="sd">                GalEvent = 0 (no change), 1 (entering galaxy),</span>
+<span class="sd">                -1 (leaving galaxy) at that redshift</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Find when the particles enter and exit the galaxy</span>
+        <span class="n">is_in_main_gal_after</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_in_main_gal</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">int</span> <span class="p">)</span>
+        <span class="n">is_in_main_gal_before</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_in_main_gal</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">int</span> <span class="p">)</span>
+        <span class="n">gal_event_id</span> <span class="o">=</span> <span class="n">is_in_main_gal_after</span> <span class="o">-</span> <span class="n">is_in_main_gal_before</span>
+
+        <span class="k">return</span> <span class="n">gal_event_id</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_accretion"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_accretion">[docs]</a>    <span class="k">def</span> <span class="nf">identify_accretion</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify ALL gas/star accretion events, i.e. whether or not a</span>
+<span class="sd">        particle was outside the galaxy at one redshift,</span>
+<span class="sd">        and inside at the next&#39;&#39;&#39;</span>
+
+        <span class="n">is_accreted</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">gal_event_id</span> <span class="o">==</span> <span class="mi">1</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_accreted</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_ejection"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_ejection">[docs]</a>    <span class="k">def</span> <span class="nf">identify_ejection</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify ALL gas wind ejection events.</span>
+<span class="sd">            These conditions must be met to identify as ejection:</span>
+<span class="sd">                1. Inside the main galaxy at one snapshot, and not at the</span>
+<span class="sd">                   previous snapshot.</span>
+<span class="sd">                2. Radial velocity of the particle relative to the main galaxy</span>
+<span class="sd">                    must be greater than some fraction of the</span>
+<span class="sd">                    circular velocity of the main galaxy.</span>
+<span class="sd">                3. Radial velocity of the particle relative to the main galaxy</span>
+<span class="sd">                    must be greater than some base speed.</span>
+<span class="sd">                4. The particle must be a gas particle.</span>
+<span class="sd">                5. The particle must be outside any other galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Get the radial velocity out.</span>
+        <span class="n">v_r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_radial_velocity</span><span class="p">()</span>
+
+        <span class="c1"># Get the circular velocity out and tile it for comparison</span>
+        <span class="n">v_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_velocity_scale</span><span class="p">()</span>
+        <span class="n">v_scale_tiled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span> <span class="n">v_scale</span><span class="p">,</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="c1"># The conditions for being outside any galaxy</span>
+        <span class="c1"># Condition 1</span>
+        <span class="n">is_outside_before_inside_after</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">gal_event_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="p">)</span>
+        <span class="c1"># Condition 2</span>
+        <span class="n">has_minimum_vr_in_vc</span> <span class="o">=</span> <span class="p">(</span> <span class="n">v_r</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">wind_cut</span> <span class="o">*</span>
+                                 <span class="n">v_scale_tiled</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="p">)</span>
+        <span class="c1"># Condition 3</span>
+        <span class="n">has_minimum_vr</span> <span class="o">=</span> <span class="p">(</span> <span class="n">v_r</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">absolute_wind_cut</span> <span class="p">)</span>
+        <span class="c1"># Condition 4</span>
+        <span class="n">is_gas</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;PType&#39;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span>
+        <span class="c1"># Condition 5</span>
+        <span class="n">is_not_in_other_gal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_in_other_gal</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="p">)</span>
+
+        <span class="n">is_ejected</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">is_outside_before_inside_after</span> <span class="o">&amp;</span>
+            <span class="n">has_minimum_vr_in_vc</span> <span class="o">&amp;</span>
+            <span class="n">has_minimum_vr</span> <span class="o">&amp;</span>
+            <span class="n">is_gas</span> <span class="o">&amp;</span>
+            <span class="n">is_not_in_other_gal</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_ejected</span></div>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># What happens before accretion?</span>
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.get_cum_num_acc"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.get_cum_num_acc">[docs]</a>    <span class="k">def</span> <span class="nf">get_cum_num_acc</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the cumulative number of accretions so far.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            cum_num_acc ([n_particle, n_snap-1] np.ndarray of ints) :</span>
+<span class="sd">                Cumulative number of accretion events for that particles.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Index to revert order of redshift snapshots</span>
+        <span class="n">ind_rev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="p">)</span>
+
+        <span class="c1"># cumulative number of accretion events</span>
+        <span class="n">reverse_cum_num_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_accreted</span><span class="p">[:,</span> <span class="n">ind_rev</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">cum_num_acc</span> <span class="o">=</span> <span class="n">reverse_cum_num_acc</span><span class="p">[:,</span> <span class="n">ind_rev</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">cum_num_acc</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_is_before_first_acc"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_is_before_first_acc">[docs]</a>    <span class="k">def</span> <span class="nf">identify_is_before_first_acc</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify when before a particle&#39;s first accretion event.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_before_first_acc ([n_particle, n_snap-1] np.ndarray of bools) :</span>
+<span class="sd">                If True, then the first accretion event for that particle</span>
+<span class="sd">                hasn&#39;t happened yet.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">is_before_first_acc</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">cum_num_acc</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span> <span class="o">&amp;</span> \
+            <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_in_main_gal</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_before_first_acc</span></div>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ind_first_acc</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the index of first accretion.</span>
+<span class="sd">        This is defined as the the indice immediately after accretion happens.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ind_first_acc ([n_particle,] np.ndarray of floats):</span>
+<span class="sd">                Index of first accretion.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_ind_first_acc&#39;</span> <span class="p">):</span>
+            <span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="p">)</span>
+            <span class="n">inds_tiled_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span> <span class="n">inds</span><span class="p">,</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="n">inds_tiled</span> <span class="o">=</span> <span class="n">inds_tiled_full</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ind_first_acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span>
+                <span class="n">inds_tiled</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_before_first_acc</span> <span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ind_first_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ind_first_acc</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span>
+                <span class="n">fill_value</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">INT_FILL_VALUE</span> <span class="p">)</span>
+
+            <span class="c1"># Mask the ones that were always part of the galaxy</span>
+            <span class="n">always_part_of_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_before_first_acc</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ind_first_acc</span><span class="p">[</span><span class="n">always_part_of_gal</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">INT_FILL_VALUE</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ind_first_acc</span>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.get_redshift_first_acc"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.get_redshift_first_acc">[docs]</a>    <span class="k">def</span> <span class="nf">get_redshift_first_acc</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the redshift of first accretion.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            redshift_first_acc ([n_particle,] np.ndarray of floats):</span>
+<span class="sd">                Redshift of first accretion.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">redshift_tiled_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">],</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="n">redshift_tiled</span> <span class="o">=</span> <span class="n">redshift_tiled_full</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">redshift_first_acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span>
+            <span class="n">redshift_tiled</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_before_first_acc</span> <span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span>
+        <span class="n">redshift_first_acc</span> <span class="o">=</span> <span class="n">redshift_first_acc</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span> <span class="n">fill_value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span> <span class="p">)</span>
+
+        <span class="c1"># Mask the ones that were always part of the galaxy</span>
+        <span class="n">always_part_of_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_before_first_acc</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="n">redshift_first_acc</span><span class="p">[</span><span class="n">always_part_of_gal</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span>
+
+        <span class="k">return</span> <span class="n">redshift_first_acc</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.get_cumulative_time_in_other_gal"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.get_cumulative_time_in_other_gal">[docs]</a>    <span class="k">def</span> <span class="nf">get_cumulative_time_in_other_gal</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the amount of time in galaxies besides the main galaxy before</span>
+<span class="sd">        being accreted.</span>
+
+<span class="sd">        For a single time in another galaxy, this is the</span>
+<span class="sd">        ( age of universe at the last snapshot before the conditions are true )</span>
+<span class="sd">        - ( age of the universe at the last snapshot where the conditions</span>
+<span class="sd">        are true ), and generalizes to multiple events in other galaxies.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            cumulative_time_in_other_gal ([ n_particle, n_snap ]</span>
+<span class="sd">                np.ndarray of floats):</span>
+<span class="sd">                Time in another galaxy at a given snapshot.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">other_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_in_other_gal</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">float</span> <span class="p">)</span>
+        <span class="n">dt_in_other_gal</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">other_gal</span> <span class="p">)</span>
+
+        <span class="n">dt_in_other_gal_reversed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span> <span class="n">dt_in_other_gal</span> <span class="p">)</span>
+
+        <span class="n">cumulative_time_in_other_gal_reversed</span> <span class="o">=</span> \
+            <span class="n">dt_in_other_gal_reversed</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span>
+
+        <span class="n">cumulative_time_in_other_gal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span>
+            <span class="n">cumulative_time_in_other_gal_reversed</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cumulative_time_in_other_gal</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.get_time_in_other_gal_before_acc"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.get_time_in_other_gal_before_acc">[docs]</a>    <span class="k">def</span> <span class="nf">get_time_in_other_gal_before_acc</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the amount of time in galaxies besides the main galaxy before</span>
+<span class="sd">        being accreted.</span>
+<span class="sd">        For a single time in another galaxy, this is the</span>
+<span class="sd">        ( age of universe at the last snapshot before the conditions are true )</span>
+<span class="sd">        - ( age of the universe at the last snapshot where the conditions</span>
+<span class="sd">        are true ), and generalizes to multiple events in other galaxies.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            time_in_other_gal_before_acc ([ n_particle, ] np.ndarray of floats):</span>
+<span class="sd">                Time in another galaxy before being first accreted onto the</span>
+<span class="sd">                main galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">is_in_other_gal_before_first_acc</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_before_first_acc</span> <span class="o">&amp;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_in_other_gal</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="p">)</span>
+        <span class="n">time_in_other_gal_before_acc</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">is_in_other_gal_before_first_acc</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">float</span> <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">time_in_other_gal_before_acc</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.get_time_in_other_gal_before_acc_during_interval"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.get_time_in_other_gal_before_acc_during_interval">[docs]</a>    <span class="k">def</span> <span class="nf">get_time_in_other_gal_before_acc_during_interval</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the amount of time in galaxies besides the main galaxy before</span>
+<span class="sd">        being accreted, during an interval before being accreted.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            time_in_other_gal_before_acc_during_interval</span>
+<span class="sd">            ([ n_particle, ] np.ndarray of floats) :</span>
+<span class="sd">                Time in another galaxy before being first accreted onto the</span>
+<span class="sd">                main galaxy, within some recent time interval</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Get the total amount of time before being accreted</span>
+        <span class="n">cum_time_before_acc</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_before_first_acc</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">float</span> <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Conditions for counting up time</span>
+        <span class="n">time_interval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_m</span>
+        <span class="n">is_in_other_gal_in_time_interval_before_acc</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="c1"># Count up only the time before first accretion.</span>
+            <span class="p">(</span> <span class="n">cum_time_before_acc</span> <span class="o">&lt;=</span> <span class="n">time_interval</span> <span class="p">)</span> <span class="o">&amp;</span>
+            <span class="c1"># Make sure we haven&#39;t accreted yet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_before_first_acc</span> <span class="o">&amp;</span>
+            <span class="c1"># Make sure we&#39;re in another galaxy at that time</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_in_other_gal</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">time_in_other_gal_before_acc_during_interval</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span>
+            <span class="n">is_in_other_gal_in_time_interval_before_acc</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">float</span> <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">time_in_other_gal_before_acc_during_interval</span></div>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Main Classification Methods</span>
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_hitherto_EP"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_hitherto_EP">[docs]</a>    <span class="k">def</span> <span class="nf">identify_hitherto_EP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify particles that have been processed by another galaxy by</span>
+<span class="sd">        the tabulated snapshot.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_hitherto_EP ( [n_particle,n_snap] np.ndarray of bools ) :</span>
+<span class="sd">                True for particle i at snapshot j if it has spent at least</span>
+<span class="sd">                t_pro in another galaxy by that point.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">is_hitherto_EP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cumulative_time_in_other_gal</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_pro</span>
+
+        <span class="c1"># Correct for length of is_EP (since self.cumulative_time_in_other_gal</span>
+        <span class="c1"># doesn&#39;t extend to all snapshots)</span>
+        <span class="n">values_to_append</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="kc">False</span><span class="p">,</span> <span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span> <span class="p">)</span>
+        <span class="n">is_hitherto_EP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+            <span class="n">is_hitherto_EP</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">values_to_append</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_hitherto_EP</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_hitherto_NEP"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_hitherto_NEP">[docs]</a>    <span class="k">def</span> <span class="nf">identify_hitherto_NEP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify particles that have been processed by another galaxy by</span>
+<span class="sd">        the tabulated snapshot.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_hitherto_EP ( [n_particle,n_snap] np.ndarray of bools ) :</span>
+<span class="sd">                True for particle i at snapshot j if it has spent at least</span>
+<span class="sd">                t_pro in another galaxy by that point.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">is_hitherto_NEP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cumulative_time_in_other_gal</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_pro</span>
+
+        <span class="c1"># Correct for length of is_NEP (since self.cumulative_time_in_other_gal</span>
+        <span class="c1"># doesn&#39;t extend to all snapshots)</span>
+        <span class="n">values_to_append</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="kc">True</span><span class="p">,</span> <span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span> <span class="p">)</span>
+        <span class="n">is_hitherto_NEP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+            <span class="n">is_hitherto_NEP</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">values_to_append</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_hitherto_NEP</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_unaccreted"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_unaccreted">[docs]</a>    <span class="k">def</span> <span class="nf">identify_unaccreted</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify particles never accreted onto the main galaxy.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_unaccreted ( [n_particle,] np.ndarray of bools ) :</span>
+<span class="sd">                True for particle i if it has never been inside the main galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">n_snaps_in_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_in_main_gal</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span>
+
+        <span class="n">is_unaccreted</span> <span class="o">=</span> <span class="n">n_snaps_in_gal</span> <span class="o">==</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">is_unaccreted</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_unaccreted_EP"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_unaccreted_EP">[docs]</a>    <span class="k">def</span> <span class="nf">identify_unaccreted_EP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify particles never accreted onto the main galaxy that have</span>
+<span class="sd">        spent at least t_pro in another galaxy by the specified snapshot.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_unaccreted_EP ( [n_particle,n_snap] np.ndarray of bools ) :</span>
+<span class="sd">                True for particle i at snapshot j if it has spent at least</span>
+<span class="sd">                t_pro in another galaxy by that point and never accretes onto</span>
+<span class="sd">                the main galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">unaccreted_tiled_rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_unaccreted</span><span class="p">,</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">unaccreted_tiled</span> <span class="o">=</span> <span class="n">unaccreted_tiled_rot</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+        <span class="n">is_unaccreted_EP</span> <span class="o">=</span> <span class="n">unaccreted_tiled</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_hitherto_EP</span>
+
+        <span class="k">return</span> <span class="n">is_unaccreted_EP</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_unaccreted_NEP"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_unaccreted_NEP">[docs]</a>    <span class="k">def</span> <span class="nf">identify_unaccreted_NEP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify particles never accreted onto the main galaxy that have not</span>
+<span class="sd">        spent at least t_pro in another galaxy by the specified snapshot.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_unaccreted_NEP ( [n_particle,n_snap] np.ndarray of bools ) :</span>
+<span class="sd">                True for particle i at snapshot j if it has not spent at least</span>
+<span class="sd">                t_pro in another galaxy by that point.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">unaccreted_tiled_rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_unaccreted</span><span class="p">,</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">unaccreted_tiled</span> <span class="o">=</span> <span class="n">unaccreted_tiled_rot</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+        <span class="n">is_unaccreted_NEP</span> <span class="o">=</span> <span class="n">unaccreted_tiled</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_hitherto_NEP</span>
+
+        <span class="k">return</span> <span class="n">is_unaccreted_NEP</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_preprocessed"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_preprocessed">[docs]</a>    <span class="k">def</span> <span class="nf">identify_preprocessed</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify pre-proceesed gas, or &quot;externally processed&quot; gas.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_preprocessed ( [n_particle] np.ndarray of bools ) :</span>
+<span class="sd">                True for particle i if it has spent at least some minimum</span>
+<span class="sd">                amount of time in another galaxy before being accreted.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">is_preprocessed</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_in_other_gal_before_acc</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_pro</span> <span class="p">)</span>
+
+        <span class="c1"># Apply &quot;boundary conditions&quot;: particles inside galaxy when it&#39;s first</span>
+        <span class="c1"># resolved count as pristine</span>
+        <span class="n">bc_should_be_applied</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind_first_acc</span> <span class="o">&gt;</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">ind_first_snap</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">neg</span> <span class="p">)</span>
+        <span class="n">is_preprocessed</span><span class="p">[</span><span class="n">bc_should_be_applied</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Make sure that every particle classified as unaccreted is not also</span>
+        <span class="c1"># classified as preprocessed</span>
+        <span class="n">is_preprocessed</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">is_unaccreted</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">is_preprocessed</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_pristine"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_pristine">[docs]</a>    <span class="k">def</span> <span class="nf">identify_pristine</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify pristine gas, or &quot;non-externally processed&quot; gas.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_pristine ( [n_particle] np.ndarray of bools ) :</span>
+<span class="sd">                True for particle i if it has never spent some minimum amount</span>
+<span class="sd">                of time in another galaxy before being accreted.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Anything that&#39;s not preprocessed or unaccreted is pristine, by</span>
+        <span class="c1"># definition</span>
+        <span class="n">is_preprocessed_or_unaccreted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mask_or</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_preprocessed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_unaccreted</span> <span class="p">)</span>
+        <span class="n">is_pristine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="n">is_preprocessed_or_unaccreted</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_pristine</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_mass_transfer"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_mass_transfer">[docs]</a>    <span class="k">def</span> <span class="nf">identify_mass_transfer</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Boolean for whether or no particles are from mass transfer</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_mass_transfer (np.ndarray of bools) :</span>
+<span class="sd">                True for particle i if it has been preprocessed but has *not*</span>
+<span class="sd">                spent at least some minimum amount of time in another galaxy in</span>
+<span class="sd">                a recent interval.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">has_not_spent_minimum_time</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_in_other_gal_before_acc_during_interval</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_pro</span> <span class="p">)</span>
+        <span class="n">is_mass_transfer</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_preprocessed</span> <span class="o">&amp;</span> <span class="n">has_not_spent_minimum_time</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_mass_transfer</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_merger"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_merger">[docs]</a>    <span class="k">def</span> <span class="nf">identify_merger</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Boolean for whether or no particles are from galaxies merging.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_merger ( [n_particle] np.ndarray of bools ) :</span>
+<span class="sd">                True for particle i if it has been preprocessed and has</span>
+<span class="sd">                spent at least some minimum amount of time in another galaxy in</span>
+<span class="sd">                a recent interval.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">has_spent_minimum_time</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_in_other_gal_before_acc_during_interval</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_pro</span> <span class="p">)</span>
+        <span class="n">is_merger</span> <span class="o">=</span> <span class="p">(</span>  <span class="bp">self</span><span class="o">.</span><span class="n">is_preprocessed</span> <span class="o">&amp;</span> <span class="n">has_spent_minimum_time</span>  <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_merger</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_wind"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_wind">[docs]</a>    <span class="k">def</span> <span class="nf">identify_wind</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Boolean for whether or not particles are from wind.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_wind ( [n_particle] np.ndarray of bools ) :</span>
+<span class="sd">                True for particle i if it has been ejected at least once before</span>
+<span class="sd">                snapshot n</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Index to revert order of redshift snapshots</span>
+        <span class="n">ind_rev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="p">)</span>
+
+        <span class="c1"># Cumulative number of ejection events</span>
+        <span class="n">cum_num_eject</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ejected</span><span class="p">[:,</span> <span class="n">ind_rev</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)[:,</span> <span class="n">ind_rev</span><span class="p">]</span>
+
+        <span class="c1"># Set up and build is_wind</span>
+        <span class="n">is_wind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span> <span class="p">)</span>
+        <span class="n">is_wind</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snap</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span> <span class="n">cum_num_eject</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_wind</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Properties</span>
+    <span class="c1">########################################################################</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">main_mt_halo_first_snap</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Find the first snapshot at which the main merger tree halo is</span>
+<span class="sd">        resolved.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_main_mt_halo_first_snap&#39;</span> <span class="p">):</span>
+
+            <span class="n">main_mt_halo_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span>
+            <span class="n">mtree_halo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ahf_reader</span><span class="o">.</span><span class="n">mtree_halos</span><span class="p">[</span><span class="n">main_mt_halo_id</span><span class="p">]</span>
+
+            <span class="n">snapshot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span>
+                <span class="n">mtree_halo</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">main_halo_robustness_criteria</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">main_halo_robustness_value</span> <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_main_mt_halo_first_snap</span> <span class="o">=</span> <span class="n">snapshot</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_main_mt_halo_first_snap</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ind_first_snap</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Find the indice for first snapshot at which the main merger tree halo</span>
+<span class="sd">        is resolved.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_ind_first_snap&#39;</span> <span class="p">):</span>
+
+            <span class="c1"># In the case that we aren&#39;t tracking over the full range of data,</span>
+            <span class="c1"># and our first tracked snapshot comes after the first snapshot at</span>
+            <span class="c1"># which the merger tree is resolved,</span>
+            <span class="c1"># we set the first indice at which the main merger tree halo is</span>
+            <span class="c1"># resolved to the last indice in our array.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_mt_halo_first_snap</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ind_first_snap</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c1"># Look for the first stored snapshot above</span>
+                <span class="c1"># self.main_mt_halo_first_snap</span>
+                <span class="n">search_snap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_mt_halo_first_snap</span>
+                <span class="n">search_for_first_ind</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">while</span> <span class="n">search_for_first_ind</span><span class="p">:</span>
+                    <span class="n">potential_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">search_snap</span> <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="c1"># We found a viable index</span>
+                    <span class="k">if</span> <span class="n">potential_inds</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">search_for_first_ind</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="c1"># Throw an exception if we go too far</span>
+                    <span class="k">elif</span> <span class="n">search_snap</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span> <span class="s2">&quot;Found no viable first index.&quot;</span> <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">search_snap</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ind_first_snap</span> <span class="o">=</span> <span class="n">potential_inds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ind_first_snap</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">meets_density_requirement</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Find particles that are either stars or have sufficient density to</span>
+<span class="sd">        be counted as part of a galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_meets_density_requirement&#39;</span> <span class="p">):</span>
+            <span class="n">is_gas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;PType&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">config</span><span class="o">.</span><span class="n">PTYPE_GAS</span>
+            <span class="n">is_star</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;PType&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">config</span><span class="o">.</span><span class="n">PTYPE_STAR</span>
+            <span class="n">has_minimum_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;Den&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_gal_density</span>
+
+            <span class="n">is_gas_and_meets_density_requirement</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">is_gas</span> <span class="o">&amp;</span> <span class="n">has_minimum_density</span> <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_meets_density_requirement</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mask_or</span><span class="p">(</span>
+                <span class="n">is_star</span><span class="p">,</span> <span class="n">is_gas_and_meets_density_requirement</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meets_density_requirement</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Zachary Hafen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

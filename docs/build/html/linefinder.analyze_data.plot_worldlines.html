@@ -1,0 +1,202 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>linefinder.analyze_data.plot_worldlines module &#8212; linefinder 0.8.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-linefinder.analyze_data.plot_worldlines">
+<span id="linefinder-analyze-data-plot-worldlines-module"></span><h1>linefinder.analyze_data.plot_worldlines module<a class="headerlink" href="#module-linefinder.analyze_data.plot_worldlines" title="Permalink to this headline">¶</a></h1>
+<p>Tools for reading worldline data</p>
+<p>&#64;author: Zach Hafen
+&#64;contact: <a class="reference external" href="mailto:zachary&#46;h&#46;hafen&#37;&#52;&#48;gmail&#46;com">zachary<span>&#46;</span>h<span>&#46;</span>hafen<span>&#64;</span>gmail<span>&#46;</span>com</a>
+&#64;status: Development</p>
+<dl class="class">
+<dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter">
+<em class="property">class </em><code class="descclassname">linefinder.analyze_data.plot_worldlines.</code><code class="descname">WorldlinesPlotter</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">galaxy_dive.plot_data.generic_plotter.GenericPlotter</span></code></p>
+<dl class="method">
+<dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classification_bar">
+<code class="descname">plot_classification_bar</code><span class="sig-paren">(</span><em>x_pos, classification_list=['is_fresh_accretion', 'is_NEP_wind_recycling', 'is_mass_transfer', 'is_merger_gas', 'is_merger_star'], classification_colors={None: 'black', 'all': 'black', 'is_CGM_EP': array([0.7    , 0.46984, 0.196  ]), 'is_CGM_IP': array([0.224, 0.8  , 0.416]), 'is_CGM_NEP': array([0.196, 0.532, 0.7  ]), 'is_CGM_satellite': array([0.5       , 0.16266667, 0.1       ]), 'is_IP': [0.2980392156862745, 0.6862745098039216, 0.0], 'is_NEP_NYA': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_NEP_wind_recycling': [0.027450980392156862, 0.7372549019607844, 0.43137254901960786], 'is_fresh_accretion': [0.0392156862745098, 0.29411764705882354, 0.7764705882352941], 'is_in_CGM': 'black', 'is_in_galaxy_halo_interface': array([0.8  , 0.32 , 0.784]), 'is_mass_transfer': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_mass_transfer_NYA': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_merger': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_NYA': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_gas': [0.9019607843137255, 0.4666666666666667, 0.06666666666666667], 'is_merger_star': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_outside_any_gal_EP': array([0.7    , 0.46984, 0.196  ]), 'is_outside_any_gal_IP': array([0.224, 0.8  , 0.416]), 'is_preprocessed': [0.984313725490196, 0.5764705882352941, 0.09803921568627451], 'is_pristine': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_wind': [0.2980392156862745, 0.6862745098039216, 0.0]}, ind=0, ax=&lt;object object&gt;, width=0.5, add_label=False, alpha=1.0, *args, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_classification_bar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classification_bar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a bar plotting the classifications.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classification_values">
+<code class="descname">plot_classification_values</code><span class="sig-paren">(</span><em>values='mass_fractions'</em>, <em>ax=&lt;object object&gt;</em>, <em>label=&lt;object object&gt;</em>, <em>y_label=&lt;object object&gt;</em>, <em>y_scale=&lt;object object&gt;</em>, <em>color=&lt;object object&gt;</em>, <em>pointsize=3000</em>, <em>y_range=&lt;object object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_classification_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classification_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot overall values from a classification category.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>ax (axis) : What axis to use. By default creates a figure and places the axis on it.
+label (str) : What label to use for the lines.
+color (str) : What color to use for the lines.
+pointsize (int) : What pointsize to use for the lines.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classified_time_dependent_data">
+<code class="descname">plot_classified_time_dependent_data</code><span class="sig-paren">(</span><em>ax=&lt;object object&gt;, x_data='get_redshift', y_datas='get_categories_selected_quantity', x_range=[0.0, 0.9030899869919435], y_range=&lt;object object&gt;, y_scale='log', x_label=&lt;object object&gt;, y_label=&lt;object object&gt;, classification_list=['is_fresh_accretion', 'is_NEP_wind_recycling', 'is_mass_transfer', 'is_merger_gas', 'is_merger_star'], classification_colors={None: 'black', 'all': 'black', 'is_CGM_EP': array([0.7    , 0.46984, 0.196  ]), 'is_CGM_IP': array([0.224, 0.8  , 0.416]), 'is_CGM_NEP': array([0.196, 0.532, 0.7  ]), 'is_CGM_satellite': array([0.5       , 0.16266667, 0.1       ]), 'is_IP': [0.2980392156862745, 0.6862745098039216, 0.0], 'is_NEP_NYA': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_NEP_wind_recycling': [0.027450980392156862, 0.7372549019607844, 0.43137254901960786], 'is_fresh_accretion': [0.0392156862745098, 0.29411764705882354, 0.7764705882352941], 'is_in_CGM': 'black', 'is_in_galaxy_halo_interface': array([0.8  , 0.32 , 0.784]), 'is_mass_transfer': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_mass_transfer_NYA': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_merger': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_NYA': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_gas': [0.9019607843137255, 0.4666666666666667, 0.06666666666666667], 'is_merger_star': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_outside_any_gal_EP': array([0.7    , 0.46984, 0.196  ]), 'is_outside_any_gal_IP': array([0.224, 0.8  , 0.416]), 'is_preprocessed': [0.984313725490196, 0.5764705882352941, 0.09803921568627451], 'is_pristine': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_wind': [0.2980392156862745, 0.6862745098039216, 0.0]}, *args, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_classified_time_dependent_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classified_time_dependent_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a plot like the top panel of Fig. 3 in Angles-Alcazar+17</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>ax (axis object) :</dt>
+<dd>What axis to put the plot on. By default, create a new one on a separate figure.</dd>
+<dt>x_range, y_range (list-like) :</dt>
+<dd>[ x_min, x_max ] or [ y_min, y_max ] for the displayed range.</dd>
+<dt>x_label, y_label (str) :</dt>
+<dd>Labels for axis. By default, redshift and f(M_star), respectively.</dd>
+<dt>plot_dividing_line (bool) :</dt>
+<dd>Whether or not to plot a line at the edge between stacked regions.</dd>
+<dt><a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs :</dt>
+<dd>Passed to the data retrieval method.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_dist_hist">
+<code class="descname">plot_dist_hist</code><span class="sig-paren">(</span><em>data_key</em>, <em>ax</em>, <em>x_label=&lt;object object&gt;</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_dist_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_dist_hist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot histogram of distances.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_stacked_radial_data">
+<code class="descname">plot_stacked_radial_data</code><span class="sig-paren">(</span><em>radial_bins, ax=&lt;object object&gt;, x_range=&lt;object object&gt;, y_range=[0.0, 1.0], x_label=&lt;object object&gt;, y_label=&lt;object object&gt;, plot_dividing_line=False, classification_list=['is_fresh_accretion', 'is_NEP_wind_recycling', 'is_mass_transfer', 'is_merger_gas', 'is_merger_star'], classification_colors={None: 'black', 'all': 'black', 'is_CGM_EP': array([0.7    , 0.46984, 0.196  ]), 'is_CGM_IP': array([0.224, 0.8  , 0.416]), 'is_CGM_NEP': array([0.196, 0.532, 0.7  ]), 'is_CGM_satellite': array([0.5       , 0.16266667, 0.1       ]), 'is_IP': [0.2980392156862745, 0.6862745098039216, 0.0], 'is_NEP_NYA': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_NEP_wind_recycling': [0.027450980392156862, 0.7372549019607844, 0.43137254901960786], 'is_fresh_accretion': [0.0392156862745098, 0.29411764705882354, 0.7764705882352941], 'is_in_CGM': 'black', 'is_in_galaxy_halo_interface': array([0.8  , 0.32 , 0.784]), 'is_mass_transfer': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_mass_transfer_NYA': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_merger': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_NYA': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_gas': [0.9019607843137255, 0.4666666666666667, 0.06666666666666667], 'is_merger_star': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_outside_any_gal_EP': array([0.7    , 0.46984, 0.196  ]), 'is_outside_any_gal_IP': array([0.224, 0.8  , 0.416]), 'is_preprocessed': [0.984313725490196, 0.5764705882352941, 0.09803921568627451], 'is_pristine': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_wind': [0.2980392156862745, 0.6862745098039216, 0.0]}, *args, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_stacked_radial_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_stacked_radial_data" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>ax (axis object) :</dt>
+<dd>What axis to put the plot on. By default, create a new one on a separate figure.</dd>
+<dt>x_range, y_range (list-like) :</dt>
+<dd>[ x_min, x_max ] or [ y_min, y_max ] for the displayed range.</dd>
+<dt>x_label, y_label (str) :</dt>
+<dd>Labels for axis. By default, redshift and f(M_star), respectively.</dd>
+<dt>plot_dividing_line (bool) :</dt>
+<dd>Whether or not to plot a line at the edge between stacked regions.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_stacked_time_dependent_data">
+<code class="descname">plot_stacked_time_dependent_data</code><span class="sig-paren">(</span><em>ax=&lt;object object&gt;, x_data='get_redshift', y_datas='get_categories_selected_quantity', x_range=[0.0, 0.9030899869919435], y_range=[0.0, 1.0], tick_redshifts=array([0.25, 0.5 , 1.  , 2.  , 3.  , 4.  , 5.  , 6.  , 7.  ]), time_x_axis=False, twin_redshift=False, x_label=&lt;object object&gt;, y_label=&lt;object object&gt;, plot_dividing_line=False, classification_list=['is_fresh_accretion', 'is_NEP_wind_recycling', 'is_mass_transfer', 'is_merger_gas', 'is_merger_star'], classification_colors={None: 'black', 'all': 'black', 'is_CGM_EP': array([0.7    , 0.46984, 0.196  ]), 'is_CGM_IP': array([0.224, 0.8  , 0.416]), 'is_CGM_NEP': array([0.196, 0.532, 0.7  ]), 'is_CGM_satellite': array([0.5       , 0.16266667, 0.1       ]), 'is_IP': [0.2980392156862745, 0.6862745098039216, 0.0], 'is_NEP_NYA': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_NEP_wind_recycling': [0.027450980392156862, 0.7372549019607844, 0.43137254901960786], 'is_fresh_accretion': [0.0392156862745098, 0.29411764705882354, 0.7764705882352941], 'is_in_CGM': 'black', 'is_in_galaxy_halo_interface': array([0.8  , 0.32 , 0.784]), 'is_mass_transfer': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_mass_transfer_NYA': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_merger': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_NYA': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_gas': [0.9019607843137255, 0.4666666666666667, 0.06666666666666667], 'is_merger_star': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_outside_any_gal_EP': array([0.7    , 0.46984, 0.196  ]), 'is_outside_any_gal_IP': array([0.224, 0.8  , 0.416]), 'is_preprocessed': [0.984313725490196, 0.5764705882352941, 0.09803921568627451], 'is_pristine': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_wind': [0.2980392156862745, 0.6862745098039216, 0.0]}, label=&lt;object object&gt;, show_label=True, label_kwargs={'fontsize': 22, 'xy': (0.0, 1.0225), 'xycoords': 'axes fraction'}, add_legend=True, hubble=None, omega_matter=None, legend_kwargs={'bbox_to_anchor': (0.5, -0.3), 'loc': 'center', 'ncol': 3}, *args, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_stacked_time_dependent_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_stacked_time_dependent_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a plot like the bottom panel of Fig. 3 in Angles-Alcazar+17</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>ax (axis object) :</dt>
+<dd>What axis to put the plot on. By default, create a new one on a separate figure.</dd>
+<dt>x_range, y_range (list-like) :</dt>
+<dd>[ x_min, x_max ] or [ y_min, y_max ] for the displayed range.</dd>
+<dt>x_label, y_label (str) :</dt>
+<dd>Labels for axis. By default, redshift and f(M_star), respectively.</dd>
+<dt>plot_dividing_line (bool) :</dt>
+<dd>Whether or not to plot a line at the edge between stacked regions.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_streamlines">
+<code class="descname">plot_streamlines</code><span class="sig-paren">(</span><em>x_key='Rx'</em>, <em>y_key='Ry'</em>, <em>x_data_kwargs={}</em>, <em>y_data_kwargs={}</em>, <em>classification=None</em>, <em>classification_ind=0</em>, <em>sample_selected_interval=True</em>, <em>t_show_min=0.5</em>, <em>t_show_max=1.0</em>, <em>start_ind=0</em>, <em>end_ind='time_based'</em>, <em>t_end=&lt;object object&gt;</em>, <em>sample_inds=&lt;object object&gt;</em>, <em>sample_size=10</em>, <em>convert_x_to_comoving=False</em>, <em>convert_y_to_comoving=False</em>, <em>ax=None</em>, <em>x_range=&lt;object object&gt;</em>, <em>y_range=&lt;object object&gt;</em>, <em>x_scale='linear'</em>, <em>y_scale='linear'</em>, <em>color=&lt;object object&gt;</em>, <em>zorder=100.0</em>, <em>linewidth=1.5</em>, <em>fade_streamlines=True</em>, <em>x_label='x position (pkpc)'</em>, <em>y_label='y position (pkpc)'</em>, <em>plot_xlabel=True</em>, <em>plot_ylabel=True</em>, <em>fontsize=22</em>, <em>xkcd_mode=False</em>, <em>plot_halos=True</em>, <em>halo_radius_fraction=&lt;object object&gt;</em>, <em>halo_length_scale=&lt;object object&gt;</em>, <em>verbose=False</em>, <em>return_y_max=False</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_streamlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_streamlines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot streamlines. This code largely follows what Daniel did before,
+at least in ideas.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_streamlines_vs_time">
+<code class="descname">plot_streamlines_vs_time</code><span class="sig-paren">(</span><em>x_key='time'</em>, <em>y_key='R'</em>, <em>classification_ind=0</em>, <em>vert_line_at_classification_ind=True</em>, <em>sample_selected_interval=False</em>, <em>horizontal_line_value=None</em>, <em>ax=None</em>, <em>fade_streamlines=False</em>, <em>x_label='Age of the Universe (Gyr)'</em>, <em>y_label='Radial Distance (pkpc)'</em>, <em>plot_halos=False</em>, <em>halo_y_key='Yc'</em>, <em>halo_plot_kwargs={'n_halos': 100}</em>, <em>plot_CGM_region=False</em>, <em>return_y_max=False</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_streamlines_vs_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_streamlines_vs_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_with_halos">
+<code class="descname">plot_with_halos</code><span class="sig-paren">(</span><em>plot_with_halos_method='histogram2d'</em>, <em>slices=None</em>, <em>ax=&lt;object object&gt;</em>, <em>out_dir=None</em>, <em>halo_color='#337DB8'</em>, <em>halo_linewidth=3</em>, <em>halo_outline=False</em>, <em>radius_fractions=&lt;object object&gt;</em>, <em>n_halos_plotted=100</em>, <em>show_valid_halos=True</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_with_halos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_with_halos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot with halos overlayed on top.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/linefinder.analyze_data.plot_worldlines.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Zachary Hafen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/linefinder.analyze_data.plot_worldlines.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

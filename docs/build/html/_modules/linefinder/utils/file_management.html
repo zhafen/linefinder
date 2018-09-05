@@ -1,0 +1,322 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>linefinder.utils.file_management &#8212; linefinder 0.8.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for linefinder.utils.file_management</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&#39;&#39;&#39;Simple functions and variables for easily accessing common files and choices</span>
+<span class="sd">of parameters.</span>
+
+<span class="sd">@author: Zach Hafen</span>
+<span class="sd">@contact: zachary.h.hafen@gmail.com</span>
+<span class="sd">@status: Development</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">linefinder.config</span> <span class="k">as</span> <span class="nn">config</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1">########################################################################</span>
+
+
+<div class="viewcode-block" id="FileManager"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager">[docs]</a><span class="k">class</span> <span class="nc">FileManager</span><span class="p">(</span> <span class="nb">object</span> <span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project</span> <span class="o">=</span> <span class="n">project</span>
+
+        <span class="n">parameters_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_PARAMETERS&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">config</span><span class="o">.</span><span class="n">ACTIVE_SYSTEM</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_parameters</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span> <span class="n">config</span><span class="p">,</span> <span class="n">parameters_name</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">project</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_parameters</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">system_parameters</span><span class="p">[</span><span class="s1">&#39;project&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">]</span>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="FileManager.get_sim_subdir"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_sim_subdir">[docs]</a>    <span class="k">def</span> <span class="nf">get_sim_subdir</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">sim_name</span> <span class="p">):</span>
+
+        <span class="n">base_sim_name</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">physics_used</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">FULL_PHYSICS_NAME</span><span class="p">[</span><span class="n">physics_used</span><span class="p">],</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">FULL_SIM_NAME</span><span class="p">[</span><span class="n">base_sim_name</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="FileManager.get_sim_dir"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_sim_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_sim_dir</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">sim_name</span> <span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">system_parameters</span><span class="p">[</span><span class="s1">&#39;simulation_data_dir&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_sim_subdir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">),</span>
+            <span class="s1">&#39;output&#39;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="FileManager.get_metafile_dir"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_metafile_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_metafile_dir</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">sim_name</span> <span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">system_parameters</span><span class="p">[</span><span class="s1">&#39;simulation_data_dir&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_sim_subdir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">),</span>
+        <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="FileManager.get_halo_dir"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_halo_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_halo_dir</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">sim_name</span> <span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">system_parameters</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_sim_subdir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">),</span>
+            <span class="s1">&#39;halo&#39;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="FileManager.get_linefinder_dir"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_linefinder_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_linefinder_dir</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">sim_name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">):</span>
+        
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">system_parameters</span><span class="p">[</span><span class="s1">&#39;linefinder_data_dir&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_sim_subdir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">),</span>
+            <span class="n">subdir</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="FileManager.get_project_figure_dir"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_project_figure_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_project_figure_dir</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_parameters</span><span class="p">[</span><span class="s1">&#39;project_dir&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;figures&#39;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="FileManager.get_project_presentation_dir"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_project_presentation_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_project_presentation_dir</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_parameters</span><span class="p">[</span><span class="s1">&#39;presentation_dir&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="FileManager.get_linefinder_analysis_defaults"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_linefinder_analysis_defaults">[docs]</a>    <span class="k">def</span> <span class="nf">get_linefinder_analysis_defaults</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tag_tail</span><span class="p">,</span>
+        <span class="n">sim_name</span> <span class="o">=</span> <span class="s1">&#39;m12i&#39;</span><span class="p">,</span>
+        <span class="n">ahf_index</span> <span class="o">=</span> <span class="mi">600</span><span class="p">,</span>
+        <span class="n">ids_tag_tail</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ptracks_tag_tail</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">galdef</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Standard defaults for linefinder analysis routines.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tag_tail (str) :</span>
+<span class="sd">                The second half of the tag, after the simulation name.</span>
+
+<span class="sd">            sim_name (str) :</span>
+<span class="sd">                Name of the simulation to use.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            defaults (dict) :</span>
+<span class="sd">                Commonly used default dictionary.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">sim_name</span><span class="p">,</span> <span class="n">tag_tail</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">galdef</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="n">used_tag</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">tag</span><span class="p">,</span> <span class="n">galdef</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">used_tag</span> <span class="o">=</span> <span class="n">tag</span>
+
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;data_dir&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_linefinder_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">),</span>
+            <span class="s1">&#39;tag&#39;</span><span class="p">:</span> <span class="n">used_tag</span><span class="p">,</span>
+
+            <span class="s1">&#39;halo_data_dir&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_halo_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">),</span>
+            <span class="s1">&#39;ahf_index&#39;</span><span class="p">:</span> <span class="n">ahf_index</span><span class="p">,</span>
+            <span class="s1">&#39;main_halo_id&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">MAIN_MT_HALO_ID</span><span class="p">[</span><span class="n">sim_name</span><span class="p">],</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">galdef</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;ids_tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tag</span>
+            <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;ptracks_tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tag</span>
+
+        <span class="k">if</span> <span class="n">ids_tag_tail</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;ids_tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">sim_name</span><span class="p">,</span> <span class="n">ids_tag_tail</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ptracks_tag_tail</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;ptracks_tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">sim_name</span><span class="p">,</span>
+                <span class="n">ptracks_tag_tail</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">defaults</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="FileManager.get_linefinder_analysis_variations"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_linefinder_analysis_variations">[docs]</a>    <span class="k">def</span> <span class="nf">get_linefinder_analysis_variations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tag_tail</span><span class="p">,</span>
+        <span class="n">default_sim_name</span> <span class="o">=</span> <span class="s1">&#39;m12i&#39;</span><span class="p">,</span>
+        <span class="n">sim_names</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;m12i&#39;</span><span class="p">,</span> <span class="s1">&#39;m12m&#39;</span><span class="p">,</span> <span class="s1">&#39;m12f&#39;</span><span class="p">,</span> <span class="s1">&#39;m12imd&#39;</span> <span class="p">],</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Standard default variations for linefinder analysis routines.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tag_tail (str) :</span>
+<span class="sd">                The second half of the tag, after the simulation name.</span>
+
+<span class="sd">            default_sim_name (str) :</span>
+<span class="sd">                Name of the simulation that&#39;s the &quot;default&quot;.</span>
+
+<span class="sd">            sim_names (list of strs) :</span>
+<span class="sd">                What simulations to include.</span>
+
+<span class="sd">            *args, **kwargs :</span>
+<span class="sd">                Other arguments passed to</span>
+<span class="sd">                self.get_linefinder_analysis_defaults()</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            variations (dict of dicts) :</span>
+<span class="sd">                Commonly used variations dictionary.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">variations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">sim_name</span> <span class="ow">in</span> <span class="n">sim_names</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">sim_name</span> <span class="o">!=</span> <span class="n">default_sim_name</span><span class="p">:</span>
+                <span class="n">variations</span><span class="p">[</span><span class="n">sim_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_linefinder_analysis_defaults</span><span class="p">(</span>
+                    <span class="n">tag_tail</span> <span class="o">=</span> <span class="n">tag_tail</span><span class="p">,</span>
+                    <span class="n">sim_name</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">,</span>
+                    <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">variations</span><span class="p">[</span><span class="n">sim_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">return</span> <span class="n">variations</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="FileManager.get_linefinder_analysis_defaults_and_variations"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_linefinder_analysis_defaults_and_variations">[docs]</a>    <span class="k">def</span> <span class="nf">get_linefinder_analysis_defaults_and_variations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tag_tail</span><span class="p">,</span>
+        <span class="n">default_sim_name</span> <span class="o">=</span> <span class="s1">&#39;m12i&#39;</span><span class="p">,</span>
+        <span class="n">sim_names</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;m12i&#39;</span><span class="p">,</span> <span class="s1">&#39;m12m&#39;</span><span class="p">,</span> <span class="s1">&#39;m12f&#39;</span><span class="p">,</span> <span class="p">],</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Standard defaults and variations for linefinder analysis routines.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tag_tail (str) :</span>
+<span class="sd">                The second half of the tag, after the simulation name.</span>
+
+<span class="sd">            default_sim_name (str) :</span>
+<span class="sd">                Name of the simulation that&#39;s the &quot;default&quot;.</span>
+
+<span class="sd">            sim_names (list of strs) :</span>
+<span class="sd">                What simulations to include.</span>
+
+<span class="sd">            *args, **kwargs :</span>
+<span class="sd">                Other arguments passed to</span>
+<span class="sd">                self.get_linefinder_analysis_defaults() and</span>
+<span class="sd">                self.get_linefinder_analysis_variations() and</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            variations (dict of dicts) :</span>
+<span class="sd">                Commonly used variations dictionary.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">linefinder_analysis_defaults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_linefinder_analysis_defaults</span><span class="p">(</span>
+            <span class="n">tag_tail</span><span class="p">,</span>
+            <span class="n">sim_name</span> <span class="o">=</span> <span class="n">default_sim_name</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+        <span class="n">linefinder_analysis_variations</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_linefinder_analysis_variations</span><span class="p">(</span>
+                <span class="n">tag_tail</span><span class="p">,</span>
+                <span class="n">default_sim_name</span> <span class="o">=</span> <span class="n">default_sim_name</span><span class="p">,</span>
+                <span class="n">sim_names</span> <span class="o">=</span> <span class="n">sim_names</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">linefinder_analysis_defaults</span><span class="p">,</span> <span class="n">linefinder_analysis_variations</span></div></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Zachary Hafen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

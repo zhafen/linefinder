@@ -1,0 +1,207 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>linefinder.analyze_data.classifications &#8212; linefinder 0.8.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for linefinder.analyze_data.classifications</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&#39;&#39;&#39;Tools for reading worldline data</span>
+
+<span class="sd">@author: Zach Hafen</span>
+<span class="sd">@contact: zachary.h.hafen@gmail.com</span>
+<span class="sd">@status: Development</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1">########################################################################</span>
+
+
+<div class="viewcode-block" id="Classifications"><a class="viewcode-back" href="../../../linefinder.analyze_data.classifications.html#linefinder.analyze_data.classifications.Classifications">[docs]</a><span class="k">class</span> <span class="nc">Classifications</span><span class="p">(</span> <span class="nb">object</span> <span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Loads and analyzes data created by classify.py</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">tag</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data_dir (str) : Data directory for the classifications data</span>
+<span class="sd">            tag (str) : Identifying tag for the data to load.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Store the arguments</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="nb">locals</span><span class="p">()[</span><span class="n">arg</span><span class="p">]</span> <span class="p">)</span>
+
+        <span class="c1"># Open the file</span>
+        <span class="n">classifications_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">data_dir</span><span class="p">,</span> <span class="s1">&#39;classifications_</span><span class="si">{}</span><span class="s1">.hdf5&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">tag</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="n">classifications_filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span> <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+
+            <span class="c1"># Store the data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s1">&#39;parameters&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+
+            <span class="c1"># Store the data attributes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_attrs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+            <span class="c1"># Store the parameters</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">param_grp</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">param_grp</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_grp</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifications.get_data"><a class="viewcode-back" href="../../../linefinder.analyze_data.classifications.html#linefinder.analyze_data.classifications.Classifications.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">data_key</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slice_index</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the data from the data dictionary. Useful (over just accessing</span>
+<span class="sd">        the array) when applying additional functions onto it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_key (str) :</span>
+<span class="sd">                Key for the relevant data.</span>
+
+<span class="sd">            mask (np.array of bools) :</span>
+<span class="sd">                What mask to apply to the data, if any</span>
+
+<span class="sd">            slice_index (int) :</span>
+<span class="sd">                If getting only a particular slice (for the two</span>
+<span class="sd">                dimensional arrays like &#39;is_wind), what slice?</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            data_arr (np.array) : Array of the requested data</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">data_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">slice_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_arr</span> <span class="o">=</span> <span class="n">data_arr</span><span class="p">[:,</span> <span class="n">slice_index</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span> <span class="n">data_arr</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span> <span class="p">)</span><span class="o">.</span><span class="n">compressed</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">data_arr</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifications.calc_base_fractions"><a class="viewcode-back" href="../../../linefinder.analyze_data.classifications.html#linefinder.analyze_data.classifications.Classifications.calc_base_fractions">[docs]</a>    <span class="k">def</span> <span class="nf">calc_base_fractions</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">return_or_store</span><span class="o">=</span><span class="s1">&#39;return&#39;</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get first order results of the classifications data, in the form of</span>
+<span class="sd">        fractions of each main type of classifications data, relative to the</span>
+<span class="sd">        total.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            return_or_store (str) :</span>
+<span class="sd">                Whether to return base_fractions or store</span>
+<span class="sd">                it as an attribute</span>
+
+<span class="sd">            mask (np.array of bools) :</span>
+<span class="sd">                What mask to apply to the data, if any</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            base_fractions (dict) :</span>
+<span class="sd">                Contains the fractions for each main type of classifications</span>
+<span class="sd">                data, evaluated at the final snapshot</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">base_fractions</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Get the total number of particles</span>
+        <span class="n">is_pristine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_pristine&#39;</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span> <span class="p">)</span>
+        <span class="n">n_classified</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span> <span class="n">is_pristine</span><span class="o">.</span><span class="n">size</span> <span class="p">)</span>
+
+        <span class="n">base_fractions</span><span class="p">[</span><span class="s1">&#39;fresh accretion&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span> <span class="n">is_pristine</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="p">)</span> <span class="o">/</span> <span class="n">n_classified</span>
+        <span class="n">base_fractions</span><span class="p">[</span><span class="s1">&#39;merger&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_merger&#39;</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="p">)</span> <span class="o">/</span> \
+            <span class="n">n_classified</span>
+        <span class="n">base_fractions</span><span class="p">[</span><span class="s1">&#39;intergalactic transfer&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_mass_transfer&#39;</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="p">)</span> <span class="o">/</span> \
+            <span class="n">n_classified</span>
+
+        <span class="c1"># For wind, only evaluate at the last snapshot</span>
+        <span class="n">base_fractions</span><span class="p">[</span><span class="s1">&#39;wind&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_wind&#39;</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">slice_index</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="p">)</span>\
+            <span class="o">/</span> <span class="n">n_classified</span>
+
+        <span class="k">if</span> <span class="n">return_or_store</span> <span class="o">==</span> <span class="s1">&#39;return&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">base_fractions</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_fractions</span> <span class="o">=</span> <span class="n">base_fractions</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Zachary Hafen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

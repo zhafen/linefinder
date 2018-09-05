@@ -1,0 +1,413 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>linefinder.analyze_data.worldline_set &#8212; linefinder 0.8.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for linefinder.analyze_data.worldline_set</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&#39;&#39;&#39;Tools for loading in multiple worldline data sets, for comparison</span>
+
+<span class="sd">@author: Zach Hafen</span>
+<span class="sd">@contact: zachary.h.hafen@gmail.com</span>
+<span class="sd">@status: Development</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">string</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;PDF&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">plot_worldlines</span>
+<span class="kn">import</span> <span class="nn">worldlines</span> <span class="k">as</span> <span class="nn">a_worldlines</span>
+
+<span class="kn">import</span> <span class="nn">galaxy_dive.plot_data.plotting</span> <span class="k">as</span> <span class="nn">gen_plot</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.utils.hdf5_wrapper</span> <span class="k">as</span> <span class="nn">hdf5_wrapper</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.utils.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
+
+<span class="c1">########################################################################</span>
+
+<span class="c1"># Sentinel object</span>
+<span class="n">default</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1">########################################################################</span>
+
+
+<div class="viewcode-block" id="WorldlineSet"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldline_set.html#linefinder.analyze_data.worldline_set.WorldlineSet">[docs]</a><span class="k">class</span> <span class="nc">WorldlineSet</span><span class="p">(</span> <span class="n">utilities</span><span class="o">.</span><span class="n">SmartDict</span> <span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Container for multiple Worldlines classes. The nice thing about this</span>
+<span class="sd">    class is you can use it like a Worldlines class, with the output being a</span>
+<span class="sd">    dictionary of the different sets instead.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">defaults</span><span class="p">,</span> <span class="n">variations</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            defaults (dict) :</span>
+<span class="sd">                Set of default arguments for loading worldline data.</span>
+
+<span class="sd">            variations (dict of dicts) :</span>
+<span class="sd">                Labels and differences in arguments to be passed to Worldlines</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Load the worldline sets</span>
+        <span class="n">worldlines_d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">variations</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span> <span class="n">defaults</span> <span class="p">)</span>
+            <span class="k">for</span> <span class="n">var_key</span> <span class="ow">in</span> <span class="n">variations</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">var_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">variations</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">var_key</span><span class="p">]</span>
+
+            <span class="n">worldlines_d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;data_object&#39;</span><span class="p">:</span> <span class="n">a_worldlines</span><span class="o">.</span><span class="n">Worldlines</span><span class="p">(</span> <span class="n">label</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">),</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">key</span>
+            <span class="p">}</span>
+
+        <span class="n">worldlines_plotters_d</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">SmartDict</span><span class="o">.</span><span class="n">from_class_and_args</span><span class="p">(</span>
+            <span class="n">plot_worldlines</span><span class="o">.</span><span class="n">WorldlinesPlotter</span><span class="p">,</span> <span class="n">worldlines_d</span> <span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">(</span> <span class="n">WorldlineSet</span><span class="p">,</span> <span class="bp">self</span> <span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span> <span class="n">worldlines_plotters_d</span> <span class="p">)</span>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="WorldlineSet.from_tag_expansion"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldline_set.html#linefinder.analyze_data.worldline_set.WorldlineSet.from_tag_expansion">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_tag_expansion</span><span class="p">(</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">defaults</span><span class="p">,</span> <span class="n">tag_expansion</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Create a worldline set using a bash-style expansion for the</span>
+<span class="sd">        variations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            defaults (dict) :</span>
+<span class="sd">                Set of default arguments for loading worldline data.</span>
+
+<span class="sd">            tag_expansion (str) :</span>
+<span class="sd">                String that can be expanded through wildcards to find</span>
+<span class="sd">                different worldline data. For example, &#39;analyze_*&#39; would look</span>
+<span class="sd">                for all data files with tags starting with &#39;analyze&#39; and ending</span>
+<span class="sd">                with something else;</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            worldline_set (WorldlineSet instance)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Get the paths after everything&#39;s expanded</span>
+        <span class="n">filepath_unexpanded</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;data_dir&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;ptracks_</span><span class="si">{}</span><span class="s1">.hdf5&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">tag_expansion</span> <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">filepaths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span> <span class="n">filepath_unexpanded</span> <span class="p">)</span>
+
+        <span class="c1"># Now get the variation dictionary out</span>
+        <span class="n">variations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">filepaths</span><span class="p">:</span>
+
+            <span class="c1"># Get the tag</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span> <span class="n">filepath</span> <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">filename_base</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span> <span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span> <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">filename_base</span><span class="p">[</span><span class="mi">8</span><span class="p">:]</span>
+
+            <span class="c1"># Add the variation to the dictionary</span>
+            <span class="n">variations</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">variations</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="s1">&#39;tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tag</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span> <span class="n">defaults</span><span class="p">,</span> <span class="n">variations</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Data Analysis Methods</span>
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="WorldlineSet.store_quantity"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldline_set.html#linefinder.analyze_data.worldline_set.WorldlineSet.store_quantity">[docs]</a>    <span class="k">def</span> <span class="nf">store_quantity</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">output_filepath</span><span class="p">,</span>
+        <span class="n">quantity_method</span> <span class="o">=</span> <span class="s1">&#39;get_categories_selected_quantity_fraction&#39;</span><span class="p">,</span>
+        <span class="n">variations</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Iterate over each Worldlines class in the set, obtaining a</span>
+<span class="sd">        specified quantity and then saving that to an .hdf5 file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_filepath (str) :</span>
+<span class="sd">                Full path to store the output at.</span>
+
+<span class="sd">            quantity_method (str) :</span>
+<span class="sd">                What method to use for getting the quantity out.</span>
+
+<span class="sd">            variations (dict) :</span>
+<span class="sd">                If provided, we get different quantities from each Worldlines</span>
+<span class="sd">                instance by passing different args to quantity_method according</span>
+<span class="sd">                to variations. kwargs is taken as the default arguments when</span>
+<span class="sd">                none are specified.</span>
+
+<span class="sd">            *args, **kwargs :</span>
+<span class="sd">                Arguments to be passed to quantity_method.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">quantity_method_used</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">quantity_method</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">variations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">quantities</span> <span class="o">=</span> <span class="n">quantity_method_used</span><span class="p">(</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> \
+                <span class="s2">&quot;variations arg is not compatible with calling&quot;</span> <span class="o">+</span> \
+                <span class="s2">&quot; quantity_method with *args.&quot;</span>
+
+            <span class="n">quantities</span> <span class="o">=</span> <span class="n">quantity_method_used</span><span class="o">.</span><span class="n">call_custom_kwargs</span><span class="p">(</span>
+                <span class="n">variations</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span> <span class="p">)</span>
+
+        <span class="c1"># Setup data to store</span>
+        <span class="n">data_to_store</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">data_category</span> <span class="ow">in</span> <span class="n">quantities</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">data_to_store</span><span class="p">[</span><span class="n">data_category</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Format the data</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">quantities</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="c1"># Store the data</span>
+            <span class="k">for</span> <span class="n">data_category</span><span class="p">,</span> <span class="n">inner_item</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">data_to_store</span><span class="p">[</span><span class="n">data_category</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">inner_item</span> <span class="p">)</span>
+
+            <span class="c1"># Store what tag was used.</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">label</span> <span class="p">)</span>
+        <span class="n">data_to_store</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">labels</span> <span class="p">)</span>
+
+        <span class="n">h5_wrapper</span> <span class="o">=</span> <span class="n">hdf5_wrapper</span><span class="o">.</span><span class="n">HDF5Wrapper</span><span class="p">(</span> <span class="n">output_filepath</span> <span class="p">)</span>
+        <span class="n">h5_wrapper</span><span class="o">.</span><span class="n">save_data</span><span class="p">(</span> <span class="n">data_to_store</span><span class="p">,</span> <span class="n">index_key</span><span class="o">=</span><span class="s1">&#39;label&#39;</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="WorldlineSet.store_redshift_dependent_quantity"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldline_set.html#linefinder.analyze_data.worldline_set.WorldlineSet.store_redshift_dependent_quantity">[docs]</a>    <span class="k">def</span> <span class="nf">store_redshift_dependent_quantity</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">output_filepath</span><span class="p">,</span>
+        <span class="n">max_snum</span><span class="p">,</span>
+        <span class="n">choose_snum_by</span> <span class="o">=</span> <span class="s1">&#39;pulling_from_ids&#39;</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Store a redshift dependent quantity. In particular, this method</span>
+<span class="sd">        assumes that the differences between the Worldlines is a redshift</span>
+<span class="sd">        difference, and that the label for each Worldlines class contains</span>
+<span class="sd">        the relevant snapshot number. It then parses the label for that</span>
+<span class="sd">        snapshot number, and passes it to store_dependent_quantity as a key.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_filepath (str) :</span>
+<span class="sd">                Where to save the output data.</span>
+
+<span class="sd">            max_snum (int) :</span>
+<span class="sd">                Maximum snapshot number the snapshots can go to. Used for parsing</span>
+<span class="sd">                the label as well as specifying the ind.</span>
+
+<span class="sd">            choose_snum_by (str) :</span>
+<span class="sd">                How to to vary the snapshot used when the arguments are passed</span>
+<span class="sd">                to the Worldlines.</span>
+
+<span class="sd">            *args, **kwargs :</span>
+<span class="sd">                Arguments passed to self.store_dependent_quantity()</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Rename keys</span>
+        <span class="n">variations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">snums</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="n">choose_snum_by</span> <span class="o">==</span> <span class="s1">&#39;parsing_tag&#39;</span><span class="p">:</span>
+                <span class="c1"># Parse the tag for the snapshot number</span>
+                <span class="n">snum_str_ind</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">find</span><span class="p">(</span> <span class="s1">&#39;snum&#39;</span> <span class="p">)</span>
+                <span class="n">snum_ind_start</span> <span class="o">=</span> <span class="n">snum_str_ind</span> <span class="o">+</span> <span class="mi">4</span>
+                <span class="n">snum_ind_end</span> <span class="o">=</span> <span class="n">snum_str_ind</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span> <span class="n">max_snum</span> <span class="p">)</span> <span class="p">)</span>
+                <span class="n">snum_str</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="n">snum_ind_start</span><span class="p">:</span><span class="n">snum_ind_end</span><span class="p">]</span>
+                <span class="c1"># Account for when snum isn&#39;t 3 digits long</span>
+                <span class="k">if</span> <span class="n">snum_str</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_&#39;</span><span class="p">:</span>
+                    <span class="n">snum_str</span> <span class="o">=</span> <span class="n">snum_str</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">snum</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">snum_str</span> <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">choose_snum_by</span> <span class="o">==</span> <span class="s1">&#39;pulling_from_ids&#39;</span><span class="p">:</span>
+                <span class="n">snum</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">ids</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;snum_end&#39;</span><span class="p">]</span>
+
+                <span class="c1"># Make sure we have IDs for which is is valid</span>
+                <span class="k">assert</span> <span class="n">snum</span> <span class="o">==</span> <span class="n">item</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">ids</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;snum_start&#39;</span><span class="p">],</span> \
+                    <span class="s2">&quot;Automated snum selection method not valid for given data.&quot;</span>
+
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">max_snum</span> <span class="o">-</span> <span class="n">snum</span>
+
+            <span class="c1"># Setup variations dict</span>
+            <span class="n">variations</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;sl&#39;</span><span class="p">:</span> <span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">ind</span><span class="p">),</span>
+            <span class="p">}</span>
+
+            <span class="c1"># Store the label and snum.</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">key</span> <span class="p">)</span>
+            <span class="n">snums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">snum</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_quantity</span><span class="p">(</span>
+            <span class="n">output_filepath</span><span class="p">,</span>
+            <span class="n">variations</span> <span class="o">=</span> <span class="n">variations</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Now store the snapshots</span>
+        <span class="n">h5_wrapper</span> <span class="o">=</span> <span class="n">hdf5_wrapper</span><span class="o">.</span><span class="n">HDF5Wrapper</span><span class="p">(</span> <span class="n">output_filepath</span> <span class="p">)</span>
+        <span class="n">data_to_store</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;snum&#39;</span><span class="p">:</span> <span class="n">snums</span><span class="p">,</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">h5_wrapper</span><span class="o">.</span><span class="n">insert_data</span><span class="p">(</span>
+            <span class="n">new_data</span> <span class="o">=</span> <span class="n">data_to_store</span><span class="p">,</span>
+            <span class="n">index_key</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span>
+            <span class="n">insert_columns</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Plotting Methods</span>
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="WorldlineSet.plot_w_set_same_axis"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldline_set.html#linefinder.analyze_data.worldline_set.WorldlineSet.plot_w_set_same_axis">[docs]</a>    <span class="k">def</span> <span class="nf">plot_w_set_same_axis</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">plotting_method</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span> <span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+        <span class="c1"># The plot itself</span>
+        <span class="nb">getattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">plotting_method</span> <span class="p">)(</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper center&#39;</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mf">14.5</span><span class="p">},</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="WorldlineSet.plot_classification_bar_same_axis"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldline_set.html#linefinder.analyze_data.worldline_set.WorldlineSet.plot_classification_bar_same_axis">[docs]</a>    <span class="k">def</span> <span class="nf">plot_classification_bar_same_axis</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">data_order</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">legend_args</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">y_label</span> <span class="o">=</span> <span class="s1">&#39;Classification Fraction&#39;</span><span class="p">,</span>
+        <span class="n">out_dir</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">save_file</span> <span class="o">=</span> <span class="s1">&#39;bar_map.pdf&#39;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">default_kwargs</span>
+    <span class="p">):</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span> <span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+        <span class="n">default_kwargs</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="n">default_kwargs</span><span class="p">[</span><span class="s1">&#39;ind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ind</span>
+
+        <span class="k">if</span> <span class="n">data_order</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+            <span class="n">data_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data_order</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Pass automated arguments to plot_classification_bar</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span> <span class="n">data_order</span> <span class="p">):</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;ax&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ax</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;x_pos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span> <span class="n">i</span> <span class="p">)</span> <span class="o">-</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;add_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_classification_bar</span><span class="o">.</span><span class="n">call_custom_kwargs</span><span class="p">(</span>
+            <span class="n">kwargs</span><span class="p">,</span> <span class="n">default_kwargs</span> <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span> <span class="nb">range</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">data_order</span> <span class="p">)</span> <span class="p">),</span> <span class="n">data_order</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span> <span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">]</span> <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span> <span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span> <span class="n">y_label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span> <span class="p">)</span>
+
+        <span class="n">redshift</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;redshift&#39;</span> <span class="p">)[</span><span class="n">ind</span><span class="p">]</span>
+        <span class="n">title_string</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$z=&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">{:.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">redshift</span> <span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span> <span class="n">title_string</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">legend_args</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mf">14.5</span><span class="p">},</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span> <span class="o">**</span><span class="n">legend_args</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">out_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gen_plot</span><span class="o">.</span><span class="n">save_fig</span><span class="p">(</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">save_file</span><span class="o">=</span><span class="n">save_file</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="n">fig</span> <span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Zachary Hafen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
