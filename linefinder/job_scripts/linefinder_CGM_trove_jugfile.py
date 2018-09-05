@@ -81,7 +81,7 @@ galdefs = [
 # Get the file format
 ptracks_tag_format = '{}_CGM_snum{}'
 tag_format = '{}{}'.format( ptracks_tag_format, '{}' )
-file_format =  'galids_{}.hdf5'.format( tag_format )
+file_format =  'classifications_{}.hdf5'.format( tag_format )
 
 # Start up a trove manager and use it to get next args
 trove_manager = trove_management.PathfinderTroveManager(
@@ -165,6 +165,6 @@ linefinder.run_linefinder_jug(
     run_id_selecting = False,
     run_id_sampling = False,
     run_tracking = False,
-    # run_galaxy_finding = False,
+    run_galaxy_finding = False,
     # run_classifying = False,
 )
