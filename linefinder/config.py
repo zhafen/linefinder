@@ -71,6 +71,14 @@ GALAXY_DEFINITIONS = {
         't_pro' : 0.03,
         't_m' : 0.5,
     },
+    '_galdefv4' : {
+        'length_scale' : 'Rstar0.5',
+        'mt_length_scale' : 'sRstar0.5',
+        'galaxy_cut' : 5.0,
+
+        't_pro' : 0.03,
+        't_m' : 0.5,
+    },
 }
 
 ########################################################################

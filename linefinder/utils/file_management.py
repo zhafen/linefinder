@@ -104,6 +104,7 @@ class FileManager( object ):
         ahf_index = 600,
         ids_tag_tail = None,
         ptracks_tag_tail = None,
+        galdef = '',
     ):
         '''Standard defaults for linefinder analysis routines.
 
@@ -121,20 +122,32 @@ class FileManager( object ):
 
         tag = '{}{}'.format( sim_name, tag_tail )
 
+        if galdef != '':
+            used_tag = '{}{}'.format( tag, galdef )
+        else:
+            used_tag = tag
+
         defaults = {
             'data_dir': self.get_linefinder_dir( sim_name ),
-            'tag': tag,
+            'tag': used_tag,
 
             'halo_data_dir': self.get_halo_dir( sim_name ),
             'ahf_index': ahf_index,
             'main_halo_id': config.MAIN_MT_HALO_ID[sim_name],
         }
 
+        if galdef != '':
+            defaults['ids_tag'] = tag
+            defaults['ptracks_tag'] = tag
+
         if ids_tag_tail is not None:
             defaults['ids_tag'] = '{}{}'.format( sim_name, ids_tag_tail )
 
         if ptracks_tag_tail is not None:
-            defaults['ptracks_tag'] = '{}{}'.format( sim_name, ptracks_tag_tail )
+            defaults['ptracks_tag'] = '{}{}'.format(
+                sim_name,
+                ptracks_tag_tail,
+            )
 
         return defaults
 
@@ -189,7 +202,6 @@ class FileManager( object ):
         tag_tail,
         default_sim_name = 'm12i',
         sim_names = [ 'm12i', 'm12m', 'm12f', ],
-        galdef = '',
         *args, **kwargs
     ):
         '''Standard defaults and variations for linefinder analysis routines.
@@ -214,23 +226,17 @@ class FileManager( object ):
                 Commonly used variations dictionary.
         '''
 
-        used_tag_tail = '{}{}'.format( tag_tail, galdef )
-
         linefinder_analysis_defaults = self.get_linefinder_analysis_defaults(
-            used_tag_tail,
+            tag_tail,
             sim_name = default_sim_name,
-            ptracks_tag_tail = tag_tail,
-            ids_tag_tail = tag_tail,
             *args, **kwargs
         )
 
         linefinder_analysis_variations = \
             self.get_linefinder_analysis_variations(
-                used_tag_tail,
+                tag_tail,
                 default_sim_name = default_sim_name,
                 sim_names = sim_names,
-                ptracks_tag_tail = tag_tail,
-                ids_tag_tail = tag_tail,
                 *args, **kwargs
             )
 
