@@ -168,7 +168,13 @@ texinfo_documents = [
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {
+    'https://docs.python.org/': None,
+    'galaxy_dive': (
+        'https://zhafen.github.io/galaxy-dive/build/html',
+        'https://zhafen.github.io/galaxy-dive/build/html/objects.inv',
+    ),
+}
 
 # -- Options for todo extension ----------------------------------------------
 
