@@ -1536,6 +1536,21 @@ class Worldlines( simulation_data.TimeData ):
 
         self.data['n_out'] = n_out
 
+    def calc_n_in( self ):                                                     
+        '''The number of times a particle has entered the main galaxy.             
+                                                                                
+        Modifies:                                                               
+            self.data['n_out'] (array-like):                                    
+                result[i,j] number of times that particle i has entered
+                the galaxy prior to index j.                                               
+        ''' 
+
+        is_entering = self.get_data( 'gal_event_id' ) == 1
+
+        n_out = self.count_n_events( is_entering )
+
+        self.data['n_in'] = n_in
+
 ########################################################################
 ########################################################################
 
