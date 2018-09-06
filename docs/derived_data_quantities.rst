@@ -12,12 +12,11 @@ The quantities can be accessed in two ways:
 .. autoclass:: linefinder.analyze_data.worldlines.Worldlines
     :show-inheritance:
 
-    .. automethod:: calc_enriched_metal_mass
-    .. automethod:: calc_metal_mass
     .. automethod:: calc_abs_phi
     .. automethod:: calc_ang_momentum
     .. automethod:: calc_d_sat_scaled_min
     .. automethod:: calc_dt
+    .. automethod:: calc_enriched_metal_mass
     .. automethod:: calc_ind
     .. automethod:: calc_ind_particle
     .. automethod:: calc_ind_star
@@ -45,6 +44,7 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_is_merger_star
     .. automethod:: calc_is_outside_any_gal_EP
     .. automethod:: calc_is_outside_any_gal_IP
+    .. automethod:: calc_metal_mass
     .. automethod:: calc_phi
     .. automethod:: calc_radial_distance
     .. automethod:: calc_radial_velocity
