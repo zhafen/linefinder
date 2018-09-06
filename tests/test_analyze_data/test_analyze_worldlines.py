@@ -913,7 +913,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
             [ 1, 1, 1, ],
         ] ).astype( bool )
 
-        actual = self.worldlines.data_masker.get_masked_data( 'T', mask=mask )
+        actual = self.worldlines.data_masker.get_selected_data( 'T', mask=mask )
         expected = np.array( [ 58051.05859375, 12212.33984375,  812602.1875    ,   25435.59375 ])
         npt.assert_allclose( expected, actual )
 
@@ -923,7 +923,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
         mask = np.array( [ True, False, True, True ] )
 
-        actual = self.worldlines.data_masker.get_masked_data(
+        actual = self.worldlines.data_masker.get_selected_data(
             'T',
             mask=mask,
             sl=( slice(None), 1 ),
@@ -935,9 +935,9 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
     ########################################################################
 
-    def test_get_masked_data_classification( self ):
+    def test_get_selected_data_classification( self ):
 
-        actual = self.worldlines.get_masked_data( 'T',
+        actual = self.worldlines.get_selected_data( 'T',
             classification='is_mass_transfer',
             sl=( slice(None), slice(0,2)  ),
             )
@@ -946,7 +946,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
     ########################################################################
 
-    def test_get_masked_data_classification_combined( self ):
+    def test_get_selected_data_classification_combined( self ):
 
         mask = np.array( [
             [ 0, 0, 0, ],
@@ -955,27 +955,27 @@ class TestWorldlineDataMasker( unittest.TestCase ):
             [ 1, 1, 1, ],
         ] ).astype( bool )
 
-        actual = self.worldlines.data_masker.get_masked_data( 'T', mask = mask,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
+        actual = self.worldlines.data_masker.get_selected_data( 'T', mask = mask,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
         expected = np.array( [ 12212.33984375,   812602.1875, 42283.62890625, ] )
         npt.assert_allclose( expected, actual )
 
     ########################################################################
 
-    def test_get_masked_data_before_first_acc( self ):
+    def test_get_selected_data_before_first_acc( self ):
 
         self.worldlines.events.data['ind_first_acc'] = np.array([ 2, config.INT_FILL_VALUE, 0, 2 ])
 
-        actual = self.worldlines.data_masker.get_masked_data( 'T', mask_after_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
+        actual = self.worldlines.data_masker.get_selected_data( 'T', mask_after_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
         expected = np.array( [ 12212.33984375,   812602.1875, 4107.27490234, ] )
         npt.assert_allclose( expected, actual )
 
     ########################################################################
 
-    def test_get_masked_data_after_first_acc( self ):
+    def test_get_selected_data_after_first_acc( self ):
 
         self.worldlines.events.data['ind_first_acc'] = np.array([ 2, config.INT_FILL_VALUE, 0, 2 ])
 
-        actual = self.worldlines.data_masker.get_masked_data( 'T', mask_before_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
+        actual = self.worldlines.data_masker.get_selected_data( 'T', mask_before_first_acc=True,  classification='is_preprocessed', sl=( slice(None), slice(0,2), ) )
         expected = np.array( [ 42283.62890625,  20401.44335938,  115423.2109375, ] )
         npt.assert_allclose( expected, actual )
 
@@ -1004,9 +1004,9 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
     ########################################################################
 
-    def test_get_masked_data_defaults( self ):
+    def test_get_selected_data_defaults( self ):
 
-        actual = self.worldlines.get_masked_data( 'T' )
+        actual = self.worldlines.get_selected_data( 'T' )
         expected = np.array([
             [  22864.45898438,  379941.71875   ,   58051.05859375],
             [  12212.33984375,  812602.1875    ,   25435.59375   ],
@@ -1016,7 +1016,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
     ########################################################################
 
-    def test_get_masked_data_over_time( self ):
+    def test_get_selected_data_over_time( self ):
 
         # Mock data
         self.worldlines.data['A'] = np.array([
@@ -1036,7 +1036,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
         self.worldlines.data_masker.mask_data( 'T', 4500., np.inf )
 
         # Actual calculation
-        actual = self.worldlines.get_masked_data_over_time(
+        actual = self.worldlines.get_selected_data_over_time(
             'A',
             classification = 'is_class_A',
             snum = 550,
@@ -1052,7 +1052,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
     ########################################################################
 
-    def test_get_masked_data_over_time_tile_data( self ):
+    def test_get_selected_data_over_time_tile_data( self ):
 
         # Mock data
         self.worldlines.data['A'] = np.array([
@@ -1069,7 +1069,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
         self.worldlines.data_masker.mask_data( 'T', 4500., np.inf )
 
         # Actual calculation
-        actual = self.worldlines.get_masked_data_over_time(
+        actual = self.worldlines.get_selected_data_over_time(
             'A',
             classification = 'is_class_A',
             snum = 550,

@@ -674,7 +674,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             # Sample the data according to its classification at a
             # specified snapshot (index)
             else:
-                inds = self.data_object.get_masked_data(
+                inds = self.data_object.get_selected_data(
                     'ind_particle',
                     tile_data = True,
                     compress = False,
@@ -701,12 +701,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         sl = ( sample_inds, onedim_slice )
 
         # Get the data out.
-        x_data = self.data_object.get_masked_data(
+        x_data = self.data_object.get_selected_data(
             x_key,
             sl = sl,
             **x_data_kwargs
         )
-        y_data = self.data_object.get_masked_data(
+        y_data = self.data_object.get_selected_data(
             y_key,
             sl = sl,
             **y_data_kwargs
@@ -863,7 +863,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         # Plot a line at the ind at which classifications are determined
         if vert_line_at_classification_ind:
 
-            x_value = self.data_object.get_masked_data(
+            x_value = self.data_object.get_selected_data(
                 x_key,
                 sl = classification_ind,
             )
@@ -907,7 +907,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             ahf_plotter.plot_halo_time(
                 halo_y_key,
-                snums = w.get_masked_data( 'snum' ),
+                snums = w.get_selected_data( 'snum' ),
                 subtract_mt_halo_id = w.main_halo_id,
                 ax = ax,
                 hubble_param = w.ptracks.data_attrs['hubble'],

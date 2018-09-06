@@ -30,7 +30,7 @@ import linefinder.config as config
 
 
 class Worldlines( simulation_data.TimeData ):
-    '''Wrapper for analysis of all worldline data products. It loads data in
+    '''Wrapper for analysis of all data products. It loads data in
     on-demand.
 
         Args:
@@ -422,7 +422,7 @@ class Worldlines( simulation_data.TimeData ):
         if not hasattr( self, '_mass_totals' ):
             self._mass_totals = {}
             for mass_category in [ 'is_pristine', 'is_merger', 'is_mass_transfer', 'is_wind' ]:
-                self._mass_totals[mass_category] = self.get_masked_data(
+                self._mass_totals[mass_category] = self.get_selected_data(
                     'M',
                     sl=(slice(None), 0),
                     classification=mass_category,
@@ -701,7 +701,7 @@ class Worldlines( simulation_data.TimeData ):
             f_outside (float) : Fraction outside the range.
         '''
 
-        data = self.get_masked_data( data_key, *args, **kwargs )
+        data = self.get_selected_data( data_key, *args, **kwargs )
 
         data_ma = np.ma.masked_outside( data, data_min, data_max )
 
@@ -742,7 +742,7 @@ class Worldlines( simulation_data.TimeData ):
                 (saves memory at the cost of convenience).
 
             *args, **kwargs :
-                Additional arguments to be passed to self.get_masked_data()
+                Additional arguments to be passed to self.get_selected_data()
 
         Returns:
             selected_quantity (np.ndarray) :
@@ -754,7 +754,7 @@ class Worldlines( simulation_data.TimeData ):
         # Run the selection routine
         self.data_masker.run_selection_routine( selection_routine, ptype )
 
-        data_ma = self.get_masked_data(
+        data_ma = self.get_selected_data(
             selected_quantity_data_key,
             fix_invalid = True,
             compress = False,
@@ -842,7 +842,7 @@ class Worldlines( simulation_data.TimeData ):
                 (saves memory at the cost of convenience).
 
             *args, **kwargs :
-                Additional arguments to be passed to self.get_masked_data()
+                Additional arguments to be passed to self.get_selected_data()
 
         Returns:
             selected_quantity (np.ndarray) :
@@ -875,7 +875,7 @@ class Worldlines( simulation_data.TimeData ):
                 **radial_bin_data_kwargs
             )
 
-            data_ma = self.get_masked_data(
+            data_ma = self.get_selected_data(
                 'M',
                 fix_invalid = True,
                 compress = False,
@@ -928,7 +928,7 @@ class Worldlines( simulation_data.TimeData ):
                 want the selected quantity in, well, radial bins.
 
             *args, **kwargs :
-                Additional arguments to be passed to self.get_masked_data()
+                Additional arguments to be passed to self.get_selected_data()
 
         Returns:
             categories_selected_quantity (SmartDict of np.ndarrays) :
@@ -983,7 +983,7 @@ class Worldlines( simulation_data.TimeData ):
                 What classifications to use.
 
             *args, **kwargs :
-                Additional arguments to be passed to self.get_masked_data()
+                Additional arguments to be passed to self.get_selected_data()
 
         Returns:
             categories_selected_quantity (SmartDict of np.ndarrays) :
@@ -1430,7 +1430,7 @@ class Worldlines( simulation_data.TimeData ):
         self.data_masker.mask_data( 'is_in_other_gal', data_value=True )
 
         # Get the individual pieces of time, prior to adding them up.
-        dt_masked = self.get_masked_data( 'dt_tiled', mask_after_first_acc=True, compress=False )
+        dt_masked = self.get_selected_data( 'dt_tiled', mask_after_first_acc=True, compress=False )
 
         # Now do the sum
         t_EP = dt_masked.sum( axis=1 )
@@ -1603,7 +1603,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
 
     ########################################################################
 
-    def get_masked_data(
+    def get_selected_data(
         self,
         data_key,
         mask = None,
@@ -1614,7 +1614,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         optional_masks = None,
         *args, **kwargs
     ):
-        '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_masked_data.
+        '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_selected_data.
 
         Args:
             data_key (str) :
@@ -1654,13 +1654,13 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
             optional_masks = optional_masks,
         )
 
-        masked_data = super( WorldlineDataMasker, self ).get_masked_data( data_key, mask=used_mask, *args, **kwargs )
+        masked_data = super( WorldlineDataMasker, self ).get_selected_data( data_key, mask=used_mask, *args, **kwargs )
 
         return masked_data
 
     ########################################################################
 
-    def get_masked_data_over_time(
+    def get_selected_data_over_time(
         self,
         data_key,
         mask = None,
@@ -1671,7 +1671,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         optional_masks = None,
         *args, **kwargs
     ):
-        '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_masked_data.
+        '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_selected_data.
 
         Args:
             data_key (str) :
@@ -1712,7 +1712,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         )
 
         super_class = super( WorldlineDataMasker, self )
-        masked_data = super_class.get_masked_data_over_time(
+        masked_data = super_class.get_selected_data_over_time(
             data_key,
             mask = used_mask,
             *args, **kwargs

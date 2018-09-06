@@ -413,13 +413,13 @@ class SnapshotIDSelector( particle_data.ParticleData ):
             child_ids (optional) : Child IDs for the particles that match the filtered requirements.
         '''
 
-        ids = self.data_masker.get_masked_data( 'ID' )
+        ids = self.data_masker.get_selected_data( 'ID' )
 
         if not self.load_additional_ids:
             return ids
 
         else:
-            child_ids = self.data_masker.get_masked_data( 'ChildID' )
+            child_ids = self.data_masker.get_selected_data( 'ChildID' )
             return ids, child_ids
 
     ########################################################################

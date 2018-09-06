@@ -88,9 +88,9 @@ for data that’s one value per particle.</dd>
 </dd></dl>
 
 <dl class="method">
-<dt id="linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data">
-<code class="descname">get_masked_data</code><span class="sig-paren">(</span><em>data_key</em>, <em>mask=None</em>, <em>classification=None</em>, <em>mask_after_first_acc=False</em>, <em>mask_before_first_acc=False</em>, <em>preserve_mask_shape=False</em>, <em>optional_masks=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#WorldlineDataMasker.get_masked_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get masked worldline data. Extra arguments are passed to the ParentClass’ get_masked_data.</p>
+<dt id="linefinder.analyze_data.worldlines.WorldlineDataMasker.get_selected_data">
+<code class="descname">get_selected_data</code><span class="sig-paren">(</span><em>data_key</em>, <em>mask=None</em>, <em>classification=None</em>, <em>mask_after_first_acc=False</em>, <em>mask_before_first_acc=False</em>, <em>preserve_mask_shape=False</em>, <em>optional_masks=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#WorldlineDataMasker.get_selected_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_selected_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get masked worldline data. Extra arguments are passed to the ParentClass’ get_selected_data.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
@@ -122,9 +122,9 @@ for data that’s one value per particle.</dd>
 </dd></dl>
 
 <dl class="method">
-<dt id="linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data_over_time">
-<code class="descname">get_masked_data_over_time</code><span class="sig-paren">(</span><em>data_key</em>, <em>mask=None</em>, <em>classification=None</em>, <em>mask_after_first_acc=False</em>, <em>mask_before_first_acc=False</em>, <em>preserve_mask_shape=False</em>, <em>optional_masks=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#WorldlineDataMasker.get_masked_data_over_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data_over_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get masked worldline data. Extra arguments are passed to the ParentClass’ get_masked_data.</p>
+<dt id="linefinder.analyze_data.worldlines.WorldlineDataMasker.get_selected_data_over_time">
+<code class="descname">get_selected_data_over_time</code><span class="sig-paren">(</span><em>data_key</em>, <em>mask=None</em>, <em>classification=None</em>, <em>mask_after_first_acc=False</em>, <em>mask_before_first_acc=False</em>, <em>preserve_mask_shape=False</em>, <em>optional_masks=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#WorldlineDataMasker.get_selected_data_over_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_selected_data_over_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get masked worldline data. Extra arguments are passed to the ParentClass’ get_selected_data.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
@@ -259,7 +259,7 @@ Masked data then will be retrieved with these masks in mind.</p>
 <dt id="linefinder.analyze_data.worldlines.Worldlines">
 <em class="property">class </em><code class="descclassname">linefinder.analyze_data.worldlines.</code><code class="descname">Worldlines</code><span class="sig-paren">(</span><em>data_dir</em>, <em>tag</em>, <em>ids_tag=None</em>, <em>ptracks_tag=None</em>, <em>galids_tag=None</em>, <em>classifications_tag=None</em>, <em>events_tag=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://zhafen.github.io/galaxy-dive/build/html/galaxy_dive.analyze_data.simulation_data.html#galaxy_dive.analyze_data.simulation_data.TimeData" title="(in galaxy-dive)"><code class="xref py py-class docutils literal notranslate"><span class="pre">galaxy_dive.analyze_data.simulation_data.TimeData</span></code></a></p>
-<p>Wrapper for analysis of all worldline data products. It loads data in
+<p>Wrapper for analysis of all data products. It loads data in
 on-demand.</p>
 <blockquote>
 <div><dl class="docutils">
@@ -609,7 +609,7 @@ of a number of classification categories. This is only for particles that are tr
 For example, use ‘get_selected_quantity_radial_bins’ if you
 want the selected quantity in, well, radial bins.</dd>
 <dt><a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs :</dt>
-<dd>Additional arguments to be passed to self.get_masked_data()</dd>
+<dd>Additional arguments to be passed to self.get_selected_data()</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
@@ -632,7 +632,7 @@ of a number of classification categories.</p>
 <dt>classification_list (list) :</dt>
 <dd>What classifications to use.</dd>
 <dt><a href="#id5"><span class="problematic" id="id6">*</span></a>args, <a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs :</dt>
-<dd>Additional arguments to be passed to self.get_masked_data()</dd>
+<dd>Additional arguments to be passed to self.get_selected_data()</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
@@ -772,7 +772,7 @@ particles in the main galaxy.</dd>
 <dd>If True, unload the data after getting the quantity
 (saves memory at the cost of convenience).</dd>
 <dt><a href="#id29"><span class="problematic" id="id30">*</span></a>args, <a href="#id31"><span class="problematic" id="id32">**</span></a>kwargs :</dt>
-<dd>Additional arguments to be passed to self.get_masked_data()</dd>
+<dd>Additional arguments to be passed to self.get_selected_data()</dd>
 </dl>
 </div></blockquote>
 <dl class="docutils">
@@ -815,7 +815,7 @@ self.data_masker.get_processed_data.</dd>
 <dd>If True, unload the data after getting the quantity
 (saves memory at the cost of convenience).</dd>
 <dt><a href="#id37"><span class="problematic" id="id38">*</span></a>args, <a href="#id39"><span class="problematic" id="id40">**</span></a>kwargs :</dt>
-<dd>Additional arguments to be passed to self.get_masked_data()</dd>
+<dd>Additional arguments to be passed to self.get_selected_data()</dd>
 </dl>
 </div></blockquote>
 <dl class="docutils">

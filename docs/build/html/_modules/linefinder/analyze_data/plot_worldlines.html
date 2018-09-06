@@ -707,7 +707,7 @@
             <span class="c1"># Sample the data according to its classification at a</span>
             <span class="c1"># specified snapshot (index)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">inds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span>
+                <span class="n">inds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
                     <span class="s1">&#39;ind_particle&#39;</span><span class="p">,</span>
                     <span class="n">tile_data</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                     <span class="n">compress</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -734,12 +734,12 @@
         <span class="n">sl</span> <span class="o">=</span> <span class="p">(</span> <span class="n">sample_inds</span><span class="p">,</span> <span class="n">onedim_slice</span> <span class="p">)</span>
 
         <span class="c1"># Get the data out.</span>
-        <span class="n">x_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span>
+        <span class="n">x_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
             <span class="n">x_key</span><span class="p">,</span>
             <span class="n">sl</span> <span class="o">=</span> <span class="n">sl</span><span class="p">,</span>
             <span class="o">**</span><span class="n">x_data_kwargs</span>
         <span class="p">)</span>
-        <span class="n">y_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span>
+        <span class="n">y_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
             <span class="n">y_key</span><span class="p">,</span>
             <span class="n">sl</span> <span class="o">=</span> <span class="n">sl</span><span class="p">,</span>
             <span class="o">**</span><span class="n">y_data_kwargs</span>
@@ -896,7 +896,7 @@
         <span class="c1"># Plot a line at the ind at which classifications are determined</span>
         <span class="k">if</span> <span class="n">vert_line_at_classification_ind</span><span class="p">:</span>
 
-            <span class="n">x_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span>
+            <span class="n">x_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
                 <span class="n">x_key</span><span class="p">,</span>
                 <span class="n">sl</span> <span class="o">=</span> <span class="n">classification_ind</span><span class="p">,</span>
             <span class="p">)</span>
@@ -940,7 +940,7 @@
 
             <span class="n">ahf_plotter</span><span class="o">.</span><span class="n">plot_halo_time</span><span class="p">(</span>
                 <span class="n">halo_y_key</span><span class="p">,</span>
-                <span class="n">snums</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span> <span class="s1">&#39;snum&#39;</span> <span class="p">),</span>
+                <span class="n">snums</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span> <span class="s1">&#39;snum&#39;</span> <span class="p">),</span>
                 <span class="n">subtract_mt_halo_id</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">main_halo_id</span><span class="p">,</span>
                 <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">,</span>
                 <span class="n">hubble_param</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">data_attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">],</span>

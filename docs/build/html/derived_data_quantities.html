@@ -33,12 +33,17 @@
   <div class="section" id="derived-data-products">
 <h1>Derived Data Products<a class="headerlink" href="#derived-data-products" title="Permalink to this headline">¶</a></h1>
 <p>In addition to the data immediately available in the data products, there are a number of additional derived quantities that can be generated on the fly.
-This file lists the methods used to calculate those quantities.</p>
+These quantities are available as part of an analysis class, and are documented below as methods of that class.</p>
+<p>The quantities can be accessed in two ways:</p>
+<ol class="arabic simple">
+<li>Run the relevant method, after which the derived quantity will be available in the class’s <cite>.data</cite> attribute. If <cite>d</cite> is the instance of the class, then this to get the time since the start of the simulation you would use <cite>d.calc_time() ; d.data[‘time’]</cite></li>
+<li>Use the class’s data retrieval methods, <cite>get_data</cite>, e.g. <cite>d.get_data( ‘time’ )</cite>. This also works with the more advanced <cite>get_processed_data</cite> and <cite>get_selected_data</cite>.</li>
+</ol>
 <dl class="class">
 <dt id="linefinder.analyze_data.worldlines.Worldlines">
 <em class="property">class </em><code class="descclassname">linefinder.analyze_data.worldlines.</code><code class="descname">Worldlines</code><span class="sig-paren">(</span><em>data_dir</em>, <em>tag</em>, <em>ids_tag=None</em>, <em>ptracks_tag=None</em>, <em>galids_tag=None</em>, <em>classifications_tag=None</em>, <em>events_tag=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://zhafen.github.io/galaxy-dive/build/html/galaxy_dive.analyze_data.simulation_data.html#galaxy_dive.analyze_data.simulation_data.TimeData" title="(in galaxy-dive)"><code class="xref py py-class docutils literal notranslate"><span class="pre">galaxy_dive.analyze_data.simulation_data.TimeData</span></code></a></p>
-<p>Wrapper for analysis of all worldline data products. It loads data in
+<p>Wrapper for analysis of all data products. It loads data in
 on-demand.</p>
 <blockquote>
 <div><dl class="docutils">

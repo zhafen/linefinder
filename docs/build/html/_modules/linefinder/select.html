@@ -446,13 +446,13 @@
 <span class="sd">            child_ids (optional) : Child IDs for the particles that match the filtered requirements.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_masker</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span> <span class="s1">&#39;ID&#39;</span> <span class="p">)</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_masker</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span> <span class="s1">&#39;ID&#39;</span> <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_additional_ids</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ids</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">child_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_masker</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span> <span class="s1">&#39;ChildID&#39;</span> <span class="p">)</span>
+            <span class="n">child_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_masker</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span> <span class="s1">&#39;ChildID&#39;</span> <span class="p">)</span>
             <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">child_ids</span></div>
 
     <span class="c1">########################################################################</span>

@@ -63,7 +63,7 @@
 
 
 <div class="viewcode-block" id="Worldlines"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines">[docs]</a><span class="k">class</span> <span class="nc">Worldlines</span><span class="p">(</span> <span class="n">simulation_data</span><span class="o">.</span><span class="n">TimeData</span> <span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Wrapper for analysis of all worldline data products. It loads data in</span>
+    <span class="sd">&#39;&#39;&#39;Wrapper for analysis of all data products. It loads data in</span>
 <span class="sd">    on-demand.</span>
 
 <span class="sd">        Args:</span>
@@ -455,7 +455,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_mass_totals&#39;</span> <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">mass_category</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;is_pristine&#39;</span><span class="p">,</span> <span class="s1">&#39;is_merger&#39;</span><span class="p">,</span> <span class="s1">&#39;is_mass_transfer&#39;</span><span class="p">,</span> <span class="s1">&#39;is_wind&#39;</span> <span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span><span class="p">[</span><span class="n">mass_category</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span><span class="p">[</span><span class="n">mass_category</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
                     <span class="s1">&#39;M&#39;</span><span class="p">,</span>
                     <span class="n">sl</span><span class="o">=</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span>
                     <span class="n">classification</span><span class="o">=</span><span class="n">mass_category</span><span class="p">,</span>
@@ -734,7 +734,7 @@
 <span class="sd">            f_outside (float) : Fraction outside the range.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span> <span class="n">data_key</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span> <span class="n">data_key</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
 
         <span class="n">data_ma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_outside</span><span class="p">(</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_min</span><span class="p">,</span> <span class="n">data_max</span> <span class="p">)</span>
 
@@ -775,7 +775,7 @@
 <span class="sd">                (saves memory at the cost of convenience).</span>
 
 <span class="sd">            *args, **kwargs :</span>
-<span class="sd">                Additional arguments to be passed to self.get_masked_data()</span>
+<span class="sd">                Additional arguments to be passed to self.get_selected_data()</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            selected_quantity (np.ndarray) :</span>
@@ -787,7 +787,7 @@
         <span class="c1"># Run the selection routine</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_masker</span><span class="o">.</span><span class="n">run_selection_routine</span><span class="p">(</span> <span class="n">selection_routine</span><span class="p">,</span> <span class="n">ptype</span> <span class="p">)</span>
 
-        <span class="n">data_ma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span>
+        <span class="n">data_ma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
             <span class="n">selected_quantity_data_key</span><span class="p">,</span>
             <span class="n">fix_invalid</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
             <span class="n">compress</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -875,7 +875,7 @@
 <span class="sd">                (saves memory at the cost of convenience).</span>
 
 <span class="sd">            *args, **kwargs :</span>
-<span class="sd">                Additional arguments to be passed to self.get_masked_data()</span>
+<span class="sd">                Additional arguments to be passed to self.get_selected_data()</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            selected_quantity (np.ndarray) :</span>
@@ -908,7 +908,7 @@
                 <span class="o">**</span><span class="n">radial_bin_data_kwargs</span>
             <span class="p">)</span>
 
-            <span class="n">data_ma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span>
+            <span class="n">data_ma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
                 <span class="s1">&#39;M&#39;</span><span class="p">,</span>
                 <span class="n">fix_invalid</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="n">compress</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -961,7 +961,7 @@
 <span class="sd">                want the selected quantity in, well, radial bins.</span>
 
 <span class="sd">            *args, **kwargs :</span>
-<span class="sd">                Additional arguments to be passed to self.get_masked_data()</span>
+<span class="sd">                Additional arguments to be passed to self.get_selected_data()</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            categories_selected_quantity (SmartDict of np.ndarrays) :</span>
@@ -1016,7 +1016,7 @@
 <span class="sd">                What classifications to use.</span>
 
 <span class="sd">            *args, **kwargs :</span>
-<span class="sd">                Additional arguments to be passed to self.get_masked_data()</span>
+<span class="sd">                Additional arguments to be passed to self.get_selected_data()</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            categories_selected_quantity (SmartDict of np.ndarrays) :</span>
@@ -1463,7 +1463,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data_masker</span><span class="o">.</span><span class="n">mask_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span><span class="p">,</span> <span class="n">data_value</span><span class="o">=</span><span class="kc">True</span> <span class="p">)</span>
 
         <span class="c1"># Get the individual pieces of time, prior to adding them up.</span>
-        <span class="n">dt_masked</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span> <span class="s1">&#39;dt_tiled&#39;</span><span class="p">,</span> <span class="n">mask_after_first_acc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span>
+        <span class="n">dt_masked</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span> <span class="s1">&#39;dt_tiled&#39;</span><span class="p">,</span> <span class="n">mask_after_first_acc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span>
 
         <span class="c1"># Now do the sum</span>
         <span class="n">t_EP</span> <span class="o">=</span> <span class="n">dt_masked</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span>
@@ -1636,7 +1636,7 @@
 
     <span class="c1">########################################################################</span>
 
-<div class="viewcode-block" id="WorldlineDataMasker.get_masked_data"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_masked_data</span><span class="p">(</span>
+<div class="viewcode-block" id="WorldlineDataMasker.get_selected_data"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_selected_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_selected_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_key</span><span class="p">,</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1647,7 +1647,7 @@
         <span class="n">optional_masks</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get masked worldline data. Extra arguments are passed to the ParentClass&#39; get_masked_data.</span>
+        <span class="sd">&#39;&#39;&#39;Get masked worldline data. Extra arguments are passed to the ParentClass&#39; get_selected_data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data_key (str) :</span>
@@ -1687,13 +1687,13 @@
             <span class="n">optional_masks</span> <span class="o">=</span> <span class="n">optional_masks</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">masked_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span> <span class="n">WorldlineDataMasker</span><span class="p">,</span> <span class="bp">self</span> <span class="p">)</span><span class="o">.</span><span class="n">get_masked_data</span><span class="p">(</span> <span class="n">data_key</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">used_mask</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
+        <span class="n">masked_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span> <span class="n">WorldlineDataMasker</span><span class="p">,</span> <span class="bp">self</span> <span class="p">)</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span> <span class="n">data_key</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">used_mask</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">masked_data</span></div>
 
     <span class="c1">########################################################################</span>
 
-<div class="viewcode-block" id="WorldlineDataMasker.get_masked_data_over_time"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data_over_time">[docs]</a>    <span class="k">def</span> <span class="nf">get_masked_data_over_time</span><span class="p">(</span>
+<div class="viewcode-block" id="WorldlineDataMasker.get_selected_data_over_time"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_selected_data_over_time">[docs]</a>    <span class="k">def</span> <span class="nf">get_selected_data_over_time</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_key</span><span class="p">,</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1704,7 +1704,7 @@
         <span class="n">optional_masks</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get masked worldline data. Extra arguments are passed to the ParentClass&#39; get_masked_data.</span>
+        <span class="sd">&#39;&#39;&#39;Get masked worldline data. Extra arguments are passed to the ParentClass&#39; get_selected_data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data_key (str) :</span>
@@ -1745,7 +1745,7 @@
         <span class="p">)</span>
 
         <span class="n">super_class</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span> <span class="n">WorldlineDataMasker</span><span class="p">,</span> <span class="bp">self</span> <span class="p">)</span>
-        <span class="n">masked_data</span> <span class="o">=</span> <span class="n">super_class</span><span class="o">.</span><span class="n">get_masked_data_over_time</span><span class="p">(</span>
+        <span class="n">masked_data</span> <span class="o">=</span> <span class="n">super_class</span><span class="o">.</span><span class="n">get_selected_data_over_time</span><span class="p">(</span>
             <span class="n">data_key</span><span class="p">,</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">used_mask</span><span class="p">,</span>
             <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
