@@ -12,8 +12,8 @@ The quantities can be accessed in two ways:
 .. autoclass:: linefinder.analyze_data.worldlines.Worldlines
     :show-inheritance:
 
-    .. automethod:: calc_EnrichedMetalMass
-    .. automethod:: calc_MetalMass
+    .. automethod:: calc_enriched_metal_mass
+    .. automethod:: calc_metal_mass
     .. automethod:: calc_abs_phi
     .. automethod:: calc_ang_momentum
     .. automethod:: calc_d_sat_scaled_min
