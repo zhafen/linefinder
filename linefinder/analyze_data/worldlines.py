@@ -26,52 +26,64 @@ import linefinder.utils.presentation_constants as p_constants
 import linefinder.config as config
 
 ########################################################################
-
-# For catching default values
-default = object()
-
-########################################################################
 ########################################################################
 
 
 class Worldlines( simulation_data.TimeData ):
     '''Wrapper for analysis of all worldline data products. It loads data in
     on-demand.
-    '''
+
+        Args:
+            data_dir (str):
+                Data directory for the classified data
+
+            tag (str):
+                Identifying tag for the data to load.
+
+            ids_tag (str):
+                Identifying tag for ids data. Defaults to tag.
+
+            ptracks_tag (str):
+                Identifying tag for ptracks data. Defaults to tag.
+
+            galids_tag (str):
+                Identifying tag for galids data. Defaults to tag.
+
+            classifications_tag (str):
+                Identifying tag for classifications data. Defaults to tag.
+
+            events_tag (str):
+                Identifying tag for events data. Defaults to tag.
+
+            label (str):
+                Identifying label for the worldlines, used for plotting.
+                Defaults to tag.
+
+            color (str):
+                What color to use when plotting.
+        '''
 
     def __init__(
         self,
         data_dir,
         tag,
-        ids_tag = default,
-        ptracks_tag = default,
-        galids_tag = default,
-        classifications_tag = default,
-        events_tag = default,
+        ids_tag = None,
+        ptracks_tag = None,
+        galids_tag = None,
+        classifications_tag = None,
+        events_tag = None,
         **kwargs
     ):
-        '''
-        Args:
-            data_dir (str) : Data directory for the classified data
-            tag (str) : Identifying tag for the data to load.
-            ids_tag (str) : Identifying tag for ids data. Defaults to tag.
-            ptracks_tag (str) : Identifying tag for ptracks data. Defaults to tag.
-            galids_tag (str) : Identifying tag for galids data. Defaults to tag.
-            classifications_tag (str) : Identifying tag for classifications data. Defaults to tag.
-            events_tag (str) : Identifying tag for events data. Defaults to tag.
-            label (str) : Identifying label for the worldlines. Defaults to tag.
-            color (str) : What color to use when plotting.
-        '''
 
-        if ids_tag is default:
+        if ids_tag is None:
             ids_tag = tag
-        if ptracks_tag is default:
+        if ptracks_tag is None:
             ptracks_tag = tag
-        if galids_tag is default:
+        if galids_tag is None:
             galids_tag = tag
-        if classifications_tag is default:
+        if classifications_tag is None:
             classifications_tag = tag
-        if events_tag is default:
+        if events_tag is None:
             events_tag = tag
 
         # Store the arguments
@@ -1505,7 +1517,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
 
     def get_mask(
         self,
-        mask = default,
+        mask = None,
         classification = None,
         mask_after_first_acc = False,
         mask_before_first_acc = False,
@@ -1517,7 +1529,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
 
         Args:
             mask (np.array) :
-                Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).
+                Mask to apply to the data. If None, use the masks stored in self.masks (which Nones to empty).
 
             classification (str) :
                 If provided, only select particles that meet this classification, as given in
@@ -1546,7 +1558,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
 
         used_masks = []
 
-        if mask is default:
+        if mask is None:
             if len( self.masks ) > 0 or len( self.optional_masks ) > 0:
                 total_mask = self.get_total_mask(
                     optional_masks=optional_masks
@@ -1594,7 +1606,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
     def get_masked_data(
         self,
         data_key,
-        mask = default,
+        mask = None,
         classification = None,
         mask_after_first_acc = False,
         mask_before_first_acc = False,
@@ -1609,7 +1621,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
                 Data to get.
 
             mask (np.array) :
-                Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).
+                Mask to apply to the data. If None, use the masks stored in self.masks (which Nones to empty).
 
             classification (str) :
                 If provided, only select particles that meet this classification, as given in
@@ -1651,7 +1663,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
     def get_masked_data_over_time(
         self,
         data_key,
-        mask = default,
+        mask = None,
         classification = None,
         mask_after_first_acc = False,
         mask_before_first_acc = False,
@@ -1666,7 +1678,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
                 Data to get.
 
             mask (np.array) :
-                Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).
+                Mask to apply to the data. If None, use the masks stored in self.masks (which defaults to empty).
 
             classification (str) :
                 If provided, only select particles that meet this classification, as given in

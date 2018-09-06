@@ -36,10 +36,37 @@
 This file lists the methods used to calculate those quantities.</p>
 <dl class="class">
 <dt id="linefinder.analyze_data.worldlines.Worldlines">
-<em class="property">class </em><code class="descclassname">linefinder.analyze_data.worldlines.</code><code class="descname">Worldlines</code><span class="sig-paren">(</span><em>data_dir</em>, <em>tag</em>, <em>ids_tag=&lt;object object&gt;</em>, <em>ptracks_tag=&lt;object object&gt;</em>, <em>galids_tag=&lt;object object&gt;</em>, <em>classifications_tag=&lt;object object&gt;</em>, <em>events_tag=&lt;object object&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">linefinder.analyze_data.worldlines.</code><code class="descname">Worldlines</code><span class="sig-paren">(</span><em>data_dir</em>, <em>tag</em>, <em>ids_tag=None</em>, <em>ptracks_tag=None</em>, <em>galids_tag=None</em>, <em>classifications_tag=None</em>, <em>events_tag=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://zhafen.github.io/galaxy-dive/build/html/galaxy_dive.analyze_data.simulation_data.html#galaxy_dive.analyze_data.simulation_data.TimeData" title="(in galaxy-dive)"><code class="xref py py-class docutils literal notranslate"><span class="pre">galaxy_dive.analyze_data.simulation_data.TimeData</span></code></a></p>
 <p>Wrapper for analysis of all worldline data products. It loads data in
 on-demand.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>data_dir (str):</dt>
+<dd>Data directory for the classified data</dd>
+<dt>tag (str):</dt>
+<dd>Identifying tag for the data to load.</dd>
+<dt>ids_tag (str):</dt>
+<dd>Identifying tag for ids data. Defaults to tag.</dd>
+<dt>ptracks_tag (str):</dt>
+<dd>Identifying tag for ptracks data. Defaults to tag.</dd>
+<dt>galids_tag (str):</dt>
+<dd>Identifying tag for galids data. Defaults to tag.</dd>
+<dt>classifications_tag (str):</dt>
+<dd>Identifying tag for classifications data. Defaults to tag.</dd>
+<dt>events_tag (str):</dt>
+<dd>Identifying tag for events data. Defaults to tag.</dd>
+<dt>label (str):</dt>
+<dd>Identifying label for the worldlines, used for plotting.
+Defaults to tag.</dd>
+<dt>color (str):</dt>
+<dd>What color to use when plotting.</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
 <dl class="method">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.calc_EnrichedMetalMass">
 <code class="descname">calc_EnrichedMetalMass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_EnrichedMetalMass" title="Permalink to this definition">¶</a></dt>

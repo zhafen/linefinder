@@ -55,13 +55,13 @@
 <p>Data masker for worldline data.</p>
 <dl class="method">
 <dt id="linefinder.analyze_data.worldlines.WorldlineDataMasker.get_mask">
-<code class="descname">get_mask</code><span class="sig-paren">(</span><em>mask=&lt;object object&gt;</em>, <em>classification=None</em>, <em>mask_after_first_acc=False</em>, <em>mask_before_first_acc=False</em>, <em>preserve_mask_shape=False</em>, <em>optional_masks=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#WorldlineDataMasker.get_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_mask" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_mask</code><span class="sig-paren">(</span><em>mask=None</em>, <em>classification=None</em>, <em>mask_after_first_acc=False</em>, <em>mask_before_first_acc=False</em>, <em>preserve_mask_shape=False</em>, <em>optional_masks=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#WorldlineDataMasker.get_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_mask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a mask for the data.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
 <dt>mask (np.array) :</dt>
-<dd>Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).</dd>
+<dd>Mask to apply to the data. If None, use the masks stored in self.masks (which Nones to empty).</dd>
 <dt>classification (str) :</dt>
 <dd>If provided, only select particles that meet this classification, as given in
 self.data_object.classifications.data</dd>
@@ -89,7 +89,7 @@ for data that’s one value per particle.</dd>
 
 <dl class="method">
 <dt id="linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data">
-<code class="descname">get_masked_data</code><span class="sig-paren">(</span><em>data_key</em>, <em>mask=&lt;object object&gt;</em>, <em>classification=None</em>, <em>mask_after_first_acc=False</em>, <em>mask_before_first_acc=False</em>, <em>preserve_mask_shape=False</em>, <em>optional_masks=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#WorldlineDataMasker.get_masked_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_masked_data</code><span class="sig-paren">(</span><em>data_key</em>, <em>mask=None</em>, <em>classification=None</em>, <em>mask_after_first_acc=False</em>, <em>mask_before_first_acc=False</em>, <em>preserve_mask_shape=False</em>, <em>optional_masks=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#WorldlineDataMasker.get_masked_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get masked worldline data. Extra arguments are passed to the ParentClass’ get_masked_data.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -97,7 +97,7 @@ for data that’s one value per particle.</dd>
 <dt>data_key (str) :</dt>
 <dd>Data to get.</dd>
 <dt>mask (np.array) :</dt>
-<dd>Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).</dd>
+<dd>Mask to apply to the data. If None, use the masks stored in self.masks (which Nones to empty).</dd>
 <dt>classification (str) :</dt>
 <dd>If provided, only select particles that meet this classification, as given in
 self.data_object.classifications.data</dd>
@@ -123,7 +123,7 @@ for data that’s one value per particle.</dd>
 
 <dl class="method">
 <dt id="linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data_over_time">
-<code class="descname">get_masked_data_over_time</code><span class="sig-paren">(</span><em>data_key</em>, <em>mask=&lt;object object&gt;</em>, <em>classification=None</em>, <em>mask_after_first_acc=False</em>, <em>mask_before_first_acc=False</em>, <em>preserve_mask_shape=False</em>, <em>optional_masks=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#WorldlineDataMasker.get_masked_data_over_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data_over_time" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_masked_data_over_time</code><span class="sig-paren">(</span><em>data_key</em>, <em>mask=None</em>, <em>classification=None</em>, <em>mask_after_first_acc=False</em>, <em>mask_before_first_acc=False</em>, <em>preserve_mask_shape=False</em>, <em>optional_masks=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#WorldlineDataMasker.get_masked_data_over_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data_over_time" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get masked worldline data. Extra arguments are passed to the ParentClass’ get_masked_data.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -131,7 +131,7 @@ for data that’s one value per particle.</dd>
 <dt>data_key (str) :</dt>
 <dd>Data to get.</dd>
 <dt>mask (np.array) :</dt>
-<dd>Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).</dd>
+<dd>Mask to apply to the data. If None, use the masks stored in self.masks (which defaults to empty).</dd>
 <dt>classification (str) :</dt>
 <dd>If provided, only select particles that meet this classification, as given in
 self.data_object.classifications.data</dd>
@@ -257,10 +257,37 @@ Masked data then will be retrieved with these masks in mind.</p>
 
 <dl class="class">
 <dt id="linefinder.analyze_data.worldlines.Worldlines">
-<em class="property">class </em><code class="descclassname">linefinder.analyze_data.worldlines.</code><code class="descname">Worldlines</code><span class="sig-paren">(</span><em>data_dir</em>, <em>tag</em>, <em>ids_tag=&lt;object object&gt;</em>, <em>ptracks_tag=&lt;object object&gt;</em>, <em>galids_tag=&lt;object object&gt;</em>, <em>classifications_tag=&lt;object object&gt;</em>, <em>events_tag=&lt;object object&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">linefinder.analyze_data.worldlines.</code><code class="descname">Worldlines</code><span class="sig-paren">(</span><em>data_dir</em>, <em>tag</em>, <em>ids_tag=None</em>, <em>ptracks_tag=None</em>, <em>galids_tag=None</em>, <em>classifications_tag=None</em>, <em>events_tag=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://zhafen.github.io/galaxy-dive/build/html/galaxy_dive.analyze_data.simulation_data.html#galaxy_dive.analyze_data.simulation_data.TimeData" title="(in galaxy-dive)"><code class="xref py py-class docutils literal notranslate"><span class="pre">galaxy_dive.analyze_data.simulation_data.TimeData</span></code></a></p>
 <p>Wrapper for analysis of all worldline data products. It loads data in
 on-demand.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>data_dir (str):</dt>
+<dd>Data directory for the classified data</dd>
+<dt>tag (str):</dt>
+<dd>Identifying tag for the data to load.</dd>
+<dt>ids_tag (str):</dt>
+<dd>Identifying tag for ids data. Defaults to tag.</dd>
+<dt>ptracks_tag (str):</dt>
+<dd>Identifying tag for ptracks data. Defaults to tag.</dd>
+<dt>galids_tag (str):</dt>
+<dd>Identifying tag for galids data. Defaults to tag.</dd>
+<dt>classifications_tag (str):</dt>
+<dd>Identifying tag for classifications data. Defaults to tag.</dd>
+<dt>events_tag (str):</dt>
+<dd>Identifying tag for events data. Defaults to tag.</dd>
+<dt>label (str):</dt>
+<dd>Identifying label for the worldlines, used for plotting.
+Defaults to tag.</dd>
+<dt>color (str):</dt>
+<dd>What color to use when plotting.</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
 <dl class="attribute">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.base_data_shape">
 <code class="descname">base_data_shape</code><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.base_data_shape" title="Permalink to this definition">¶</a></dt>

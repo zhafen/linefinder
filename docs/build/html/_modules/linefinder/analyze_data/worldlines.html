@@ -59,52 +59,64 @@
 <span class="kn">import</span> <span class="nn">linefinder.config</span> <span class="k">as</span> <span class="nn">config</span>
 
 <span class="c1">########################################################################</span>
-
-<span class="c1"># For catching default values</span>
-<span class="n">default</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
-
-<span class="c1">########################################################################</span>
 <span class="c1">########################################################################</span>
 
 
 <div class="viewcode-block" id="Worldlines"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines">[docs]</a><span class="k">class</span> <span class="nc">Worldlines</span><span class="p">(</span> <span class="n">simulation_data</span><span class="o">.</span><span class="n">TimeData</span> <span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Wrapper for analysis of all worldline data products. It loads data in</span>
 <span class="sd">    on-demand.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_dir (str):</span>
+<span class="sd">                Data directory for the classified data</span>
+
+<span class="sd">            tag (str):</span>
+<span class="sd">                Identifying tag for the data to load.</span>
+
+<span class="sd">            ids_tag (str):</span>
+<span class="sd">                Identifying tag for ids data. Defaults to tag.</span>
+
+<span class="sd">            ptracks_tag (str):</span>
+<span class="sd">                Identifying tag for ptracks data. Defaults to tag.</span>
+
+<span class="sd">            galids_tag (str):</span>
+<span class="sd">                Identifying tag for galids data. Defaults to tag.</span>
+
+<span class="sd">            classifications_tag (str):</span>
+<span class="sd">                Identifying tag for classifications data. Defaults to tag.</span>
+
+<span class="sd">            events_tag (str):</span>
+<span class="sd">                Identifying tag for events data. Defaults to tag.</span>
+
+<span class="sd">            label (str):</span>
+<span class="sd">                Identifying label for the worldlines, used for plotting.</span>
+<span class="sd">                Defaults to tag.</span>
+
+<span class="sd">            color (str):</span>
+<span class="sd">                What color to use when plotting.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_dir</span><span class="p">,</span>
         <span class="n">tag</span><span class="p">,</span>
-        <span class="n">ids_tag</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">ptracks_tag</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">galids_tag</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">classifications_tag</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">events_tag</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">ids_tag</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ptracks_tag</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">galids_tag</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">classifications_tag</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">events_tag</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            data_dir (str) : Data directory for the classified data</span>
-<span class="sd">            tag (str) : Identifying tag for the data to load.</span>
-<span class="sd">            ids_tag (str) : Identifying tag for ids data. Defaults to tag.</span>
-<span class="sd">            ptracks_tag (str) : Identifying tag for ptracks data. Defaults to tag.</span>
-<span class="sd">            galids_tag (str) : Identifying tag for galids data. Defaults to tag.</span>
-<span class="sd">            classifications_tag (str) : Identifying tag for classifications data. Defaults to tag.</span>
-<span class="sd">            events_tag (str) : Identifying tag for events data. Defaults to tag.</span>
-<span class="sd">            label (str) : Identifying label for the worldlines. Defaults to tag.</span>
-<span class="sd">            color (str) : What color to use when plotting.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="n">ids_tag</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ids_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ids_tag</span> <span class="o">=</span> <span class="n">tag</span>
-        <span class="k">if</span> <span class="n">ptracks_tag</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ptracks_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ptracks_tag</span> <span class="o">=</span> <span class="n">tag</span>
-        <span class="k">if</span> <span class="n">galids_tag</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">galids_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">galids_tag</span> <span class="o">=</span> <span class="n">tag</span>
-        <span class="k">if</span> <span class="n">classifications_tag</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">classifications_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">classifications_tag</span> <span class="o">=</span> <span class="n">tag</span>
-        <span class="k">if</span> <span class="n">events_tag</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">events_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">events_tag</span> <span class="o">=</span> <span class="n">tag</span>
 
         <span class="c1"># Store the arguments</span>
@@ -1538,7 +1550,7 @@
 
 <div class="viewcode-block" id="WorldlineDataMasker.get_mask"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_mask">[docs]</a>    <span class="k">def</span> <span class="nf">get_mask</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">classification</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mask_after_first_acc</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mask_before_first_acc</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1550,7 +1562,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            mask (np.array) :</span>
-<span class="sd">                Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).</span>
+<span class="sd">                Mask to apply to the data. If None, use the masks stored in self.masks (which Nones to empty).</span>
 
 <span class="sd">            classification (str) :</span>
 <span class="sd">                If provided, only select particles that meet this classification, as given in</span>
@@ -1579,7 +1591,7 @@
 
         <span class="n">used_masks</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">masks</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional_masks</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">total_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_total_mask</span><span class="p">(</span>
                     <span class="n">optional_masks</span><span class="o">=</span><span class="n">optional_masks</span>
@@ -1627,7 +1639,7 @@
 <div class="viewcode-block" id="WorldlineDataMasker.get_masked_data"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_masked_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_key</span><span class="p">,</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">classification</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mask_after_first_acc</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mask_before_first_acc</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1642,7 +1654,7 @@
 <span class="sd">                Data to get.</span>
 
 <span class="sd">            mask (np.array) :</span>
-<span class="sd">                Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).</span>
+<span class="sd">                Mask to apply to the data. If None, use the masks stored in self.masks (which Nones to empty).</span>
 
 <span class="sd">            classification (str) :</span>
 <span class="sd">                If provided, only select particles that meet this classification, as given in</span>
@@ -1684,7 +1696,7 @@
 <div class="viewcode-block" id="WorldlineDataMasker.get_masked_data_over_time"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.WorldlineDataMasker.get_masked_data_over_time">[docs]</a>    <span class="k">def</span> <span class="nf">get_masked_data_over_time</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_key</span><span class="p">,</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">classification</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mask_after_first_acc</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mask_before_first_acc</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1699,7 +1711,7 @@
 <span class="sd">                Data to get.</span>
 
 <span class="sd">            mask (np.array) :</span>
-<span class="sd">                Mask to apply to the data. If default, use the masks stored in self.masks (which defaults to empty).</span>
+<span class="sd">                Mask to apply to the data. If None, use the masks stored in self.masks (which defaults to empty).</span>
 
 <span class="sd">            classification (str) :</span>
 <span class="sd">                If provided, only select particles that meet this classification, as given in</span>
