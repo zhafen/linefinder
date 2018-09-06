@@ -877,6 +877,31 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
         npt.assert_allclose( expected, actual )
 
+    ########################################################################
+
+    def test_calc_n_out( self ):
+        '''Test that we can calculate the number of times a particle has left
+        the main galaxy.'''
+
+        self.worldlines.data['gal_event_id'] = np.array([
+            [ 0, -1, 1, 0, 0, 0, 0 ],
+            [ 0, -1, 0, 1, -1, 1, 0 ],
+            [ 1, 1, -1, 1, -1, 1, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0 ],
+        ])
+
+        self.worldlines.calc_n_out()
+
+        actual = self.worldlines.data['n_out']
+        expected = np.array([
+            [ 1, 1, 0, 0, 0, 0, 0, ],
+            [ 2, 2, 1, 1, 1, 0, 0, ],
+            [ 2, 2, 2, 1, 1, 0, 0, ],
+            [ 0, 0, 0, 0, 0, 0, 0, ],
+        ])
+
+        npt.assert_allclose( expected, actual )
+
 ########################################################################
 ########################################################################
 

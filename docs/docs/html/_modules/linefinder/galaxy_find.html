@@ -1,0 +1,571 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>linefinder.galaxy_find &#8212; linefinder 0.8.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for linefinder.galaxy_find</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&#39;&#39;&#39;Means to associate particles with galaxies and halos at any given time.</span>
+
+<span class="sd">@author: Zach Hafen</span>
+<span class="sd">@contact: zachary.h.hafen@gmail.com</span>
+<span class="sd">@status: Development</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">gc</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">jug</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.halo_data</span> <span class="k">as</span> <span class="nn">halo_data</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.galaxy_finder.finder</span> <span class="k">as</span> <span class="nn">galaxy_finder</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.utils.mp_utils</span> <span class="k">as</span> <span class="nn">mp_utils</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.utils.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
+
+<span class="kn">import</span> <span class="nn">config</span>
+
+<span class="c1">########################################################################</span>
+
+<span class="n">default</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1">########################################################################</span>
+
+
+<div class="viewcode-block" id="ParticleTrackGalaxyFinder"><a class="viewcode-back" href="../../linefinder.galaxy_find.html#linefinder.galaxy_find.ParticleTrackGalaxyFinder">[docs]</a><span class="k">class</span> <span class="nc">ParticleTrackGalaxyFinder</span><span class="p">(</span> <span class="nb">object</span> <span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Find the association with galaxies for entire particle tracks.&#39;&#39;&#39;</span>
+
+    <span class="nd">@utilities</span><span class="o">.</span><span class="n">store_parameters</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">out_dir</span><span class="p">,</span>
+        <span class="n">tag</span><span class="p">,</span>
+        <span class="n">main_mt_halo_id</span><span class="p">,</span>
+        <span class="n">mtree_halos_index</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">halo_file_tag</span> <span class="o">=</span> <span class="s1">&#39;smooth&#39;</span><span class="p">,</span>
+        <span class="n">halo_data_dir</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">ptracks_tag</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">galaxy_cut</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">GALAXY_CUT</span><span class="p">,</span>
+        <span class="n">length_scale</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">LENGTH_SCALE</span><span class="p">,</span>
+        <span class="n">mt_length_scale</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">MT_LENGTH_SCALE</span><span class="p">,</span>
+        <span class="n">ids_to_return</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;gal_id&#39;</span><span class="p">,</span> <span class="s1">&#39;mt_gal_id&#39;</span><span class="p">,</span> <span class="s1">&#39;d_other_gal&#39;</span><span class="p">,</span> <span class="s1">&#39;d_other_gal_scaled&#39;</span><span class="p">,</span> <span class="p">],</span>
+        <span class="n">minimum_criteria</span> <span class="o">=</span> <span class="s1">&#39;n_star&#39;</span><span class="p">,</span>
+        <span class="n">minimum_value</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">n_processors</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Initialize.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            out_dir (str) :</span>
+<span class="sd">                Output directory, and directory the ptrack data is in.</span>
+
+<span class="sd">            tag (str) :</span>
+<span class="sd">                Identifying tag.</span>
+
+<span class="sd">            main_mt_halo_id (int) :</span>
+<span class="sd">                What is the ID of the main halo. To automatically choose via the</span>
+<span class="sd">                most massive at z=0, set equal to None. HOWEVER, be warned that</span>
+<span class="sd">                the most massive halo at z=0 *may not* be the main halo.</span>
+
+<span class="sd">            mtree_halos_index (str or int) :</span>
+<span class="sd">                The index argument to pass to HaloData.get_mtree_halos().</span>
+<span class="sd">                For most cases this should be the final snapshot number, but see</span>
+<span class="sd">                HaloData.get_mtree_halos&#39;s documentation.</span>
+
+<span class="sd">            halo_file_tag (str) :</span>
+<span class="sd">                What halo files to load (e.g. defaults to loading</span>
+<span class="sd">                `halo_00000_smooth.dat`, etc.)?</span>
+
+<span class="sd">            halo_data_dir (str, optional) :</span>
+<span class="sd">                Directory the halo data is in. Defaults to the directory the</span>
+<span class="sd">                simulation data is stored in, as found in the ptracks file.</span>
+
+<span class="sd">            ptracks_tag (str, optional) :</span>
+<span class="sd">                Identifying tag for the ptrack data. Defaults to tag.</span>
+
+<span class="sd">            galaxy_cut (float, optional) :</span>
+<span class="sd">                Anything within galaxy_cut*length_scale is counted as being</span>
+<span class="sd">                inside the galaxy</span>
+
+<span class="sd">            length_scale (str, optional) :</span>
+<span class="sd">                Anything within galaxy_cut*length_scale is counted as being</span>
+<span class="sd">                inside the galaxy.</span>
+
+<span class="sd">            mt_length_scale (str, optional) :</span>
+<span class="sd">                Same as length_scale, but for merger tree galaxies</span>
+
+<span class="sd">            ids_to_return (list of strs, optional):</span>
+<span class="sd">                The types of id you want to get out.</span>
+
+<span class="sd">            minimum_criteria (str, optional) :</span>
+<span class="sd">                Options...</span>
+<span class="sd">                &#39;n_star&#39; -- halos must contain a minimum number of stars to</span>
+<span class="sd">                    count as containing a galaxy.</span>
+<span class="sd">                &#39;M_star&#39; -- halos must contain a minimum stellar mass to count</span>
+<span class="sd">                    as containing a galaxy.</span>
+
+<span class="sd">            minimum_value (int or float, optional) :</span>
+<span class="sd">                The minimum amount of something (specified in minimum criteria)</span>
+<span class="sd">                in order for a halo to count as hosting a galaxy.</span>
+
+<span class="sd">            n_processors (int) :</span>
+<span class="sd">                The number of processors to use. If parallel, expect significant</span>
+<span class="sd">                memory usage.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">pass</span>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="ParticleTrackGalaxyFinder.find_galaxies_for_particle_tracks"><a class="viewcode-back" href="../../linefinder.galaxy_find.html#linefinder.galaxy_find.ParticleTrackGalaxyFinder.find_galaxies_for_particle_tracks">[docs]</a>    <span class="k">def</span> <span class="nf">find_galaxies_for_particle_tracks</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Main function.&#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
+        <span class="nb">print</span> <span class="s2">&quot;Starting Adding Galaxy and Halo IDs!&quot;</span>
+        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
+        <span class="nb">print</span> <span class="s2">&quot;Using halo data from this directory:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="p">)</span>
+        <span class="nb">print</span> <span class="s2">&quot;Data will be saved here:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span> <span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_data</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_processors</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_galaxy_identification_loop_parallel</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_galaxy_identification_loop</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_galaxy_identifications</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_gal_ids</span> <span class="p">)</span>
+
+        <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
+        <span class="nb">print</span> <span class="s2">&quot;Done Adding Galaxy and Halo IDs!&quot;</span>
+        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
+        <span class="nb">print</span> <span class="s2">&quot;The data was saved at:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_filepath</span> <span class="p">)</span>
+        <span class="nb">print</span> <span class="s2">&quot;Took </span><span class="si">{:.3g}</span><span class="s2"> seconds, or </span><span class="si">{:.3g}</span><span class="s2"> seconds per particle!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">time_end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particles</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="ParticleTrackGalaxyFinder.find_galaxies_for_particle_tracks_jug"><a class="viewcode-back" href="../../linefinder.galaxy_find.html#linefinder.galaxy_find.ParticleTrackGalaxyFinder.find_galaxies_for_particle_tracks_jug">[docs]</a>    <span class="k">def</span> <span class="nf">find_galaxies_for_particle_tracks_jug</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Main function when using jug&#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_data</span><span class="p">()</span>
+
+        <span class="n">ptrack_gal_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_galaxy_identification_loop_jug</span><span class="p">()</span>
+
+        <span class="n">jug</span><span class="o">.</span><span class="n">Task</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_galaxy_identifications</span><span class="p">,</span> <span class="n">ptrack_gal_ids</span> <span class="p">)</span>
+
+        <span class="n">jug</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="ParticleTrackGalaxyFinder.read_data"><a class="viewcode-back" href="../../linefinder.galaxy_find.html#linefinder.galaxy_find.ParticleTrackGalaxyFinder.read_data">[docs]</a>    <span class="k">def</span> <span class="nf">read_data</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Read the input data.</span>
+
+<span class="sd">        Modifies:</span>
+<span class="sd">            self.ptrack (h5py file) : Loaded tracked particle data.</span>
+<span class="sd">            self.halo_data (HaloData instance): For the halo data.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Get the tag for particle tracking.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks_tag</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ptracks_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span>
+
+        <span class="c1"># Load the particle track data</span>
+        <span class="n">ptrack_filename</span> <span class="o">=</span> <span class="s1">&#39;ptracks_</span><span class="si">{}</span><span class="s1">.hdf5&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks_tag</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">ptrack_filename</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;sdir&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Load the halo data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">halo_data</span> <span class="o">=</span> <span class="n">halo_data</span><span class="o">.</span><span class="n">HaloData</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="ParticleTrackGalaxyFinder.get_galaxy_identification_loop"><a class="viewcode-back" href="../../linefinder.galaxy_find.html#linefinder.galaxy_find.ParticleTrackGalaxyFinder.get_galaxy_identification_loop">[docs]</a>    <span class="k">def</span> <span class="nf">get_galaxy_identification_loop</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Loop over all snapshots and identify the galaxy in each.</span>
+
+<span class="sd">        Modifies:</span>
+<span class="sd">            self.ptrack_gal_ids (dict) : Where the galaxy IDs are stored.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Loop over each included snapshot.</span>
+        <span class="n">n_snaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">n_snaps</span> <span class="p">):</span>
+
+            <span class="c1"># Get the particle positions</span>
+            <span class="n">particle_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][</span> <span class="p">:,</span> <span class="n">i</span> <span class="p">]</span>
+
+            <span class="c1"># Get the data parameters to pass to GalaxyFinder</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;halo_data&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data</span><span class="p">,</span>
+                <span class="s1">&#39;galaxy_cut&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">galaxy_cut</span><span class="p">,</span>
+                <span class="s1">&#39;length_scale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">length_scale</span><span class="p">,</span>
+                <span class="s1">&#39;mt_length_scale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mt_length_scale</span><span class="p">,</span>
+                <span class="s1">&#39;ids_to_return&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_to_return</span><span class="p">,</span>
+                <span class="s1">&#39;minimum_criteria&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_criteria</span><span class="p">,</span>
+                <span class="s1">&#39;minimum_value&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_value</span><span class="p">,</span>
+
+                <span class="s1">&#39;redshift&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][</span> <span class="n">i</span> <span class="p">],</span>
+                <span class="s1">&#39;snum&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][</span> <span class="n">i</span> <span class="p">],</span>
+                <span class="s1">&#39;hubble&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;halo_data_dir&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span><span class="p">,</span>
+                <span class="s1">&#39;mtree_halos_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtree_halos_index</span><span class="p">,</span>
+                <span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_mt_halo_id</span><span class="p">,</span>
+                <span class="s1">&#39;halo_file_tag&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_file_tag</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c1"># Find the galaxy for a given snapshot</span>
+            <span class="n">gal_finder</span> <span class="o">=</span> <span class="n">galaxy_finder</span><span class="o">.</span><span class="n">GalaxyFinder</span><span class="p">(</span>
+                <span class="n">particle_positions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
+            <span class="n">galaxy_and_halo_ids</span> <span class="o">=</span> <span class="n">gal_finder</span><span class="o">.</span><span class="n">find_ids</span><span class="p">()</span>
+
+            <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="nb">print</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">],</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">],</span>
+                    <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span>
+                <span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+            <span class="c1"># Make the arrays to store the data in</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ptrack_gal_ids&#39;</span> <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_gal_ids</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">galaxy_and_halo_ids</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span> <span class="n">galaxy_and_halo_ids</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_gal_ids</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+                        <span class="p">(</span> <span class="n">gal_finder</span><span class="o">.</span><span class="n">n_particles</span><span class="p">,</span> <span class="n">n_snaps</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span> <span class="p">)</span>
+
+            <span class="c1"># Store the data in the primary array</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">galaxy_and_halo_ids</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_gal_ids</span><span class="p">[</span><span class="n">key</span><span class="p">][</span> <span class="p">:,</span> <span class="n">i</span> <span class="p">]</span> <span class="o">=</span> <span class="n">galaxy_and_halo_ids</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+            <span class="c1"># Try clearing up memory again, in case gal_finder is hanging around</span>
+            <span class="k">del</span> <span class="n">kwargs</span>
+            <span class="k">del</span> <span class="n">gal_finder</span>
+            <span class="k">del</span> <span class="n">galaxy_and_halo_ids</span>
+            <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="ParticleTrackGalaxyFinder.get_galaxy_identification_loop_parallel"><a class="viewcode-back" href="../../linefinder.galaxy_find.html#linefinder.galaxy_find.ParticleTrackGalaxyFinder.get_galaxy_identification_loop_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">get_galaxy_identification_loop_parallel</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Loop over all snapshots and identify the galaxy in each.</span>
+
+<span class="sd">        Modifies:</span>
+<span class="sd">            self.ptrack_gal_ids (dict) : Where the galaxy IDs are stored.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">get_galaxy_and_halo_ids</span><span class="p">(</span> <span class="n">args</span> <span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;Get the galaxy and halo ids for a single snapshot.&#39;&#39;&#39;</span>
+
+            <span class="n">particle_positions</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">args</span>
+
+            <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c1"># Find the galaxy for a given snapshot</span>
+            <span class="n">gal_finder</span> <span class="o">=</span> <span class="n">galaxy_finder</span><span class="o">.</span><span class="n">GalaxyFinder</span><span class="p">(</span>
+                <span class="n">particle_positions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
+            <span class="n">galaxy_and_halo_ids</span> <span class="o">=</span> <span class="n">gal_finder</span><span class="o">.</span><span class="n">find_ids</span><span class="p">()</span>
+
+            <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="nb">print</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">],</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">],</span>
+                    <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span>
+                <span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+            <span class="c1"># Try to avoid memory leaks</span>
+            <span class="k">del</span> <span class="n">kwargs</span>
+            <span class="k">del</span> <span class="n">gal_finder</span>
+            <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">galaxy_and_halo_ids</span>
+
+        <span class="n">n_snaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">n_particles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Loop over each included snapshot to get args</span>
+        <span class="n">all_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">n_snaps</span> <span class="p">):</span>
+
+            <span class="c1"># Get the particle positions</span>
+            <span class="n">particle_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][</span> <span class="p">:,</span> <span class="n">i</span> <span class="p">]</span>
+
+            <span class="c1"># Get the data parameters to pass to GalaxyFinder</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;halo_data&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;galaxy_cut&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">galaxy_cut</span><span class="p">,</span>
+                <span class="s1">&#39;length_scale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">length_scale</span><span class="p">,</span>
+                <span class="s1">&#39;mt_length_scale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mt_length_scale</span><span class="p">,</span>
+                <span class="s1">&#39;ids_to_return&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_to_return</span><span class="p">,</span>
+                <span class="s1">&#39;minimum_criteria&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_criteria</span><span class="p">,</span>
+                <span class="s1">&#39;minimum_value&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_value</span><span class="p">,</span>
+
+                <span class="s1">&#39;redshift&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][</span> <span class="n">i</span> <span class="p">],</span>
+                <span class="s1">&#39;snum&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][</span> <span class="n">i</span> <span class="p">],</span>
+                <span class="s1">&#39;hubble&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;halo_data_dir&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span><span class="p">,</span>
+                <span class="s1">&#39;mtree_halos_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtree_halos_index</span><span class="p">,</span>
+                <span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_mt_halo_id</span><span class="p">,</span>
+                <span class="s1">&#39;halo_file_tag&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_file_tag</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="n">all_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="n">particle_positions</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="p">)</span>
+
+        <span class="c1"># Actual parallel calculation</span>
+        <span class="n">galaxy_and_halo_ids_all</span> <span class="o">=</span> <span class="n">mp_utils</span><span class="o">.</span><span class="n">parmap</span><span class="p">(</span>
+            <span class="n">get_galaxy_and_halo_ids</span><span class="p">,</span> <span class="n">all_args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_processors</span> <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span> <span class="n">galaxy_and_halo_ids_all</span> <span class="p">)</span> <span class="o">==</span> <span class="n">n_snaps</span>
+
+        <span class="c1"># Store the results</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">galaxy_and_halo_ids</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span> <span class="n">galaxy_and_halo_ids_all</span> <span class="p">):</span>
+
+            <span class="c1"># Make the arrays to store the data in</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ptrack_gal_ids&#39;</span> <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_gal_ids</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">galaxy_and_halo_ids</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span> <span class="n">galaxy_and_halo_ids</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_gal_ids</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+                        <span class="p">(</span> <span class="n">n_particles</span><span class="p">,</span> <span class="n">n_snaps</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span> <span class="p">)</span>
+
+            <span class="c1"># Store the data in the primary array</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">galaxy_and_halo_ids</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_gal_ids</span><span class="p">[</span><span class="n">key</span><span class="p">][</span> <span class="p">:,</span> <span class="n">i</span> <span class="p">]</span> <span class="o">=</span> <span class="n">galaxy_and_halo_ids</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+            <span class="c1"># Try clearing up memory again, in case gal_finder is hanging around</span>
+            <span class="k">del</span> <span class="n">galaxy_and_halo_ids</span>
+            <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="ParticleTrackGalaxyFinder.get_galaxy_identification_loop_jug"><a class="viewcode-back" href="../../linefinder.galaxy_find.html#linefinder.galaxy_find.ParticleTrackGalaxyFinder.get_galaxy_identification_loop_jug">[docs]</a>    <span class="k">def</span> <span class="nf">get_galaxy_identification_loop_jug</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Loop over all snapshots and identify the galaxy in each.</span>
+<span class="sd">        Use Jug for parallelism.</span>
+
+<span class="sd">        Modifies:</span>
+<span class="sd">            self.ptrack_gal_ids (dict) : Where the galaxy IDs are stored.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">get_galaxy_and_halo_ids</span><span class="p">(</span> <span class="n">i</span> <span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;Get the galaxy and halo ids for a single snapshot.&#39;&#39;&#39;</span>
+
+            <span class="c1"># Get the particle positions</span>
+            <span class="n">particle_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][</span> <span class="p">:,</span> <span class="n">i</span> <span class="p">]</span>
+
+            <span class="c1"># Get the data parameters to pass to GalaxyFinder</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;halo_data&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;galaxy_cut&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">galaxy_cut</span><span class="p">,</span>
+                <span class="s1">&#39;length_scale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">length_scale</span><span class="p">,</span>
+                <span class="s1">&#39;mt_length_scale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mt_length_scale</span><span class="p">,</span>
+                <span class="s1">&#39;ids_to_return&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_to_return</span><span class="p">,</span>
+                <span class="s1">&#39;minimum_criteria&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_criteria</span><span class="p">,</span>
+                <span class="s1">&#39;minimum_value&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_value</span><span class="p">,</span>
+
+                <span class="s1">&#39;redshift&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][</span> <span class="n">i</span> <span class="p">],</span>
+                <span class="s1">&#39;snum&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][</span> <span class="n">i</span> <span class="p">],</span>
+                <span class="s1">&#39;hubble&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;halo_data_dir&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span><span class="p">,</span>
+                <span class="s1">&#39;mtree_halos_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtree_halos_index</span><span class="p">,</span>
+                <span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_mt_halo_id</span><span class="p">,</span>
+                <span class="s1">&#39;halo_file_tag&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_file_tag</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c1"># Find the galaxy for a given snapshot</span>
+            <span class="n">gal_finder</span> <span class="o">=</span> <span class="n">galaxy_finder</span><span class="o">.</span><span class="n">GalaxyFinder</span><span class="p">(</span>
+                <span class="n">particle_positions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
+            <span class="n">galaxy_and_halo_ids</span> <span class="o">=</span> <span class="n">gal_finder</span><span class="o">.</span><span class="n">find_ids</span><span class="p">()</span>
+
+            <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="nb">print</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">],</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">],</span>
+                    <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span>
+                <span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+            <span class="c1"># Try to avoid memory leaks</span>
+            <span class="k">del</span> <span class="n">kwargs</span>
+            <span class="k">del</span> <span class="n">gal_finder</span>
+            <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">galaxy_and_halo_ids</span>
+
+        <span class="n">n_snaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">n_particles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Loop over each included snapshot and submit Jug Tasks</span>
+        <span class="n">galaxy_and_halo_ids_all</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">n_snaps</span> <span class="p">):</span>
+
+            <span class="n">galaxy_and_halo_ids</span> <span class="o">=</span> <span class="n">jug</span><span class="o">.</span><span class="n">Task</span><span class="p">(</span>
+                <span class="n">get_galaxy_and_halo_ids</span><span class="p">,</span>
+                <span class="n">i</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">galaxy_and_halo_ids_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">galaxy_and_halo_ids</span> <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span> <span class="n">galaxy_and_halo_ids_all</span> <span class="p">)</span> <span class="o">==</span> <span class="n">n_snaps</span>
+
+        <span class="c1"># Store the results</span>
+        <span class="k">def</span> <span class="nf">store_results</span><span class="p">(</span> <span class="n">galaxy_and_halo_ids_all</span> <span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">galaxy_and_halo_ids</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span> <span class="n">galaxy_and_halo_ids_all</span> <span class="p">):</span>
+
+                <span class="c1"># Make the arrays to store the data in</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ptrack_gal_ids&#39;</span> <span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_gal_ids</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">galaxy_and_halo_ids</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">dtype</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span> <span class="n">galaxy_and_halo_ids</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_gal_ids</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+                            <span class="p">(</span> <span class="n">n_particles</span><span class="p">,</span> <span class="n">n_snaps</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span> <span class="p">)</span>
+
+                <span class="c1"># Store the data in the primary array</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">galaxy_and_halo_ids</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_gal_ids</span><span class="p">[</span><span class="n">key</span><span class="p">][</span> <span class="p">:,</span> <span class="n">i</span> <span class="p">]</span> <span class="o">=</span> <span class="n">galaxy_and_halo_ids</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+                <span class="c1"># Try clearing up memory again, in case gal_finder</span>
+                <span class="c1"># is hanging around</span>
+                <span class="k">del</span> <span class="n">galaxy_and_halo_ids</span>
+                <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_gal_ids</span>
+
+        <span class="k">return</span> <span class="n">jug</span><span class="o">.</span><span class="n">Task</span><span class="p">(</span> <span class="n">store_results</span><span class="p">,</span> <span class="n">galaxy_and_halo_ids_all</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="ParticleTrackGalaxyFinder.write_galaxy_identifications"><a class="viewcode-back" href="../../linefinder.galaxy_find.html#linefinder.galaxy_find.ParticleTrackGalaxyFinder.write_galaxy_identifications">[docs]</a>    <span class="k">def</span> <span class="nf">write_galaxy_identifications</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">ptrack_gal_ids</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Write the data, close the file, and print out information.&#39;&#39;&#39;</span>
+
+        <span class="c1"># Get the number of particles, for use in reporting the time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_particles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span> <span class="s1">&#39;Den&#39;</span> <span class="p">][</span><span class="o">...</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Close the old dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># Save the data.</span>
+        <span class="n">save_filename</span> <span class="o">=</span> <span class="s1">&#39;galids_</span><span class="si">{}</span><span class="s1">.hdf5&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">save_filename</span> <span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_filepath</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ptrack_gal_ids</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">ptrack_gal_ids</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="p">)</span>
+
+        <span class="c1"># Store the main mt halo id</span>
+        <span class="c1"># (as identified by the larges value at the lowest redshift)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_mt_halo_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">indice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data</span><span class="o">.</span><span class="n">mtree_halos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">halo_data</span><span class="o">.</span><span class="n">get_mtree_halos</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mtree_halos_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_file_tag</span> <span class="p">)</span>
+                <span class="n">indice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data</span><span class="o">.</span><span class="n">mtree_halos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">m_vir_z0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data</span><span class="o">.</span><span class="n">get_mtree_halo_quantity</span><span class="p">(</span>
+                <span class="n">quantity</span><span class="o">=</span><span class="s1">&#39;Mvir&#39;</span><span class="p">,</span> <span class="n">indice</span><span class="o">=</span><span class="n">indice</span><span class="p">,</span>
+                <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mtree_halos_index</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">halo_file_tag</span> <span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m_vir_z0</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_mt_halo_id</span>
+
+        <span class="n">utilities</span><span class="o">.</span><span class="n">save_parameters</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">f</span> <span class="p">)</span>
+
+        <span class="c1"># Save the current code version</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;linefinder_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">get_code_version</span><span class="p">(</span> <span class="bp">self</span> <span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;galaxy_dive_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">get_code_version</span><span class="p">(</span>
+            <span class="n">galaxy_finder</span><span class="p">,</span> <span class="n">instance_type</span><span class="o">=</span><span class="s1">&#39;module&#39;</span> <span class="p">)</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Zachary Hafen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

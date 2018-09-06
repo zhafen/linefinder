@@ -1502,6 +1502,40 @@ class Worldlines( simulation_data.TimeData ):
         self.data['ind_star'][always_star] = -1
         self.data['ind_star'][always_gas] = config.INT_FILL_VALUE
 
+    ########################################################################
+
+    def count_n_events( self, boolean ):
+        '''Counts the number of events that occur up to this point.
+
+        Args:
+            boolean (array-like):
+                If true, the event happens at the given index.
+
+        Returns:
+            n_events (array-like):
+                n_events[i,j] number of times that particle i has an event
+                prior to index j.                                               
+        '''
+
+        n_event = np.cumsum( boolean[:,::-1].astype( int ), axis=1 )[:,::-1]
+
+        return n_event
+
+    def calc_n_out( self ):                                                     
+        '''The number of times a particle has left the main galaxy.             
+                                                                                
+        Modifies:                                                               
+            self.data['n_out'] (array-like):                                    
+                result[i,j] number of times that particle i has left the galaxy 
+                prior to index j.                                               
+        ''' 
+
+        is_leaving = self.get_data( 'gal_event_id' ) == -1
+
+        n_out = self.count_n_events( is_leaving )
+
+        self.data['n_out'] = n_out
+
 ########################################################################
 ########################################################################
 
