@@ -1048,7 +1048,7 @@ class Worldlines( simulation_data.TimeData ):
                 data = np.ma.masked_array( data, mask=event_count_mask )
 
             # Get the max out
-            max_this_event = np.max(
+            max_this_event = np.nanmax(
                 data,
                 axis = 1,
             ).compressed()
