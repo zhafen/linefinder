@@ -1001,6 +1001,7 @@ class Worldlines( simulation_data.TimeData ):
         data_key,
         n_event_key,
         flatten = True,
+        verbose = False,
         *args, **kwargs
     ):
         '''Get the maximum value attained by a quantity for each time an event
@@ -1030,6 +1031,9 @@ class Worldlines( simulation_data.TimeData ):
 
         max_per_event_count = []
         for n in range( np.max( n_event )+1 ):
+
+            if verbose:
+                print( 'n = {}'.format( n ) )
 
             # Get the data out
             data = self.get_selected_data(
