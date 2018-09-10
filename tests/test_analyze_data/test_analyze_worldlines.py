@@ -903,6 +903,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
         npt.assert_allclose( expected, actual )
 
+
 ########################################################################
 ########################################################################
 
@@ -1106,6 +1107,37 @@ class TestWorldlineDataMasker( unittest.TestCase ):
         expected = np.array([
             [ 1., 2., 3., ],
             [ 1., 2., 3., ],
+        ])
+
+        npt.assert_allclose( actual, expected )
+
+    ########################################################################
+
+    def test_get_max_per_event_count( self ):
+
+        # Test Data
+        self.worldlines.data['n_in'] = np.array([
+            [ 3, 3, 3, 2, 2, 1, 0, ],
+            [ 2, 1, 0, 0, 0, 0, 0, ],
+            [ 2, 2, 2, 1, 1, 0, 0, ],
+        ])
+        self.worldlines.data['R'] = np.array([
+            [ 10., 5., 1., 3., 4., 2., 25., ],
+            [ 10., 4., 1., 2., 5., 25., 1., ],
+            [ 3., 5., 4., 1., 2., 0., 16., ],
+        ])
+
+        # Actual calculation
+        actual = self.worldlines.get_max_per_event_count(
+            'R',
+            n_event_key = 'n_in',
+        )
+
+        # Expected
+        expected = np.array([
+            10., 4., 2., 25.,
+            10., 4., 25.,
+            5., 2., 16.,
         ])
 
         npt.assert_allclose( actual, expected )

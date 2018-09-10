@@ -1517,9 +1517,12 @@ class Worldlines( simulation_data.TimeData ):
                 prior to index j.                                               
         '''
 
-        n_event = np.zeros( self.base_data_shape )
+        n_event = np.zeros( self.base_data_shape ).astype( int )
 
-        n_event[:,:-1] = np.cumsum( boolean[:,::-1].astype( int ), axis=1 )[:,::-1]
+        n_event[:,:-1] = np.cumsum(
+            boolean[:,::-1].astype( int ),
+            axis = 1,
+        )[:,::-1]
 
         return n_event
 
@@ -1552,6 +1555,12 @@ class Worldlines( simulation_data.TimeData ):
         n_in = self.count_n_events( is_entering )
 
         self.data['n_in'] = n_in
+
+    ########################################################################
+
+    def get_max_per_event_count( self, data_key, n_event_key ):
+
+        pass
 
 ########################################################################
 ########################################################################
