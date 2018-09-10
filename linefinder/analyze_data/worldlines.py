@@ -995,6 +995,72 @@ class Worldlines( simulation_data.TimeData ):
         return categories_mass * self.conversion_factor
 
     ########################################################################
+
+    def get_max_per_event_count(
+        self,
+        data_key,
+        n_event_key,
+        flatten = True,
+        *args, **kwargs
+    ):
+        '''Get the maximum value attained by a quantity for each time an event
+        occurs.
+
+        Args:
+            data_key (str):
+                The data to get the maximum for.
+
+            n_event_key (str):
+                The count of times an event has happened per particle.
+
+            flatten (boolean):
+                If True, return a flattened array. Else return a list of
+                arrays, the ith index of which is the maximum for n_event=i.
+
+            *arg, **kwargs:
+                Additional args when getting the data out.
+
+        Returns:
+            max_per_event_count (array-like):
+                Result, sorted according first to n_event, and second by
+                particle index.
+        '''
+
+        n_event = self.get_data( n_event_key )
+
+        max_per_event_count = []
+        for n in range( np.max( n_event )+1 ):
+
+            # Get the data out
+            data = self.get_selected_data(
+                data_key,
+                compress = False,
+                *args, **kwargs
+            )
+
+            # Mask the data
+            try:
+                # Modify data mask to account for matching event count
+                event_count_mask = ( n != n_event )
+                data.mask = np.ma.mask_or( data.mask, event_count_mask )
+            except AttributeError:
+                # Account for when no data is masked
+                data = np.ma.masked_array( data, mask=event_count_mask )
+
+            # Get the max out
+            max_this_event = np.max(
+                data,
+                axis = 1,
+            ).compressed()
+            max_per_event_count.append( max_this_event )
+                    
+        # Format
+        if flatten:
+            max_per_event_count = np.hstack( np.array( max_per_event_count ) )
+
+        return max_per_event_count
+
+    ########################################################################
     # Generate Data on the Go
     ########################################################################
 
@@ -1555,12 +1621,6 @@ class Worldlines( simulation_data.TimeData ):
         n_in = self.count_n_events( is_entering )
 
         self.data['n_in'] = n_in
-
-    ########################################################################
-
-    def get_max_per_event_count( self, data_key, n_event_key ):
-
-        pass
 
 ########################################################################
 ########################################################################

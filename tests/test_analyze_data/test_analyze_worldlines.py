@@ -1118,7 +1118,7 @@ class TestWorldlineDataMasker( unittest.TestCase ):
         # Test Data
         self.worldlines.data['n_in'] = np.array([
             [ 3, 3, 3, 2, 2, 1, 0, ],
-            [ 2, 1, 0, 0, 0, 0, 0, ],
+            [ 1, 1, 0, 0, 0, 0, 0, ],
             [ 2, 2, 2, 1, 1, 0, 0, ],
         ])
         self.worldlines.data['R'] = np.array([
@@ -1135,9 +1135,10 @@ class TestWorldlineDataMasker( unittest.TestCase ):
 
         # Expected
         expected = np.array([
-            10., 4., 2., 25.,
-            10., 4., 25.,
-            5., 2., 16.,
+            25., 25., 16., # Max for n_in = 0
+            2., 10., 2., # Max for n_in = 1
+            4., 5., # Max for n_in = 2
+            10., # Max for n_in = 3
         ])
 
         npt.assert_allclose( actual, expected )
