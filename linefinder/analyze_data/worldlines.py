@@ -1517,7 +1517,9 @@ class Worldlines( simulation_data.TimeData ):
                 prior to index j.                                               
         '''
 
-        n_event = np.cumsum( boolean[:,::-1].astype( int ), axis=1 )[:,::-1]
+        n_event = np.zeros( self.base_data_shape )
+
+        n_event[:,:-1] = np.cumsum( boolean[:,::-1].astype( int ), axis=1 )[:,::-1]
 
         return n_event
 
@@ -1547,7 +1549,7 @@ class Worldlines( simulation_data.TimeData ):
 
         is_entering = self.get_data( 'gal_event_id' ) == 1
 
-        n_out = self.count_n_events( is_entering )
+        n_in = self.count_n_events( is_entering )
 
         self.data['n_in'] = n_in
 
