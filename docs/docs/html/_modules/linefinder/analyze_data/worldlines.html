@@ -39,6 +39,7 @@
 <span class="sd">@status: Development</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numpy.testing</span> <span class="k">as</span> <span class="nn">npt</span>
 
@@ -1028,6 +1029,122 @@
         <span class="k">return</span> <span class="n">categories_mass</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversion_factor</span></div>
 
     <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.get_max_per_event_count"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.get_max_per_event_count">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_per_event_count</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data_key</span><span class="p">,</span>
+        <span class="n">n_event_key</span><span class="p">,</span>
+        <span class="n">flatten</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_after_vmax</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">vmax_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the maximum value attained by a quantity for each time an event</span>
+<span class="sd">        occurs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_key (str):</span>
+<span class="sd">                The data to get the maximum for.</span>
+
+<span class="sd">            n_event_key (str):</span>
+<span class="sd">                The count of times an event has happened per particle.</span>
+
+<span class="sd">            flatten (boolean):</span>
+<span class="sd">                If True, return a flattened array. Else return a list of</span>
+<span class="sd">                arrays, the ith index of which is the maximum for n_event=i.</span>
+
+<span class="sd">            max_after_vmax (boolean):</span>
+<span class="sd">                If True, get the max per event count, only after the max</span>
+<span class="sd">                velocity for that event was reached. Useful when calculating</span>
+<span class="sd">                the results of wind kicks.</span>
+
+<span class="sd">            vmax_kwargs (dict):</span>
+<span class="sd">                The max velocity per the event is the radial velocity,</span>
+<span class="sd">                but by passing additional keyword arguments through this</span>
+<span class="sd">                argument that velocity can be scaled by, for example,</span>
+<span class="sd">                the circular velocity.</span>
+
+<span class="sd">            *arg, **kwargs:</span>
+<span class="sd">                Additional args when getting the data out.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            max_per_event_count (array-like):</span>
+<span class="sd">                Result, sorted according first to n_event, and second by</span>
+<span class="sd">                particle index.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">n_event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="n">n_event_key</span> <span class="p">)</span>
+
+        <span class="n">max_per_event_count</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span> <span class="n">n_event</span> <span class="p">)</span><span class="o">+</span><span class="mi">1</span> <span class="p">):</span>
+
+            <span class="c1"># Get the data out</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
+                <span class="n">data_key</span><span class="p">,</span>
+                <span class="n">compress</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;n = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">n</span> <span class="p">)</span> <span class="p">)</span>
+
+            <span class="c1"># Get the mask for the data</span>
+            <span class="n">mask_this_event</span> <span class="o">=</span> <span class="p">(</span> <span class="n">n</span> <span class="o">!=</span> <span class="n">n_event</span> <span class="p">)</span>
+
+            <span class="c1"># Get a mask for after max velocity</span>
+            <span class="k">if</span> <span class="n">max_after_vmax</span><span class="p">:</span>
+
+                <span class="n">vel_mask_this_event</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span> <span class="n">mask_this_event</span> <span class="p">)</span>
+
+                <span class="n">vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
+                    <span class="s1">&#39;Vr&#39;</span><span class="p">,</span>
+                    <span class="n">compress</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">vmax_kwargs</span>
+                <span class="p">)</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># Modify data mask to account for matching event count</span>
+                    <span class="n">vel</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mask_or</span><span class="p">(</span> <span class="n">vel</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">vel_mask_this_event</span> <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="c1"># Account for when no data is masked</span>
+                    <span class="n">vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span> <span class="n">vel</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">vel_mask_this_event</span> <span class="p">)</span>
+
+                <span class="c1"># Find relevant index</span>
+                <span class="n">vel_argmax_this_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanargmax</span><span class="p">(</span>
+                    <span class="n">vel</span><span class="p">,</span>
+                    <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Make velocity mask</span>
+                <span class="n">inds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_processed_data</span><span class="p">(</span> <span class="s1">&#39;ind&#39;</span><span class="p">,</span> <span class="n">tile_data</span> <span class="o">=</span> <span class="kc">True</span> <span class="p">)</span>
+                <span class="n">vel_mask</span> <span class="o">=</span> <span class="n">inds</span> <span class="o">&gt;</span> <span class="n">vel_argmax_this_event</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+                <span class="c1"># Merge masks</span>
+                <span class="n">mask_this_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mask_or</span><span class="p">(</span> <span class="n">mask_this_event</span><span class="p">,</span> <span class="n">vel_mask</span> <span class="p">)</span>
+
+            <span class="c1"># Mask the data</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Modify data mask to account for matching event count</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mask_or</span><span class="p">(</span> <span class="n">data</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">mask_this_event</span> <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="c1"># Account for when no data is masked</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span> <span class="n">data</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask_this_event</span> <span class="p">)</span>
+
+            <span class="c1"># Get the max out</span>
+            <span class="n">max_this_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">compressed</span><span class="p">()</span>
+            <span class="n">max_per_event_count</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">max_this_event</span> <span class="p">)</span>
+                    
+        <span class="c1"># Format</span>
+        <span class="k">if</span> <span class="n">flatten</span><span class="p">:</span>
+            <span class="n">max_per_event_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">max_per_event_count</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">max_per_event_count</span></div>
+
+    <span class="c1">########################################################################</span>
     <span class="c1"># Generate Data on the Go</span>
     <span class="c1">########################################################################</span>
 
@@ -1533,7 +1650,61 @@
         <span class="n">always_star</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="n">is_star</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
         <span class="n">always_gas</span> <span class="o">=</span> <span class="n">is_star</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ind_star&#39;</span><span class="p">][</span><span class="n">always_star</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ind_star&#39;</span><span class="p">][</span><span class="n">always_gas</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">INT_FILL_VALUE</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ind_star&#39;</span><span class="p">][</span><span class="n">always_gas</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">INT_FILL_VALUE</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.count_n_events"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.count_n_events">[docs]</a>    <span class="k">def</span> <span class="nf">count_n_events</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">boolean</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Counts the number of events that occur up to this point.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            boolean (array-like):</span>
+<span class="sd">                If true, the event happens at the given index.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            n_events (array-like):</span>
+<span class="sd">                n_events[i,j] number of times that particle i has an event</span>
+<span class="sd">                prior to index j.                                               </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">n_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">int</span> <span class="p">)</span>
+
+        <span class="n">n_event</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span>
+            <span class="n">boolean</span><span class="p">[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">int</span> <span class="p">),</span>
+            <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">n_event</span></div>
+
+<div class="viewcode-block" id="Worldlines.calc_n_out"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_n_out">[docs]</a>    <span class="k">def</span> <span class="nf">calc_n_out</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>                                                     
+        <span class="sd">&#39;&#39;&#39;The number of times a particle has left the main galaxy.             </span>
+<span class="sd">                                                                                </span>
+<span class="sd">        Modifies:                                                               </span>
+<span class="sd">            self.data[&#39;n_out&#39;] (array-like):                                    </span>
+<span class="sd">                result[i,j] number of times that particle i has left the galaxy </span>
+<span class="sd">                prior to index j.                                               </span>
+<span class="sd">        &#39;&#39;&#39;</span> 
+
+        <span class="n">is_leaving</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;gal_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="n">n_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_n_events</span><span class="p">(</span> <span class="n">is_leaving</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_out</span></div>
+
+<div class="viewcode-block" id="Worldlines.calc_n_in"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_n_in">[docs]</a>    <span class="k">def</span> <span class="nf">calc_n_in</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>                                                     
+        <span class="sd">&#39;&#39;&#39;The number of times a particle has entered the main galaxy.             </span>
+<span class="sd">                                                                                </span>
+<span class="sd">        Modifies:                                                               </span>
+<span class="sd">            self.data[&#39;n_out&#39;] (array-like):                                    </span>
+<span class="sd">                result[i,j] number of times that particle i has entered</span>
+<span class="sd">                the galaxy prior to index j.                                               </span>
+<span class="sd">        &#39;&#39;&#39;</span> 
+
+        <span class="n">is_entering</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;gal_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+        <span class="n">n_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_n_events</span><span class="p">(</span> <span class="n">is_entering</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_in</span></div></div>
 
 <span class="c1">########################################################################</span>
 <span class="c1">########################################################################</span>

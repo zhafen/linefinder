@@ -42,7 +42,7 @@ These quantities are available as part of an analysis class, and are documented 
 <dl class="class">
 <dt id="linefinder.analyze_data.worldlines.Worldlines">
 <em class="property">class </em><code class="descclassname">linefinder.analyze_data.worldlines.</code><code class="descname">Worldlines</code><span class="sig-paren">(</span><em>data_dir</em>, <em>tag</em>, <em>ids_tag=None</em>, <em>ptracks_tag=None</em>, <em>galids_tag=None</em>, <em>classifications_tag=None</em>, <em>events_tag=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://zhafen.github.io/galaxy-dive/build/html/galaxy_dive.analyze_data.simulation_data.html#galaxy_dive.analyze_data.simulation_data.TimeData" title="(in galaxy-dive)"><code class="xref py py-class docutils literal notranslate"><span class="pre">galaxy_dive.analyze_data.simulation_data.TimeData</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">galaxy_dive.analyze_data.simulation_data.TimeData</span></code></p>
 <p>Wrapper for analysis of all data products. It loads data in
 on-demand.</p>
 <blockquote>
@@ -381,6 +381,36 @@ snapshot immediately before first accretion.</p>
 <dd><dl class="first last docutils">
 <dt>self.data[‘enriched_metal_mass’] (array-like):</dt>
 <dd>Metal mass from enrichment.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_n_in">
+<code class="descname">calc_n_in</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_n_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_n_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of times a particle has entered the main galaxy.</p>
+<dl class="docutils">
+<dt>Modifies:                                                               </dt>
+<dd><dl class="first last docutils">
+<dt>self.data[‘n_out’] (array-like):                                    </dt>
+<dd>result[i,j] number of times that particle i has entered
+the galaxy prior to index j.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_n_out">
+<code class="descname">calc_n_out</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_n_out"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_n_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of times a particle has left the main galaxy.</p>
+<dl class="docutils">
+<dt>Modifies:                                                               </dt>
+<dd><dl class="first last docutils">
+<dt>self.data[‘n_out’] (array-like):                                    </dt>
+<dd>result[i,j] number of times that particle i has left the galaxy 
+prior to index j.</dd>
 </dl>
 </dd>
 </dl>

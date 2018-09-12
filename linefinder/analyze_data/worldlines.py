@@ -1021,6 +1021,17 @@ class Worldlines( simulation_data.TimeData ):
                 If True, return a flattened array. Else return a list of
                 arrays, the ith index of which is the maximum for n_event=i.
 
+            max_after_vmax (boolean):
+                If True, get the max per event count, only after the max
+                velocity for that event was reached. Useful when calculating
+                the results of wind kicks.
+
+            vmax_kwargs (dict):
+                The max velocity per the event is the radial velocity,
+                but by passing additional keyword arguments through this
+                argument that velocity can be scaled by, for example,
+                the circular velocity.
+
             *arg, **kwargs:
                 Additional args when getting the data out.
 

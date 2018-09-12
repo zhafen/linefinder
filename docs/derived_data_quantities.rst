@@ -45,6 +45,8 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_is_outside_any_gal_EP
     .. automethod:: calc_is_outside_any_gal_IP
     .. automethod:: calc_metal_mass
+    .. automethod:: calc_n_in
+    .. automethod:: calc_n_out
     .. automethod:: calc_phi
     .. automethod:: calc_radial_distance
     .. automethod:: calc_radial_velocity
