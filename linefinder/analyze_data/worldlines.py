@@ -1362,23 +1362,33 @@ class Worldlines( simulation_data.TimeData ):
 
     def calc_is_CGM_satellite( self ):
 
-        self.data['is_CGM_satellite'] = self.get_data( 'is_in_CGM' ) \
+        self.data['is_CGM_satellite'] = (
+            self.get_data( 'is_in_CGM' )
             & self.get_data( 'is_in_other_gal' )
+            & np.invert( self.get_data( 'is_IP' ) )
+        )
 
     ########################################################################
 
     def calc_is_CGM_EP( self ):
 
-        self.data['is_CGM_EP'] = self.get_data( 'is_in_CGM' ) \
-            & self.get_data( 'is_hitherto_EP_NYA' ) \
+        self.data['is_CGM_EP'] = (
+            self.get_data( 'is_in_CGM' )
+            & self.get_data( 'is_hitherto_EP' )
+            & np.invert( self.get_data( 'is_IP' ) )
             & np.invert( self.get_data( 'is_in_other_gal' ) )
+        )
 
     ########################################################################
 
     def calc_is_CGM_NEP( self ):
 
-        self.data['is_CGM_NEP'] = self.get_data( 'is_in_CGM' ) \
-            & self.get_data( 'is_hitherto_NEP_NYA' )
+        self.data['is_CGM_NEP'] = (
+            self.get_data( 'is_in_CGM' )
+            & self.get_data( 'is_hitherto_NEP' )
+            & np.invert( self.get_data( 'is_IP' ) )
+            & np.invert( self.get_data( 'is_in_other_gal' ) )
+        )
 
     ########################################################################
 
