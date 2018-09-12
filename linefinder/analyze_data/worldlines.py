@@ -1297,7 +1297,7 @@ class Worldlines( simulation_data.TimeData ):
             )
         )
 
-        summed = time_weighted[:,::-1].cumsum( axis=1 )[:,::-1]
+        summed = np.nancumsum( time_weighted[:,::-1], axis=1 )[:,::-1]
 
         self.data['is_IP'] = summed >= self.classifications.parameters['t_pro']
 
