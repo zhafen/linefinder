@@ -6,6 +6,7 @@
 @status: Development
 '''
 
+import copy
 import numpy as np
 import numpy.testing as npt
 
@@ -1002,6 +1003,8 @@ class Worldlines( simulation_data.TimeData ):
         n_event_key,
         flatten = True,
         verbose = False,
+        max_after_vmax = False,
+        vmax_kwargs = {},
         *args, **kwargs
     ):
         '''Get the maximum value attained by a quantity for each time an event
@@ -1032,9 +1035,6 @@ class Worldlines( simulation_data.TimeData ):
         max_per_event_count = []
         for n in range( np.max( n_event )+1 ):
 
-            if verbose:
-                print( 'n = {}'.format( n ) )
-
             # Get the data out
             data = self.get_selected_data(
                 data_key,
@@ -1042,14 +1042,50 @@ class Worldlines( simulation_data.TimeData ):
                 *args, **kwargs
             )
 
+            if verbose:
+                print( 'n = {}'.format( n ) )
+
+            # Get the mask for the data
+            mask_this_event = ( n != n_event )
+
+            # Get a mask for after max velocity
+            if max_after_vmax:
+
+                vel_mask_this_event = copy.copy( mask_this_event )
+
+                vel = self.get_selected_data(
+                    'Vr',
+                    compress = False,
+                    **vmax_kwargs
+                )
+
+                try:
+                    # Modify data mask to account for matching event count
+                    vel.mask = np.ma.mask_or( vel.mask, vel_mask_this_event )
+                except AttributeError:
+                    # Account for when no data is masked
+                    vel = np.ma.masked_array( vel, mask=vel_mask_this_event )
+
+                # Find relevant index
+                vel_argmax_this_event = np.nanargmax(
+                    vel,
+                    axis = 1,
+                )
+
+                # Make velocity mask
+                inds = self.get_processed_data( 'ind', tile_data = True )
+                vel_mask = inds > vel_argmax_this_event[:,np.newaxis]
+
+                # Merge masks
+                mask_this_event = np.ma.mask_or( mask_this_event, vel_mask )
+
             # Mask the data
             try:
                 # Modify data mask to account for matching event count
-                event_count_mask = ( n != n_event )
-                data.mask = np.ma.mask_or( data.mask, event_count_mask )
+                data.mask = np.ma.mask_or( data.mask, mask_this_event )
             except AttributeError:
                 # Account for when no data is masked
-                data = np.ma.masked_array( data, mask=event_count_mask )
+                data = np.ma.masked_array( data, mask=mask_this_event )
 
             # Get the max out
             max_this_event = np.nanmax(
