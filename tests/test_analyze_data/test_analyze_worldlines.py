@@ -455,15 +455,19 @@ class TestWorldlineCalcData( unittest.TestCase ):
         # Setup test data
         self.worldlines.data['is_in_main_gal'] = np.array([
             [ 0, 0, 0, ],
-            [ 1, 0, 0, ],
+            [ 1, 1, 0, ],
             [ 1, 0, 1, ],
-            [ 0, 1, 0, ],
+            [ 0, 1, 1, ],
         ]).astype( bool )
+        self.worldlines.data['dt'] = np.array([
+            0.6, 0.6, 0.6
+        ])
+        self.worldlines.classifications.parameters['t_pro'] = 1.0
 
         expected = np.array([
             [ 0, 0, 0, ],
             [ 1, 0, 0, ],
-            [ 1, 1, 1, ],
+            [ 1, 0, 0, ],
             [ 1, 1, 0, ],
         ]).astype( bool )
 

@@ -1289,9 +1289,17 @@ class Worldlines( simulation_data.TimeData ):
 
         is_in_main_gal = self.get_data( 'is_in_main_gal' )
 
-        summed = is_in_main_gal[:,::-1].cumsum( axis=1 )[:,::-1]
+        time_weighted = (
+            is_in_main_gal *
+            self.get_processed_data(
+                'dt',
+                tile_data = True,
+            )
+        )
 
-        self.data['is_IP'] = summed.astype( bool )
+        summed = time_weighted[:,::-1].cumsum( axis=1 )[:,::-1]
+
+        self.data['is_IP'] = summed >= self.classifications.parameters['t_pro']
 
     ########################################################################
 
