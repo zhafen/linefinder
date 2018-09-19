@@ -420,6 +420,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
     @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.get_processed_data' )
     def test_is_in_CGM( self, mock_get_processed_data ):
 
+        # Test Data
         mock_get_processed_data.side_effect = [
             np.array([ 
                 [ 0.05, 0.15, 1.1 ],
@@ -447,6 +448,60 @@ class TestWorldlineCalcData( unittest.TestCase ):
         actual = self.worldlines.data['is_in_CGM']
 
         npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
+    @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.get_processed_data' )
+    def test_is_CGM_to_IGM( self, mock_get_processed_data ):
+
+        # Setup test data
+        mock_get_processed_data.side_effect = [
+            # R/R_vir
+            np.array([ 
+                [ 2, 0.5, 0.5, 0.5 ],
+                [ 10, 0.75, 0.05, 0.6 ],
+                [ 3, 0.4, 10, 20 ],
+                [ 2, 0.5, 10, 0.5 ],
+            ]),
+        ]
+        self.worldlines.data['is_in_CGM'] = np.array([
+            [ 0, 1, 1, 1, ],
+            [ 0, 1, 0, 1, ],
+            [ 0, 1, 0, 0, ],
+            [ 1, 1, 0, 1, ],
+        ])
+
+        expected = np.array([
+            [ 0, 1, 1, 1, ],
+            [ 0, 1, 0, 0, ],
+            [ 0, 1, 0, 0, ],
+            [ 0, 0, 0, 1, ],
+        ])
+
+        # Actual calculation
+        self.worldlines.calc_is_CGM_to_IGM()
+
+        actual = self.worldlines.data['is_CGM_to_IGM']
+
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
+    def test_is_CGM_to_satellite( self ):
+
+        assert False
+
+    ########################################################################
+
+    def test_is_CGM_to_interface( self ):
+
+        assert False
+
+    ########################################################################
+
+    def test_is_hereafter_CGM( self ):
+
+        assert False
 
     ########################################################################
 

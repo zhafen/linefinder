@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>linefinder.analyze_data.worldlines &#8212; linefinder 0.8.1 documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -15,15 +15,21 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" />
-   
-  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
+    <link rel="search" title="Search" href="../../../search.html" /> 
   </head><body>
-  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">linefinder 0.8.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -67,35 +73,35 @@
     <span class="sd">&#39;&#39;&#39;Wrapper for analysis of all data products. It loads data in</span>
 <span class="sd">    on-demand.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            data_dir (str):</span>
-<span class="sd">                Data directory for the classified data</span>
+<span class="sd">    Args:</span>
+<span class="sd">        data_dir (str):</span>
+<span class="sd">            Data directory for the classified data</span>
 
-<span class="sd">            tag (str):</span>
-<span class="sd">                Identifying tag for the data to load.</span>
+<span class="sd">        tag (str):</span>
+<span class="sd">            Identifying tag for the data to load.</span>
 
-<span class="sd">            ids_tag (str):</span>
-<span class="sd">                Identifying tag for ids data. Defaults to tag.</span>
+<span class="sd">        ids_tag (str):</span>
+<span class="sd">            Identifying tag for ids data. Defaults to tag.</span>
 
-<span class="sd">            ptracks_tag (str):</span>
-<span class="sd">                Identifying tag for ptracks data. Defaults to tag.</span>
+<span class="sd">        ptracks_tag (str):</span>
+<span class="sd">            Identifying tag for ptracks data. Defaults to tag.</span>
 
-<span class="sd">            galids_tag (str):</span>
-<span class="sd">                Identifying tag for galids data. Defaults to tag.</span>
+<span class="sd">        galids_tag (str):</span>
+<span class="sd">            Identifying tag for galids data. Defaults to tag.</span>
 
-<span class="sd">            classifications_tag (str):</span>
-<span class="sd">                Identifying tag for classifications data. Defaults to tag.</span>
+<span class="sd">        classifications_tag (str):</span>
+<span class="sd">            Identifying tag for classifications data. Defaults to tag.</span>
 
-<span class="sd">            events_tag (str):</span>
-<span class="sd">                Identifying tag for events data. Defaults to tag.</span>
+<span class="sd">        events_tag (str):</span>
+<span class="sd">            Identifying tag for events data. Defaults to tag.</span>
 
-<span class="sd">            label (str):</span>
-<span class="sd">                Identifying label for the worldlines, used for plotting.</span>
-<span class="sd">                Defaults to tag.</span>
+<span class="sd">        label (str):</span>
+<span class="sd">            Identifying label for the worldlines, used for plotting.</span>
+<span class="sd">            Defaults to tag.</span>
 
-<span class="sd">            color (str):</span>
-<span class="sd">                What color to use when plotting.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        color (str):</span>
+<span class="sd">            What color to use when plotting.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1154,7 +1160,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            data_key (str) : The data key in question.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data (dict) : If successful, stores the data here.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1179,7 +1185,7 @@
 <div class="viewcode-block" id="Worldlines.calc_is_fresh_accretion"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_fresh_accretion">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_fresh_accretion</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Find material classified as fresh accretion (pristine gas that has not recycled).</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;is_fresh_accretion&#39;] ( np.ndarray ) : Result.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1193,7 +1199,7 @@
 <div class="viewcode-block" id="Worldlines.calc_is_NEP_wind_recycling"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_NEP_wind_recycling">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_NEP_wind_recycling</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Find material classified as non-externally-processed wind recycling.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;is_NEP_wind_recycling&#39;] ( np.ndarray ) : Result.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1208,7 +1214,7 @@
 <span class="sd">        Caution: This is calculated at the snapshot first after accretion. The safer option may be to calculate at the</span>
 <span class="sd">        snapshot immediately before first accretion.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;is_merger_star&#39;] ( np.ndarray ) : Result.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1223,7 +1229,7 @@
 <span class="sd">        Caution: This is calculated at the snapshot first after accretion. The safer option may be to calculate at the</span>
 <span class="sd">        snapshot immediately before first accretion.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;is_merger_gas&#39;] ( np.ndarray ) : Result.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1274,7 +1280,7 @@
 <div class="viewcode-block" id="Worldlines.calc_is_NEP_NYA"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_NEP_NYA">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_NEP_NYA</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Find material classified as NEP that is not yet accreted (NYA) onto the main galaxy.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;is_mass_transfer_NYA&#39;] ( np.ndarray ) : Result</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1298,7 +1304,7 @@
 <div class="viewcode-block" id="Worldlines.calc_is_merger_NYA"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_merger_NYA">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_merger_NYA</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Find material classified as merger that is not yet accreted (NYA) onto the main galaxy.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;is_merger_NYA&#39;] ( np.ndarray ) : Result</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1307,7 +1313,7 @@
 <div class="viewcode-block" id="Worldlines.calc_is_mass_transfer_NYA"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_mass_transfer_NYA">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_mass_transfer_NYA</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Find material classified as mass transfer that is not yet accreted (NYA) onto the main galaxy.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;is_mass_transfer_NYA&#39;] ( np.ndarray ) : Result</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1322,14 +1328,28 @@
 
         <span class="n">is_in_main_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_main_gal&#39;</span> <span class="p">)</span>
 
-        <span class="n">summed</span> <span class="o">=</span> <span class="n">is_in_main_gal</span><span class="p">[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">time_weighted</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">is_in_main_gal</span> <span class="o">*</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_processed_data</span><span class="p">(</span>
+                <span class="s1">&#39;dt&#39;</span><span class="p">,</span>
+                <span class="n">tile_data</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_IP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">summed</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span></div>
+        <span class="n">summed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nancumsum</span><span class="p">(</span> <span class="n">time_weighted</span><span class="p">[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_IP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">summed</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifications</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;t_pro&#39;</span><span class="p">]</span></div>
 
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="Worldlines.calc_is_in_CGM"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_in_CGM">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_in_CGM</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Calculate material that is in the CGM.&#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39;Material that is in the CGM.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self.data[&#39;is_in_CGM&#39;] (np.ndarray) :</span>
+<span class="sd">                If True, the particle is currently in the CGM, as defined</span>
+<span class="sd">                in Hafen+18.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">r_rvir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_processed_data</span><span class="p">(</span>
             <span class="s1">&#39;R&#39;</span><span class="p">,</span>
@@ -1387,23 +1407,33 @@
 
 <div class="viewcode-block" id="Worldlines.calc_is_CGM_satellite"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_satellite">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_satellite</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_satellite&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span> \
-            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_satellite&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="p">)</span></div>
 
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="Worldlines.calc_is_CGM_EP"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_EP">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_EP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_EP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span> \
-            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_hitherto_EP_NYA&#39;</span> <span class="p">)</span> \
-            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span> <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_EP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_hitherto_EP&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="p">)</span></div>
 
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="Worldlines.calc_is_CGM_NEP"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_NEP">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_NEP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_NEP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span> \
-            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_hitherto_NEP_NYA&#39;</span> <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_NEP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_hitherto_NEP&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="p">)</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -1532,7 +1562,7 @@
 <div class="viewcode-block" id="Worldlines.calc_time"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_time">[docs]</a>    <span class="k">def</span> <span class="nf">calc_time</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Calc current time in the simulation.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;time&#39;] (np.ndarray) :</span>
 <span class="sd">                The value at index i is the time in the simulation</span>
 <span class="sd">                (i.e. the age of the universe) at that index.</span>
@@ -1550,7 +1580,7 @@
 <div class="viewcode-block" id="Worldlines.calc_dt"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_dt">[docs]</a>    <span class="k">def</span> <span class="nf">calc_dt</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Calc time difference between snapshots.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;dt&#39;] (np.ndarray) : self.data[&#39;dt&#39;][i] = light_travel_time[i+1] - light_travel_time[i]</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1568,7 +1598,7 @@
 <div class="viewcode-block" id="Worldlines.calc_t_EP"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_t_EP">[docs]</a>    <span class="k">def</span> <span class="nf">calc_t_EP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Calculate the time spent in another galaxy prior to accretion onto the main galaxy of the simulation.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;t_EP&#39;] (np.ndarray) :</span>
 <span class="sd">                self.data[&#39;t_EP&#39;][i] = time particle i spent in another galaxy prior to first accretion.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1597,7 +1627,7 @@
 <div class="viewcode-block" id="Worldlines.calc_d_sat_scaled_min"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_d_sat_scaled_min">[docs]</a>    <span class="k">def</span> <span class="nf">calc_d_sat_scaled_min</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Calculate the minimum distance to a a galaxy other than the main galaxy, prior to accretion onto the main gal.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;d_sat_scaled_min&#39;] (np.ndarray of shape (n_particles,)) :</span>
 <span class="sd">                self.data[&#39;d_sat_scaled_min&#39;][i] = min( d_sat_scaled, prior to first acc for particle i )</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1631,7 +1661,7 @@
 <div class="viewcode-block" id="Worldlines.calc_ind_star"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_ind_star">[docs]</a>    <span class="k">def</span> <span class="nf">calc_ind_star</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Calculate the index at which a particle is first recorded as being a star.</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.data[&#39;ind_star&#39;] (np.ndarray of shape (n_particles,)) :</span>
 <span class="sd">                self.data[&#39;ind_star&#39;][i] = Index at which particle is first recorded as being a star.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1679,7 +1709,7 @@
 <div class="viewcode-block" id="Worldlines.calc_n_out"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_n_out">[docs]</a>    <span class="k">def</span> <span class="nf">calc_n_out</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>                                                     
         <span class="sd">&#39;&#39;&#39;The number of times a particle has left the main galaxy.             </span>
 <span class="sd">                                                                                </span>
-<span class="sd">        Modifies:                                                               </span>
+<span class="sd">        Returns:                                                               </span>
 <span class="sd">            self.data[&#39;n_out&#39;] (array-like):                                    </span>
 <span class="sd">                result[i,j] number of times that particle i has left the galaxy </span>
 <span class="sd">                prior to index j.                                               </span>
@@ -1694,7 +1724,7 @@
 <div class="viewcode-block" id="Worldlines.calc_n_in"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_n_in">[docs]</a>    <span class="k">def</span> <span class="nf">calc_n_in</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>                                                     
         <span class="sd">&#39;&#39;&#39;The number of times a particle has entered the main galaxy.             </span>
 <span class="sd">                                                                                </span>
-<span class="sd">        Modifies:                                                               </span>
+<span class="sd">        Returns:                                                               </span>
 <span class="sd">            self.data[&#39;n_out&#39;] (array-like):                                    </span>
 <span class="sd">                result[i,j] number of times that particle i has entered</span>
 <span class="sd">                the galaxy prior to index j.                                               </span>
@@ -1939,7 +1969,7 @@
 <span class="sd">            ptype (str) :</span>
 <span class="sd">                What particle type to select?</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.masks (list) :</span>
 <span class="sd">                Clears and adds masks to self.masks.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1970,7 +2000,7 @@
 <span class="sd">            ptype (str) :</span>
 <span class="sd">                What particle type to select?</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.masks (list) :</span>
 <span class="sd">                Clears and adds masks to self.masks.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1985,7 +2015,7 @@
 <span class="sd">        ptype_value (int) :</span>
 <span class="sd">            In the data, what ptype do we select?</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.masks (list) :</span>
 <span class="sd">                Adds masks needed to select only particles in a galaxy.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -2001,7 +2031,7 @@
 <span class="sd">        ptype_value (int) :</span>
 <span class="sd">            In the data, what ptype do we select?</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.masks (list) :</span>
 <span class="sd">                Adds masks needed to select only particles in a galaxy.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -2022,7 +2052,7 @@
 <span class="sd">        ptype_value (int) :</span>
 <span class="sd">            In the data, what ptype do we select?</span>
 
-<span class="sd">        Modifies:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            self.masks (list) :</span>
 <span class="sd">                Adds masks needed to select only particles outside all galaxies.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -2061,15 +2091,7 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../../index.html">Documentation overview</a><ul>
-  <li><a href="../../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <div class="searchformwrapper">
@@ -2086,17 +2108,22 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2018, Zachary Hafen.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
-      
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">linefinder 0.8.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Zachary Hafen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+    </div>
   </body>
 </html>

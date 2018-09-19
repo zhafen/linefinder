@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>linefinder.analyze_data.plot_worldlines module &#8212; linefinder 0.8.1 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -15,15 +15,20 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
+    <link rel="search" title="Search" href="search.html" /> 
   </head><body>
-  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.8.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -50,35 +55,42 @@
 <dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classification_values">
 <code class="descname">plot_classification_values</code><span class="sig-paren">(</span><em>values='mass_fractions'</em>, <em>ax=&lt;object object&gt;</em>, <em>label=&lt;object object&gt;</em>, <em>y_label=&lt;object object&gt;</em>, <em>y_scale=&lt;object object&gt;</em>, <em>color=&lt;object object&gt;</em>, <em>pointsize=3000</em>, <em>y_range=&lt;object object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_classification_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classification_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot overall values from a classification category.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>ax (axis) : What axis to use. By default creates a figure and places the axis on it.
-label (str) : What label to use for the lines.
-color (str) : What color to use for the lines.
-pointsize (int) : What pointsize to use for the lines.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax</strong> (<em>axis</em>) – What axis to use. By default creates a figure and places the axis on it.</li>
+<li><strong>label</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – What label to use for the lines.</li>
+<li><strong>color</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – What color to use for the lines.</li>
+<li><strong>pointsize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – What pointsize to use for the lines.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classified_time_dependent_data">
 <code class="descname">plot_classified_time_dependent_data</code><span class="sig-paren">(</span><em>ax=&lt;object object&gt;, x_data='get_redshift', y_datas='get_categories_selected_quantity', x_range=[0.0, 0.9030899869919435], y_range=&lt;object object&gt;, y_scale='log', x_label=&lt;object object&gt;, y_label=&lt;object object&gt;, classification_list=['is_fresh_accretion', 'is_NEP_wind_recycling', 'is_mass_transfer', 'is_merger_gas', 'is_merger_star'], classification_colors={None: 'black', 'all': 'black', 'is_CGM_EP': array([0.7    , 0.46984, 0.196  ]), 'is_CGM_IP': array([0.224, 0.8  , 0.416]), 'is_CGM_NEP': array([0.196, 0.532, 0.7  ]), 'is_CGM_satellite': array([0.5       , 0.16266667, 0.1       ]), 'is_IP': [0.2980392156862745, 0.6862745098039216, 0.0], 'is_NEP_NYA': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_NEP_wind_recycling': [0.027450980392156862, 0.7372549019607844, 0.43137254901960786], 'is_fresh_accretion': [0.0392156862745098, 0.29411764705882354, 0.7764705882352941], 'is_in_CGM': 'black', 'is_in_galaxy_halo_interface': array([0.8  , 0.32 , 0.784]), 'is_mass_transfer': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_mass_transfer_NYA': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_merger': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_NYA': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_gas': [0.9019607843137255, 0.4666666666666667, 0.06666666666666667], 'is_merger_star': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_outside_any_gal_EP': array([0.7    , 0.46984, 0.196  ]), 'is_outside_any_gal_IP': array([0.224, 0.8  , 0.416]), 'is_preprocessed': [0.984313725490196, 0.5764705882352941, 0.09803921568627451], 'is_pristine': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_wind': [0.2980392156862745, 0.6862745098039216, 0.0]}, *args, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_classified_time_dependent_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classified_time_dependent_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a plot like the top panel of Fig. 3 in Angles-Alcazar+17</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>ax (axis object) :</dt>
-<dd>What axis to put the plot on. By default, create a new one on a separate figure.</dd>
-<dt>x_range, y_range (list-like) :</dt>
-<dd>[ x_min, x_max ] or [ y_min, y_max ] for the displayed range.</dd>
-<dt>x_label, y_label (str) :</dt>
-<dd>Labels for axis. By default, redshift and f(M_star), respectively.</dd>
-<dt>plot_dividing_line (bool) :</dt>
-<dd>Whether or not to plot a line at the edge between stacked regions.</dd>
-<dt><a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs :</dt>
-<dd>Passed to the data retrieval method.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax</strong> (<em>axis object</em>) – What axis to put the plot on. By default, create a new one on a separate figure.</li>
+<li><strong>y_range</strong> (<em>x_range</em><em>,</em>) – [ x_min, x_max ] or [ y_min, y_max ] for the displayed range.</li>
+<li><strong>y_label</strong> (<em>x_label</em><em>,</em>) – Labels for axis. By default, redshift and f(M_star), respectively.</li>
+<li><strong>plot_dividing_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether or not to plot a line at the edge between stacked regions.</li>
+<li><strong>**kwargs</strong> (<em>*args</em><em>,</em>) – <p>Passed to the data retrieval method.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -90,40 +102,40 @@ pointsize (int) : What pointsize to use for the lines.</dd>
 <dl class="method">
 <dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_stacked_radial_data">
 <code class="descname">plot_stacked_radial_data</code><span class="sig-paren">(</span><em>radial_bins, ax=&lt;object object&gt;, x_range=&lt;object object&gt;, y_range=[0.0, 1.0], x_label=&lt;object object&gt;, y_label=&lt;object object&gt;, plot_dividing_line=False, classification_list=['is_fresh_accretion', 'is_NEP_wind_recycling', 'is_mass_transfer', 'is_merger_gas', 'is_merger_star'], classification_colors={None: 'black', 'all': 'black', 'is_CGM_EP': array([0.7    , 0.46984, 0.196  ]), 'is_CGM_IP': array([0.224, 0.8  , 0.416]), 'is_CGM_NEP': array([0.196, 0.532, 0.7  ]), 'is_CGM_satellite': array([0.5       , 0.16266667, 0.1       ]), 'is_IP': [0.2980392156862745, 0.6862745098039216, 0.0], 'is_NEP_NYA': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_NEP_wind_recycling': [0.027450980392156862, 0.7372549019607844, 0.43137254901960786], 'is_fresh_accretion': [0.0392156862745098, 0.29411764705882354, 0.7764705882352941], 'is_in_CGM': 'black', 'is_in_galaxy_halo_interface': array([0.8  , 0.32 , 0.784]), 'is_mass_transfer': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_mass_transfer_NYA': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_merger': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_NYA': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_gas': [0.9019607843137255, 0.4666666666666667, 0.06666666666666667], 'is_merger_star': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_outside_any_gal_EP': array([0.7    , 0.46984, 0.196  ]), 'is_outside_any_gal_IP': array([0.224, 0.8  , 0.416]), 'is_preprocessed': [0.984313725490196, 0.5764705882352941, 0.09803921568627451], 'is_pristine': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_wind': [0.2980392156862745, 0.6862745098039216, 0.0]}, *args, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_stacked_radial_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_stacked_radial_data" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>ax (axis object) :</dt>
-<dd>What axis to put the plot on. By default, create a new one on a separate figure.</dd>
-<dt>x_range, y_range (list-like) :</dt>
-<dd>[ x_min, x_max ] or [ y_min, y_max ] for the displayed range.</dd>
-<dt>x_label, y_label (str) :</dt>
-<dd>Labels for axis. By default, redshift and f(M_star), respectively.</dd>
-<dt>plot_dividing_line (bool) :</dt>
-<dd>Whether or not to plot a line at the edge between stacked regions.</dd>
-</dl>
-</dd>
-</dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax</strong> (<em>axis object</em>) – What axis to put the plot on. By default, create a new one on a separate figure.</li>
+<li><strong>y_range</strong> (<em>x_range</em><em>,</em>) – [ x_min, x_max ] or [ y_min, y_max ] for the displayed range.</li>
+<li><strong>y_label</strong> (<em>x_label</em><em>,</em>) – Labels for axis. By default, redshift and f(M_star), respectively.</li>
+<li><strong>plot_dividing_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether or not to plot a line at the edge between stacked regions.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_stacked_time_dependent_data">
 <code class="descname">plot_stacked_time_dependent_data</code><span class="sig-paren">(</span><em>ax=&lt;object object&gt;, x_data='get_redshift', y_datas='get_categories_selected_quantity', x_range=[0.0, 0.9030899869919435], y_range=[0.0, 1.0], tick_redshifts=array([0.25, 0.5 , 1.  , 2.  , 3.  , 4.  , 5.  , 6.  , 7.  ]), time_x_axis=False, twin_redshift=False, x_label=&lt;object object&gt;, y_label=&lt;object object&gt;, plot_dividing_line=False, classification_list=['is_fresh_accretion', 'is_NEP_wind_recycling', 'is_mass_transfer', 'is_merger_gas', 'is_merger_star'], classification_colors={None: 'black', 'all': 'black', 'is_CGM_EP': array([0.7    , 0.46984, 0.196  ]), 'is_CGM_IP': array([0.224, 0.8  , 0.416]), 'is_CGM_NEP': array([0.196, 0.532, 0.7  ]), 'is_CGM_satellite': array([0.5       , 0.16266667, 0.1       ]), 'is_IP': [0.2980392156862745, 0.6862745098039216, 0.0], 'is_NEP_NYA': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_NEP_wind_recycling': [0.027450980392156862, 0.7372549019607844, 0.43137254901960786], 'is_fresh_accretion': [0.0392156862745098, 0.29411764705882354, 0.7764705882352941], 'is_in_CGM': 'black', 'is_in_galaxy_halo_interface': array([0.8  , 0.32 , 0.784]), 'is_mass_transfer': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_mass_transfer_NYA': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_merger': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_NYA': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_gas': [0.9019607843137255, 0.4666666666666667, 0.06666666666666667], 'is_merger_star': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_outside_any_gal_EP': array([0.7    , 0.46984, 0.196  ]), 'is_outside_any_gal_IP': array([0.224, 0.8  , 0.416]), 'is_preprocessed': [0.984313725490196, 0.5764705882352941, 0.09803921568627451], 'is_pristine': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_wind': [0.2980392156862745, 0.6862745098039216, 0.0]}, label=&lt;object object&gt;, show_label=True, label_kwargs={'fontsize': 22, 'xy': (0.0, 1.0225), 'xycoords': 'axes fraction'}, add_legend=True, hubble=None, omega_matter=None, legend_kwargs={'bbox_to_anchor': (0.5, -0.3), 'loc': 'center', 'ncol': 3}, *args, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_stacked_time_dependent_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_stacked_time_dependent_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a plot like the bottom panel of Fig. 3 in Angles-Alcazar+17</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>ax (axis object) :</dt>
-<dd>What axis to put the plot on. By default, create a new one on a separate figure.</dd>
-<dt>x_range, y_range (list-like) :</dt>
-<dd>[ x_min, x_max ] or [ y_min, y_max ] for the displayed range.</dd>
-<dt>x_label, y_label (str) :</dt>
-<dd>Labels for axis. By default, redshift and f(M_star), respectively.</dd>
-<dt>plot_dividing_line (bool) :</dt>
-<dd>Whether or not to plot a line at the edge between stacked regions.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax</strong> (<em>axis object</em>) – What axis to put the plot on. By default, create a new one on a separate figure.</li>
+<li><strong>y_range</strong> (<em>x_range</em><em>,</em>) – [ x_min, x_max ] or [ y_min, y_max ] for the displayed range.</li>
+<li><strong>y_label</strong> (<em>x_label</em><em>,</em>) – Labels for axis. By default, redshift and f(M_star), respectively.</li>
+<li><strong>plot_dividing_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether or not to plot a line at the edge between stacked regions.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -153,13 +165,7 @@ at least in ideas.</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -183,20 +189,21 @@ at least in ideas.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2018, Zachary Hafen.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
-      
-      |
-      <a href="_sources/linefinder.analyze_data.plot_worldlines.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.8.1 documentation</a> &#187;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Zachary Hafen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+    </div>
   </body>
 </html>

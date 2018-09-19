@@ -34,35 +34,35 @@ class Worldlines( simulation_data.TimeData ):
     '''Wrapper for analysis of all data products. It loads data in
     on-demand.
 
-        Args:
-            data_dir (str):
-                Data directory for the classified data
+    Args:
+        data_dir (str):
+            Data directory for the classified data
 
-            tag (str):
-                Identifying tag for the data to load.
+        tag (str):
+            Identifying tag for the data to load.
 
-            ids_tag (str):
-                Identifying tag for ids data. Defaults to tag.
+        ids_tag (str):
+            Identifying tag for ids data. Defaults to tag.
 
-            ptracks_tag (str):
-                Identifying tag for ptracks data. Defaults to tag.
+        ptracks_tag (str):
+            Identifying tag for ptracks data. Defaults to tag.
 
-            galids_tag (str):
-                Identifying tag for galids data. Defaults to tag.
+        galids_tag (str):
+            Identifying tag for galids data. Defaults to tag.
 
-            classifications_tag (str):
-                Identifying tag for classifications data. Defaults to tag.
+        classifications_tag (str):
+            Identifying tag for classifications data. Defaults to tag.
 
-            events_tag (str):
-                Identifying tag for events data. Defaults to tag.
+        events_tag (str):
+            Identifying tag for events data. Defaults to tag.
 
-            label (str):
-                Identifying label for the worldlines, used for plotting.
-                Defaults to tag.
+        label (str):
+            Identifying label for the worldlines, used for plotting.
+            Defaults to tag.
 
-            color (str):
-                What color to use when plotting.
-        '''
+        color (str):
+            What color to use when plotting.
+    '''
 
     def __init__(
         self,
@@ -1121,7 +1121,7 @@ class Worldlines( simulation_data.TimeData ):
         Args:
             data_key (str) : The data key in question.
 
-        Modifies:
+        Returns:
             self.data (dict) : If successful, stores the data here.
         '''
 
@@ -1146,7 +1146,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_is_fresh_accretion( self ):
         '''Find material classified as fresh accretion (pristine gas that has not recycled).
 
-        Modifies:
+        Returns:
             self.data['is_fresh_accretion'] ( np.ndarray ) : Result.
         '''
 
@@ -1160,7 +1160,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_is_NEP_wind_recycling( self ):
         '''Find material classified as non-externally-processed wind recycling.
 
-        Modifies:
+        Returns:
             self.data['is_NEP_wind_recycling'] ( np.ndarray ) : Result.
         '''
 
@@ -1175,7 +1175,7 @@ class Worldlines( simulation_data.TimeData ):
         Caution: This is calculated at the snapshot first after accretion. The safer option may be to calculate at the
         snapshot immediately before first accretion.
 
-        Modifies:
+        Returns:
             self.data['is_merger_star'] ( np.ndarray ) : Result.
         '''
 
@@ -1190,7 +1190,7 @@ class Worldlines( simulation_data.TimeData ):
         Caution: This is calculated at the snapshot first after accretion. The safer option may be to calculate at the
         snapshot immediately before first accretion.
 
-        Modifies:
+        Returns:
             self.data['is_merger_gas'] ( np.ndarray ) : Result.
         '''
 
@@ -1241,7 +1241,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_is_NEP_NYA( self ):
         '''Find material classified as NEP that is not yet accreted (NYA) onto the main galaxy.
 
-        Modifies:
+        Returns:
             self.data['is_mass_transfer_NYA'] ( np.ndarray ) : Result
         '''
 
@@ -1265,7 +1265,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_is_merger_NYA( self ):
         '''Find material classified as merger that is not yet accreted (NYA) onto the main galaxy.
 
-        Modifies:
+        Returns:
             self.data['is_merger_NYA'] ( np.ndarray ) : Result
         '''
 
@@ -1274,7 +1274,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_is_mass_transfer_NYA( self ):
         '''Find material classified as mass transfer that is not yet accreted (NYA) onto the main galaxy.
 
-        Modifies:
+        Returns:
             self.data['is_mass_transfer_NYA'] ( np.ndarray ) : Result
         '''
 
@@ -1304,7 +1304,13 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     def calc_is_in_CGM( self ):
-        '''Calculate material that is in the CGM.'''
+        '''Material that is in the CGM.
+
+        Returns:
+            self.data['is_in_CGM'] (np.ndarray) :
+                If True, the particle is currently in the CGM, as defined
+                in Hafen+18.
+        '''
 
         r_rvir = self.get_processed_data(
             'R',
@@ -1517,7 +1523,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_time( self ):
         '''Calc current time in the simulation.
 
-        Modifies:
+        Returns:
             self.data['time'] (np.ndarray) :
                 The value at index i is the time in the simulation
                 (i.e. the age of the universe) at that index.
@@ -1535,7 +1541,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_dt( self ):
         '''Calc time difference between snapshots.
 
-        Modifies:
+        Returns:
             self.data['dt'] (np.ndarray) : self.data['dt'][i] = light_travel_time[i+1] - light_travel_time[i]
         '''
 
@@ -1553,7 +1559,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_t_EP( self ):
         '''Calculate the time spent in another galaxy prior to accretion onto the main galaxy of the simulation.
 
-        Modifies:
+        Returns:
             self.data['t_EP'] (np.ndarray) :
                 self.data['t_EP'][i] = time particle i spent in another galaxy prior to first accretion.
         '''
@@ -1582,7 +1588,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_d_sat_scaled_min( self ):
         '''Calculate the minimum distance to a a galaxy other than the main galaxy, prior to accretion onto the main gal.
 
-        Modifies:
+        Returns:
             self.data['d_sat_scaled_min'] (np.ndarray of shape (n_particles,)) :
                 self.data['d_sat_scaled_min'][i] = min( d_sat_scaled, prior to first acc for particle i )
         '''
@@ -1616,7 +1622,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_ind_star( self ):
         '''Calculate the index at which a particle is first recorded as being a star.
 
-        Modifies:
+        Returns:
             self.data['ind_star'] (np.ndarray of shape (n_particles,)) :
                 self.data['ind_star'][i] = Index at which particle is first recorded as being a star.
         '''
@@ -1664,7 +1670,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_n_out( self ):                                                     
         '''The number of times a particle has left the main galaxy.             
                                                                                 
-        Modifies:                                                               
+        Returns:                                                               
             self.data['n_out'] (array-like):                                    
                 result[i,j] number of times that particle i has left the galaxy 
                 prior to index j.                                               
@@ -1679,7 +1685,7 @@ class Worldlines( simulation_data.TimeData ):
     def calc_n_in( self ):                                                     
         '''The number of times a particle has entered the main galaxy.             
                                                                                 
-        Modifies:                                                               
+        Returns:                                                               
             self.data['n_out'] (array-like):                                    
                 result[i,j] number of times that particle i has entered
                 the galaxy prior to index j.                                               
@@ -1924,7 +1930,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
             ptype (str) :
                 What particle type to select?
 
-        Modifies:
+        Returns:
             self.masks (list) :
                 Clears and adds masks to self.masks.
         '''
@@ -1955,7 +1961,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
             ptype (str) :
                 What particle type to select?
 
-        Modifies:
+        Returns:
             self.masks (list) :
                 Clears and adds masks to self.masks.
         '''
@@ -1970,7 +1976,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         ptype_value (int) :
             In the data, what ptype do we select?
 
-        Modifies:
+        Returns:
             self.masks (list) :
                 Adds masks needed to select only particles in a galaxy.
         '''
@@ -1986,7 +1992,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         ptype_value (int) :
             In the data, what ptype do we select?
 
-        Modifies:
+        Returns:
             self.masks (list) :
                 Adds masks needed to select only particles in a galaxy.
         '''
@@ -2007,7 +2013,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         ptype_value (int) :
             In the data, what ptype do we select?
 
-        Modifies:
+        Returns:
             self.masks (list) :
                 Adds masks needed to select only particles outside all galaxies.
         '''

@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>linefinder.analyze_data.worldline_set module &#8212; linefinder 0.8.1 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -15,15 +15,20 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
+    <link rel="search" title="Search" href="search.html" /> 
   </head><body>
-  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.8.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -48,21 +53,24 @@ dictionary of the different sets instead.</p>
 <em class="property">classmethod </em><code class="descname">from_tag_expansion</code><span class="sig-paren">(</span><em>defaults</em>, <em>tag_expansion</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldline_set.html#WorldlineSet.from_tag_expansion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldline_set.WorldlineSet.from_tag_expansion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a worldline set using a bash-style expansion for the
 variations.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>defaults (dict) :</dt>
-<dd>Set of default arguments for loading worldline data.</dd>
-<dt>tag_expansion (str) :</dt>
-<dd>String that can be expanded through wildcards to find
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>defaults</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Set of default arguments for loading worldline data.</li>
+<li><strong>tag_expansion</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – String that can be expanded through wildcards to find
 different worldline data. For example, ‘analyze_*’ would look
 for all data files with tags starting with ‘analyze’ and ending
-with something else;</dd>
-</dl>
-</dd>
-<dt>Returns:</dt>
-<dd>worldline_set (WorldlineSet instance)</dd>
-</dl>
+with something else;</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">worldline_set (WorldlineSet instance)</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -80,23 +88,24 @@ with something else;</dd>
 <code class="descname">store_quantity</code><span class="sig-paren">(</span><em>output_filepath</em>, <em>quantity_method='get_categories_selected_quantity_fraction'</em>, <em>variations=None</em>, <em>verbose=True</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldline_set.html#WorldlineSet.store_quantity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldline_set.WorldlineSet.store_quantity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Iterate over each Worldlines class in the set, obtaining a
 specified quantity and then saving that to an .hdf5 file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>output_filepath (str) :</dt>
-<dd>Full path to store the output at.</dd>
-<dt>quantity_method (str) :</dt>
-<dd>What method to use for getting the quantity out.</dd>
-<dt>variations (dict) :</dt>
-<dd>If provided, we get different quantities from each Worldlines
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>output_filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Full path to store the output at.</li>
+<li><strong>quantity_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – What method to use for getting the quantity out.</li>
+<li><strong>variations</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – If provided, we get different quantities from each Worldlines
 instance by passing different args to quantity_method according
 to variations. kwargs is taken as the default arguments when
-none are specified.</dd>
-<dt><a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs :</dt>
-<dd>Arguments to be passed to quantity_method.</dd>
-</dl>
-</dd>
-</dl>
+none are specified.</li>
+<li><strong>**kwargs</strong> (<em>*args</em><em>,</em>) – <p>Arguments to be passed to quantity_method.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -107,22 +116,23 @@ assumes that the differences between the Worldlines is a redshift
 difference, and that the label for each Worldlines class contains
 the relevant snapshot number. It then parses the label for that
 snapshot number, and passes it to store_dependent_quantity as a key.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>output_filepath (str) :</dt>
-<dd>Where to save the output data.</dd>
-<dt>max_snum (int) :</dt>
-<dd>Maximum snapshot number the snapshots can go to. Used for parsing
-the label as well as specifying the ind.</dd>
-<dt>choose_snum_by (str) :</dt>
-<dd>How to to vary the snapshot used when the arguments are passed
-to the Worldlines.</dd>
-<dt><a href="#id5"><span class="problematic" id="id6">*</span></a>args, <a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs :</dt>
-<dd>Arguments passed to self.store_dependent_quantity()</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>output_filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Where to save the output data.</li>
+<li><strong>max_snum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Maximum snapshot number the snapshots can go to. Used for parsing
+the label as well as specifying the ind.</li>
+<li><strong>choose_snum_by</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – How to to vary the snapshot used when the arguments are passed
+to the Worldlines.</li>
+<li><strong>**kwargs</strong> (<em>*args</em><em>,</em>) – <p>Arguments passed to self.store_dependent_quantity()</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -134,13 +144,7 @@ to the Worldlines.</dd>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -164,20 +168,21 @@ to the Worldlines.</dd>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2018, Zachary Hafen.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
-      
-      |
-      <a href="_sources/linefinder.analyze_data.worldline_set.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.8.1 documentation</a> &#187;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Zachary Hafen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+    </div>
   </body>
 </html>

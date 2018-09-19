@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>linefinder.select module &#8212; linefinder 0.8.1 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -15,15 +15,20 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
+    <link rel="search" title="Search" href="search.html" /> 
   </head><body>
-  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.8.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -76,20 +81,32 @@ self.child_ids_to_sample (np.ndarray, optional) : An array of the child IDs to s
 <dt id="linefinder.select.IDSampler.identify_child_particles">
 <code class="descname">identify_child_particles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSampler.identify_child_particles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSampler.identify_child_particles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the IDs and Child IDs of all particles that have non-zero Child IDs.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd>child_particles (set) : A set of all the IDs and Child IDs that have non-zero Child IDs.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A set of all the IDs and Child IDs that have non-zero Child IDs.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">child_particles (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)">set</a>)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="linefinder.select.IDSampler.identify_duplicate_ids">
 <code class="descname">identify_duplicate_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSampler.identify_duplicate_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSampler.identify_duplicate_ids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all IDs that have duplicates at the latest snapshot. This draws data from the same sample as the original.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd>duplicate_ids (set) : A set of all IDs that have duplicates at snum_end.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A set of all IDs that have duplicates at snum_end.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">duplicate_ids (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)">set</a>)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -118,23 +135,35 @@ self.child_ids_to_sample (np.ndarray, optional) : An array of the child IDs to s
 <dt id="linefinder.select.IDSelector.format_selected_ids">
 <code class="descname">format_selected_ids</code><span class="sig-paren">(</span><em>selected_ids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSelector.format_selected_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSelector.format_selected_ids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Format the data back into arrays.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd>ids (np.array): Array of selected IDs
-child_ids (np.array, optional) : Array of selected child IDS</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Array of selected IDs
+child_ids (np.array, optional) : Array of selected child IDS</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">ids (np.array)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="linefinder.select.IDSelector.get_selected_ids">
 <code class="descname">get_selected_ids</code><span class="sig-paren">(</span><em>data_filters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSelector.get_selected_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSelector.get_selected_ids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a set of all ids that match a set of data filters.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>data_filters (list of dicts): The data filters to apply.</dd>
-<dt>Returns:</dt>
-<dd>selected_ids (set): Set of selected ids.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_filters</strong> (<em>list of dicts</em>) – The data filters to apply.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Set of selected ids.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">selected_ids (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)">set</a>)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -142,12 +171,18 @@ child_ids (np.array, optional) : Array of selected child IDS</dd>
 <code class="descname">get_selected_ids_jug</code><span class="sig-paren">(</span><em>data_filters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSelector.get_selected_ids_jug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSelector.get_selected_ids_jug" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parallel version of self.get_selected_ids(). Requires a lot of memory, because it will have multiple
 snapshots open at once.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>data_filters (list of dicts): The data filters to apply.</dd>
-<dt>Returns:</dt>
-<dd>selected_ids (set): Set of selected ids.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_filters</strong> (<em>list of dicts</em>) – The data filters to apply.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Set of selected ids.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">selected_ids (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)">set</a>)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -155,24 +190,36 @@ snapshots open at once.</p>
 <code class="descname">get_selected_ids_parallel</code><span class="sig-paren">(</span><em>data_filters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSelector.get_selected_ids_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSelector.get_selected_ids_parallel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parallel version of self.get_selected_ids(). Requires a lot of memory, because it will have multiple
 snapshots open at once.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>data_filters (list of dicts): The data filters to apply.</dd>
-<dt>Returns:</dt>
-<dd>selected_ids (set): Set of selected ids.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_filters</strong> (<em>list of dicts</em>) – The data filters to apply.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Set of selected ids.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">selected_ids (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)">set</a>)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="linefinder.select.IDSelector.get_selected_ids_snapshot">
 <code class="descname">get_selected_ids_snapshot</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSelector.get_selected_ids_snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSelector.get_selected_ids_snapshot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the IDs for a particular snapshot. Formatted this way primarily for parallelization.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>args (data_filters, kwargs) : Information needed to get the IDs out for a snapshot.</dd>
-<dt>Returns:</dt>
-<dd>selected_ids_snapshot (set) : The IDs in a snapshot that fit the required condition.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> (<em>data_filters</em><em>, </em><em>kwargs</em>) – Information needed to get the IDs out for a snapshot.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The IDs in a snapshot that fit the required condition.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">selected_ids_snapshot (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)">set</a>)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -184,20 +231,28 @@ snapshots open at once.</p>
 <dt id="linefinder.select.IDSelector.select_ids">
 <code class="descname">select_ids</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSelector.select_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSelector.select_ids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a set of all ids that match a set of data filters to a file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>data_filters (dict of dicts): The data filters to apply.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_filters</strong> (<em>dict of dicts</em>) – The data filters to apply.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="linefinder.select.IDSelector.select_ids_jug">
 <code class="descname">select_ids_jug</code><span class="sig-paren">(</span><em>data_filters={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSelector.select_ids_jug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSelector.select_ids_jug" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a set of all ids that match a set of data filters to a file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>data_filters (dict of dicts): The data filters to apply.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_filters</strong> (<em>dict of dicts</em>) – The data filters to apply.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -210,42 +265,62 @@ snapshots open at once.</p>
 <dt id="linefinder.select.SnapshotIDSelector.filter_data">
 <code class="descname">filter_data</code><span class="sig-paren">(</span><em>data_filters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#SnapshotIDSelector.filter_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.SnapshotIDSelector.filter_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Put the filters on the dataset</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>data_filters (list of dicts): The data filters to apply.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_filters</strong> (<em>list of dicts</em>) – The data filters to apply.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="linefinder.select.SnapshotIDSelector.format_ids">
 <code class="descname">format_ids</code><span class="sig-paren">(</span><em>selected_ids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#SnapshotIDSelector.format_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.SnapshotIDSelector.format_ids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turns the ids into a set to be passed back.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>selected_ids (np.array or list of np.arrays) : IDs to format into a set.</dd>
-<dt>Returns:</dt>
-<dd>ids_set (set) : IDs as a set.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>selected_ids</strong> (<em>np.array</em><em> or </em><em>list of np.arrays</em>) – IDs to format into a set.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">IDs as a set.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ids_set (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)">set</a>)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="linefinder.select.SnapshotIDSelector.get_ids">
 <code class="descname">get_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#SnapshotIDSelector.get_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.SnapshotIDSelector.get_ids" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Returns:</dt>
-<dd>ids : IDs for particles that match the filtered requirements.
-child_ids (optional) : Child IDs for the particles that match the filtered requirements.</dd>
-</dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">IDs for particles that match the filtered requirements.
+child_ids (optional) : Child IDs for the particles that match the filtered requirements.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">ids</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="linefinder.select.SnapshotIDSelector.select_ids_snapshot">
 <code class="descname">select_ids_snapshot</code><span class="sig-paren">(</span><em>data_filters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#SnapshotIDSelector.select_ids_snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.SnapshotIDSelector.select_ids_snapshot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select the IDs that match specified conditions in a given snapshot.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>data_filters (list of dicts): The data filters to apply.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_filters</strong> (<em>list of dicts</em>) – The data filters to apply.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -257,13 +332,7 @@ child_ids (optional) : Child IDs for the particles that match the filtered requi
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -287,20 +356,21 @@ child_ids (optional) : Child IDs for the particles that match the filtered requi
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2018, Zachary Hafen.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
-      
-      |
-      <a href="_sources/linefinder.select.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.8.1 documentation</a> &#187;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Zachary Hafen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+    </div>
   </body>
 </html>
