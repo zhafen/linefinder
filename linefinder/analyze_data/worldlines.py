@@ -1376,6 +1376,19 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_CGM_to_IGM( self ):
+
+        r_rvir = self.get_processed_data(
+            'R',
+            scale_key = 'Rvir',
+            scale_a_power = 1.,
+            scale_h_power = -1.,
+        )
+
+        
+
+    ########################################################################
+
     def calc_is_CGM_EP( self ):
 
         self.data['is_CGM_EP'] = (
@@ -1645,6 +1658,23 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def get_event_id( self, boolean ):
+        '''Get an "Event ID" for a given boolean, where the particle moves
+        from being in a True state to a False state, or vice vers.
+
+        Args:
+            boolean (array-like):
+                If True, the event happens at the given index.
+
+        Returns:
+            array-like, same dimensions as boolean minus one column:
+                A value of -1 means the particle has switched from True to
+                False. A value of 1 means the particle has switched from False
+                to True. A value of 0 indicates no change.
+        '''
+
+        return boolean[:,:-1].astype( int ) - boolean[:,1:].astype( int )
+
     def count_n_events( self, boolean ):
         '''Counts the number of events that occur up to this point.
 
@@ -1671,9 +1701,9 @@ class Worldlines( simulation_data.TimeData ):
         '''The number of times a particle has left the main galaxy.             
                                                                                 
         Returns:                                                               
-            self.data['n_out'] (array-like):                                    
-                result[i,j] number of times that particle i has left the galaxy 
-                prior to index j.                                               
+            array-like:                                    
+                self.data['n_out'], where the value of [i,j]th index is number
+                of times that particle i has left the galaxy prior to index j.                                               
         ''' 
 
         is_leaving = self.get_data( 'gal_event_id' ) == -1
@@ -1681,6 +1711,8 @@ class Worldlines( simulation_data.TimeData ):
         n_out = self.count_n_events( is_leaving )
 
         self.data['n_out'] = n_out
+
+        return self.data['n_out']
 
     def calc_n_in( self ):                                                     
         '''The number of times a particle has entered the main galaxy.             

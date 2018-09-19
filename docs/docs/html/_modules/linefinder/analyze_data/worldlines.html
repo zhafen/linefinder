@@ -1415,6 +1415,19 @@
 
     <span class="c1">########################################################################</span>
 
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_to_IGM"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_IGM">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_to_IGM</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="n">r_rvir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_processed_data</span><span class="p">(</span>
+            <span class="s1">&#39;R&#39;</span><span class="p">,</span>
+            <span class="n">scale_key</span> <span class="o">=</span> <span class="s1">&#39;Rvir&#39;</span><span class="p">,</span>
+            <span class="n">scale_a_power</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
+            <span class="n">scale_h_power</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+        
+
+    <span class="c1">########################################################################</span>
+
 <div class="viewcode-block" id="Worldlines.calc_is_CGM_EP"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_EP">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_EP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_EP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
@@ -1710,16 +1723,18 @@
         <span class="sd">&#39;&#39;&#39;The number of times a particle has left the main galaxy.             </span>
 <span class="sd">                                                                                </span>
 <span class="sd">        Returns:                                                               </span>
-<span class="sd">            self.data[&#39;n_out&#39;] (array-like):                                    </span>
-<span class="sd">                result[i,j] number of times that particle i has left the galaxy </span>
-<span class="sd">                prior to index j.                                               </span>
+<span class="sd">            array-like:                                    </span>
+<span class="sd">                self.data[&#39;n_out&#39;], where the value of [i,j]th index is number</span>
+<span class="sd">                of times that particle i has left the galaxy prior to index j.                                               </span>
 <span class="sd">        &#39;&#39;&#39;</span> 
 
         <span class="n">is_leaving</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;gal_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
 
         <span class="n">n_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_n_events</span><span class="p">(</span> <span class="n">is_leaving</span> <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_out</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_out</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_out&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Worldlines.calc_n_in"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_n_in">[docs]</a>    <span class="k">def</span> <span class="nf">calc_n_in</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>                                                     
         <span class="sd">&#39;&#39;&#39;The number of times a particle has entered the main galaxy.             </span>
