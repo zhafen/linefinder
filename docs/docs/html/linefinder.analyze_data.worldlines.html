@@ -299,6 +299,24 @@ Defaults to tag.</li>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_CGM_event_id">
+<code class="descname">calc_CGM_event_id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_CGM_event_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_CGM_event_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indication of when a particle moves in or out of the CGM.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A value of -1 means the particle has left the CGM.
+A value of 1 means the particle has entered the CGM.
+A value of 0 indicates no change.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like, (self.n_particles, self.n_snaps - 1)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.calc_d_sat_scaled_min">
 <code class="descname">calc_d_sat_scaled_min</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_d_sat_scaled_min"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_d_sat_scaled_min" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the minimum distance to a a galaxy other than the main galaxy, prior to accretion onto the main gal.</p>
@@ -892,6 +910,27 @@ mass in the main galaxy for a particular particle type.</p>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">data_ind_star (np.ndarray)</p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.get_event_id">
+<code class="descname">get_event_id</code><span class="sig-paren">(</span><em>boolean</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.get_event_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.get_event_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an “Event ID” for a given boolean, where the particle moves
+from being in a True state to a False state, or vice versa.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>boolean</strong> (<em>array-like</em>) – If True, the event happens at the given index.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A value of -1 means the particle has switched from True to
+False. A value of 1 means the particle has switched from False
+to True. A value of 0 indicates no change.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">array-like, same dimensions as boolean minus one column</td>
 </tr>
 </tbody>
 </table>

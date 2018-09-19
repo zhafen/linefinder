@@ -1697,6 +1697,41 @@
 
     <span class="c1">########################################################################</span>
 
+<div class="viewcode-block" id="Worldlines.get_event_id"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.get_event_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_event_id</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">boolean</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get an &quot;Event ID&quot; for a given boolean, where the particle moves</span>
+<span class="sd">        from being in a True state to a False state, or vice versa.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            boolean (array-like):</span>
+<span class="sd">                If True, the event happens at the given index.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, same dimensions as boolean minus one column:</span>
+<span class="sd">                A value of -1 means the particle has switched from True to</span>
+<span class="sd">                False. A value of 1 means the particle has switched from False</span>
+<span class="sd">                to True. A value of 0 indicates no change.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">boolean</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">int</span> <span class="p">)</span> <span class="o">-</span> <span class="n">boolean</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">int</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Worldlines.calc_CGM_event_id"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_CGM_event_id">[docs]</a>    <span class="k">def</span> <span class="nf">calc_CGM_event_id</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Indication of when a particle moves in or out of the CGM.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, (self.n_particles, self.n_snaps - 1):</span>
+<span class="sd">                A value of -1 means the particle has left the CGM.</span>
+<span class="sd">                A value of 1 means the particle has entered the CGM.</span>
+<span class="sd">                A value of 0 indicates no change.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;CGM_event_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_event_id</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;CGM_event_id&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
 <div class="viewcode-block" id="Worldlines.count_n_events"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.count_n_events">[docs]</a>    <span class="k">def</span> <span class="nf">count_n_events</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">boolean</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Counts the number of events that occur up to this point.</span>
 

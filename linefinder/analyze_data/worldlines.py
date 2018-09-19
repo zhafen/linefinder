@@ -1660,7 +1660,7 @@ class Worldlines( simulation_data.TimeData ):
 
     def get_event_id( self, boolean ):
         '''Get an "Event ID" for a given boolean, where the particle moves
-        from being in a True state to a False state, or vice vers.
+        from being in a True state to a False state, or vice versa.
 
         Args:
             boolean (array-like):
@@ -1674,6 +1674,24 @@ class Worldlines( simulation_data.TimeData ):
         '''
 
         return boolean[:,:-1].astype( int ) - boolean[:,1:].astype( int )
+
+    def calc_CGM_event_id( self ):
+        '''Indication of when a particle moves in or out of the CGM.
+
+        Returns:
+            array-like, (n_particles, n_snaps - 1):
+                A value of -1 means the particle has left the CGM.
+                A value of 1 means the particle has entered the CGM.
+                A value of 0 indicates no change.
+        '''
+
+        self.data['CGM_event_id'] = self.get_event_id(
+            self.get_data( 'is_in_CGM' ),
+        )
+
+        return self.data['CGM_event_id']
+
+    ########################################################################
 
     def count_n_events( self, boolean ):
         '''Counts the number of events that occur up to this point.

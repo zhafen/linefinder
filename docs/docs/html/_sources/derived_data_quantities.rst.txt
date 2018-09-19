@@ -12,6 +12,7 @@ The quantities can be accessed in two ways:
 .. autoclass:: linefinder.analyze_data.worldlines.Worldlines
     :show-inheritance:
 
+    .. automethod:: calc_CGM_event_id
     .. automethod:: calc_abs_phi
     .. automethod:: calc_ang_momentum
     .. automethod:: calc_d_sat_scaled_min
