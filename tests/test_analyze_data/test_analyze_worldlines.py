@@ -490,7 +490,34 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     def test_is_CGM_to_satellite( self ):
 
-        assert False
+        # Setup test data
+        self.worldlines.ptracks._base_data_shape = ( 4, 4 )
+        self.worldlines.data['is_in_other_gal'] = np.array([
+            [ 0, 1, 0, 1, ],
+            [ 1, 0, 0, 1, ],
+            [ 1, 1, 1, 1, ],
+            [ 1, 0, 0, 1, ],
+        ])
+        self.worldlines.data['is_in_CGM'] = np.array([
+            [ 1, 1, 1, 1, ],
+            [ 1, 1, 0, 1, ],
+            [ 0, 1, 0, 0, ],
+            [ 1, 1, 0, 1, ],
+        ])
+
+        expected = np.array([
+            [ 0, 0, 1, 0, ],
+            [ 0, 1, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 1, 0, 0, ],
+        ]).astype( bool )
+
+        # Actual calculation
+        self.worldlines.calc_is_CGM_to_satellite()
+
+        actual = self.worldlines.data['is_CGM_to_IGM']
+
+        npt.assert_allclose( expected, actual )
 
     ########################################################################
 

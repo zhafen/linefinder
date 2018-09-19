@@ -1379,6 +1379,10 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_CGM_to_other( self, CGM_to_other_event ):
+
+        pass
+
     def calc_is_CGM_to_IGM( self ):
         '''Material that's currently in the CGM, and next enters the IGM.
 
@@ -1419,6 +1423,10 @@ class Worldlines( simulation_data.TimeData ):
         self.data['is_CGM_to_IGM'] = is_CGM_to_IGM
 
         return self.data['is_CGM_to_IGM']
+
+    def calc_is_CGM_to_satellite( self ):
+
+        pass
 
     ########################################################################
 
