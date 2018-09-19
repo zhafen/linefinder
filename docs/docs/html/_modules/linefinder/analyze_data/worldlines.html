@@ -48,6 +48,7 @@
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numpy.testing</span> <span class="k">as</span> <span class="nn">npt</span>
+<span class="kn">import</span> <span class="nn">scipy.ndimage</span>
 
 <span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.ahf</span> <span class="k">as</span> <span class="nn">analyze_ahf_data</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.generic_data</span> <span class="k">as</span> <span class="nn">generic_data</span>
@@ -1048,6 +1049,8 @@
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Get the maximum value attained by a quantity for each time an event</span>
 <span class="sd">        occurs.</span>
+<span class="sd">        TODO: This can be greatly updated and sped up using</span>
+<span class="sd">        https://docs.scipy.org/doc/scipy/reference/ndimage.html#measurements</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data_key (str):</span>
@@ -1416,15 +1419,45 @@
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="Worldlines.calc_is_CGM_to_IGM"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_IGM">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_to_IGM</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, and next enters the IGM.</span>
 
+<span class="sd">        Returns:</span>
+<span class="sd">            boolean array-like, (n_particles, n_snaps):</span>
+<span class="sd">                The [i,j]th index indicates that particle i will transfer from</span>
+<span class="sd">                the CGM to the IGM after index j.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Did the particle leave the CGM and enter the IGM?</span>
+        <span class="n">leaves_CGM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="n">leaves_CGM</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
         <span class="n">r_rvir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_processed_data</span><span class="p">(</span>
             <span class="s1">&#39;R&#39;</span><span class="p">,</span>
             <span class="n">scale_key</span> <span class="o">=</span> <span class="s1">&#39;Rvir&#39;</span><span class="p">,</span>
             <span class="n">scale_a_power</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
             <span class="n">scale_h_power</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="n">in_IGM</span> <span class="o">=</span> <span class="p">(</span> <span class="n">r_rvir</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">OUTER_CGM_BOUNDARY</span> <span class="p">)</span>
+        <span class="n">CGM_to_IGM_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span> <span class="n">leaves_CGM</span> <span class="o">&amp;</span> <span class="n">in_IGM</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span>
 
-        
+        <span class="c1"># Find contiguous regions</span>
+        <span class="n">labeled_is_in_CGM</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
+            <span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">find_objects</span><span class="p">(</span> <span class="n">labeled_is_in_CGM</span> <span class="p">)</span>
+
+        <span class="c1"># Apply classification to contiguous regions</span>
+        <span class="n">is_CGM_to_IGM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">sl</span> <span class="ow">in</span> <span class="n">slices</span><span class="p">:</span>
+            <span class="n">is_CGM_to_IGM</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span> <span class="n">CGM_to_IGM_event</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_IGM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">is_CGM_to_IGM</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_IGM&#39;</span><span class="p">]</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -1718,7 +1751,7 @@
         <span class="sd">&#39;&#39;&#39;Indication of when a particle moves in or out of the CGM.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            array-like, (self.n_particles, self.n_snaps - 1):</span>
+<span class="sd">            array-like, (n_particles, n_snaps - 1):</span>
 <span class="sd">                A value of -1 means the particle has left the CGM.</span>
 <span class="sd">                A value of 1 means the particle has entered the CGM.</span>
 <span class="sd">                A value of 0 indicates no change.</span>

@@ -455,6 +455,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
     def test_is_CGM_to_IGM( self, mock_get_processed_data ):
 
         # Setup test data
+        self.worldlines.ptracks._base_data_shape = ( 4, 4 )
         mock_get_processed_data.side_effect = [
             # R/R_vir
             np.array([ 
@@ -476,7 +477,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
             [ 0, 1, 0, 0, ],
             [ 0, 1, 0, 0, ],
             [ 0, 0, 0, 1, ],
-        ])
+        ]).astype( bool )
 
         # Actual calculation
         self.worldlines.calc_is_CGM_to_IGM()

@@ -9,6 +9,7 @@
 import copy
 import numpy as np
 import numpy.testing as npt
+import scipy.ndimage
 
 import galaxy_dive.analyze_data.ahf as analyze_ahf_data
 import galaxy_dive.analyze_data.generic_data as generic_data
@@ -1009,6 +1010,8 @@ class Worldlines( simulation_data.TimeData ):
     ):
         '''Get the maximum value attained by a quantity for each time an event
         occurs.
+        TODO: This can be greatly updated and sped up using
+        https://docs.scipy.org/doc/scipy/reference/ndimage.html#measurements
 
         Args:
             data_key (str):
@@ -1377,15 +1380,45 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     def calc_is_CGM_to_IGM( self ):
+        '''Material that's currently in the CGM, and next enters the IGM.
 
+        Returns:
+            boolean array-like, (n_particles, n_snaps):
+                The [i,j]th index indicates that particle i will transfer from
+                the CGM to the IGM after index j.
+        '''
+
+        # Did the particle leave the CGM and enter the IGM?
+        leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
+        leaves_CGM[:,:-1] = self.get_data( 'CGM_event_id' ) == -1
         r_rvir = self.get_processed_data(
             'R',
             scale_key = 'Rvir',
             scale_a_power = 1.,
             scale_h_power = -1.,
         )
+        in_IGM = ( r_rvir > config.OUTER_CGM_BOUNDARY )
+        CGM_to_IGM_event = np.roll( leaves_CGM & in_IGM, 1 )
 
-        
+        # Find contiguous regions
+        labeled_is_in_CGM, n_features = scipy.ndimage.label(
+            self.get_data( 'is_in_CGM' ),
+            np.array([
+                [ 0, 0, 0, ],
+                [ 1, 1, 1, ],
+                [ 0, 0, 0, ],
+            ]),
+        )
+        slices = scipy.ndimage.find_objects( labeled_is_in_CGM )
+
+        # Apply classification to contiguous regions
+        is_CGM_to_IGM = np.zeros( self.base_data_shape ).astype( bool )
+        for sl in slices:
+            is_CGM_to_IGM[sl] = np.any( CGM_to_IGM_event[sl] )
+
+        self.data['is_CGM_to_IGM'] = is_CGM_to_IGM
+
+        return self.data['is_CGM_to_IGM']
 
     ########################################################################
 
