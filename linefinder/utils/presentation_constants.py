@@ -43,7 +43,8 @@ CLASSIFICATION_LABELS = {
     'is_CGM_satellite': 'Satellite ISM',
     'is_outside_any_gal_EP': 'Satellite Wind',
     'is_outside_any_gal_IP': 'Wind',
-    'is_CGM_to_IGM': 'CGM-IGM',
+    'is_CGM_to_IGM': 'ejected',
+    'is_CGM_to_gal_or_interface': 'accreted',
 }
 
 # These are in line with the colors used in Angles-Alcazar2017
@@ -101,6 +102,7 @@ CLASSIFICATION_COLORS_B = {
     'is_merger_star': list( colors.hex2color( '#E32F0E' ) ),
     'is_merger_gas': list( colors.hex2color( '#E67711' ) ),
     'is_CGM_to_IGM': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[0],
+    'is_CGM_to_gal_or_interface': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[1],
 }
 # This set is revised again to have greater variation in brightness
 # Revised to have greater variation in brightness
@@ -228,4 +230,5 @@ CLASSIFICATIONS_CGM_ORIGIN = [
 # This set of classifications is centered on the fate of the CGM
 CLASSIFICATIONS_CGM_FATE = [
     'is_CGM_to_IGM',
+    'is_CGM_to_gal_or_interface',
 ]

@@ -1431,8 +1431,8 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            boolean array-like, (n_particles, n_snaps):</span>
-<span class="sd">                The [i,j]th index indicates that particle i will transfer from</span>
-<span class="sd">                the CGM to the other category after index j.</span>
+<span class="sd">                Array where the value of [i,j]th index indicates if particle i</span>
+<span class="sd">                will transfer from the CGM to the other category after index j.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="c1"># Format event</span>
@@ -1461,8 +1461,8 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            boolean array-like, (n_particles, n_snaps):</span>
-<span class="sd">                The [i,j]th index indicates that particle i will transfer from</span>
-<span class="sd">                the CGM to the IGM after index j.</span>
+<span class="sd">                Array where the value of [i,j]th index indicates if particle i</span>
+<span class="sd">                will transfer from the CGM to the IGM after index j.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="c1"># Did the particle leave the CGM and enter the IGM?</span>
@@ -1482,6 +1482,32 @@
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_IGM&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_to_gal_or_interface"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_gal_or_interface">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_to_gal_or_interface</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, and next enters either the</span>
+<span class="sd">        galaxy or the galaxy-halo interface.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            boolean array-like, (n_particles, n_snaps):</span>
+<span class="sd">                Array where the value of [i,j]th index indicates if particle i</span>
+<span class="sd">                will transfer from the CGM to either the galaxy or galaxy-halo</span>
+<span class="sd">                interface after index j.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Did the particle leave the CGM and enter the galaxy or the interface?</span>
+        <span class="n">leaves_CGM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="n">leaves_CGM</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">is_in_gal_or_interface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mask_or</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_main_gal&#39;</span> <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_galaxy_halo_interface&#39;</span> <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">CGM_to_gal_or_interface_event</span> <span class="o">=</span> <span class="n">leaves_CGM</span> <span class="o">&amp;</span> <span class="n">is_in_gal_or_interface</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_gal_or_interface&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_is_CGM_to_other</span><span class="p">(</span>
+            <span class="n">CGM_to_gal_or_interface_event</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_gal_or_interface&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Worldlines.calc_is_CGM_to_satellite"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_satellite">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_to_satellite</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
 

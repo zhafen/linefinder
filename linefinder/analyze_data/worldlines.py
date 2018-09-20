@@ -1392,8 +1392,8 @@ class Worldlines( simulation_data.TimeData ):
 
         Returns:
             boolean array-like, (n_particles, n_snaps):
-                The [i,j]th index indicates that particle i will transfer from
-                the CGM to the other category after index j.
+                Array where the value of [i,j]th index indicates if particle i
+                will transfer from the CGM to the other category after index j.
         '''
 
         # Format event
@@ -1422,8 +1422,8 @@ class Worldlines( simulation_data.TimeData ):
 
         Returns:
             boolean array-like, (n_particles, n_snaps):
-                The [i,j]th index indicates that particle i will transfer from
-                the CGM to the IGM after index j.
+                Array where the value of [i,j]th index indicates if particle i
+                will transfer from the CGM to the IGM after index j.
         '''
 
         # Did the particle leave the CGM and enter the IGM?
@@ -1443,6 +1443,32 @@ class Worldlines( simulation_data.TimeData ):
         )
 
         return self.data['is_CGM_to_IGM']
+
+    def calc_is_CGM_to_gal_or_interface( self ):
+        '''Material that's currently in the CGM, and next enters either the
+        galaxy or the galaxy-halo interface.
+
+        Returns:
+            boolean array-like, (n_particles, n_snaps):
+                Array where the value of [i,j]th index indicates if particle i
+                will transfer from the CGM to either the galaxy or galaxy-halo
+                interface after index j.
+        '''
+
+        # Did the particle leave the CGM and enter the galaxy or the interface?
+        leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
+        leaves_CGM[:,:-1] = self.get_data( 'CGM_event_id' ) == -1
+        is_in_gal_or_interface = np.ma.mask_or(
+            self.get_data( 'is_in_main_gal' ),
+            self.get_data( 'is_in_galaxy_halo_interface' ),
+        )
+        CGM_to_gal_or_interface_event = leaves_CGM & is_in_gal_or_interface
+
+        self.data['is_CGM_to_gal_or_interface'] = self.get_is_CGM_to_other(
+            CGM_to_gal_or_interface_event,
+        )
+
+        return self.data['is_CGM_to_gal_or_interface']
 
     def calc_is_CGM_to_satellite( self ):
 

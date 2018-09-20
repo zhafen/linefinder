@@ -26,6 +26,7 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_is_CGM_NEP
     .. automethod:: calc_is_CGM_satellite
     .. automethod:: calc_is_CGM_to_IGM
+    .. automethod:: calc_is_CGM_to_gal_or_interface
     .. automethod:: calc_is_CGM_to_satellite
     .. automethod:: calc_is_IP
     .. automethod:: calc_is_NEP_NYA

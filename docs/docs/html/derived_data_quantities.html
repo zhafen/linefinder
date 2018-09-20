@@ -233,8 +233,27 @@ element in the simulation that’s at the metallicity floor.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The [i,j]th index indicates that particle i will transfer from
-the CGM to the IGM after index j.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Array where the value of [i,j]th index indicates if particle i
+will transfer from the CGM to the IGM after index j.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">boolean array-like, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_gal_or_interface">
+<code class="descname">calc_is_CGM_to_gal_or_interface</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_is_CGM_to_gal_or_interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_gal_or_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Material that’s currently in the CGM, and next enters either the
+galaxy or the galaxy-halo interface.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Array where the value of [i,j]th index indicates if particle i
+will transfer from the CGM to either the galaxy or galaxy-halo
+interface after index j.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">boolean array-like, (n_particles, n_snaps)</td>
 </tr>
