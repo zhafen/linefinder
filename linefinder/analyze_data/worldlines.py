@@ -1384,14 +1384,14 @@ class Worldlines( simulation_data.TimeData ):
         category.
 
         Args:
-            CGM_to_other_event (boolean array-like):
+            CGM_to_other_event (array-like of booleans):
                 Boolean that indicates the particle left the CGM and entered
                 the other category. The value of the [i,j]th index should be
                 True if particle i is in other at index j, and was in the CGM
                 at index j+1.
 
         Returns:
-            boolean array-like, (n_particles, n_snaps):
+            array-like of booleans, (n_particles, n_snaps):
                 Array where the value of [i,j]th index indicates if particle i
                 will transfer from the CGM to the other category after index j.
         '''
@@ -1421,7 +1421,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Material that's currently in the CGM, and next enters the IGM.
 
         Returns:
-            boolean array-like, (n_particles, n_snaps):
+            array-like of booleans, (n_particles, n_snaps):
                 Array where the value of [i,j]th index indicates if particle i
                 will transfer from the CGM to the IGM after index j.
         '''
@@ -1449,7 +1449,7 @@ class Worldlines( simulation_data.TimeData ):
         galaxy or the galaxy-halo interface.
 
         Returns:
-            boolean array-like, (n_particles, n_snaps):
+            array-like of booleans, (n_particles, n_snaps):
                 Array where the value of [i,j]th index indicates if particle i
                 will transfer from the CGM to either the galaxy or galaxy-halo
                 interface after index j.
@@ -1473,6 +1473,37 @@ class Worldlines( simulation_data.TimeData ):
     def calc_is_CGM_to_satellite( self ):
 
         pass
+
+    ########################################################################
+
+    def calc_is_hereafter_CGM( self ):
+        '''Material that stays in the CGM until z=0.
+
+        Returns:
+            array-like of booleans, (n_particles, n_snaps):
+                Array where the value of the [i,j]th index is True if particle
+                i is in the CGM at j and stays there until z=0 (j=0).
+        '''
+
+        # Find particles in the CGM at z=0
+        is_in_CGM = self.get_data( 'is_in_CGM' )
+        in_CGM_z0 = is_in_CGM[:,0]
+
+        # Find particles that have their value of is_in_CGM unchanged from z=0
+        n_out_CGM = self.get_data( 'n_out_CGM' )
+        n_out_CGM_z0 = n_out_CGM[:,0]
+        same_n_out_as_z0 = n_out_CGM == n_out_CGM_z0[:,np.newaxis]
+        n_in_CGM = self.get_data( 'n_in_CGM' )
+        n_in_CGM_z0 = n_in_CGM[:,0]
+        same_n_in_as_z0 = n_in_CGM == n_in_CGM_z0[:,np.newaxis]
+        same_CGM_state_as_z0 = same_n_out_as_z0 & same_n_in_as_z0
+
+        # Combine to get material that stays in the CGM up to z=0
+        self.data['is_hereafter_CGM'] = (
+            in_CGM_z0[:,np.newaxis] & same_CGM_state_as_z0
+        )
+
+        return self.data['is_hereafter_CGM']
 
     ########################################################################
 
@@ -1833,6 +1864,42 @@ class Worldlines( simulation_data.TimeData ):
         n_in = self.count_n_events( is_entering )
 
         self.data['n_in'] = n_in
+
+    def calc_n_out_CGM( self ):                                                     
+        '''The number of times a particle has entered the CGM of the main
+        galaxy.
+                                                                                
+        Returns:                                                               
+            array-like of integers, (n_particles, n_snaps):                                    
+                Value at index [i,j] is the number of times that particle
+                i has entered the CGM prior to index j.                                               
+        ''' 
+
+        is_entering = self.get_data( 'CGM_event_id' ) == -1
+
+        n_out = self.count_n_events( is_entering )
+
+        self.data['n_out_CGM'] = n_out
+
+        return self.data['n_out_CGM']
+
+    def calc_n_in_CGM( self ):                                                     
+        '''The number of times a particle has entered the CGM of the main
+        galaxy.
+                                                                                
+        Returns:                                                               
+            array-like of integers, (n_particles, n_snaps):                                    
+                Value at index [i,j] is the number of times that particle
+                i has entered the CGM prior to index j.                                               
+        ''' 
+
+        is_entering = self.get_data( 'CGM_event_id' ) == 1
+
+        n_in = self.count_n_events( is_entering )
+
+        self.data['n_in_CGM'] = n_in
+
+        return self.data['n_in_CGM']
 
 ########################################################################
 ########################################################################

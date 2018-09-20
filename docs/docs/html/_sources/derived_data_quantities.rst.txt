@@ -38,6 +38,7 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_is_enriched_in_mgal
     .. automethod:: calc_is_enriched_in_ogal
     .. automethod:: calc_is_fresh_accretion
+    .. automethod:: calc_is_hereafter_CGM
     .. automethod:: calc_is_hitherto_EP_NYA
     .. automethod:: calc_is_hitherto_NEP_NYA
     .. automethod:: calc_is_in_CGM
@@ -50,7 +51,9 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_is_outside_any_gal_IP
     .. automethod:: calc_metal_mass
     .. automethod:: calc_n_in
+    .. automethod:: calc_n_in_CGM
     .. automethod:: calc_n_out
+    .. automethod:: calc_n_out_CGM
     .. automethod:: calc_phi
     .. automethod:: calc_radial_distance
     .. automethod:: calc_radial_velocity

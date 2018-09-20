@@ -562,7 +562,28 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     def test_is_hereafter_CGM( self ):
 
-        assert False
+        # Setup test data
+        self.worldlines.ptracks._base_data_shape = ( 4, 3 )
+        self.worldlines.data['is_in_CGM'] = np.array([
+            [ 1, 1, 1, ],
+            [ 0, 1, 0, ],
+            [ 1, 1, 0, ],
+            [ 1, 0, 1, ],
+        ]).astype( bool )
+
+        expected = np.array([
+            [ 1, 1, 1, ],
+            [ 0, 0, 0, ],
+            [ 1, 1, 0, ],
+            [ 1, 0, 0, ],
+        ]).astype( bool )
+
+        # Actual calculation
+        self.worldlines.calc_is_hereafter_CGM()
+
+        actual = self.worldlines.data['is_hereafter_CGM']
+
+        npt.assert_allclose( expected, actual )
 
     ########################################################################
 

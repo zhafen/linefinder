@@ -236,7 +236,7 @@ element in the simulation that’s at the metallicity floor.</p>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Array where the value of [i,j]th index indicates if particle i
 will transfer from the CGM to the IGM after index j.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">boolean array-like, (n_particles, n_snaps)</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like of booleans, (n_particles, n_snaps)</td>
 </tr>
 </tbody>
 </table>
@@ -255,7 +255,7 @@ galaxy or the galaxy-halo interface.</p>
 will transfer from the CGM to either the galaxy or galaxy-halo
 interface after index j.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">boolean array-like, (n_particles, n_snaps)</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like of booleans, (n_particles, n_snaps)</td>
 </tr>
 </tbody>
 </table>
@@ -380,6 +380,23 @@ is applied).</p>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Result.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">self.data[‘is_fresh_accretion’] ( np.ndarray )</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_hereafter_CGM">
+<code class="descname">calc_is_hereafter_CGM</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_is_hereafter_CGM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_is_hereafter_CGM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Material that stays in the CGM until z=0.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Array where the value of the [i,j]th index is True if particle
+i is in the CGM at j and stays there until z=0 (j=0).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like of booleans, (n_particles, n_snaps)</td>
 </tr>
 </tbody>
 </table>
@@ -528,6 +545,24 @@ the galaxy prior to index j.</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_n_in_CGM">
+<code class="descname">calc_n_in_CGM</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_n_in_CGM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_n_in_CGM" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of times a particle has entered the CGM of the main
+galaxy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Value at index [i,j] is the number of times that particle
+i has entered the CGM prior to index j.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like of integers, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.calc_n_out">
 <code class="descname">calc_n_out</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_n_out"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_n_out" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of times a particle has left the main galaxy.</p>
@@ -539,6 +574,24 @@ the galaxy prior to index j.</td>
 of times that particle i has left the galaxy prior to index j.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_n_out_CGM">
+<code class="descname">calc_n_out_CGM</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_n_out_CGM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_n_out_CGM" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of times a particle has entered the CGM of the main
+galaxy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Value at index [i,j] is the number of times that particle
+i has entered the CGM prior to index j.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like of integers, (n_particles, n_snaps)</td>
 </tr>
 </tbody>
 </table>

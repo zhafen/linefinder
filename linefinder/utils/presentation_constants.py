@@ -45,6 +45,7 @@ CLASSIFICATION_LABELS = {
     'is_outside_any_gal_IP': 'Wind',
     'is_CGM_to_IGM': 'ejected',
     'is_CGM_to_gal_or_interface': 'accreted',
+    'is_hereafter_CGM': r'still CGM at $z=0$',
 }
 
 # These are in line with the colors used in Angles-Alcazar2017
@@ -103,6 +104,7 @@ CLASSIFICATION_COLORS_B = {
     'is_merger_gas': list( colors.hex2color( '#E67711' ) ),
     'is_CGM_to_IGM': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[0],
     'is_CGM_to_gal_or_interface': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[1],
+    'is_hereafter_CGM': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[2],
 }
 # This set is revised again to have greater variation in brightness
 # Revised to have greater variation in brightness
@@ -231,4 +233,5 @@ CLASSIFICATIONS_CGM_ORIGIN = [
 CLASSIFICATIONS_CGM_FATE = [
     'is_CGM_to_IGM',
     'is_CGM_to_gal_or_interface',
+    'is_hereafter_CGM',
 ]
