@@ -1379,9 +1379,43 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_is_CGM_to_other( self, CGM_to_other_event ):
+    def get_is_CGM_to_other( self, CGM_to_other_event ):
+        '''Material that's currently in the CGM, and next enters another
+        category.
 
-        pass
+        Args:
+            CGM_to_other_event (boolean array-like):
+                Boolean that indicates the particle left the CGM and entered
+                the other category. The value of the [i,j]th index should be
+                True if particle i is in other at index j, and was in the CGM
+                at index j+1.
+
+        Returns:
+            boolean array-like, (n_particles, n_snaps):
+                The [i,j]th index indicates that particle i will transfer from
+                the CGM to the other category after index j.
+        '''
+
+        # Format event
+        CGM_to_other_event = np.roll( CGM_to_other_event, 1 )
+
+        # Find contiguous regions
+        labeled_is_in_CGM, n_features = scipy.ndimage.label(
+            self.get_data( 'is_in_CGM' ),
+            np.array([
+                [ 0, 0, 0, ],
+                [ 1, 1, 1, ],
+                [ 0, 0, 0, ],
+            ]),
+        )
+        slices = scipy.ndimage.find_objects( labeled_is_in_CGM )
+
+        # Apply classification to contiguous regions
+        is_CGM_to_other = np.zeros( self.base_data_shape ).astype( bool )
+        for sl in slices:
+            is_CGM_to_other[sl] = np.any( CGM_to_other_event[sl] )
+
+        return is_CGM_to_other
 
     def calc_is_CGM_to_IGM( self ):
         '''Material that's currently in the CGM, and next enters the IGM.
@@ -1402,25 +1436,11 @@ class Worldlines( simulation_data.TimeData ):
             scale_h_power = -1.,
         )
         in_IGM = ( r_rvir > config.OUTER_CGM_BOUNDARY )
-        CGM_to_IGM_event = np.roll( leaves_CGM & in_IGM, 1 )
+        CGM_to_IGM_event = leaves_CGM & in_IGM
 
-        # Find contiguous regions
-        labeled_is_in_CGM, n_features = scipy.ndimage.label(
-            self.get_data( 'is_in_CGM' ),
-            np.array([
-                [ 0, 0, 0, ],
-                [ 1, 1, 1, ],
-                [ 0, 0, 0, ],
-            ]),
+        self.data['is_CGM_to_IGM'] = self.get_is_CGM_to_other(
+            CGM_to_IGM_event,
         )
-        slices = scipy.ndimage.find_objects( labeled_is_in_CGM )
-
-        # Apply classification to contiguous regions
-        is_CGM_to_IGM = np.zeros( self.base_data_shape ).astype( bool )
-        for sl in slices:
-            is_CGM_to_IGM[sl] = np.any( CGM_to_IGM_event[sl] )
-
-        self.data['is_CGM_to_IGM'] = is_CGM_to_IGM
 
         return self.data['is_CGM_to_IGM']
 

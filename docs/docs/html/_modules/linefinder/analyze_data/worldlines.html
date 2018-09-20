@@ -1418,6 +1418,44 @@
 
     <span class="c1">########################################################################</span>
 
+<div class="viewcode-block" id="Worldlines.get_is_CGM_to_other"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.get_is_CGM_to_other">[docs]</a>    <span class="k">def</span> <span class="nf">get_is_CGM_to_other</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">CGM_to_other_event</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, and next enters another</span>
+<span class="sd">        category.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            CGM_to_other_event (boolean array-like):</span>
+<span class="sd">                Boolean that indicates the particle left the CGM and entered</span>
+<span class="sd">                the other category. The value of the [i,j]th index should be</span>
+<span class="sd">                True if particle i is in other at index j, and was in the CGM</span>
+<span class="sd">                at index j+1.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            boolean array-like, (n_particles, n_snaps):</span>
+<span class="sd">                The [i,j]th index indicates that particle i will transfer from</span>
+<span class="sd">                the CGM to the other category after index j.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Format event</span>
+        <span class="n">CGM_to_other_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span> <span class="n">CGM_to_other_event</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span>
+
+        <span class="c1"># Find contiguous regions</span>
+        <span class="n">labeled_is_in_CGM</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
+            <span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">find_objects</span><span class="p">(</span> <span class="n">labeled_is_in_CGM</span> <span class="p">)</span>
+
+        <span class="c1"># Apply classification to contiguous regions</span>
+        <span class="n">is_CGM_to_other</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">sl</span> <span class="ow">in</span> <span class="n">slices</span><span class="p">:</span>
+            <span class="n">is_CGM_to_other</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span> <span class="n">CGM_to_other_event</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_CGM_to_other</span></div>
+
 <div class="viewcode-block" id="Worldlines.calc_is_CGM_to_IGM"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_IGM">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_to_IGM</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, and next enters the IGM.</span>
 
@@ -1437,27 +1475,17 @@
             <span class="n">scale_h_power</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">in_IGM</span> <span class="o">=</span> <span class="p">(</span> <span class="n">r_rvir</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">OUTER_CGM_BOUNDARY</span> <span class="p">)</span>
-        <span class="n">CGM_to_IGM_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span> <span class="n">leaves_CGM</span> <span class="o">&amp;</span> <span class="n">in_IGM</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span>
+        <span class="n">CGM_to_IGM_event</span> <span class="o">=</span> <span class="n">leaves_CGM</span> <span class="o">&amp;</span> <span class="n">in_IGM</span>
 
-        <span class="c1"># Find contiguous regions</span>
-        <span class="n">labeled_is_in_CGM</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">),</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
-                <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">],</span>
-                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
-            <span class="p">]),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_IGM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_is_CGM_to_other</span><span class="p">(</span>
+            <span class="n">CGM_to_IGM_event</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">slices</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">find_objects</span><span class="p">(</span> <span class="n">labeled_is_in_CGM</span> <span class="p">)</span>
-
-        <span class="c1"># Apply classification to contiguous regions</span>
-        <span class="n">is_CGM_to_IGM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
-        <span class="k">for</span> <span class="n">sl</span> <span class="ow">in</span> <span class="n">slices</span><span class="p">:</span>
-            <span class="n">is_CGM_to_IGM</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span> <span class="n">CGM_to_IGM_event</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_IGM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">is_CGM_to_IGM</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_IGM&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_to_satellite"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_satellite">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_to_satellite</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="k">pass</span></div>
 
     <span class="c1">########################################################################</span>
 
