@@ -10,6 +10,7 @@ import glob
 import numpy as np
 import os
 import string
+import verdict
 
 import matplotlib
 matplotlib.use('PDF')
@@ -20,7 +21,6 @@ import worldlines as a_worldlines
 
 import galaxy_dive.plot_data.plotting as gen_plot
 import galaxy_dive.utils.hdf5_wrapper as hdf5_wrapper
-import galaxy_dive.utils.utilities as utilities
 
 ########################################################################
 
@@ -31,7 +31,7 @@ default = object()
 ########################################################################
 
 
-class WorldlineSet( utilities.SmartDict ):
+class WorldlineSet( verdict.Dict ):
     '''Container for multiple Worldlines classes. The nice thing about this
     class is you can use it like a Worldlines class, with the output being a
     dictionary of the different sets instead.
@@ -60,7 +60,7 @@ class WorldlineSet( utilities.SmartDict ):
                 'label': key
             }
 
-        worldlines_plotters_d = utilities.SmartDict.from_class_and_args(
+        worldlines_plotters_d = verdict.Dict.from_class_and_args(
             plot_worldlines.WorldlinesPlotter, worldlines_d )
 
         super( WorldlineSet, self ).__init__( worldlines_plotters_d )

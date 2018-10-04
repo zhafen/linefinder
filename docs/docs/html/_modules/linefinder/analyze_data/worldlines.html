@@ -1185,6 +1185,25 @@
 
     <span class="c1">########################################################################</span>
 
+<div class="viewcode-block" id="Worldlines.calc_HDen"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_HDen">[docs]</a>    <span class="k">def</span> <span class="nf">calc_HDen</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">X_H</span><span class="o">=</span><span class="mf">0.75</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate the hydrogen density from the number density</span>
+<span class="sd">        (for particle tracking data `Den` data is baryon number density).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X_H (float) : Hydrogen mass fraction.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of floats (n_particles, n_snaps) :</span>
+<span class="sd">                Value at [i,j] is the Hydrogen number density for particle i</span>
+<span class="sd">                at index j.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;HDen&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">X_H</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Den&#39;</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;HDen&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
 <div class="viewcode-block" id="Worldlines.calc_is_fresh_accretion"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_fresh_accretion">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_fresh_accretion</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Find material classified as fresh accretion (pristine gas that has not recycled).</span>
 

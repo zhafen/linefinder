@@ -1146,6 +1146,25 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_HDen( self, X_H=0.75 ):
+        '''Calculate the hydrogen density from the number density
+        (for particle tracking data `Den` data is baryon number density).
+
+        Args:
+            X_H (float) : Hydrogen mass fraction.
+
+        Returns:
+            array-like of floats (n_particles, n_snaps) :
+                Value at [i,j] is the Hydrogen number density for particle i
+                at index j.
+        '''
+
+        self.data['HDen'] = X_H * self.get_data( 'Den' )
+
+        return self.data['HDen']
+
+    ########################################################################
+
     def calc_is_fresh_accretion( self ):
         '''Find material classified as fresh accretion (pristine gas that has not recycled).
 

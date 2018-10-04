@@ -108,6 +108,7 @@ STAMPEDE2_PARAMETERS = {
             'project_dir' : '/home1/03057/zhafen/papers/CGM_origin',
             'presentation_dir' : '/work/03057/zhafen/presentation_plots',
             'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_origin',
+            'export_data_dir' : '/work/03057/zhafen/CGM_origin_data',
         },
         'CGM_fate' : {
             'project_dir' : '/home1/03057/zhafen/papers/CGM_fate',

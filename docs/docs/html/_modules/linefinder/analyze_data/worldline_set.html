@@ -49,6 +49,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">verdict</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib</span>
 <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;PDF&#39;</span><span class="p">)</span>
@@ -59,7 +60,6 @@
 
 <span class="kn">import</span> <span class="nn">galaxy_dive.plot_data.plotting</span> <span class="k">as</span> <span class="nn">gen_plot</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.hdf5_wrapper</span> <span class="k">as</span> <span class="nn">hdf5_wrapper</span>
-<span class="kn">import</span> <span class="nn">galaxy_dive.utils.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
 
 <span class="c1">########################################################################</span>
 
@@ -70,7 +70,7 @@
 <span class="c1">########################################################################</span>
 
 
-<div class="viewcode-block" id="WorldlineSet"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldline_set.html#linefinder.analyze_data.worldline_set.WorldlineSet">[docs]</a><span class="k">class</span> <span class="nc">WorldlineSet</span><span class="p">(</span> <span class="n">utilities</span><span class="o">.</span><span class="n">SmartDict</span> <span class="p">):</span>
+<div class="viewcode-block" id="WorldlineSet"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldline_set.html#linefinder.analyze_data.worldline_set.WorldlineSet">[docs]</a><span class="k">class</span> <span class="nc">WorldlineSet</span><span class="p">(</span> <span class="n">verdict</span><span class="o">.</span><span class="n">Dict</span> <span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Container for multiple Worldlines classes. The nice thing about this</span>
 <span class="sd">    class is you can use it like a Worldlines class, with the output being a</span>
 <span class="sd">    dictionary of the different sets instead.</span>
@@ -99,7 +99,7 @@
                 <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">key</span>
             <span class="p">}</span>
 
-        <span class="n">worldlines_plotters_d</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">SmartDict</span><span class="o">.</span><span class="n">from_class_and_args</span><span class="p">(</span>
+        <span class="n">worldlines_plotters_d</span> <span class="o">=</span> <span class="n">verdict</span><span class="o">.</span><span class="n">Dict</span><span class="o">.</span><span class="n">from_class_and_args</span><span class="p">(</span>
             <span class="n">plot_worldlines</span><span class="o">.</span><span class="n">WorldlinesPlotter</span><span class="p">,</span> <span class="n">worldlines_d</span> <span class="p">)</span>
 
         <span class="nb">super</span><span class="p">(</span> <span class="n">WorldlineSet</span><span class="p">,</span> <span class="bp">self</span> <span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span> <span class="n">worldlines_plotters_d</span> <span class="p">)</span>

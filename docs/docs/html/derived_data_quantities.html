@@ -89,6 +89,26 @@ A value of 0 indicates no change.</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_HDen">
+<code class="descname">calc_HDen</code><span class="sig-paren">(</span><em>X_H=0.75</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_HDen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_HDen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the hydrogen density from the number density
+(for particle tracking data <cite>Den</cite> data is baryon number density).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X_H</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Hydrogen mass fraction.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Value at [i,j] is the Hydrogen number density for particle i
+at index j.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">array-like of floats (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.calc_abs_phi">
 <code class="descname">calc_abs_phi</code><span class="sig-paren">(</span><em>normal_vector='total ang momentum'</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_abs_phi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the angle (in degrees) from some vector, but mirror

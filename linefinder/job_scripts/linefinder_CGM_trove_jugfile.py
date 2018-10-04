@@ -74,8 +74,8 @@ galdefs = [
     # '',
     # '_galdefv1',
     # '_galdefv2',
-    # '_galdefv3',
-    '_galdefv4',
+    '_galdefv3',
+    # '_galdefv4',
 ]
 
 # Get the file format
