@@ -8,58 +8,58 @@ import linefinder.utils.trove_management as trove_management
 ########################################################################
 
 sim_names = [
-    'm10q',
-    'm10v',
-    'm10y',
-    'm10z',
-    'm11q',
-    'm11v',
-    'm11a',
-    'm11b',
-    'm11c',
-    'm12i',
-    'm12f',
-    'm12m',
-    'm11d_md',
-    'm11e_md',
-    'm11h_md',
-    'm11i_md',
-    'm12b_md',
-    'm12c_md',
-    'm12z_md',
-    'm12r_md',
-    'm12w_md',
+    # 'm10q',
+    # 'm10v',
+    'm10y', # Ran with more time data
+    # 'm10z',
+    'm11q', # Ran with more time data
+    # 'm11v',
+    # 'm11a',
+    # 'm11b',
+    # 'm11c',
+    'm12i', # Ran with more time data
+    # 'm12f',
+    # 'm12m',
+    # 'm11d_md',
+    # 'm11e_md',
+    # 'm11h_md',
+    # 'm11i_md',
+    # 'm12b_md',
+    # 'm12c_md',
+    # 'm12z_md',
+    # 'm12r_md',
+    'm12w_md', # Ran with more time data
     # 'm10q_md',
     # 'm11q_md',
     # 'm12i_md',
 ]
 snums = [
-    # 600,
-    # 578,
-    # 556,
-    # 534,
-    # 513,
-    # 492,
-    # 486,
-    # 471,
+    600,
+    578,
+    556,
+    534,
+    513,
+    492,
+    486,
+    471,
     465, # z = 0.25
-    # 451,
-    # 431,
-    # 412,
-    # 392,
-    # 382, # z = 0.5
-    # 373,
-    # 354,
-    # 335,
-    # 316,
-    # 297,
-    # 277, # z = 1
-    # 242,
-    # 214,
+    451,
+    431,
+    412,
+    392,
+    382, # z = 0.5
+    373,
+    354,
+    335,
+    316,
+    297,
+    277, # z = 1
+    242,
+    214,
     172, # z = 2
-    # 156,
-    # 142,
-    # 120, # z = 3
+    156,
+    142,
+    120, # z = 3
     # 88,
     # 67,
     # 52,
@@ -151,9 +151,11 @@ gal_finder_kwargs = {
 # Classifying Parameters
 classifier_kwargs = {
     'ptracks_tag' : ptracks_tag,
+    't_pro': galdef_dict['t_pro'],
+    't_m': galdef_dict['t_m'],
 }
 
-linefinder.run_linefinder_jug(
+linefinder.run_linefinder(
     sim_name = sim_name,
     tag = tag,
     selector_data_filters = selector_data_filters,

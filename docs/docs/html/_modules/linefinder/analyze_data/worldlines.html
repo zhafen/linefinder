@@ -102,7 +102,10 @@
 
 <span class="sd">        color (str):</span>
 <span class="sd">            What color to use when plotting.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+
+<span class="sd">        **kwargs:</span>
+<span class="sd">            Keyword arguments passed to self.ptracks, which is a PTracks object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -146,6 +149,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Object for loading and manipulating ids*.hdf5 data</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_ids&#39;</span> <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ids</span> <span class="o">=</span> <span class="n">ids</span><span class="o">.</span><span class="n">IDs</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_tag</span><span class="p">,</span> <span class="p">)</span>
@@ -160,6 +165,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ptracks</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Object for loading and manipulating ptracks*.hdf5 data</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_ptracks&#39;</span> <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ptracks</span> <span class="o">=</span> <span class="n">ptracks</span><span class="o">.</span><span class="n">PTracks</span><span class="p">(</span>
@@ -177,6 +184,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">galids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Object for loading and manipulating galids*.hdf5 data</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_galids&#39;</span> <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_galids</span> <span class="o">=</span> <span class="n">galids</span><span class="o">.</span><span class="n">GalIDs</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">galids_tag</span> <span class="p">)</span>
@@ -191,6 +200,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">classifications</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Object for loading and manipulating classifications*.hdf5 data</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_classifications&#39;</span> <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_classifications</span> <span class="o">=</span> <span class="n">classifications</span><span class="o">.</span><span class="n">Classifications</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifications_tag</span> <span class="p">)</span>
@@ -205,6 +216,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">events</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Object for loading and manipulating events*.hdf5 data</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_events&#39;</span> <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span><span class="o">.</span><span class="n">Events</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">events_tag</span> <span class="p">)</span>
@@ -219,7 +232,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">halo_data</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Halo Data.</span>
+        <span class="sd">&#39;&#39;&#39;Halo data (e.g. location of galaxy halos)</span>
 
 <span class="sd">        TODO:</span>
 <span class="sd">            Make it easier to get the parameters to use, without loading as</span>
@@ -238,6 +251,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">base_data_shape</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Typical shape of arrays stored in the data&#39;&#39;&#39;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">base_data_shape</span>
 
@@ -245,6 +259,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">length_scale</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Standard galaxy/halo length scale. Choice of Rvir, Rstar0.5, etc</span>
+<span class="sd">        depends on **kwargs passed when constructing the wordline class.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">length_scale</span><span class="o">.</span><span class="n">values</span>
 
@@ -263,7 +280,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">n_particles</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;The number of particles tracked.&#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39;The number of particles tracked in the data set.&#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_n_particles&#39;</span> <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_n_particles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">base_data_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -285,7 +302,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">n_particles_snapshot</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;The number of star and gas particles in the last snapshot tracked. Should be the same throughout the simulation,</span>
+        <span class="sd">&#39;&#39;&#39;The number of star and gas particles in the last snapshot tracked.</span>
+<span class="sd">        Should be the same throughout the simulation,</span>
 <span class="sd">        if there&#39;s conservation of star and gas particles.&#39;&#39;&#39;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particles_snapshot_gas</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particles_snapshot_star</span>
@@ -333,7 +351,81 @@
     <span class="c1">########################################################################</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">m_tot</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Total mass of all tracked particles at the last snapshot.&#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_m_tot&#39;</span> <span class="p">):</span>
+            <span class="n">masses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;M&#39;</span><span class="p">,</span> <span class="n">sl</span><span class="o">=</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span> <span class="p">)</span>
+            <span class="n">masses_no_invalids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">fix_invalid</span><span class="p">(</span> <span class="n">masses</span> <span class="p">)</span><span class="o">.</span><span class="n">compressed</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_m_tot</span> <span class="o">=</span> <span class="n">masses_no_invalids</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_tot</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">conversion_factor</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;The ratio necessary to convert to the total mass</span>
+<span class="sd">        from the sample mass.&#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_conversion_factor&#39;</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conversion_factor</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particles_presampled</span> <span class="p">)</span> <span class="o">/</span>
+                <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particles</span> <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conversion_factor</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mass_totals</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the total mass in the sample in the last snapshot for the</span>
+<span class="sd">        classifications used in Angles-Alcazar+2017.&#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_mass_totals&#39;</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">canonical_classifications</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s1">&#39;is_pristine&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;is_merger&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;is_mass_transfer&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;is_wind&#39;</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">mass_category</span> <span class="ow">in</span> <span class="n">canonical_classifications</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span><span class="p">[</span><span class="n">mass_category</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
+                    <span class="s1">&#39;M&#39;</span><span class="p">,</span>
+                    <span class="n">sl</span><span class="o">=</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="n">classification</span><span class="o">=</span><span class="n">mass_category</span><span class="p">,</span>
+                    <span class="n">fix_invalid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">SmartDict</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mass_fractions</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the mass fraction in the last snapshot for the</span>
+<span class="sd">        classifications used in Angles-Alcazar+2017.&#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_totals</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_tot</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">real_mass_totals</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the total mass (converted from the sample) in the last snapshot</span>
+<span class="sd">        for the classifications used in Angles-Alcazar+2017.&#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_totals</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversion_factor</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">redshift</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Redshift array for each tracked snapshot.&#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_redshift&#39;</span> <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_redshift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">redshift</span>
@@ -342,7 +434,6 @@
 
     <span class="nd">@redshift</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">redshift</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">value</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Setting function for simulation redshift property.&#39;&#39;&#39;</span>
 
         <span class="c1"># If we try to set it, make sure that if it already exists we don&#39;t change it.</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_redshift&#39;</span> <span class="p">):</span>
@@ -367,7 +458,20 @@
     <span class="c1">########################################################################</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">snums</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Each tracked snapshot.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">snums</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">r_gal</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Galaxy radius in pkpc, as defined by galaxy_cut*galaxy_length_scale,</span>
+<span class="sd">        the values of which are stored as parameters in galids*hdf5.</span>
+<span class="sd">        A typical value is 4*R_star,0.5</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_r_gal&#39;</span> <span class="p">):</span>
             <span class="n">length_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">galids</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;mt_length_scale&#39;</span><span class="p">]</span>
@@ -383,6 +487,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">inner_CGM_boundary</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Inner edge of the CGM, defined as</span>
+<span class="sd">        max( config.INNER_CGM_BOUNDARY * R_vir, ( 1. + config.F_GAP ) * r_gal )</span>
+<span class="sd">        A typical value is max( 0.1 R_vir, 1.2 * r_gal )</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_inner_CGM_boundary&#39;</span> <span class="p">):</span>
 
@@ -406,6 +514,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">outer_CGM_boundary</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Outer edge of the CGM, defined as config.OUTER_CGM_BOUNDARY * R_vir.</span>
+<span class="sd">        A typical value is 1.0 * R_vir</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_outer_CGM_boundary&#39;</span> <span class="p">):</span>
 
@@ -418,78 +529,11 @@
     <span class="c1">########################################################################</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">snums</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">snums</span>
-
-    <span class="c1">########################################################################</span>
-
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hubble_param</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">data_attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">]</span>
-
-    <span class="c1">########################################################################</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">m_tot</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Total mass at the last snapshot.&#39;&#39;&#39;</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_m_tot&#39;</span> <span class="p">):</span>
-            <span class="n">masses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;M&#39;</span><span class="p">,</span> <span class="n">sl</span><span class="o">=</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span> <span class="p">)</span>
-            <span class="n">masses_no_invalids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">fix_invalid</span><span class="p">(</span> <span class="n">masses</span> <span class="p">)</span><span class="o">.</span><span class="n">compressed</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_m_tot</span> <span class="o">=</span> <span class="n">masses_no_invalids</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_tot</span>
-
-    <span class="c1">########################################################################</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">conversion_factor</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;The ratio necessary to convert to the total mass from the sample mass.</span>
+        <span class="sd">&#39;&#39;&#39;Hubble parameter used in the simulations, H_0 / 100 km/s / Mpc</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_conversion_factor&#39;</span> <span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_conversion_factor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particles_presampled</span> <span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particles</span> <span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conversion_factor</span>
-
-    <span class="c1">########################################################################</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">mass_totals</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get the total mass in the sample in the last snapshot in the canonical classifications.&#39;&#39;&#39;</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_mass_totals&#39;</span> <span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">mass_category</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;is_pristine&#39;</span><span class="p">,</span> <span class="s1">&#39;is_merger&#39;</span><span class="p">,</span> <span class="s1">&#39;is_mass_transfer&#39;</span><span class="p">,</span> <span class="s1">&#39;is_wind&#39;</span> <span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span><span class="p">[</span><span class="n">mass_category</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
-                    <span class="s1">&#39;M&#39;</span><span class="p">,</span>
-                    <span class="n">sl</span><span class="o">=</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span>
-                    <span class="n">classification</span><span class="o">=</span><span class="n">mass_category</span><span class="p">,</span>
-                    <span class="n">fix_invalid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">SmartDict</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span> <span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mass_totals</span>
-
-    <span class="c1">########################################################################</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">mass_fractions</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get the mass fraction in the last snapshot in the canonical classifications.&#39;&#39;&#39;</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_totals</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_tot</span>
-
-    <span class="c1">########################################################################</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">real_mass_totals</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get the total mass (converted from the sample) in the last snapshot</span>
-<span class="sd">        in the canonical classifications.&#39;&#39;&#39;</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_totals</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">conversion_factor</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">data_attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">]</span>
 
     <span class="c1">########################################################################</span>
     <span class="c1"># Top Level Functions</span>
@@ -516,6 +560,7 @@
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="Worldlines.get_parameters"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.get_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_parameters</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get parameters used in the generation of the different data sets.&#39;&#39;&#39;</span>
 
         <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;ids&#39;</span><span class="p">,</span> <span class="s1">&#39;ptracks&#39;</span><span class="p">,</span> <span class="s1">&#39;galids&#39;</span><span class="p">,</span> <span class="s1">&#39;classifications&#39;</span> <span class="p">]:</span>
@@ -529,14 +574,15 @@
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="Worldlines.get_data"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">data_key</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get data. Usually just get it from ptracks. args and kwargs are passed to self.ptracks.get_data()</span>
+        <span class="sd">&#39;&#39;&#39;Get data. Usually just get it from ptracks.</span>
+<span class="sd">        args and kwargs are passed to self.ptracks.get_data()</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data_key (str) : What data to get?</span>
+<span class="sd">            data_key (str): What data to get?</span>
 <span class="sd">            *args, **kwargs : Additional arguments to pass to other get_data() methods.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            data (np.ndarray) : Array of data.</span>
+<span class="sd">            data (np.ndarray): Array of data.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="c1"># First, look to see if this data is calculated in some easy to access location</span>
@@ -575,18 +621,18 @@
 <span class="sd">        things to the data.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data_key (str) :</span>
+<span class="sd">            data_key (str):</span>
 <span class="sd">                What data to get?</span>
 
-<span class="sd">            sl (object) :</span>
+<span class="sd">            sl (object):</span>
 <span class="sd">                How to slice the data before returning it.</span>
 
-<span class="sd">            tile_data (bool) :</span>
+<span class="sd">            tile_data (bool):</span>
 <span class="sd">                If True, tile data along a given direction. This is usually for</span>
 <span class="sd">                data formatting purposes.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            data (np.ndarray) : Array of data.</span>
+<span class="sd">            data (np.ndarray): Array of data.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">data_key</span><span class="p">,</span> <span class="n">tiled_flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_parser</span><span class="o">.</span><span class="n">is_tiled_key</span><span class="p">(</span> <span class="n">data_key</span> <span class="p">)</span>
@@ -619,18 +665,18 @@
         <span class="sd">&#39;&#39;&#39;Get the data at a specified index for each particle.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data_key (str) : What data to get?</span>
-<span class="sd">            ind_key (str) : What index to use?</span>
-<span class="sd">            ind_shift (int) : Relative to the index identified by ind_key, how should the index be shifted?</span>
-<span class="sd">            units (str) : If given, scale the data by this value, taken from the halo data.</span>
-<span class="sd">            units_a_power (float) : If using units from the halo data, multiply by a to this power to convert.</span>
-<span class="sd">            units_h_power (float) : If using units from the halo data, multiply by the hubble param to this power to convert.</span>
-<span class="sd">            return_units_only (bool) : Return just the units argument. Useful for debugging.</span>
-<span class="sd">            tile_data (bool) : If True, tile data before getting the data at a specific index.</span>
+<span class="sd">            data_key (str): What data to get?</span>
+<span class="sd">            ind_key (str): What index to use?</span>
+<span class="sd">            ind_shift (int): Relative to the index identified by ind_key, how should the index be shifted?</span>
+<span class="sd">            units (str): If given, scale the data by this value, taken from the halo data.</span>
+<span class="sd">            units_a_power (float): If using units from the halo data, multiply by a to this power to convert.</span>
+<span class="sd">            units_h_power (float): If using units from the halo data, multiply by the hubble param to this power to convert.</span>
+<span class="sd">            return_units_only (bool): Return just the units argument. Useful for debugging.</span>
+<span class="sd">            tile_data (bool): If True, tile data before getting the data at a specific index.</span>
 <span class="sd">            *args, **kwargs : Arguments to be passed to self.get_data()</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            data_at_ind (np.ndarray) : Array of data, at the specified index.</span>
+<span class="sd">            data_at_ind (np.ndarray): Array of data, at the specified index.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="n">data_key</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -695,13 +741,13 @@
         <span class="sd">&#39;&#39;&#39;Get data the snapshot immediately before accretion.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data_key (str) : What data to get?</span>
-<span class="sd">            ind_after_first_acc (bool) : If True, get data the index immediately *after* first accretion, instead.</span>
-<span class="sd">            ind_relative_to_first_acc (int) : Move the snapshot index relative to the snapshot before first accretion.</span>
+<span class="sd">            data_key (str): What data to get?</span>
+<span class="sd">            ind_after_first_acc (bool): If True, get data the index immediately *after* first accretion, instead.</span>
+<span class="sd">            ind_relative_to_first_acc (int): Move the snapshot index relative to the snapshot before first accretion.</span>
 <span class="sd">            *args, **kwargs : Arguments to be passed to self.get_data_at_ind()</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            data_first_acc (np.ndarray) : Array of data, the index immediately after first accretion.</span>
+<span class="sd">            data_first_acc (np.ndarray): Array of data, the index immediately after first accretion.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span> <span class="n">ind_after_first_acc</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">ind_relative_to_first_acc</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">),</span> <span class="s2">&quot;Choose one option.&quot;</span>
@@ -719,11 +765,11 @@
         <span class="sd">&#39;&#39;&#39;Get data at the snapshot a particle is first identified as a star.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data_key (str) : What data to get?</span>
+<span class="sd">            data_key (str): What data to get?</span>
 <span class="sd">            *args, **kwargs : Arguments to be passed to self.get_data_at_ind()</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            data_ind_star (np.ndarray) : Array of data, at the index a particle is first identified as a star.</span>
+<span class="sd">            data_ind_star (np.ndarray): Array of data, at the index a particle is first identified as a star.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data_at_ind</span><span class="p">(</span> <span class="n">data_key</span><span class="p">,</span> <span class="s1">&#39;ind_star&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span></div>
@@ -734,12 +780,12 @@
         <span class="sd">&#39;&#39;&#39;Get the fraction of data outside a certain range. *args, **kwargs are arguments sent to mask the data.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data_key (str) : What data to get.</span>
-<span class="sd">            data_min (float) : Lower bound of the data range.</span>
-<span class="sd">            data_max (float) : Upper bound of the data range.</span>
+<span class="sd">            data_key (str): What data to get.</span>
+<span class="sd">            data_min (float): Lower bound of the data range.</span>
+<span class="sd">            data_max (float): Upper bound of the data range.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            f_outside (float) : Fraction outside the range.</span>
+<span class="sd">            f_outside (float): Fraction outside the range.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span> <span class="n">data_key</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
@@ -768,7 +814,7 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">            selection_routine (str) :</span>
+<span class="sd">            selection_routine (str):</span>
 <span class="sd">                What selection routine to run. E.g. &#39;galaxy&#39; selects all</span>
 <span class="sd">                particles in the main galaxy.</span>
 
@@ -786,7 +832,7 @@
 <span class="sd">                Additional arguments to be passed to self.get_selected_data()</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            selected_quantity (np.ndarray) :</span>
+<span class="sd">            selected_quantity (np.ndarray):</span>
 <span class="sd">                Total mass for a particular particle type in the main galaxy</span>
 <span class="sd">                (satisfying any additional requirements passed via *args and **kwargs)</span>
 <span class="sd">                at each specified redshift.</span>
@@ -858,7 +904,7 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">            selection_routine (str) :</span>
+<span class="sd">            selection_routine (str):</span>
 <span class="sd">                What selection routine to run. E.g. &#39;galaxy&#39; selects all</span>
 <span class="sd">                particles in the main galaxy.</span>
 
@@ -868,10 +914,10 @@
 <span class="sd">            quantity (str):</span>
 <span class="sd">                What quantity to retrieve.</span>
 
-<span class="sd">            radial_bins (np.ndarray) :</span>
+<span class="sd">            radial_bins (np.ndarray):</span>
 <span class="sd">                Radial bins to use.</span>
 
-<span class="sd">            radial_bin_data_kwargs (dict) :</span>
+<span class="sd">            radial_bin_data_kwargs (dict):</span>
 <span class="sd">                Arguments to change how the data is masked. For example,</span>
 <span class="sd">                if you want to scale the data (done by default), use this</span>
 <span class="sd">                dictionary to do so. These are arguments that would be passed</span>
@@ -886,7 +932,7 @@
 <span class="sd">                Additional arguments to be passed to self.get_selected_data()</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            selected_quantity (np.ndarray) :</span>
+<span class="sd">            selected_quantity (np.ndarray):</span>
 <span class="sd">                Total mass for a particular particle type in the main galaxy</span>
 <span class="sd">                (satisfying any additional requirements passed via *args and **kwargs)</span>
 <span class="sd">                at each specified redshift.</span>
@@ -960,10 +1006,10 @@
 <span class="sd">        of a number of classification categories. This is only for particles that are tracked! This is not the real mass!</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            classification_list (list) :</span>
+<span class="sd">            classification_list (list):</span>
 <span class="sd">                What classifications to use.</span>
 
-<span class="sd">            selected_quantity_method (str) :</span>
+<span class="sd">            selected_quantity_method (str):</span>
 <span class="sd">                Method to use for getting the selected quantity.</span>
 <span class="sd">                For example, use &#39;get_selected_quantity_radial_bins&#39; if you</span>
 <span class="sd">                want the selected quantity in, well, radial bins.</span>
@@ -972,7 +1018,7 @@
 <span class="sd">                Additional arguments to be passed to self.get_selected_data()</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            categories_selected_quantity (SmartDict of np.ndarrays) :</span>
+<span class="sd">            categories_selected_quantity (SmartDict of np.ndarrays):</span>
 <span class="sd">                selected_quantity that fits each classification.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1020,14 +1066,14 @@
 <span class="sd">        of a number of classification categories.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            classification_list (list) :</span>
+<span class="sd">            classification_list (list):</span>
 <span class="sd">                What classifications to use.</span>
 
 <span class="sd">            *args, **kwargs :</span>
 <span class="sd">                Additional arguments to be passed to self.get_selected_data()</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            categories_selected_quantity (SmartDict of np.ndarrays) :</span>
+<span class="sd">            categories_selected_quantity (SmartDict of np.ndarrays):</span>
 <span class="sd">                selected_quantity that fits each classification.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1161,10 +1207,10 @@
         <span class="sd">&#39;&#39;&#39;If we don&#39;t have a data_key stored, try and create it.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data_key (str) : The data key in question.</span>
+<span class="sd">            data_key (str): The data key in question.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data (dict) : If successful, stores the data here.</span>
+<span class="sd">            self.data (dict): If successful, stores the data here.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -1186,14 +1232,14 @@
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="Worldlines.calc_HDen"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_HDen">[docs]</a>    <span class="k">def</span> <span class="nf">calc_HDen</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">X_H</span><span class="o">=</span><span class="mf">0.75</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Calculate the hydrogen density from the number density</span>
+        <span class="sd">&#39;&#39;&#39;Calculate the hydrogen number density from the number density</span>
 <span class="sd">        (for particle tracking data `Den` data is baryon number density).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            X_H (float) : Hydrogen mass fraction.</span>
+<span class="sd">            X_H (float): Hydrogen mass fraction.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            array-like of floats (n_particles, n_snaps) :</span>
+<span class="sd">            array-like of floats (n_particles, n_snaps):</span>
 <span class="sd">                Value at [i,j] is the Hydrogen number density for particle i</span>
 <span class="sd">                at index j.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1208,7 +1254,7 @@
         <span class="sd">&#39;&#39;&#39;Find material classified as fresh accretion (pristine gas that has not recycled).</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;is_fresh_accretion&#39;] ( np.ndarray ) : Result.</span>
+<span class="sd">            self.data[&#39;is_fresh_accretion&#39;] ( np.ndarray ): Result.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">pristine_tiled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_pristine&#39;</span> <span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snaps</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
@@ -1222,7 +1268,7 @@
         <span class="sd">&#39;&#39;&#39;Find material classified as non-externally-processed wind recycling.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;is_NEP_wind_recycling&#39;] ( np.ndarray ) : Result.</span>
+<span class="sd">            self.data[&#39;is_NEP_wind_recycling&#39;] ( np.ndarray ): Result.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">pristine_tiled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_pristine&#39;</span> <span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_snaps</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
@@ -1237,7 +1283,7 @@
 <span class="sd">        snapshot immediately before first accretion.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;is_merger_star&#39;] ( np.ndarray ) : Result.</span>
+<span class="sd">            self.data[&#39;is_merger_star&#39;] ( np.ndarray ): Result.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">is_star_first_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data_first_acc</span><span class="p">(</span> <span class="s1">&#39;PType&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="n">config</span><span class="o">.</span><span class="n">PTYPE_STAR</span>
@@ -1252,7 +1298,7 @@
 <span class="sd">        snapshot immediately before first accretion.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;is_merger_gas&#39;] ( np.ndarray ) : Result.</span>
+<span class="sd">            self.data[&#39;is_merger_gas&#39;] ( np.ndarray ): Result.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">is_star_first_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data_first_acc</span><span class="p">(</span> <span class="s1">&#39;PType&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="n">config</span><span class="o">.</span><span class="n">PTYPE_GAS</span>
@@ -1269,14 +1315,14 @@
         <span class="sd">&#39;&#39;&#39;Find material with the given classification that is not yet accreted (NYA) onto the main galaxy.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            classification (str) :</span>
+<span class="sd">            classification (str):</span>
 <span class="sd">                What classification to get the result for.</span>
 
-<span class="sd">            tile_classification (bool) :</span>
+<span class="sd">            tile_classification (bool):</span>
 <span class="sd">                If True, then the input classification should be tiled.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            is_classification_NYA ( [n_particles, n_snaps] np.ndarray ) :</span>
+<span class="sd">            is_classification_NYA ( [n_particles, n_snaps] np.ndarray ):</span>
 <span class="sd">                The (i,j)th entry is True if particle i is not yet</span>
 <span class="sd">                accreted by the jth index.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1303,7 +1349,7 @@
         <span class="sd">&#39;&#39;&#39;Find material classified as NEP that is not yet accreted (NYA) onto the main galaxy.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;is_mass_transfer_NYA&#39;] ( np.ndarray ) : Result</span>
+<span class="sd">            self.data[&#39;is_mass_transfer_NYA&#39;] ( np.ndarray ): Result</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_NEP_NYA&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_is_classification_NYA</span><span class="p">(</span> <span class="s1">&#39;is_pristine&#39;</span> <span class="p">)</span></div>
@@ -1327,7 +1373,7 @@
         <span class="sd">&#39;&#39;&#39;Find material classified as merger that is not yet accreted (NYA) onto the main galaxy.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;is_merger_NYA&#39;] ( np.ndarray ) : Result</span>
+<span class="sd">            self.data[&#39;is_merger_NYA&#39;] ( np.ndarray ): Result</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_merger_NYA&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_is_classification_NYA</span><span class="p">(</span> <span class="s1">&#39;is_merger&#39;</span> <span class="p">)</span></div>
@@ -1336,7 +1382,7 @@
         <span class="sd">&#39;&#39;&#39;Find material classified as mass transfer that is not yet accreted (NYA) onto the main galaxy.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;is_mass_transfer_NYA&#39;] ( np.ndarray ) : Result</span>
+<span class="sd">            self.data[&#39;is_mass_transfer_NYA&#39;] ( np.ndarray ): Result</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_mass_transfer_NYA&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_is_classification_NYA</span><span class="p">(</span> <span class="s1">&#39;is_mass_transfer&#39;</span> <span class="p">)</span></div>
@@ -1368,7 +1414,7 @@
         <span class="sd">&#39;&#39;&#39;Material that is in the CGM.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;is_in_CGM&#39;] (np.ndarray) :</span>
+<span class="sd">            self.data[&#39;is_in_CGM&#39;] (np.ndarray):</span>
 <span class="sd">                If True, the particle is currently in the CGM, as defined</span>
 <span class="sd">                in Hafen+18.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1713,7 +1759,7 @@
         <span class="sd">&#39;&#39;&#39;Calc current time in the simulation.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;time&#39;] (np.ndarray) :</span>
+<span class="sd">            self.data[&#39;time&#39;] (np.ndarray):</span>
 <span class="sd">                The value at index i is the time in the simulation</span>
 <span class="sd">                (i.e. the age of the universe) at that index.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1731,7 +1777,7 @@
         <span class="sd">&#39;&#39;&#39;Calc time difference between snapshots.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;dt&#39;] (np.ndarray) : self.data[&#39;dt&#39;][i] = light_travel_time[i+1] - light_travel_time[i]</span>
+<span class="sd">            self.data[&#39;dt&#39;] (np.ndarray): self.data[&#39;dt&#39;][i] = light_travel_time[i+1] - light_travel_time[i]</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="c1"># Age of the universe in Myr</span>
@@ -1749,7 +1795,7 @@
         <span class="sd">&#39;&#39;&#39;Calculate the time spent in another galaxy prior to accretion onto the main galaxy of the simulation.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;t_EP&#39;] (np.ndarray) :</span>
+<span class="sd">            self.data[&#39;t_EP&#39;] (np.ndarray):</span>
 <span class="sd">                self.data[&#39;t_EP&#39;][i] = time particle i spent in another galaxy prior to first accretion.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1778,7 +1824,7 @@
         <span class="sd">&#39;&#39;&#39;Calculate the minimum distance to a a galaxy other than the main galaxy, prior to accretion onto the main gal.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;d_sat_scaled_min&#39;] (np.ndarray of shape (n_particles,)) :</span>
+<span class="sd">            self.data[&#39;d_sat_scaled_min&#39;] (np.ndarray of shape (n_particles,)):</span>
 <span class="sd">                self.data[&#39;d_sat_scaled_min&#39;][i] = min( d_sat_scaled, prior to first acc for particle i )</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1812,7 +1858,7 @@
         <span class="sd">&#39;&#39;&#39;Calculate the index at which a particle is first recorded as being a star.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.data[&#39;ind_star&#39;] (np.ndarray of shape (n_particles,)) :</span>
+<span class="sd">            self.data[&#39;ind_star&#39;] (np.ndarray of shape (n_particles,)):</span>
 <span class="sd">                self.data[&#39;ind_star&#39;][i] = Index at which particle is first recorded as being a star.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -1985,31 +2031,31 @@
         <span class="sd">&#39;&#39;&#39;Get a mask for the data.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            mask (np.array) :</span>
+<span class="sd">            mask (np.array):</span>
 <span class="sd">                Mask to apply to the data. If None, use the masks stored in self.masks (which Nones to empty).</span>
 
-<span class="sd">            classification (str) :</span>
+<span class="sd">            classification (str):</span>
 <span class="sd">                If provided, only select particles that meet this classification, as given in</span>
 <span class="sd">                self.data_object.classifications.data</span>
 
-<span class="sd">            tile_classification_mask (bool) :</span>
+<span class="sd">            tile_classification_mask (bool):</span>
 <span class="sd">                Whether or not to tile the classification mask. True for most data that&#39;s time dependent, but False</span>
 <span class="sd">                for data that&#39;s one value per particle.</span>
 
-<span class="sd">            mask_after_first_acc (bool) :</span>
+<span class="sd">            mask_after_first_acc (bool):</span>
 <span class="sd">                If True, only select particles above first accretion.</span>
 
-<span class="sd">            mask_before_first_acc (bool) :</span>
+<span class="sd">            mask_before_first_acc (bool):</span>
 <span class="sd">                If True, only select particles after first accretion.</span>
 
-<span class="sd">            preserve_mask_shape (bool) :</span>
+<span class="sd">            preserve_mask_shape (bool):</span>
 <span class="sd">                If True, don&#39;t tile masks that are single dimensional, and one per particle.</span>
 
-<span class="sd">            optional_masks (list-like) :</span>
+<span class="sd">            optional_masks (list-like):</span>
 <span class="sd">                If given, the optional masks to include, by name (masks must be available in self.optional_masks).</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            mask (bool np.ndarray) :</span>
+<span class="sd">            mask (bool np.ndarray):</span>
 <span class="sd">                Mask from all the combinations.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -2074,31 +2120,31 @@
         <span class="sd">&#39;&#39;&#39;Get masked worldline data. Extra arguments are passed to the ParentClass&#39; get_selected_data.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data_key (str) :</span>
+<span class="sd">            data_key (str):</span>
 <span class="sd">                Data to get.</span>
 
-<span class="sd">            mask (np.array) :</span>
+<span class="sd">            mask (np.array):</span>
 <span class="sd">                Mask to apply to the data. If None, use the masks stored in self.masks (which Nones to empty).</span>
 
-<span class="sd">            classification (str) :</span>
+<span class="sd">            classification (str):</span>
 <span class="sd">                If provided, only select particles that meet this classification, as given in</span>
 <span class="sd">                self.data_object.classifications.data</span>
 
-<span class="sd">            tile_classification_mask (bool) :</span>
+<span class="sd">            tile_classification_mask (bool):</span>
 <span class="sd">                Whether or not to tile the classification mask. True for most data that&#39;s time dependent, but False</span>
 <span class="sd">                for data that&#39;s one value per particle.</span>
 
-<span class="sd">            mask_after_first_acc (bool) :</span>
+<span class="sd">            mask_after_first_acc (bool):</span>
 <span class="sd">                If True, only select particles above first accretion.</span>
 
-<span class="sd">            mask_before_first_acc (bool) :</span>
+<span class="sd">            mask_before_first_acc (bool):</span>
 <span class="sd">                If True, only select particles after first accretion.</span>
 
-<span class="sd">            preserve_mask_shape (bool) :</span>
+<span class="sd">            preserve_mask_shape (bool):</span>
 <span class="sd">                If True, don&#39;t tile masks that are single dimensional, and one per particle.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            masked_data (np.array) :</span>
+<span class="sd">            masked_data (np.array):</span>
 <span class="sd">                Flattened array of masked data.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -2131,31 +2177,31 @@
         <span class="sd">&#39;&#39;&#39;Get masked worldline data. Extra arguments are passed to the ParentClass&#39; get_selected_data.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data_key (str) :</span>
+<span class="sd">            data_key (str):</span>
 <span class="sd">                Data to get.</span>
 
-<span class="sd">            mask (np.array) :</span>
+<span class="sd">            mask (np.array):</span>
 <span class="sd">                Mask to apply to the data. If None, use the masks stored in self.masks (which defaults to empty).</span>
 
-<span class="sd">            classification (str) :</span>
+<span class="sd">            classification (str):</span>
 <span class="sd">                If provided, only select particles that meet this classification, as given in</span>
 <span class="sd">                self.data_object.classifications.data</span>
 
-<span class="sd">            tile_classification_mask (bool) :</span>
+<span class="sd">            tile_classification_mask (bool):</span>
 <span class="sd">                Whether or not to tile the classification mask. True for most data that&#39;s time dependent, but False</span>
 <span class="sd">                for data that&#39;s one value per particle.</span>
 
-<span class="sd">            mask_after_first_acc (bool) :</span>
+<span class="sd">            mask_after_first_acc (bool):</span>
 <span class="sd">                If True, only select particles above first accretion.</span>
 
-<span class="sd">            mask_before_first_acc (bool) :</span>
+<span class="sd">            mask_before_first_acc (bool):</span>
 <span class="sd">                If True, only select particles after first accretion.</span>
 
-<span class="sd">            preserve_mask_shape (bool) :</span>
+<span class="sd">            preserve_mask_shape (bool):</span>
 <span class="sd">                If True, don&#39;t tile masks that are single dimensional, and one per particle.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            masked_data (np.array) :</span>
+<span class="sd">            masked_data (np.array):</span>
 <span class="sd">                Flattened array of masked data.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -2186,14 +2232,14 @@
 <span class="sd">        Masked data then will be retrieved with these masks in mind.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            selection_routine (str) :</span>
+<span class="sd">            selection_routine (str):</span>
 <span class="sd">                What selection routine to run? If None, don&#39;t run any.</span>
 
-<span class="sd">            ptype (str) :</span>
+<span class="sd">            ptype (str):</span>
 <span class="sd">                What particle type to select?</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.masks (list) :</span>
+<span class="sd">            self.masks (list):</span>
 <span class="sd">                Clears and adds masks to self.masks.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -2217,14 +2263,14 @@
         <span class="sd">&#39;&#39;&#39;Simple selection routine for only selecting particle type.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            selection_routine (str) :</span>
+<span class="sd">            selection_routine (str):</span>
 <span class="sd">                What selection routine to run? If None, don&#39;t run any.</span>
 
-<span class="sd">            ptype (str) :</span>
+<span class="sd">            ptype (str):</span>
 <span class="sd">                What particle type to select?</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.masks (list) :</span>
+<span class="sd">            self.masks (list):</span>
 <span class="sd">                Clears and adds masks to self.masks.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -2235,11 +2281,11 @@
 <div class="viewcode-block" id="WorldlineDataMasker.select_galaxy"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.WorldlineDataMasker.select_galaxy">[docs]</a>    <span class="k">def</span> <span class="nf">select_galaxy</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">ptype_value</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;This selection routine selects only particles in a galaxy.</span>
 
-<span class="sd">        ptype_value (int) :</span>
+<span class="sd">        ptype_value (int):</span>
 <span class="sd">            In the data, what ptype do we select?</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.masks (list) :</span>
+<span class="sd">            self.masks (list):</span>
 <span class="sd">                Adds masks needed to select only particles in a galaxy.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -2251,11 +2297,11 @@
 <div class="viewcode-block" id="WorldlineDataMasker.select_accreted"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.WorldlineDataMasker.select_accreted">[docs]</a>    <span class="k">def</span> <span class="nf">select_accreted</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">ptype_value</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;This selection routine selects only particles that are the snapshot before being accreted.</span>
 
-<span class="sd">        ptype_value (int) :</span>
+<span class="sd">        ptype_value (int):</span>
 <span class="sd">            In the data, what ptype do we select?</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.masks (list) :</span>
+<span class="sd">            self.masks (list):</span>
 <span class="sd">                Adds masks needed to select only particles in a galaxy.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -2272,11 +2318,11 @@
 <div class="viewcode-block" id="WorldlineDataMasker.select_outside_all_galaxies"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.WorldlineDataMasker.select_outside_all_galaxies">[docs]</a>    <span class="k">def</span> <span class="nf">select_outside_all_galaxies</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">ptype_value</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;This seleciton routine selects only particles that are outside all galaxies.</span>
 
-<span class="sd">        ptype_value (int) :</span>
+<span class="sd">        ptype_value (int):</span>
 <span class="sd">            In the data, what ptype do we select?</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            self.masks (list) :</span>
+<span class="sd">            self.masks (list):</span>
 <span class="sd">                Adds masks needed to select only particles outside all galaxies.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 

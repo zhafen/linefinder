@@ -63,7 +63,10 @@ class Worldlines( simulation_data.TimeData ):
 
         color (str):
             What color to use when plotting.
-    '''
+
+        **kwargs:
+            Keyword arguments passed to self.ptracks, which is a PTracks object.
+        '''
 
     def __init__(
         self,
@@ -107,6 +110,8 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def ids( self ):
+        '''Object for loading and manipulating ids*.hdf5 data
+        '''
 
         if not hasattr( self, '_ids' ):
             self._ids = ids.IDs( self.data_dir, self.ids_tag, )
@@ -121,6 +126,8 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def ptracks( self ):
+        '''Object for loading and manipulating ptracks*.hdf5 data
+        '''
 
         if not hasattr( self, '_ptracks' ):
             self._ptracks = ptracks.PTracks(
@@ -138,6 +145,8 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def galids( self ):
+        '''Object for loading and manipulating galids*.hdf5 data
+        '''
 
         if not hasattr( self, '_galids' ):
             self._galids = galids.GalIDs( self.data_dir, self.galids_tag )
@@ -152,6 +161,8 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def classifications( self ):
+        '''Object for loading and manipulating classifications*.hdf5 data
+        '''
 
         if not hasattr( self, '_classifications' ):
             self._classifications = classifications.Classifications( self.data_dir, self.classifications_tag )
@@ -166,6 +177,8 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def events( self ):
+        '''Object for loading and manipulating events*.hdf5 data
+        '''
 
         if not hasattr( self, '_events' ):
             self._events = events.Events( self.data_dir, self.events_tag )
@@ -180,7 +193,7 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def halo_data( self ):
-        '''Halo Data.
+        '''Halo data (e.g. location of galaxy halos)
 
         TODO:
             Make it easier to get the parameters to use, without loading as
@@ -199,6 +212,7 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def base_data_shape( self ):
+        '''Typical shape of arrays stored in the data'''
 
         return self.ptracks.base_data_shape
 
@@ -206,6 +220,9 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def length_scale( self ):
+        '''Standard galaxy/halo length scale. Choice of Rvir, Rstar0.5, etc
+        depends on **kwargs passed when constructing the wordline class.
+        '''
 
         return self.ptracks.length_scale.values
 
@@ -224,7 +241,7 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def n_particles( self ):
-        '''The number of particles tracked.'''
+        '''The number of particles tracked in the data set.'''
 
         if not hasattr( self, '_n_particles' ):
             self._n_particles = self.ptracks.base_data_shape[0]
@@ -246,7 +263,8 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def n_particles_snapshot( self ):
-        '''The number of star and gas particles in the last snapshot tracked. Should be the same throughout the simulation,
+        '''The number of star and gas particles in the last snapshot tracked.
+        Should be the same throughout the simulation,
         if there's conservation of star and gas particles.'''
 
         return self.n_particles_snapshot_gas + self.n_particles_snapshot_star
@@ -294,7 +312,81 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     @property
+    def m_tot( self ):
+        '''Total mass of all tracked particles at the last snapshot.'''
+
+        if not hasattr( self, '_m_tot' ):
+            masses = self.get_data( 'M', sl=(slice(None), 0), )
+            masses_no_invalids = np.ma.fix_invalid( masses ).compressed()
+            self._m_tot = masses_no_invalids.sum()
+
+        return self._m_tot
+
+    ########################################################################
+
+    @property
+    def conversion_factor( self ):
+        '''The ratio necessary to convert to the total mass
+        from the sample mass.'''
+
+        if not hasattr( self, '_conversion_factor' ):
+            self._conversion_factor = (
+                float( self.n_particles_presampled ) /
+                float( self.n_particles )
+            )
+
+        return self._conversion_factor
+
+    ########################################################################
+
+    @property
+    def mass_totals( self ):
+        '''Get the total mass in the sample in the last snapshot for the
+        classifications used in Angles-Alcazar+2017.'''
+
+        if not hasattr( self, '_mass_totals' ):
+            self._mass_totals = {}
+            canonical_classifications = [
+                'is_pristine',
+                'is_merger',
+                'is_mass_transfer',
+                'is_wind',
+            ]
+            for mass_category in canonical_classifications:
+                self._mass_totals[mass_category] = self.get_selected_data(
+                    'M',
+                    sl=(slice(None), 0),
+                    classification=mass_category,
+                    fix_invalid=True,
+                ).sum()
+
+            self._mass_totals = utilities.SmartDict( self._mass_totals )
+
+        return self._mass_totals
+
+    ########################################################################
+
+    @property
+    def mass_fractions( self ):
+        '''Get the mass fraction in the last snapshot for the
+        classifications used in Angles-Alcazar+2017.'''
+
+        return self.mass_totals / self.m_tot
+
+    ########################################################################
+
+    @property
+    def real_mass_totals( self ):
+        '''Get the total mass (converted from the sample) in the last snapshot
+        for the classifications used in Angles-Alcazar+2017.'''
+
+        return self.mass_totals * self.conversion_factor
+
+    ########################################################################
+
+    @property
     def redshift( self ):
+        '''Redshift array for each tracked snapshot.'''
 
         if not hasattr( self, '_redshift' ):
             self._redshift = self.ptracks.redshift
@@ -303,7 +395,6 @@ class Worldlines( simulation_data.TimeData ):
 
     @redshift.setter
     def redshift( self, value ):
-        '''Setting function for simulation redshift property.'''
 
         # If we try to set it, make sure that if it already exists we don't change it.
         if hasattr( self, '_redshift' ):
@@ -328,7 +419,20 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     @property
+    def snums( self ):
+        '''Each tracked snapshot.
+        '''
+
+        return self.ptracks.snums
+
+    ########################################################################
+
+    @property
     def r_gal( self ):
+        '''Galaxy radius in pkpc, as defined by galaxy_cut*galaxy_length_scale,
+        the values of which are stored as parameters in galids*hdf5.
+        A typical value is 4*R_star,0.5
+        '''
 
         if not hasattr( self, '_r_gal' ):
             length_scale = self.galids.parameters['mt_length_scale']
@@ -344,6 +448,10 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def inner_CGM_boundary( self ):
+        '''Inner edge of the CGM, defined as
+        max( config.INNER_CGM_BOUNDARY * R_vir, ( 1. + config.F_GAP ) * r_gal )
+        A typical value is max( 0.1 R_vir, 1.2 * r_gal )
+        '''
 
         if not hasattr( self, '_inner_CGM_boundary' ):
 
@@ -367,6 +475,9 @@ class Worldlines( simulation_data.TimeData ):
 
     @property
     def outer_CGM_boundary( self ):
+        '''Outer edge of the CGM, defined as config.OUTER_CGM_BOUNDARY * R_vir.
+        A typical value is 1.0 * R_vir
+        '''
 
         if not hasattr( self, '_outer_CGM_boundary' ):
 
@@ -379,78 +490,11 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     @property
-    def snums( self ):
-
-        return self.ptracks.snums
-
-    ########################################################################
-
-    @property
     def hubble_param( self ):
-
-        return self.ptracks.data_attrs['hubble']
-
-    ########################################################################
-
-    @property
-    def m_tot( self ):
-        '''Total mass at the last snapshot.'''
-
-        if not hasattr( self, '_m_tot' ):
-            masses = self.get_data( 'M', sl=(slice(None), 0), )
-            masses_no_invalids = np.ma.fix_invalid( masses ).compressed()
-            self._m_tot = masses_no_invalids.sum()
-
-        return self._m_tot
-
-    ########################################################################
-
-    @property
-    def conversion_factor( self ):
-        '''The ratio necessary to convert to the total mass from the sample mass.
+        '''Hubble parameter used in the simulations, H_0 / 100 km/s / Mpc
         '''
 
-        if not hasattr( self, '_conversion_factor' ):
-            self._conversion_factor = float( self.n_particles_presampled ) / float( self.n_particles )
-
-        return self._conversion_factor
-
-    ########################################################################
-
-    @property
-    def mass_totals( self ):
-        '''Get the total mass in the sample in the last snapshot in the canonical classifications.'''
-
-        if not hasattr( self, '_mass_totals' ):
-            self._mass_totals = {}
-            for mass_category in [ 'is_pristine', 'is_merger', 'is_mass_transfer', 'is_wind' ]:
-                self._mass_totals[mass_category] = self.get_selected_data(
-                    'M',
-                    sl=(slice(None), 0),
-                    classification=mass_category,
-                    fix_invalid=True,
-                ).sum()
-
-            self._mass_totals = utilities.SmartDict( self._mass_totals )
-
-        return self._mass_totals
-
-    ########################################################################
-
-    @property
-    def mass_fractions( self ):
-        '''Get the mass fraction in the last snapshot in the canonical classifications.'''
-
-        return self.mass_totals / self.m_tot
-
-    ########################################################################
-
-    @property
-    def real_mass_totals( self ):
-        '''Get the total mass (converted from the sample) in the last snapshot
-        in the canonical classifications.'''
-
-        return self.mass_totals * self.conversion_factor
+        return self.ptracks.data_attrs['hubble']
 
     ########################################################################
     # Top Level Functions
@@ -477,6 +521,7 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     def get_parameters( self ):
+        '''Get parameters used in the generation of the different data sets.'''
 
         parameters = {}
         for data in [ 'ids', 'ptracks', 'galids', 'classifications' ]:
@@ -490,14 +535,15 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     def get_data( self, data_key, *args, **kwargs ):
-        '''Get data. Usually just get it from ptracks. args and kwargs are passed to self.ptracks.get_data()
+        '''Get data. Usually just get it from ptracks.
+        args and kwargs are passed to self.ptracks.get_data()
 
         Args:
-            data_key (str) : What data to get?
+            data_key (str): What data to get?
             *args, **kwargs : Additional arguments to pass to other get_data() methods.
 
         Returns:
-            data (np.ndarray) : Array of data.
+            data (np.ndarray): Array of data.
         '''
 
         # First, look to see if this data is calculated in some easy to access location
@@ -536,18 +582,18 @@ class Worldlines( simulation_data.TimeData ):
         things to the data.
 
         Args:
-            data_key (str) :
+            data_key (str):
                 What data to get?
 
-            sl (object) :
+            sl (object):
                 How to slice the data before returning it.
 
-            tile_data (bool) :
+            tile_data (bool):
                 If True, tile data along a given direction. This is usually for
                 data formatting purposes.
 
         Returns:
-            data (np.ndarray) : Array of data.
+            data (np.ndarray): Array of data.
         '''
 
         data_key, tiled_flag = self.key_parser.is_tiled_key( data_key )
@@ -580,18 +626,18 @@ class Worldlines( simulation_data.TimeData ):
         '''Get the data at a specified index for each particle.
 
         Args:
-            data_key (str) : What data to get?
-            ind_key (str) : What index to use?
-            ind_shift (int) : Relative to the index identified by ind_key, how should the index be shifted?
-            units (str) : If given, scale the data by this value, taken from the halo data.
-            units_a_power (float) : If using units from the halo data, multiply by a to this power to convert.
-            units_h_power (float) : If using units from the halo data, multiply by the hubble param to this power to convert.
-            return_units_only (bool) : Return just the units argument. Useful for debugging.
-            tile_data (bool) : If True, tile data before getting the data at a specific index.
+            data_key (str): What data to get?
+            ind_key (str): What index to use?
+            ind_shift (int): Relative to the index identified by ind_key, how should the index be shifted?
+            units (str): If given, scale the data by this value, taken from the halo data.
+            units_a_power (float): If using units from the halo data, multiply by a to this power to convert.
+            units_h_power (float): If using units from the halo data, multiply by the hubble param to this power to convert.
+            return_units_only (bool): Return just the units argument. Useful for debugging.
+            tile_data (bool): If True, tile data before getting the data at a specific index.
             *args, **kwargs : Arguments to be passed to self.get_data()
 
         Returns:
-            data_at_ind (np.ndarray) : Array of data, at the specified index.
+            data_at_ind (np.ndarray): Array of data, at the specified index.
         '''
 
         data = self.get_data( data_key, *args, **kwargs ).copy()
@@ -656,13 +702,13 @@ class Worldlines( simulation_data.TimeData ):
         '''Get data the snapshot immediately before accretion.
 
         Args:
-            data_key (str) : What data to get?
-            ind_after_first_acc (bool) : If True, get data the index immediately *after* first accretion, instead.
-            ind_relative_to_first_acc (int) : Move the snapshot index relative to the snapshot before first accretion.
+            data_key (str): What data to get?
+            ind_after_first_acc (bool): If True, get data the index immediately *after* first accretion, instead.
+            ind_relative_to_first_acc (int): Move the snapshot index relative to the snapshot before first accretion.
             *args, **kwargs : Arguments to be passed to self.get_data_at_ind()
 
         Returns:
-            data_first_acc (np.ndarray) : Array of data, the index immediately after first accretion.
+            data_first_acc (np.ndarray): Array of data, the index immediately after first accretion.
         '''
 
         assert not ( ind_after_first_acc and ( ind_relative_to_first_acc != 0 ) ), "Choose one option."
@@ -680,11 +726,11 @@ class Worldlines( simulation_data.TimeData ):
         '''Get data at the snapshot a particle is first identified as a star.
 
         Args:
-            data_key (str) : What data to get?
+            data_key (str): What data to get?
             *args, **kwargs : Arguments to be passed to self.get_data_at_ind()
 
         Returns:
-            data_ind_star (np.ndarray) : Array of data, at the index a particle is first identified as a star.
+            data_ind_star (np.ndarray): Array of data, at the index a particle is first identified as a star.
         '''
 
         return self.get_data_at_ind( data_key, 'ind_star', *args, **kwargs )
@@ -695,12 +741,12 @@ class Worldlines( simulation_data.TimeData ):
         '''Get the fraction of data outside a certain range. *args, **kwargs are arguments sent to mask the data.
 
         Args:
-            data_key (str) : What data to get.
-            data_min (float) : Lower bound of the data range.
-            data_max (float) : Upper bound of the data range.
+            data_key (str): What data to get.
+            data_min (float): Lower bound of the data range.
+            data_max (float): Upper bound of the data range.
 
         Returns:
-            f_outside (float) : Fraction outside the range.
+            f_outside (float): Fraction outside the range.
         '''
 
         data = self.get_selected_data( data_key, *args, **kwargs )
@@ -729,7 +775,7 @@ class Worldlines( simulation_data.TimeData ):
 
         Args:
 
-            selection_routine (str) :
+            selection_routine (str):
                 What selection routine to run. E.g. 'galaxy' selects all
                 particles in the main galaxy.
 
@@ -747,7 +793,7 @@ class Worldlines( simulation_data.TimeData ):
                 Additional arguments to be passed to self.get_selected_data()
 
         Returns:
-            selected_quantity (np.ndarray) :
+            selected_quantity (np.ndarray):
                 Total mass for a particular particle type in the main galaxy
                 (satisfying any additional requirements passed via *args and **kwargs)
                 at each specified redshift.
@@ -819,7 +865,7 @@ class Worldlines( simulation_data.TimeData ):
 
         Args:
 
-            selection_routine (str) :
+            selection_routine (str):
                 What selection routine to run. E.g. 'galaxy' selects all
                 particles in the main galaxy.
 
@@ -829,10 +875,10 @@ class Worldlines( simulation_data.TimeData ):
             quantity (str):
                 What quantity to retrieve.
 
-            radial_bins (np.ndarray) :
+            radial_bins (np.ndarray):
                 Radial bins to use.
 
-            radial_bin_data_kwargs (dict) :
+            radial_bin_data_kwargs (dict):
                 Arguments to change how the data is masked. For example,
                 if you want to scale the data (done by default), use this
                 dictionary to do so. These are arguments that would be passed
@@ -847,7 +893,7 @@ class Worldlines( simulation_data.TimeData ):
                 Additional arguments to be passed to self.get_selected_data()
 
         Returns:
-            selected_quantity (np.ndarray) :
+            selected_quantity (np.ndarray):
                 Total mass for a particular particle type in the main galaxy
                 (satisfying any additional requirements passed via *args and **kwargs)
                 at each specified redshift.
@@ -921,10 +967,10 @@ class Worldlines( simulation_data.TimeData ):
         of a number of classification categories. This is only for particles that are tracked! This is not the real mass!
 
         Args:
-            classification_list (list) :
+            classification_list (list):
                 What classifications to use.
 
-            selected_quantity_method (str) :
+            selected_quantity_method (str):
                 Method to use for getting the selected quantity.
                 For example, use 'get_selected_quantity_radial_bins' if you
                 want the selected quantity in, well, radial bins.
@@ -933,7 +979,7 @@ class Worldlines( simulation_data.TimeData ):
                 Additional arguments to be passed to self.get_selected_data()
 
         Returns:
-            categories_selected_quantity (SmartDict of np.ndarrays) :
+            categories_selected_quantity (SmartDict of np.ndarrays):
                 selected_quantity that fits each classification.
         '''
 
@@ -981,14 +1027,14 @@ class Worldlines( simulation_data.TimeData ):
         of a number of classification categories.
 
         Args:
-            classification_list (list) :
+            classification_list (list):
                 What classifications to use.
 
             *args, **kwargs :
                 Additional arguments to be passed to self.get_selected_data()
 
         Returns:
-            categories_selected_quantity (SmartDict of np.ndarrays) :
+            categories_selected_quantity (SmartDict of np.ndarrays):
                 selected_quantity that fits each classification.
         '''
 
@@ -1122,10 +1168,10 @@ class Worldlines( simulation_data.TimeData ):
         '''If we don't have a data_key stored, try and create it.
 
         Args:
-            data_key (str) : The data key in question.
+            data_key (str): The data key in question.
 
         Returns:
-            self.data (dict) : If successful, stores the data here.
+            self.data (dict): If successful, stores the data here.
         '''
 
         try:
@@ -1147,14 +1193,14 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     def calc_HDen( self, X_H=0.75 ):
-        '''Calculate the hydrogen density from the number density
+        '''Calculate the hydrogen number density from the number density
         (for particle tracking data `Den` data is baryon number density).
 
         Args:
-            X_H (float) : Hydrogen mass fraction.
+            X_H (float): Hydrogen mass fraction.
 
         Returns:
-            array-like of floats (n_particles, n_snaps) :
+            array-like of floats (n_particles, n_snaps):
                 Value at [i,j] is the Hydrogen number density for particle i
                 at index j.
         '''
@@ -1169,7 +1215,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Find material classified as fresh accretion (pristine gas that has not recycled).
 
         Returns:
-            self.data['is_fresh_accretion'] ( np.ndarray ) : Result.
+            self.data['is_fresh_accretion'] ( np.ndarray ): Result.
         '''
 
         pristine_tiled = np.tile( self.get_data( 'is_pristine' ), (self.n_snaps, 1) ).transpose()
@@ -1183,7 +1229,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Find material classified as non-externally-processed wind recycling.
 
         Returns:
-            self.data['is_NEP_wind_recycling'] ( np.ndarray ) : Result.
+            self.data['is_NEP_wind_recycling'] ( np.ndarray ): Result.
         '''
 
         pristine_tiled = np.tile( self.get_data( 'is_pristine' ), (self.n_snaps, 1) ).transpose()
@@ -1198,7 +1244,7 @@ class Worldlines( simulation_data.TimeData ):
         snapshot immediately before first accretion.
 
         Returns:
-            self.data['is_merger_star'] ( np.ndarray ) : Result.
+            self.data['is_merger_star'] ( np.ndarray ): Result.
         '''
 
         is_star_first_acc = self.get_data_first_acc( 'PType' ) == config.PTYPE_STAR
@@ -1213,7 +1259,7 @@ class Worldlines( simulation_data.TimeData ):
         snapshot immediately before first accretion.
 
         Returns:
-            self.data['is_merger_gas'] ( np.ndarray ) : Result.
+            self.data['is_merger_gas'] ( np.ndarray ): Result.
         '''
 
         is_star_first_acc = self.get_data_first_acc( 'PType' ) == config.PTYPE_GAS
@@ -1230,14 +1276,14 @@ class Worldlines( simulation_data.TimeData ):
         '''Find material with the given classification that is not yet accreted (NYA) onto the main galaxy.
 
         Args:
-            classification (str) :
+            classification (str):
                 What classification to get the result for.
 
-            tile_classification (bool) :
+            tile_classification (bool):
                 If True, then the input classification should be tiled.
 
         Returns:
-            is_classification_NYA ( [n_particles, n_snaps] np.ndarray ) :
+            is_classification_NYA ( [n_particles, n_snaps] np.ndarray ):
                 The (i,j)th entry is True if particle i is not yet
                 accreted by the jth index.
         '''
@@ -1264,7 +1310,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Find material classified as NEP that is not yet accreted (NYA) onto the main galaxy.
 
         Returns:
-            self.data['is_mass_transfer_NYA'] ( np.ndarray ) : Result
+            self.data['is_mass_transfer_NYA'] ( np.ndarray ): Result
         '''
 
         self.data['is_NEP_NYA'] = self.calc_is_classification_NYA( 'is_pristine' )
@@ -1288,7 +1334,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Find material classified as merger that is not yet accreted (NYA) onto the main galaxy.
 
         Returns:
-            self.data['is_merger_NYA'] ( np.ndarray ) : Result
+            self.data['is_merger_NYA'] ( np.ndarray ): Result
         '''
 
         self.data['is_merger_NYA'] = self.calc_is_classification_NYA( 'is_merger' )
@@ -1297,7 +1343,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Find material classified as mass transfer that is not yet accreted (NYA) onto the main galaxy.
 
         Returns:
-            self.data['is_mass_transfer_NYA'] ( np.ndarray ) : Result
+            self.data['is_mass_transfer_NYA'] ( np.ndarray ): Result
         '''
 
         self.data['is_mass_transfer_NYA'] = self.calc_is_classification_NYA( 'is_mass_transfer' )
@@ -1329,7 +1375,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Material that is in the CGM.
 
         Returns:
-            self.data['is_in_CGM'] (np.ndarray) :
+            self.data['is_in_CGM'] (np.ndarray):
                 If True, the particle is currently in the CGM, as defined
                 in Hafen+18.
         '''
@@ -1674,7 +1720,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Calc current time in the simulation.
 
         Returns:
-            self.data['time'] (np.ndarray) :
+            self.data['time'] (np.ndarray):
                 The value at index i is the time in the simulation
                 (i.e. the age of the universe) at that index.
         '''
@@ -1692,7 +1738,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Calc time difference between snapshots.
 
         Returns:
-            self.data['dt'] (np.ndarray) : self.data['dt'][i] = light_travel_time[i+1] - light_travel_time[i]
+            self.data['dt'] (np.ndarray): self.data['dt'][i] = light_travel_time[i+1] - light_travel_time[i]
         '''
 
         # Age of the universe in Myr
@@ -1710,7 +1756,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Calculate the time spent in another galaxy prior to accretion onto the main galaxy of the simulation.
 
         Returns:
-            self.data['t_EP'] (np.ndarray) :
+            self.data['t_EP'] (np.ndarray):
                 self.data['t_EP'][i] = time particle i spent in another galaxy prior to first accretion.
         '''
 
@@ -1739,7 +1785,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Calculate the minimum distance to a a galaxy other than the main galaxy, prior to accretion onto the main gal.
 
         Returns:
-            self.data['d_sat_scaled_min'] (np.ndarray of shape (n_particles,)) :
+            self.data['d_sat_scaled_min'] (np.ndarray of shape (n_particles,)):
                 self.data['d_sat_scaled_min'][i] = min( d_sat_scaled, prior to first acc for particle i )
         '''
 
@@ -1773,7 +1819,7 @@ class Worldlines( simulation_data.TimeData ):
         '''Calculate the index at which a particle is first recorded as being a star.
 
         Returns:
-            self.data['ind_star'] (np.ndarray of shape (n_particles,)) :
+            self.data['ind_star'] (np.ndarray of shape (n_particles,)):
                 self.data['ind_star'][i] = Index at which particle is first recorded as being a star.
         '''
 
@@ -1946,31 +1992,31 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         '''Get a mask for the data.
 
         Args:
-            mask (np.array) :
+            mask (np.array):
                 Mask to apply to the data. If None, use the masks stored in self.masks (which Nones to empty).
 
-            classification (str) :
+            classification (str):
                 If provided, only select particles that meet this classification, as given in
                 self.data_object.classifications.data
 
-            tile_classification_mask (bool) :
+            tile_classification_mask (bool):
                 Whether or not to tile the classification mask. True for most data that's time dependent, but False
                 for data that's one value per particle.
 
-            mask_after_first_acc (bool) :
+            mask_after_first_acc (bool):
                 If True, only select particles above first accretion.
 
-            mask_before_first_acc (bool) :
+            mask_before_first_acc (bool):
                 If True, only select particles after first accretion.
 
-            preserve_mask_shape (bool) :
+            preserve_mask_shape (bool):
                 If True, don't tile masks that are single dimensional, and one per particle.
 
-            optional_masks (list-like) :
+            optional_masks (list-like):
                 If given, the optional masks to include, by name (masks must be available in self.optional_masks).
 
         Returns:
-            mask (bool np.ndarray) :
+            mask (bool np.ndarray):
                 Mask from all the combinations.
         '''
 
@@ -2035,31 +2081,31 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_selected_data.
 
         Args:
-            data_key (str) :
+            data_key (str):
                 Data to get.
 
-            mask (np.array) :
+            mask (np.array):
                 Mask to apply to the data. If None, use the masks stored in self.masks (which Nones to empty).
 
-            classification (str) :
+            classification (str):
                 If provided, only select particles that meet this classification, as given in
                 self.data_object.classifications.data
 
-            tile_classification_mask (bool) :
+            tile_classification_mask (bool):
                 Whether or not to tile the classification mask. True for most data that's time dependent, but False
                 for data that's one value per particle.
 
-            mask_after_first_acc (bool) :
+            mask_after_first_acc (bool):
                 If True, only select particles above first accretion.
 
-            mask_before_first_acc (bool) :
+            mask_before_first_acc (bool):
                 If True, only select particles after first accretion.
 
-            preserve_mask_shape (bool) :
+            preserve_mask_shape (bool):
                 If True, don't tile masks that are single dimensional, and one per particle.
 
         Returns:
-            masked_data (np.array) :
+            masked_data (np.array):
                 Flattened array of masked data.
         '''
 
@@ -2092,31 +2138,31 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         '''Get masked worldline data. Extra arguments are passed to the ParentClass' get_selected_data.
 
         Args:
-            data_key (str) :
+            data_key (str):
                 Data to get.
 
-            mask (np.array) :
+            mask (np.array):
                 Mask to apply to the data. If None, use the masks stored in self.masks (which defaults to empty).
 
-            classification (str) :
+            classification (str):
                 If provided, only select particles that meet this classification, as given in
                 self.data_object.classifications.data
 
-            tile_classification_mask (bool) :
+            tile_classification_mask (bool):
                 Whether or not to tile the classification mask. True for most data that's time dependent, but False
                 for data that's one value per particle.
 
-            mask_after_first_acc (bool) :
+            mask_after_first_acc (bool):
                 If True, only select particles above first accretion.
 
-            mask_before_first_acc (bool) :
+            mask_before_first_acc (bool):
                 If True, only select particles after first accretion.
 
-            preserve_mask_shape (bool) :
+            preserve_mask_shape (bool):
                 If True, don't tile masks that are single dimensional, and one per particle.
 
         Returns:
-            masked_data (np.array) :
+            masked_data (np.array):
                 Flattened array of masked data.
         '''
 
@@ -2147,14 +2193,14 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         Masked data then will be retrieved with these masks in mind.
 
         Args:
-            selection_routine (str) :
+            selection_routine (str):
                 What selection routine to run? If None, don't run any.
 
-            ptype (str) :
+            ptype (str):
                 What particle type to select?
 
         Returns:
-            self.masks (list) :
+            self.masks (list):
                 Clears and adds masks to self.masks.
         '''
 
@@ -2178,14 +2224,14 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         '''Simple selection routine for only selecting particle type.
 
         Args:
-            selection_routine (str) :
+            selection_routine (str):
                 What selection routine to run? If None, don't run any.
 
-            ptype (str) :
+            ptype (str):
                 What particle type to select?
 
         Returns:
-            self.masks (list) :
+            self.masks (list):
                 Clears and adds masks to self.masks.
         '''
 
@@ -2196,11 +2242,11 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
     def select_galaxy( self, ptype_value ):
         '''This selection routine selects only particles in a galaxy.
 
-        ptype_value (int) :
+        ptype_value (int):
             In the data, what ptype do we select?
 
         Returns:
-            self.masks (list) :
+            self.masks (list):
                 Adds masks needed to select only particles in a galaxy.
         '''
 
@@ -2212,11 +2258,11 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
     def select_accreted( self, ptype_value ):
         '''This selection routine selects only particles that are the snapshot before being accreted.
 
-        ptype_value (int) :
+        ptype_value (int):
             In the data, what ptype do we select?
 
         Returns:
-            self.masks (list) :
+            self.masks (list):
                 Adds masks needed to select only particles in a galaxy.
         '''
 
@@ -2233,11 +2279,11 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
     def select_outside_all_galaxies( self, ptype_value ):
         '''This seleciton routine selects only particles that are outside all galaxies.
 
-        ptype_value (int) :
+        ptype_value (int):
             In the data, what ptype do we select?
 
         Returns:
-            self.masks (list) :
+            self.masks (list):
                 Adds masks needed to select only particles outside all galaxies.
         '''
 
