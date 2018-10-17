@@ -222,12 +222,6 @@ CLASSIFICATIONS_CGM_ORIGIN = [
     'is_CGM_EP',
     'is_CGM_satellite',
 ]
-# Old classifications
-# CLASSIFICATIONS_CGM_ORIGIN = [
-#     'is_hitherto_NEP_NYA',
-#     'is_hitherto_EP_NYA',
-#     'is_IP',
-# ]
 
 # This set of classifications is centered on the fate of the CGM
 CLASSIFICATIONS_CGM_FATE = [
