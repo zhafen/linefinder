@@ -1874,6 +1874,23 @@ class Worldlines( simulation_data.TimeData ):
 
         return self.data['CGM_event_id']
 
+    def calc_other_gal_event_id( self ):
+        '''Indication of when a particle moves in or out of galaxies other than
+        the main galaxy.
+
+        Returns:
+            array-like, (n_particles, n_snaps - 1):
+                A value of -1 means the particle has left all other galaxies.
+                A value of 1 means the particle has entered any other galaxy.
+                A value of 0 indicates no change.
+        '''
+
+        self.data['other_gal_event_id'] = self.get_event_id(
+            self.get_data( 'is_in_other_gal' ),
+        )
+
+        return self.data['other_gal_event_id']
+
     ########################################################################
 
     def get_time_since_event( self, boolean ):
@@ -1939,6 +1956,27 @@ class Worldlines( simulation_data.TimeData ):
 
         # Actual calculation
         self.data['time_since_leaving_main_gal'] = self.get_time_since_event(
+            is_leaving,
+        )
+
+        return self.data['time_since_leaving_main_gal']
+
+    def calc_time_since_leaving_other_gal( self, ):
+        '''Time since a particle has left all galaxies other than
+        the main galaxy.
+
+        Returns:
+            array-like of floats, (n_particles, n_snaps):
+                Value at index [i,j] is the time since particle i left a galaxy
+                other than the main galaxy at some index prior to j.
+        '''
+
+        # Find when it left the main galaxy
+        is_leaving = np.zeros( self.base_data_shape ).astype( bool )
+        is_leaving[:,:-1] = self.get_data( 'other_gal_event_id' ) == -1
+
+        # Actual calculation
+        self.data['time_since_leaving_other_gal'] = self.get_time_since_event(
             is_leaving,
         )
 
