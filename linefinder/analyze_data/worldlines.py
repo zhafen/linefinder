@@ -2010,9 +2010,10 @@ class Worldlines( simulation_data.TimeData ):
                 i has entered the CGM prior to index j.                                               
         ''' 
 
-        is_entering = self.get_data( 'CGM_event_id' ) == -1
+        is_leaving = np.zeros( self.base_data_shape ).astype( bool )
+        is_leaving[:,:-1] = self.get_data( 'CGM_event_id' ) == -1
 
-        n_out = self.count_n_events( is_entering )
+        n_out = self.count_n_events( is_leaving )
 
         self.data['n_out_CGM'] = n_out
 
@@ -2028,7 +2029,8 @@ class Worldlines( simulation_data.TimeData ):
                 i has entered the CGM prior to index j.                                               
         ''' 
 
-        is_entering = self.get_data( 'CGM_event_id' ) == 1
+        is_entering = np.zeros( self.base_data_shape ).astype( bool )
+        is_entering[:,:-1] = self.get_data( 'CGM_event_id' ) == 1
 
         n_in = self.count_n_events( is_entering )
 
