@@ -1047,6 +1047,32 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
+    def test_calc_time_since_leaving_main_gal( self ):
+
+        # Setup test data
+        self.worldlines.ptracks._base_data_shape = ( 3, 8 )
+        self.worldlines.data['gal_event_id'] = np.array([
+            [ -1, 0, 0, -1, 0, 0, 0, ],
+            [ 0, 0, -1, 0, 0, -1, 0, ],
+            [ 0, -1, 0, 0, 0, -1, 0, ],
+        ])
+        self.worldlines.data['dt'] = np.array(
+            [ 7., 6., 5., 4., 3., 2., 1., 0.5 ]
+        )
+
+        self.worldlines.calc_time_since_leaving_main_gal()
+        actual = self.worldlines.data['time_since_leaving_main_gal']
+
+        expected = np.array([
+            [ 0., 11., 5., 0., np.nan, np.nan, np.nan, np.nan ],
+            [ 13., 6., 0., 7., 3., 0., np.nan, np.nan ],
+            [ 7., 0., 12., 7., 3., 0., np.nan, np.nan ],
+        ])
+
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
     def test_calc_n_out( self ):
         '''Test that we can calculate the number of times a particle has left
         the main galaxy.'''

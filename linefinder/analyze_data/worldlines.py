@@ -1924,6 +1924,24 @@ class Worldlines( simulation_data.TimeData ):
 
         return time_since_event
 
+    def calc_time_since_leaving_main_gal( self, ):
+        '''Time since a particle has left the main galaxy.
+
+        Returns:
+            array-like of floats, (n_particles, n_snaps):
+                Value at index [i,j] is the time since particle i left the
+                main galaxy at some index prior to j.
+        '''
+
+        # Find when it left the main galaxy
+        is_leaving = np.zeros( self.base_data_shape ).astype( bool )
+        is_leaving[:,:-1] = self.get_data( 'gal_event_id' ) == -1
+
+        # Actual calculation
+        self.data['time_since_leaving_main_gal'] = self.get_time_since_event(
+            is_leaving,
+        )
+
     ########################################################################
 
     def count_n_events( self, boolean ):
@@ -1941,7 +1959,7 @@ class Worldlines( simulation_data.TimeData ):
 
         n_event = np.zeros( self.base_data_shape ).astype( int )
 
-        n_event[:,:-1] = np.cumsum(
+        n_event = np.cumsum(
             boolean[:,::-1].astype( int ),
             axis = 1,
         )[:,::-1]
@@ -1957,7 +1975,8 @@ class Worldlines( simulation_data.TimeData ):
                 of times that particle i has left the galaxy prior to index j.                                               
         ''' 
 
-        is_leaving = self.get_data( 'gal_event_id' ) == -1
+        is_leaving = np.zeros( self.base_data_shape ).astype( bool )
+        is_leaving[:,:-1] = self.get_data( 'gal_event_id' ) == -1
 
         n_out = self.count_n_events( is_leaving )
 
@@ -1974,7 +1993,8 @@ class Worldlines( simulation_data.TimeData ):
                 the galaxy prior to index j.                                               
         ''' 
 
-        is_entering = self.get_data( 'gal_event_id' ) == 1
+        is_entering = np.zeros( self.base_data_shape ).astype( bool )
+        is_entering[:,:-1] = self.get_data( 'gal_event_id' ) == 1
 
         n_in = self.count_n_events( is_entering )
 
