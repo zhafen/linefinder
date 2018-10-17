@@ -515,7 +515,7 @@ class TestWorldlineCalcData( unittest.TestCase ):
         # Actual calculation
         self.worldlines.calc_is_CGM_to_satellite()
 
-        actual = self.worldlines.data['is_CGM_to_IGM']
+        actual = self.worldlines.data['is_CGM_to_satellite']
 
         npt.assert_allclose( expected, actual )
 
@@ -1015,6 +1015,33 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
         actual = self.worldlines.data['ind_star']
         expected = np.array([ 0, config.INT_FILL_VALUE, 1, -1, ])
+
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
+    def test_get_time_since_event( self, ):
+
+        # Setup test data
+        self.worldlines.ptracks._base_data_shape = ( 3, 7 )
+        test_boolean = np.array([
+            [ 1, 0, 0, 1, 0, 0, 0 ],
+            [ 0, 0, 1, 1, 0, 1, 0 ],
+            [ 0, 1, 0, 0, 0, 1, 0 ],
+        ]).astype( bool )
+        self.worldlines.data['dt'] = np.array(
+            [ 7., 6., 5., 4., 3., 2., 1. ]
+        )
+
+        actual = self.worldlines.get_time_since_event(
+            test_boolean
+        )
+
+        expected = np.array([
+            [ 0., 11., 5., 0., np.nan, np.nan, np.nan, ],
+            [ 13., 6., 0., 0., 3., 0., np.nan, ],
+            [ 7., 0., 12., 7., 3., 0., np.nan, ],
+        ])
 
         npt.assert_allclose( expected, actual )
 

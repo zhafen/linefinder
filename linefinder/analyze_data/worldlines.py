@@ -1876,11 +1876,61 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def get_time_since_event( self, boolean ):
+        '''Calculate the time since an event happened.
+        
+        Args:
+            boolean (array-like, (n_particles, n_snaps)):
+                If true, the event happens at the given index.
+
+        Returns:
+            array-like of floats, (n_particles, n_snaps):
+                Value at index [i,j] is the time passed since an event prior
+                to j for particle i.
+        '''
+
+        # Find the regions between events.
+        labeled_regions, n_features = scipy.ndimage.label(
+            np.invert( boolean ),
+            np.array([
+                [ 0, 0, 0, ],
+                [ 1, 1, 1, ],
+                [ 0, 0, 0, ],
+            ])
+        )
+        slices = scipy.ndimage.find_objects( labeled_regions )
+
+        # Get some quantities used in the time calculation
+        dt = self.get_data( 'dt' )
+        inds = self.get_data( 'ind' )
+        max_ind = self.n_snaps - 1
+
+        # Loop through the regions and do the calculation
+        time_since_event = np.zeros( self.base_data_shape )
+        for sl in slices:
+
+            # Find if the event has happened yet
+            before_first_event = inds[sl[1]][-1] == max_ind
+                    
+            # For regions where an event hasn't happened yet 
+            if before_first_event:
+                time_since_event[sl] = np.nan
+
+            # Calculate the cumulative time since the event
+            else:
+                time_since_event[sl] = np.cumsum(
+                    dt[sl[1]][::-1],
+                )[::-1]
+
+        return time_since_event
+
+    ########################################################################
+
     def count_n_events( self, boolean ):
         '''Counts the number of events that occur up to this point.
 
         Args:
-            boolean (array-like):
+            boolean (array-like, (n_particles, n_snaps)):
                 If true, the event happens at the given index.
 
         Returns:
@@ -1902,7 +1952,7 @@ class Worldlines( simulation_data.TimeData ):
         '''The number of times a particle has left the main galaxy.             
                                                                                 
         Returns:                                                               
-            array-like:                                    
+            array-like of integers, (n_particles, n_snaps):                                    
                 self.data['n_out'], where the value of [i,j]th index is number
                 of times that particle i has left the galaxy prior to index j.                                               
         ''' 
@@ -1919,7 +1969,7 @@ class Worldlines( simulation_data.TimeData ):
         '''The number of times a particle has entered the main galaxy.             
                                                                                 
         Returns:                                                               
-            self.data['n_out'] (array-like):                                    
+            array-like of integers, (n_particles, n_snaps):                                    
                 result[i,j] number of times that particle i has entered
                 the galaxy prior to index j.                                               
         ''' 

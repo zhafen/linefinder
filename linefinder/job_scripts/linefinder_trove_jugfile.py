@@ -34,8 +34,8 @@ galdefs = [
     # '',
     # '_galdefv1',
     # '_galdefv2',
-    # '_galdefv3',
-    '_galdefv4',
+    '_galdefv3',
+    # '_galdefv4',
 ]
 
 # Get the file format
@@ -117,9 +117,11 @@ gal_finder_kwargs = {
 # Classifying Parameters
 classifier_kwargs = {
     'ptracks_tag' : ptracks_tag,
+    't_pro': galdef_dict['t_pro'],
+    't_m': galdef_dict['t_m'],
 }
 
-linefinder.run_linefinder_jug(
+linefinder.run_linefinder(
     sim_name = sim_name,
     tag = tag,
     selector_data_filters = selector_data_filters,
@@ -131,6 +133,6 @@ linefinder.run_linefinder_jug(
     run_id_selecting = False,
     run_id_sampling = False,
     run_tracking = False,
-    # run_galaxy_finding = False,
+    run_galaxy_finding = False,
     # run_classifying = False,
 )

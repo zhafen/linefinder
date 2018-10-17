@@ -10,8 +10,7 @@ linefinder
    :maxdepth: 2
    :caption: Contents:
 
-This is currently under construction.
-
+This is currently under construction. 
 
 Indices and tables
 ==================

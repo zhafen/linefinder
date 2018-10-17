@@ -115,8 +115,14 @@ STAMPEDE2_PARAMETERS = {
             'presentation_dir' : '/work/03057/zhafen/presentation_plots',
             'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_fate',
         },
+        'winds' : {
+            'project_dir' : '/home1/03057/zhafen/papers/fire2-winds',
+        },
         'galaxy_origin' : {
             'project_dir' : '/home1/03057/zhafen/papers/galaxy_origin',
+        },
+        'code_paper' : {
+            'project_dir' : '/home1/03057/zhafen/papers/code-paper',
         },
     },
 }
