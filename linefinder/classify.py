@@ -847,12 +847,12 @@ class Classifier( object ):
     ########################################################################
 
     def identify_hitherto_NEP( self ):
-        '''Identify particles that have been processed by another galaxy by
+        '''Identify particles that have not been processed by another galaxy by
         the tabulated snapshot.
 
         Returns:
             is_hitherto_EP ( [n_particle,n_snap] np.ndarray of bools ) :
-                True for particle i at snapshot j if it has spent at least
+                True for particle i at snapshot j if it has not spent at least
                 t_pro in another galaxy by that point.
         '''
 

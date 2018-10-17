@@ -1123,6 +1123,92 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
         npt.assert_allclose( expected, actual )
 
+########################################################################
+########################################################################
+
+class TestCGMOrigins( unittest.TestCase ):
+
+    def setUp( self ):
+
+        self.worldlines = analyze_worldlines.Worldlines(
+            tracking_dir,
+            tag,
+            **kwargs
+        )
+        self.worldlines.data['dt'] = np.array(
+            [ 1., 1., 1., 1., 1., 1., 1., 1., ]
+        )
+
+        data = [
+            # IGM Accretion that's ejected out of the CGM but reaccretes
+            {
+                'is_in_CGM': [ 1, 1, 0, 1, 1, 0, 0, 0, ],
+                'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+            },
+            # IGM Accretion that accretes onto the main galaxy
+            # And is ejected back into the CGM as wind
+            # before reaccreting once more
+            {
+                'is_in_CGM': [ 0, 1, 1, 0, 0, 1, 1, 0, ], 
+                'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
+                'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+            },
+            # Satellite wind that stays in the CGM
+            {
+                'is_in_CGM': [ 1, 1, 1, 1, 1, 0, 0, 0, ], 
+                'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
+                'is_in_other_gal': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
+            },
+            # Satellite wind that is accreted onto the main galaxy
+            {
+                'is_in_CGM': [ 0, 0, 1, 1, 1, 1, 0, 0, ], 
+                'is_in_main_gal': [ 1, 0, 0, 0, 0, 0, 0, 0, ], 
+                'is_in_other_gal': [ 0, 0, 0, 0, 0, 1, 1, 0, ], 
+            },
+            # Satellite wind that is ejected from the CGM but reaccretes
+            {
+                'is_in_CGM': [ 1, 0, 0, 1, 1, 1, 0, 0, ], 
+                'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
+                'is_in_other_gal': [ 0, 0, 0, 0, 1, 1, 0, 0, ], 
+            },
+            # Satellite wind that is ejected after it's host passes through
+            # the main galaxy
+            {
+                'is_in_CGM': [ 1, 1, 1, 0, 0, 1, 1, 0, ], 
+                'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
+                'is_in_other_gal': [ 0, 0, 1, 1, 1, 1, 1, 1, ], 
+            },
+            # Satellite ISM that moves in and out of the CGM,
+            # including nearly merging
+            {
+                'is_in_CGM': [ 1, 0, 1, 0, 0, 1, 0, 0, ], 
+                'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
+                'is_in_other_gal': [ 1, 1, 1, 0, 1, 1, 1, 1, ], 
+            },
+        ]
+
+        # Reformat the data
+        for key in data[0].keys():
+
+            # Compile data
+            dataset = []
+            for pathline in data:
+                dataset.append( pathline[key] )
+            dataset = np.array( dataset )
+
+            # Turn to boolean for a few cases
+            if key[:3] == 'is_':
+                dataset = dataset.astype( bool )
+
+            # Store data
+            self.worldlines.data[key] = dataset
+
+    ########################################################################
+
+    def test_calc_is_CGM_IGM_accretion( self ):
+
+        assert False, "Need to do."
 
 ########################################################################
 ########################################################################

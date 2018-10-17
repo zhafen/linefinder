@@ -1562,51 +1562,17 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_is_CGM_satellite( self ):
-        '''This used to be called satellite ISM,
-        until issues with the classification scheme were discovered.
+    def calc_is_CGM_IGM_accretion( self ):
 
-        Returns:
-            array-like, (n_particles, n_snaps):
-                If value at [i,j] is True, this is a particle that is
-                "internally processed" and is also part of another galaxy.
-        '''
-
-        self.data['is_CGM_satellite'] = (
-            self.get_data( 'is_in_CGM' )
-            & self.get_data( 'is_in_other_gal' )
-            & np.invert( self.get_data( 'is_IP' ) )
-        )
-
-        return self.data['is_CGM_satellite']
-
-    ########################################################################
-
-    def calc_is_CGM_EP( self ):
-        '''This used to be called satellite wind,
-        until issues with the classification scheme were discovered.
-
-        Returns:
-            array-like, (n_particles, n_snaps):
-                If value at [i,j] is True, this is a particle that is
-                "externally processed" and part of the CGM, but has not been
-                "internally processed" and is not part of another galaxy.
-        '''
-
-        self.data['is_CGM_EP'] = (
-            self.get_data( 'is_in_CGM' )
-            & self.get_data( 'is_hitherto_EP' )
-            & np.invert( self.get_data( 'is_IP' ) )
-            & np.invert( self.get_data( 'is_in_other_gal' ) )
-        )
-
-        return self.data['is_CGM_EP']
+        pass
 
     ########################################################################
 
     def calc_is_CGM_NEP( self ):
         '''This used to be called IGM accretion,
-        until issues with the classification scheme were discovered.
+        until minor issues with the classification scheme were discovered.
+        In particular, merging galaxies that momentarily ended up in the CGM
+        again were being classified as winds.
 
         Returns:
             array-like, (n_particles, n_snaps):
@@ -1625,9 +1591,33 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_CGM_satellite( self ):
+        '''This used to be called satellite ISM,
+        until minor issues with the classification scheme were discovered.
+        In particular, merging galaxies that momentarily ended up in the CGM
+        again were being classified as winds.
+
+        Returns:
+            array-like, (n_particles, n_snaps):
+                If value at [i,j] is True, this is a particle that is
+                "internally processed" and is also part of another galaxy.
+        '''
+
+        self.data['is_CGM_satellite'] = (
+            self.get_data( 'is_in_CGM' )
+            & self.get_data( 'is_in_other_gal' )
+            & np.invert( self.get_data( 'is_IP' ) )
+        )
+
+        return self.data['is_CGM_satellite']
+
+    ########################################################################
+
     def calc_is_CGM_IP( self ):
         '''This used to be called wind (from the central galaxy),
-        until issues with the classification scheme were discovered.
+        until minor issues with the classification scheme were discovered.
+        In particular, merging galaxies that momentarily ended up in the CGM
+        again were being classified as winds.
 
         Returns:
             array-like, (n_particles, n_snaps):
@@ -1639,6 +1629,30 @@ class Worldlines( simulation_data.TimeData ):
             & self.get_data( 'is_IP' )
 
         return self.data['is_CGM_IP']
+
+    ########################################################################
+
+    def calc_is_CGM_EP( self ):
+        '''This used to be called satellite wind,
+        until minor issues with the classification scheme were discovered.
+        In particular, merging galaxies that momentarily ended up in the CGM
+        again were being classified as winds.
+
+        Returns:
+            array-like, (n_particles, n_snaps):
+                If value at [i,j] is True, this is a particle that is
+                "externally processed" and part of the CGM, but has not been
+                "internally processed" and is not part of another galaxy.
+        '''
+
+        self.data['is_CGM_EP'] = (
+            self.get_data( 'is_in_CGM' )
+            & self.get_data( 'is_hitherto_EP' )
+            & np.invert( self.get_data( 'is_IP' ) )
+            & np.invert( self.get_data( 'is_in_other_gal' ) )
+        )
+
+        return self.data['is_CGM_EP']
 
     ########################################################################
 
