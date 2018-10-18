@@ -1148,8 +1148,10 @@ class TestCGMOrigins( unittest.TestCase ):
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_hitherto_EP': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'gal_event_id': [ 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_IGM_accretion': [ 1, 1, 0, 1, 1, 0, 0, 0, ],
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # IGM Accretion that accretes onto the main galaxy
             # And is ejected back into the CGM as wind
@@ -1159,8 +1161,23 @@ class TestCGMOrigins( unittest.TestCase ):
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_hitherto_EP': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'gal_event_id': [ 0, 0, -1, 0, 1, 0, 0, ],
                 'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+            },
+            # Satellite wind that accretes onto the main galaxy and then
+            # is ejected back into the CGM, beyond that, and then back in
+            {
+                'is_in_CGM': [ 1, 0, 1, 0, 0, 1, 1, 0, ], 
+                'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
+                'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 1, 1, ],
+                'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 1, 0, ],
+                'gal_event_id': [ 0, 0, -1, 0, 1, 0, 0, ],
+                'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 1, 0, ],
+                'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 1, 0, 0, ],
+                'is_CGM_wind': [ 1, 0, 1, 0, 0, 0, 0, 0, ],
             },
             # Satellite wind that stays in the CGM
             {
@@ -1168,8 +1185,10 @@ class TestCGMOrigins( unittest.TestCase ):
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
                 'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 0, 0, ],
+                'gal_event_id': [ 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_satellite_wind': [ 1, 1, 1, 1, 1, 0, 0, 0, ],
             },
             # Satellite wind that is accreted onto the main galaxy
             {
@@ -1177,8 +1196,10 @@ class TestCGMOrigins( unittest.TestCase ):
                 'is_in_main_gal': [ 1, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 0, 1, 1, 0, 0, ], 
                 'is_hitherto_EP': [ 1, 1, 1, 1, 1, 0, 0, 0, ],
+                'gal_event_id': [ 1, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 1, 0, 0, 0, ],
+                'is_CGM_satellite_wind': [ 0, 0, 1, 1, 0, 0, 0, 0, ],
             },
             # Satellite wind that is ejected from the CGM but reaccretes
             {
@@ -1186,8 +1207,10 @@ class TestCGMOrigins( unittest.TestCase ):
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 0, 1, 1, 0, 0, ], 
                 'is_hitherto_EP': [ 1, 1, 1, 1, 1, 0, 0, 0, ],
+                'gal_event_id': [ 1, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 1, 0, 0, ],
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 1, 0, 0, 0, ],
+                'is_CGM_satellite_wind': [ 1, 0, 0, 1, 0, 0, 0, 0, ],
             },
             # Satellite wind that is ejected after it's host passes through
             # the main galaxy
@@ -1196,8 +1219,10 @@ class TestCGMOrigins( unittest.TestCase ):
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 1, 1, 1, 1, 1, 1, ], 
                 'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 1, 0, ],
+                'gal_event_id': [ 0, 0, -1, 0, 1, 0, 0, ],
                 'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_satellite_ISM': [ 0, 0, 1, 0, 0, 1, 1, 0, ],
+                'is_CGM_satellite_wind': [ 1, 1, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite ISM that moves in and out of the CGM,
             # including nearly merging
@@ -1206,8 +1231,10 @@ class TestCGMOrigins( unittest.TestCase ):
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_other_gal': [ 1, 1, 1, 0, 1, 1, 1, 1, ], 
                 'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 1, 0, ],
+                'gal_event_id': [ 0, 0, -1, 0, 1, 0, 0, ],
                 'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_satellite_ISM': [ 1, 0, 1, 0, 0, 1, 0, 0, ],
+                'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
         ]
 
@@ -1261,6 +1288,16 @@ class TestCGMOrigins( unittest.TestCase ):
         # Do calculation
         actual = self.worldlines.calc_is_CGM_satellite_ISM()
         expected = self.expected_values['is_CGM_satellite_ISM']
+
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
+    def test_calc_is_CGM_satellite_wind( self ):
+
+        # Do calculation
+        actual = self.worldlines.calc_is_CGM_satellite_wind()
+        expected = self.expected_values['is_CGM_satellite_wind']
 
         npt.assert_allclose( expected, actual )
 

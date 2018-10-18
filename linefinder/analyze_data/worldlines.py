@@ -1591,7 +1591,8 @@ class Worldlines( simulation_data.TimeData ):
         Returns:
             array-like, (n_particles, n_snaps):
                 If value at [i,j] is True, this is a particle that is
-                in a satellite galaxy and has been externally processed.
+                in a satellite galaxy, in the CGM,
+                 and has been externally processed.
         '''
 
         self.data['is_CGM_satellite_ISM'] = (
@@ -1601,6 +1602,39 @@ class Worldlines( simulation_data.TimeData ):
         )
 
         return self.data['is_CGM_satellite_ISM']
+
+    ########################################################################
+
+    def calc_is_CGM_satellite_wind( self ):
+        '''This is "satellite wind" in Hafen+2018.
+
+        Returns:
+            array-like, (n_particles, n_snaps):
+                If value at [i,j] is True, this is a particle that is
+                is in the CGM, is externally processed, and last left
+                a galaxy other than the main galaxy.
+        '''
+
+        # Calculate what galaxy was last left.
+        # We need to fill in the NaNs with infinities for this calculation
+        # to make sense.
+        time_left_other_gal = np.ma.fix_invalid(
+            self.get_data( 'time_since_leaving_other_gal' ),
+            fill_value = np.inf,
+        )
+        time_left_main_gal = np.ma.fix_invalid(
+            self.get_data( 'time_since_leaving_main_gal' ),
+            fill_value = np.inf,
+        )
+        last_left_other_galaxy = time_left_other_gal < time_left_main_gal
+
+        self.data['is_CGM_satellite_wind'] = (
+            self.get_data( 'is_in_CGM' )
+            & self.get_data( 'is_hitherto_EP' )
+            & last_left_other_galaxy
+        )
+
+        return self.data['is_CGM_satellite_wind']
 
     ########################################################################
 
