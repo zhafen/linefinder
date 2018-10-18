@@ -1563,7 +1563,7 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     def calc_is_CGM_IGM_accretion( self ):
-        '''This is IGM accretion in Hafen+2018.
+        '''This is "IGM accretion" in Hafen+2018.
         Note that this is nearly exactly equivalent to "is_CGM_NEP",
         but we count unprocessed gas in galaxies (however, this should be
         nearly negligible).
@@ -1575,12 +1575,32 @@ class Worldlines( simulation_data.TimeData ):
         '''
 
         self.data['is_CGM_IGM_accretion'] = (
-            self.get_data( 'is_in_CGM' ) &
-            np.invert( self.get_data( 'is_IP' ) ) &
-            np.invert( self.get_data( 'is_hitherto_EP' ) )
+            self.get_data( 'is_in_CGM' )
+            & np.invert( self.get_data( 'is_IP' ) )
+            & np.invert( self.get_data( 'is_hitherto_EP' ) )
         )
 
         return self.data['is_CGM_IGM_accretion']
+
+    ########################################################################
+
+    def calc_is_CGM_satellite_ISM( self ):
+        '''This is "satellite ISM" in Hafen+2018.
+        While called ISM, this doesn't select only gas particles.
+
+        Returns:
+            array-like, (n_particles, n_snaps):
+                If value at [i,j] is True, this is a particle that is
+                in a satellite galaxy and has been externally processed.
+        '''
+
+        self.data['is_CGM_satellite_ISM'] = (
+            self.get_data( 'is_in_CGM' )
+            & self.get_data( 'is_in_other_gal' )
+            & self.get_data( 'is_hitherto_EP' )
+        )
+
+        return self.data['is_CGM_satellite_ISM']
 
     ########################################################################
 
