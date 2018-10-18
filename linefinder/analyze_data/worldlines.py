@@ -1607,12 +1607,16 @@ class Worldlines( simulation_data.TimeData ):
 
     def calc_is_CGM_satellite_wind( self ):
         '''This is "satellite wind" in Hafen+2018.
+        Note that under this definition a small fraction of particles may be
+        unclassified: ones that are processed by the main galaxy, land in a
+        satellite galaxy, and then leave the satellite galaxy before spending
+        enough time in it to be externally processed.
 
         Returns:
             array-like, (n_particles, n_snaps):
                 If value at [i,j] is True, this is a particle that is
-                is in the CGM, is externally processed, and last left
-                a galaxy other than the main galaxy.
+                in the CGM, is externally processed, is not in another galaxy,
+                and last left a galaxy other than the main galaxy.
         '''
 
         # Calculate what galaxy was last left.
@@ -1621,20 +1625,59 @@ class Worldlines( simulation_data.TimeData ):
         time_left_other_gal = np.ma.fix_invalid(
             self.get_data( 'time_since_leaving_other_gal' ),
             fill_value = np.inf,
-        )
+        ).filled()
         time_left_main_gal = np.ma.fix_invalid(
             self.get_data( 'time_since_leaving_main_gal' ),
             fill_value = np.inf,
-        )
+        ).filled()
         last_left_other_galaxy = time_left_other_gal < time_left_main_gal
 
         self.data['is_CGM_satellite_wind'] = (
             self.get_data( 'is_in_CGM' )
             & self.get_data( 'is_hitherto_EP' )
+            & np.invert( self.get_data( 'is_in_other_gal' ) )
             & last_left_other_galaxy
         )
 
         return self.data['is_CGM_satellite_wind']
+
+    ########################################################################
+
+    def calc_is_CGM_wind( self ):
+        '''This is "wind" (from the central galaxy) in Hafen+2018.
+        Note that under this definition a small fraction of particles may be
+        unclassified: ones that are processed by a galaxy other than the main
+        galaxy, land in the main galaxy, and then leave the main galaxy before
+        spending enough time in it to be internally processed.
+
+        Returns:
+            array-like, (n_particles, n_snaps):
+                If value at [i,j] is True, this is a particle that is
+                in the CGM, is internally processed, is not in another galaxy,
+                and lasft the main galaxy.
+        '''
+
+        # Calculate what galaxy was last left.
+        # We need to fill in the NaNs with infinities for this calculation
+        # to make sense.
+        time_left_other_gal = np.ma.fix_invalid(
+            self.get_data( 'time_since_leaving_other_gal' ),
+            fill_value = np.inf,
+        ).filled()
+        time_left_main_gal = np.ma.fix_invalid(
+            self.get_data( 'time_since_leaving_main_gal' ),
+            fill_value = np.inf,
+        ).filled()
+        last_left_main_galaxy = time_left_main_gal < time_left_other_gal
+
+        self.data['is_CGM_wind'] = (
+            self.get_data( 'is_in_CGM' )
+            & self.get_data( 'is_IP' )
+            & np.invert( self.get_data( 'is_in_other_gal' ) )
+            & last_left_main_galaxy
+        )
+
+        return self.data['is_CGM_wind']
 
     ########################################################################
 
