@@ -1135,9 +1135,11 @@ class TestCGMOrigins( unittest.TestCase ):
             tag,
             **kwargs
         )
+
+        # Setup dt, s.t. being processed requires two snapshots
         self.worldlines.data['dt'] = np.array(
             [ 1., 1., 1., 1., 1., 1., 1., 1., ]
-        )
+        ) * 0.06
 
         data = [
             # IGM Accretion that's ejected out of the CGM but reaccretes
@@ -1145,6 +1147,8 @@ class TestCGMOrigins( unittest.TestCase ):
                 'is_in_CGM': [ 1, 1, 0, 1, 1, 0, 0, 0, ],
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_hitherto_EP': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_IGM_accretion': [ 1, 1, 0, 1, 1, 0, 0, 0, ],
             },
             # IGM Accretion that accretes onto the main galaxy
             # And is ejected back into the CGM as wind
@@ -1153,24 +1157,32 @@ class TestCGMOrigins( unittest.TestCase ):
                 'is_in_CGM': [ 0, 1, 1, 0, 0, 1, 1, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_hitherto_EP': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
             },
             # Satellite wind that stays in the CGM
             {
                 'is_in_CGM': [ 1, 1, 1, 1, 1, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
+                'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 0, 0, ],
+                'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite wind that is accreted onto the main galaxy
             {
-                'is_in_CGM': [ 0, 0, 1, 1, 1, 1, 0, 0, ], 
+                'is_in_CGM': [ 0, 0, 1, 1, 1, 1, 1, 0, ], 
                 'is_in_main_gal': [ 1, 0, 0, 0, 0, 0, 0, 0, ], 
-                'is_in_other_gal': [ 0, 0, 0, 0, 0, 1, 1, 0, ], 
+                'is_in_other_gal': [ 0, 0, 0, 0, 1, 1, 0, 0, ], 
+                'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 0, 0, ],
+                'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 0, 1, 0, ],
             },
             # Satellite wind that is ejected from the CGM but reaccretes
             {
                 'is_in_CGM': [ 1, 0, 0, 1, 1, 1, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 0, 1, 1, 0, 0, ], 
+                'is_hitherto_EP': [ 1, 1, 1, 1, 1, 0, 0, 0, ],
+                'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 1, 0, 0, ],
             },
             # Satellite wind that is ejected after it's host passes through
             # the main galaxy
@@ -1178,6 +1190,8 @@ class TestCGMOrigins( unittest.TestCase ):
                 'is_in_CGM': [ 1, 1, 1, 0, 0, 1, 1, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 1, 1, 1, 1, 1, 1, ], 
+                'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 1, 0, ],
+                'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite ISM that moves in and out of the CGM,
             # including nearly merging
@@ -1185,8 +1199,20 @@ class TestCGMOrigins( unittest.TestCase ):
                 'is_in_CGM': [ 1, 0, 1, 0, 0, 1, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_other_gal': [ 1, 1, 1, 0, 1, 1, 1, 1, ], 
+                'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 1, 0, ],
+                'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
         ]
+
+        # These are the data we want to test
+        test_keys = [
+            'is_CGM_IGM_accretion',
+            'is_CGM_satellite_ISM',
+            'is_CGM_wind',
+            'is_CGM_satellite_wind',
+        ]
+        # Dictionary to store the expected values in
+        self.expected_values = {}
 
         # Reformat the data
         for key in data[0].keys():
@@ -1202,13 +1228,24 @@ class TestCGMOrigins( unittest.TestCase ):
                 dataset = dataset.astype( bool )
 
             # Store data
-            self.worldlines.data[key] = dataset
+            if key in test_keys:
+                self.expected_values[key] = dataset
+            else:
+                self.worldlines.data[key] = dataset
+
+        # Correct the shape of the data
+        self.worldlines.ptracks._base_data_shape = \
+            self.worldlines.data['is_in_main_gal'].shape
 
     ########################################################################
 
     def test_calc_is_CGM_IGM_accretion( self ):
 
-        assert False, "Need to do."
+        # Do calculation
+        actual = self.worldlines.calc_is_CGM_IGM_accretion()
+        expected = self.expected_values['is_CGM_IGM_accretion']
+
+        npt.assert_allclose( expected, actual )
 
 ########################################################################
 ########################################################################

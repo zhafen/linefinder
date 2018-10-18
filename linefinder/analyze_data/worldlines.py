@@ -1563,8 +1563,24 @@ class Worldlines( simulation_data.TimeData ):
     ########################################################################
 
     def calc_is_CGM_IGM_accretion( self ):
+        '''This is IGM accretion in Hafen+2018.
+        Note that this is nearly exactly equivalent to "is_CGM_NEP",
+        but we count unprocessed gas in galaxies (however, this should be
+        nearly negligible).
 
-        pass
+        Returns:
+            array-like, (n_particles, n_snaps):
+                If value at [i,j] is True, this is a particle that is
+                part of the CGM and has not been processed.
+        '''
+
+        self.data['is_CGM_IGM_accretion'] = (
+            self.get_data( 'is_in_CGM' ) &
+            np.invert( self.get_data( 'is_IP' ) ) &
+            np.invert( self.get_data( 'is_hitherto_EP' ) )
+        )
+
+        return self.data['is_CGM_IGM_accretion']
 
     ########################################################################
 
