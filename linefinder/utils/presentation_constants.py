@@ -38,9 +38,13 @@ CLASSIFICATION_LABELS = {
     'is_hitherto_NEP_NYA': 'NEP CGM',
     'is_in_CGM' : 'All CGM',
     'is_CGM_NEP': 'IGM Accretion',
-    'is_CGM_EP': 'Satellite Wind',
     'is_CGM_IP': 'Wind',
+    'is_CGM_EP': 'Satellite Wind',
     'is_CGM_satellite': 'Satellite ISM',
+    'is_CGM_IGM_accretion': 'IGM Accretion',
+    'is_CGM_wind': 'Wind',
+    'is_CGM_satellite_wind': 'Satellite Wind',
+    'is_CGM_satellite_ISM': 'Satellite ISM',
     'is_outside_any_gal_EP': 'Satellite Wind',
     'is_outside_any_gal_IP': 'Wind',
     'is_CGM_to_IGM': 'ejected',
@@ -81,11 +85,15 @@ CLASSIFICATION_COLORS_B = {
     'all' : 'black',
     None: 'black',
     'is_in_CGM': 'black',
+    'is_CGM_IGM_accretion': colors.hsv_to_rgb( np.array([ 200./360., 0.72,  0.7 ]) ),
     'is_CGM_NEP': colors.hsv_to_rgb( np.array([ 200./360., 0.72,  0.7 ]) ),
+    'is_CGM_wind': colors.hsv_to_rgb( np.array([ 140./360., 0.72, 0.8 ]) ),
     'is_CGM_IP': colors.hsv_to_rgb( np.array([ 140./360., 0.72, 0.8 ]) ),
     'is_outside_any_gal_IP': colors.hsv_to_rgb( np.array([ 140./360., 0.72, 0.8 ]) ),
+    'is_CGM_satellite_wind': colors.hsv_to_rgb( np.array([ 32.6/360.,  0.72,  0.7 ]) ),
     'is_CGM_EP': colors.hsv_to_rgb( np.array([ 32.6/360.,  0.72,  0.7 ]) ),
     'is_outside_any_gal_EP': colors.hsv_to_rgb( np.array([ 32.6/360.,  0.72,  0.7 ]) ),
+    'is_CGM_satellite_ISM': colors.hsv_to_rgb( np.array([ 9.4/360,  0.8, 0.5 ]) ),
     'is_CGM_satellite': colors.hsv_to_rgb( np.array([ 9.4/360,  0.8, 0.5 ]) ),
     'is_in_galaxy_halo_interface': colors.hsv_to_rgb( np.array([ 302./360, .6, .8 ]) ),
     # These are older colors used for Galaxy Data
@@ -216,6 +224,12 @@ CLASSIFICATIONS_CGM_B = [
 ]
 
 # This set of classifications is centered on the origin of the CGM
+CLASSIFICATIONS_CGM_ORIGIN = [
+    'is_CGM_IGM_accretion',
+    'is_CGM_wind',
+    'is_CGM_satellite_wind',
+    'is_CGM_satellite_ISM',
+]
 CLASSIFICATIONS_CGM_ORIGIN = [
     'is_CGM_NEP',
     'is_CGM_IP',
