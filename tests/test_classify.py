@@ -17,6 +17,7 @@ import unittest
 
 import galaxy_dive.read_data.ahf as read_ahf
 from linefinder import classify
+import linefinder.analyze_data.worldlines as analyze_worldlines
 
 ########################################################################
 # Global Variables Useful for Testing
@@ -1077,6 +1078,53 @@ class TestFullClassifierPipeline( unittest.TestCase ):
 
         for event_type in [ 'is_ejected', 'is_in_other_gal', 'is_in_main_gal', 'redshift_first_acc', ]:
             assert event_type in f.keys()
+
+    ########################################################################
+
+    def test_additional_postprocessing( self ):
+
+        # Change arguments
+        self.classifier.classifications_to_save = [ 'is_A', ]
+        self.classifier.pp_classifications_to_save = [ 'is_not_A', ]
+
+        # Fake original data
+        self.classifier.is_A = np.random.randint(
+            2,
+            size=( 4, 3 ),
+        ).astype( bool )
+
+        # Add some properties that we're not testing in this test.
+        self.classifier._main_mt_halo_first_snap = 10
+        self.classifier._ind_first_snap = 10
+        self.classifier.halo_file_tag = 'smooth'
+        self.classifier.mtree_halos_index = None
+
+        # Usual event saving
+        self.classifier.save_classifications(
+            self.classifier.classifications_to_save
+        )
+
+        # Add an attribute to worldlines to test post-processing event saving
+        def calc_is_not_A( self ):
+            self.data['is_not_A'] = np.invert( self.get_data( 'is_A' ) )
+            return self.data['is_not_A']
+        analyze_worldlines.Worldlines.calc_is_not_A = calc_is_not_A
+
+        # Post-processing event saving
+        self.classifier.additional_postprocessing(
+            self.classifier.pp_classifications_to_save,
+        )
+
+        # Test results
+        f = h5py.File( self.savefile, 'r' )
+
+        # Fiducial
+        npt.assert_allclose( self.classifier.is_A, f['is_A'][...] )
+        # post-processing
+        npt.assert_allclose(
+            np.invert( self.classifier.is_A ),
+            f['is_not_A'][...]
+        )
 
     ########################################################################
 

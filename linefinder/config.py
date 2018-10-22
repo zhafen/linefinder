@@ -31,7 +31,7 @@ F_GAP = 0.2
 
 # Sometimes we may also require the following density cut for material to be
 # part of a galaxy (n_b in cm^-3)
-GALAXY_DENSITY_CUT = 0.1
+GALAXY_DENSITY_CUT = 0.173
 
 # The ejection velocity necessary to be counted as a wind is defined as
 # v_{wind} = WIND_CUT*VELOCITY_SCALE

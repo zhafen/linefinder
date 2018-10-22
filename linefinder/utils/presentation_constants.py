@@ -230,7 +230,7 @@ CLASSIFICATIONS_CGM_ORIGIN = [
     'is_CGM_satellite_wind',
     'is_CGM_satellite_ISM',
 ]
-CLASSIFICATIONS_CGM_ORIGIN = [
+CLASSIFICATIONS_CGM_ORIGIN_OLD = [
     'is_CGM_NEP',
     'is_CGM_IP',
     'is_CGM_EP',

@@ -19,6 +19,8 @@ import galaxy_dive.utils.astro as astro_tools
 import galaxy_dive.utils.constants as constants
 import galaxy_dive.utils.utilities as utilities
 
+import analyze_data.worldlines as analyze_worldlines
+
 import config
 
 ########################################################################
@@ -66,6 +68,11 @@ class Classifier( object ):
         main_halo_robustness_criteria = 'n_star',
         main_halo_robustness_value = 100,
         min_gal_density = config.GALAXY_DENSITY_CUT,
+        pp_classifications_to_save = [
+            'is_in_CGM', 'is_in_galaxy_halo_interface',
+            'is_CGM_IGM_accretion', 'is_CGM_wind',
+            'is_CGM_satellite_wind', 'is_CGM_satellite_ISM',
+        ],
     ):
         '''Setup the ID Finder.
 
@@ -151,6 +158,10 @@ class Classifier( object ):
                 Minimum density (n_particles in 1/cm^3) for gas to be counted as
                 being in a galaxy, on top of being sufficiently close to the
                 center of said galaxy.
+
+            pp_classifications_to_save (list of strs) :
+                Classifications available as part of Worldlines that will be
+                saved in the classifications_*.hdf5 file.
         '''
 
         pass
@@ -221,6 +232,7 @@ class Classifier( object ):
         self.save_classifications( self.classifications_to_save )
         if self.write_events:
             self.save_events( self.events_to_save )
+        self.additional_postprocessing( self.pp_classifications_to_save )
 
         # Print out end information
         time_end = time.time()
@@ -308,8 +320,10 @@ class Classifier( object ):
 
         # Open up the file to save the data in.
         classification_filename = 'classifications_{}.hdf5'.format( self.tag )
-        self.classification_filepath = os.path.join( self.out_dir,
-                                                     classification_filename )
+        self.classification_filepath = os.path.join(
+            self.out_dir,
+            classification_filename,
+        )
         f = h5py.File( self.classification_filepath, 'a' )
 
         # Save the data
@@ -359,6 +373,49 @@ class Classifier( object ):
         f.attrs['linefinder_version'] = utilities.get_code_version( self )
         f.attrs['galaxy_dive_version'] = utilities.get_code_version(
             read_ahf, instance_type='module' )
+
+        f.close()
+
+    ########################################################################
+
+    def additional_postprocessing( self, pp_classifications_to_save ):
+        '''Save additional classifications that are available as part of the
+        analysis suite, but are not computed here.
+
+        Args:
+            pp_classifications_to_save (list of strs) :
+                Classifications available as part of Worldlines that will be
+                saved in the classifications_*.hdf5 file.
+        '''
+
+        print( "Starting final postprocessing..." )
+
+        # Load the post-processing analysis class
+        w = analyze_worldlines.Worldlines(
+            data_dir = self.out_dir,
+            tag = self.tag,
+            ptracks_tag = self.ptracks_tag,
+            galids_tag = self.galids_tag,
+            halo_data_dir = self.halo_data_dir,
+            mtree_halos_index = self.mtree_halos_index,
+            halo_file_tag = self.halo_file_tag,
+        )
+
+        # Open up the file to save the data in.
+        classification_filename = 'classifications_{}.hdf5'.format( self.tag )
+        self.classification_filepath = os.path.join(
+            self.out_dir,
+            classification_filename,
+        )
+        f = h5py.File( self.classification_filepath, 'a' )
+
+        # Save the data
+        for classification in pp_classifications_to_save:
+
+            print( "Calculating {}...".format( classification ) )
+
+            data = w.get_data( classification )
+            f.create_dataset( classification, data=data )
 
         f.close()
 
