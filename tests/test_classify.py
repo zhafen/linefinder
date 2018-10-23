@@ -34,6 +34,7 @@ default_kwargs = {
     't_m': 500.,
     'velocity_scale': 'Vc(Rvir)',
     'min_gal_density': None,
+    'pp_classifications_to_save': [],
     }
 
 default_ptrack = {
@@ -1014,6 +1015,9 @@ class TestFullClassifierPipeline( unittest.TestCase ):
         ]).astype( bool )
         self.classifier.redshift_first_acc = np.array([ 0., -1., 0.06984665, -1. ])
 
+        # Remove the request for additional post-processing
+        self.classifier.pp_classifications_to_save = []
+
         # Change values from defaults so that we save without issue
         self.classifier.halo_file_tag = 'smooth'
         self.classifier.mtree_halos_index = None
@@ -1092,6 +1096,9 @@ class TestFullClassifierPipeline( unittest.TestCase ):
             2,
             size=( 4, 3 ),
         ).astype( bool )
+        self.classifier.ptrack_attrs = {
+            'main_mt_halo_id': 2,
+        }
 
         # Add some properties that we're not testing in this test.
         self.classifier._main_mt_halo_first_snap = 10
@@ -1153,6 +1160,9 @@ class TestFullClassifierPipeline( unittest.TestCase ):
             # We don't store None as None, but a string instead (because None doesn't save well in hdf5)
             if default_kwargs[key] is None:
                 assert f['parameters'].attrs[key] == 'None'
+
+            elif default_kwargs[key] == []:
+                assert len( f['parameters'].attrs[key] ) == 0
 
             else:
                 assert default_kwargs[key] == f['parameters'].attrs[key]

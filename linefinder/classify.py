@@ -398,6 +398,7 @@ class Classifier( object ):
             galids_tag = self.galids_tag,
             halo_data_dir = self.halo_data_dir,
             mtree_halos_index = self.mtree_halos_index,
+            main_halo_id = self.ptrack_attrs[ 'main_mt_halo_id' ],
             halo_file_tag = self.halo_file_tag,
         )
 

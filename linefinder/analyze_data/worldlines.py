@@ -546,10 +546,17 @@ class Worldlines( simulation_data.TimeData ):
             data (np.ndarray): Array of data.
         '''
 
-        # First, look to see if this data is calculated in some easy to access location
+        # First, see if this data is calculated in some easy-to-access location
         if data_key in self.data:
             data = self.data[data_key]
+        elif data_key in self.classifications.data:
+            data = self.classifications.data[data_key]
 
+        # If it's in an easy-to-access location, return with slice applied
+        if (
+            ( data_key in self.data )
+            or ( data_key in self.classifications.data )
+        ):
             # Apply the slice if that needs to be done.
             if 'sl' in kwargs:
                 if kwargs['sl'] is not None:
