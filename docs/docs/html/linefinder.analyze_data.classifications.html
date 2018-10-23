@@ -47,34 +47,6 @@
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Loads and analyzes data created by classify.py</p>
 <dl class="method">
-<dt id="linefinder.analyze_data.classifications.Classifications.calc_base_fractions">
-<code class="descname">calc_base_fractions</code><span class="sig-paren">(</span><em>return_or_store='return'</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/classifications.html#Classifications.calc_base_fractions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.classifications.Classifications.calc_base_fractions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get first order results of the classifications data, in the form of
-fractions of each main type of classifications data, relative to the
-total.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>return_or_store</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Whether to return base_fractions or store
-it as an attribute</li>
-<li><strong>mask</strong> (<em>np.array of bools</em>) – What mask to apply to the data, if any</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Contains the fractions for each main type of classifications
-data, evaluated at the final snapshot</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">base_fractions (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a>)</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="linefinder.analyze_data.classifications.Classifications.get_data">
 <code class="descname">get_data</code><span class="sig-paren">(</span><em>data_key</em>, <em>mask=None</em>, <em>slice_index=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/classifications.html#Classifications.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.classifications.Classifications.get_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the data from the data dictionary. Useful (over just accessing

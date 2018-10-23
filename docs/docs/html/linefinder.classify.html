@@ -48,6 +48,22 @@
 <p>Loads the tracked particle data, and uses that to classify the particles
 into different categories.</p>
 <dl class="method">
+<dt id="linefinder.classify.Classifier.additional_postprocessing">
+<code class="descname">additional_postprocessing</code><span class="sig-paren">(</span><em>pp_classifications_to_save</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/classify.html#Classifier.additional_postprocessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.classify.Classifier.additional_postprocessing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save additional classifications that are available as part of the
+analysis suite, but are not computed here.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pp_classifications_to_save</strong> (<em>list of strs</em>) – Classifications available as part of Worldlines that will be
+saved in the classifications_*.hdf5 file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="linefinder.classify.Classifier.calc_gal_event_id">
 <code class="descname">calc_gal_event_id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/classify.html#Classifier.calc_gal_event_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.classify.Classifier.calc_gal_event_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify potential accretion/ejection events relative to main galaxy
@@ -289,13 +305,13 @@ t_pro in another galaxy by that point.</td>
 <dl class="method">
 <dt id="linefinder.classify.Classifier.identify_hitherto_NEP">
 <code class="descname">identify_hitherto_NEP</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/classify.html#Classifier.identify_hitherto_NEP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.classify.Classifier.identify_hitherto_NEP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Identify particles that have been processed by another galaxy by
+<dd><p>Identify particles that have not been processed by another galaxy by
 the tabulated snapshot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True for particle i at snapshot j if it has spent at least
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True for particle i at snapshot j if it has not spent at least
 t_pro in another galaxy by that point.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">is_hitherto_EP ( [n_particle,n_snap] np.ndarray of bools )</td>

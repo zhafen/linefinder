@@ -23,12 +23,16 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_ind_particle
     .. automethod:: calc_ind_star
     .. automethod:: calc_is_CGM_EP
+    .. automethod:: calc_is_CGM_IGM_accretion
     .. automethod:: calc_is_CGM_IP
     .. automethod:: calc_is_CGM_NEP
     .. automethod:: calc_is_CGM_satellite
+    .. automethod:: calc_is_CGM_satellite_ISM
+    .. automethod:: calc_is_CGM_satellite_wind
     .. automethod:: calc_is_CGM_to_IGM
     .. automethod:: calc_is_CGM_to_gal_or_interface
     .. automethod:: calc_is_CGM_to_satellite
+    .. automethod:: calc_is_CGM_wind
     .. automethod:: calc_is_IP
     .. automethod:: calc_is_NEP_NYA
     .. automethod:: calc_is_NEP_wind_recycling
@@ -55,9 +59,12 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_n_in_CGM
     .. automethod:: calc_n_out
     .. automethod:: calc_n_out_CGM
+    .. automethod:: calc_other_gal_event_id
     .. automethod:: calc_phi
     .. automethod:: calc_radial_distance
     .. automethod:: calc_radial_velocity
     .. automethod:: calc_t_EP
     .. automethod:: calc_time
     .. automethod:: calc_time_as_classification
+    .. automethod:: calc_time_since_leaving_main_gal
+    .. automethod:: calc_time_since_leaving_other_gal

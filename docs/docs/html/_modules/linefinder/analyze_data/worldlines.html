@@ -585,10 +585,17 @@
 <span class="sd">            data (np.ndarray): Array of data.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="c1"># First, look to see if this data is calculated in some easy to access location</span>
+        <span class="c1"># First, see if this data is calculated in some easy-to-access location</span>
         <span class="k">if</span> <span class="n">data_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">data_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifications</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifications</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span>
 
+        <span class="c1"># If it&#39;s in an easy-to-access location, return with slice applied</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="p">(</span> <span class="n">data_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="p">)</span>
+            <span class="ow">or</span> <span class="p">(</span> <span class="n">data_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifications</span><span class="o">.</span><span class="n">data</span> <span class="p">)</span>
+        <span class="p">):</span>
             <span class="c1"># Apply the slice if that needs to be done.</span>
             <span class="k">if</span> <span class="s1">&#39;sl&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;sl&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1473,16 +1480,6 @@
 
     <span class="c1">########################################################################</span>
 
-<div class="viewcode-block" id="Worldlines.calc_is_CGM_satellite"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_satellite">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_satellite</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_satellite&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span>
-            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span>
-            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span> <span class="p">)</span>
-        <span class="p">)</span></div>
-
-    <span class="c1">########################################################################</span>
-
 <div class="viewcode-block" id="Worldlines.get_is_CGM_to_other"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.get_is_CGM_to_other">[docs]</a>    <span class="k">def</span> <span class="nf">get_is_CGM_to_other</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">CGM_to_other_event</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, and next enters another</span>
 <span class="sd">        category.</span>
@@ -1611,32 +1608,210 @@
 
     <span class="c1">########################################################################</span>
 
-<div class="viewcode-block" id="Worldlines.calc_is_CGM_EP"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_EP">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_EP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_IGM_accretion"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_IGM_accretion">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_IGM_accretion</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This is &quot;IGM accretion&quot; in Hafen+2018.</span>
+<span class="sd">        Note that this is nearly exactly equivalent to &quot;is_CGM_NEP&quot;,</span>
+<span class="sd">        but we count unprocessed gas in galaxies (however, this should be</span>
+<span class="sd">        nearly negligible).</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_EP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, (n_particles, n_snaps):</span>
+<span class="sd">                If value at [i,j] is True, this is a particle that is</span>
+<span class="sd">                part of the CGM and has not been processed.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_IGM_accretion&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_hitherto_EP&#39;</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_IGM_accretion&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_satellite_ISM"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_satellite_ISM">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_satellite_ISM</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This is &quot;satellite ISM&quot; in Hafen+2018.</span>
+<span class="sd">        While called ISM, this doesn&#39;t select only gas particles.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, (n_particles, n_snaps):</span>
+<span class="sd">                If value at [i,j] is True, this is a particle that is</span>
+<span class="sd">                in a satellite galaxy, in the CGM,</span>
+<span class="sd">                 and has been externally processed.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_satellite_ISM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_hitherto_EP&#39;</span> <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_satellite_ISM&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_satellite_wind"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_satellite_wind">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_satellite_wind</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This is &quot;satellite wind&quot; in Hafen+2018.</span>
+<span class="sd">        Note that under this definition a small fraction of particles may be</span>
+<span class="sd">        unclassified: ones that are processed by the main galaxy, land in a</span>
+<span class="sd">        satellite galaxy, and then leave the satellite galaxy before spending</span>
+<span class="sd">        enough time in it to be externally processed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, (n_particles, n_snaps):</span>
+<span class="sd">                If value at [i,j] is True, this is a particle that is</span>
+<span class="sd">                in the CGM, is externally processed, is not in another galaxy,</span>
+<span class="sd">                and last left a galaxy other than the main galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Calculate what galaxy was last left.</span>
+        <span class="c1"># We need to fill in the NaNs with infinities for this calculation</span>
+        <span class="c1"># to make sense.</span>
+        <span class="n">time_left_other_gal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">fix_invalid</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;time_since_leaving_other_gal&#39;</span> <span class="p">),</span>
+            <span class="n">fill_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">()</span>
+        <span class="n">time_left_main_gal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">fix_invalid</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;time_since_leaving_main_gal&#39;</span> <span class="p">),</span>
+            <span class="n">fill_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">()</span>
+        <span class="n">last_left_other_galaxy</span> <span class="o">=</span> <span class="n">time_left_other_gal</span> <span class="o">&lt;</span> <span class="n">time_left_main_gal</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_satellite_wind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span>
             <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_hitherto_EP&#39;</span> <span class="p">)</span>
-            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span> <span class="p">)</span>
             <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span> <span class="p">)</span>
-        <span class="p">)</span></div>
+            <span class="o">&amp;</span> <span class="n">last_left_other_galaxy</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_satellite_wind&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_wind"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_wind">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_wind</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This is &quot;wind&quot; (from the central galaxy) in Hafen+2018.</span>
+<span class="sd">        Note that under this definition a small fraction of particles may be</span>
+<span class="sd">        unclassified: ones that are processed by a galaxy other than the main</span>
+<span class="sd">        galaxy, land in the main galaxy, and then leave the main galaxy before</span>
+<span class="sd">        spending enough time in it to be internally processed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, (n_particles, n_snaps):</span>
+<span class="sd">                If value at [i,j] is True, this is a particle that is</span>
+<span class="sd">                in the CGM, is internally processed, is not in another galaxy,</span>
+<span class="sd">                and lasft the main galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Calculate what galaxy was last left.</span>
+        <span class="c1"># We need to fill in the NaNs with infinities for this calculation</span>
+        <span class="c1"># to make sense.</span>
+        <span class="n">time_left_other_gal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">fix_invalid</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;time_since_leaving_other_gal&#39;</span> <span class="p">),</span>
+            <span class="n">fill_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">()</span>
+        <span class="n">time_left_main_gal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">fix_invalid</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;time_since_leaving_main_gal&#39;</span> <span class="p">),</span>
+            <span class="n">fill_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">()</span>
+        <span class="n">last_left_main_galaxy</span> <span class="o">=</span> <span class="n">time_left_main_gal</span> <span class="o">&lt;</span> <span class="n">time_left_other_gal</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_wind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">last_left_main_galaxy</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_wind&#39;</span><span class="p">]</span></div>
 
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="Worldlines.calc_is_CGM_NEP"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_NEP">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_NEP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This used to be called IGM accretion,</span>
+<span class="sd">        until minor issues with the classification scheme were discovered.</span>
+<span class="sd">        In particular, merging galaxies that momentarily ended up in the CGM</span>
+<span class="sd">        again were being classified as winds.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, (n_particles, n_snaps):</span>
+<span class="sd">                If value at [i,j] is True, this is a particle that is</span>
+<span class="sd">                not part of any galaxy and has not been processed.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_NEP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span>
             <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_hitherto_NEP&#39;</span> <span class="p">)</span>
             <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span> <span class="p">)</span>
             <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span> <span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_NEP&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_satellite"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_satellite">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_satellite</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This used to be called satellite ISM,</span>
+<span class="sd">        until minor issues with the classification scheme were discovered.</span>
+<span class="sd">        In particular, merging galaxies that momentarily ended up in the CGM</span>
+<span class="sd">        again were being classified as winds.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, (n_particles, n_snaps):</span>
+<span class="sd">                If value at [i,j] is True, this is a particle that is</span>
+<span class="sd">                &quot;internally processed&quot; and is also part of another galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_satellite&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_satellite&#39;</span><span class="p">]</span></div>
 
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="Worldlines.calc_is_CGM_IP"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_IP">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_IP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This used to be called wind (from the central galaxy),</span>
+<span class="sd">        until minor issues with the classification scheme were discovered.</span>
+<span class="sd">        In particular, merging galaxies that momentarily ended up in the CGM</span>
+<span class="sd">        again were being classified as winds.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, (n_particles, n_snaps):</span>
+<span class="sd">                If value at [i,j] is True, this is a particle that is</span>
+<span class="sd">                processed by the main galaxy, but is now in the CGM.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_IP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span> \
-            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span></div>
+            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_IP&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_EP"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_EP">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_EP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This used to be called satellite wind,</span>
+<span class="sd">        until minor issues with the classification scheme were discovered.</span>
+<span class="sd">        In particular, merging galaxies that momentarily ended up in the CGM</span>
+<span class="sd">        again were being classified as winds.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, (n_particles, n_snaps):</span>
+<span class="sd">                If value at [i,j] is True, this is a particle that is</span>
+<span class="sd">                &quot;externally processed&quot; and part of the CGM, but has not been</span>
+<span class="sd">                &quot;internally processed&quot; and is not part of another galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_EP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_hitherto_EP&#39;</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_IP&#39;</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_EP&#39;</span><span class="p">]</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -1913,13 +2088,119 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;CGM_event_id&#39;</span><span class="p">]</span></div>
 
+<div class="viewcode-block" id="Worldlines.calc_other_gal_event_id"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_other_gal_event_id">[docs]</a>    <span class="k">def</span> <span class="nf">calc_other_gal_event_id</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Indication of when a particle moves in or out of galaxies other than</span>
+<span class="sd">        the main galaxy.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, (n_particles, n_snaps - 1):</span>
+<span class="sd">                A value of -1 means the particle has left all other galaxies.</span>
+<span class="sd">                A value of 1 means the particle has entered any other galaxy.</span>
+<span class="sd">                A value of 0 indicates no change.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;other_gal_event_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_event_id</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;other_gal_event_id&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.get_time_since_event"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.get_time_since_event">[docs]</a>    <span class="k">def</span> <span class="nf">get_time_since_event</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">boolean</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate the time since an event happened.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            boolean (array-like, (n_particles, n_snaps)):</span>
+<span class="sd">                If true, the event happens at the given index.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of floats, (n_particles, n_snaps):</span>
+<span class="sd">                Value at index [i,j] is the time passed since an event prior</span>
+<span class="sd">                to j for particle i.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Find the regions between events.</span>
+        <span class="n">labeled_regions</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="n">boolean</span> <span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
+            <span class="p">])</span>
+        <span class="p">)</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">find_objects</span><span class="p">(</span> <span class="n">labeled_regions</span> <span class="p">)</span>
+
+        <span class="c1"># Get some quantities used in the time calculation</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;dt&#39;</span> <span class="p">)</span>
+        <span class="n">inds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;ind&#39;</span> <span class="p">)</span>
+        <span class="n">max_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_snaps</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="c1"># Loop through the regions and do the calculation</span>
+        <span class="n">time_since_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">sl</span> <span class="ow">in</span> <span class="n">slices</span><span class="p">:</span>
+
+            <span class="c1"># Find if the event has happened yet</span>
+            <span class="n">before_first_event</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="n">sl</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">max_ind</span>
+                    
+            <span class="c1"># For regions where an event hasn&#39;t happened yet </span>
+            <span class="k">if</span> <span class="n">before_first_event</span><span class="p">:</span>
+                <span class="n">time_since_event</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+            <span class="c1"># Calculate the cumulative time since the event</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">time_since_event</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span>
+                    <span class="n">dt</span><span class="p">[</span><span class="n">sl</span><span class="p">[</span><span class="mi">1</span><span class="p">]][::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">time_since_event</span></div>
+
+<div class="viewcode-block" id="Worldlines.calc_time_since_leaving_main_gal"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_time_since_leaving_main_gal">[docs]</a>    <span class="k">def</span> <span class="nf">calc_time_since_leaving_main_gal</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Time since a particle has left the main galaxy.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of floats, (n_particles, n_snaps):</span>
+<span class="sd">                Value at index [i,j] is the time since particle i left the</span>
+<span class="sd">                main galaxy at some index prior to j.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Find when it left the main galaxy</span>
+        <span class="n">is_leaving</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="n">is_leaving</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;gal_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="c1"># Actual calculation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;time_since_leaving_main_gal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_since_event</span><span class="p">(</span>
+            <span class="n">is_leaving</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;time_since_leaving_main_gal&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Worldlines.calc_time_since_leaving_other_gal"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_time_since_leaving_other_gal">[docs]</a>    <span class="k">def</span> <span class="nf">calc_time_since_leaving_other_gal</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Time since a particle has left all galaxies other than</span>
+<span class="sd">        the main galaxy.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of floats, (n_particles, n_snaps):</span>
+<span class="sd">                Value at index [i,j] is the time since particle i left a galaxy</span>
+<span class="sd">                other than the main galaxy at some index prior to j.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Find when it left the main galaxy</span>
+        <span class="n">is_leaving</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="n">is_leaving</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;other_gal_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="c1"># Actual calculation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;time_since_leaving_other_gal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_since_event</span><span class="p">(</span>
+            <span class="n">is_leaving</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="Worldlines.count_n_events"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.count_n_events">[docs]</a>    <span class="k">def</span> <span class="nf">count_n_events</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">boolean</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Counts the number of events that occur up to this point.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            boolean (array-like):</span>
+<span class="sd">            boolean (array-like, (n_particles, n_snaps)):</span>
 <span class="sd">                If true, the event happens at the given index.</span>
 
 <span class="sd">        Returns:</span>
@@ -1930,7 +2211,7 @@
 
         <span class="n">n_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">int</span> <span class="p">)</span>
 
-        <span class="n">n_event</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span>
+        <span class="n">n_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span>
             <span class="n">boolean</span><span class="p">[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">int</span> <span class="p">),</span>
             <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="p">)[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -1941,12 +2222,13 @@
         <span class="sd">&#39;&#39;&#39;The number of times a particle has left the main galaxy.             </span>
 <span class="sd">                                                                                </span>
 <span class="sd">        Returns:                                                               </span>
-<span class="sd">            array-like:                                    </span>
+<span class="sd">            array-like of integers, (n_particles, n_snaps):                                    </span>
 <span class="sd">                self.data[&#39;n_out&#39;], where the value of [i,j]th index is number</span>
 <span class="sd">                of times that particle i has left the galaxy prior to index j.                                               </span>
 <span class="sd">        &#39;&#39;&#39;</span> 
 
-        <span class="n">is_leaving</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;gal_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">is_leaving</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="n">is_leaving</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;gal_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
 
         <span class="n">n_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_n_events</span><span class="p">(</span> <span class="n">is_leaving</span> <span class="p">)</span>
 
@@ -1958,12 +2240,13 @@
         <span class="sd">&#39;&#39;&#39;The number of times a particle has entered the main galaxy.             </span>
 <span class="sd">                                                                                </span>
 <span class="sd">        Returns:                                                               </span>
-<span class="sd">            self.data[&#39;n_out&#39;] (array-like):                                    </span>
+<span class="sd">            array-like of integers, (n_particles, n_snaps):                                    </span>
 <span class="sd">                result[i,j] number of times that particle i has entered</span>
 <span class="sd">                the galaxy prior to index j.                                               </span>
 <span class="sd">        &#39;&#39;&#39;</span> 
 
-        <span class="n">is_entering</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;gal_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">is_entering</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="n">is_entering</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;gal_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
 
         <span class="n">n_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_n_events</span><span class="p">(</span> <span class="n">is_entering</span> <span class="p">)</span>
 
@@ -1979,9 +2262,10 @@
 <span class="sd">                i has entered the CGM prior to index j.                                               </span>
 <span class="sd">        &#39;&#39;&#39;</span> 
 
-        <span class="n">is_entering</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">is_leaving</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="n">is_leaving</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
 
-        <span class="n">n_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_n_events</span><span class="p">(</span> <span class="n">is_entering</span> <span class="p">)</span>
+        <span class="n">n_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_n_events</span><span class="p">(</span> <span class="n">is_leaving</span> <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_out_CGM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_out</span>
 
@@ -1997,7 +2281,8 @@
 <span class="sd">                i has entered the CGM prior to index j.                                               </span>
 <span class="sd">        &#39;&#39;&#39;</span> 
 
-        <span class="n">is_entering</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">is_entering</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="n">is_entering</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
 
         <span class="n">n_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_n_events</span><span class="p">(</span> <span class="n">is_entering</span> <span class="p">)</span>
 

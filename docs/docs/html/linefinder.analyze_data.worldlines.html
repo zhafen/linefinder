@@ -401,22 +401,145 @@ at index j.</td>
 <dl class="method">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_EP">
 <code class="descname">calc_is_CGM_EP</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_is_CGM_EP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_EP" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This used to be called satellite wind,
+until minor issues with the classification scheme were discovered.
+In particular, merging galaxies that momentarily ended up in the CGM
+again were being classified as winds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If value at [i,j] is True, this is a particle that is
+“externally processed” and part of the CGM, but has not been
+“internally processed” and is not part of another galaxy.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_IGM_accretion">
+<code class="descname">calc_is_CGM_IGM_accretion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_is_CGM_IGM_accretion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_IGM_accretion" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is “IGM accretion” in Hafen+2018.
+Note that this is nearly exactly equivalent to “is_CGM_NEP”,
+but we count unprocessed gas in galaxies (however, this should be
+nearly negligible).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If value at [i,j] is True, this is a particle that is
+part of the CGM and has not been processed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_IP">
 <code class="descname">calc_is_CGM_IP</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_is_CGM_IP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_IP" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This used to be called wind (from the central galaxy),
+until minor issues with the classification scheme were discovered.
+In particular, merging galaxies that momentarily ended up in the CGM
+again were being classified as winds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If value at [i,j] is True, this is a particle that is
+processed by the main galaxy, but is now in the CGM.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_NEP">
 <code class="descname">calc_is_CGM_NEP</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_is_CGM_NEP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_NEP" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This used to be called IGM accretion,
+until minor issues with the classification scheme were discovered.
+In particular, merging galaxies that momentarily ended up in the CGM
+again were being classified as winds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If value at [i,j] is True, this is a particle that is
+not part of any galaxy and has not been processed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_satellite">
 <code class="descname">calc_is_CGM_satellite</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_is_CGM_satellite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_satellite" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This used to be called satellite ISM,
+until minor issues with the classification scheme were discovered.
+In particular, merging galaxies that momentarily ended up in the CGM
+again were being classified as winds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If value at [i,j] is True, this is a particle that is
+“internally processed” and is also part of another galaxy.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_satellite_ISM">
+<code class="descname">calc_is_CGM_satellite_ISM</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_is_CGM_satellite_ISM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_satellite_ISM" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is “satellite ISM” in Hafen+2018.
+While called ISM, this doesn’t select only gas particles.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If value at [i,j] is True, this is a particle that is
+in a satellite galaxy, in the CGM,<blockquote>
+<div>and has been externally processed.</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_satellite_wind">
+<code class="descname">calc_is_CGM_satellite_wind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_is_CGM_satellite_wind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_satellite_wind" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is “satellite wind” in Hafen+2018.
+Note that under this definition a small fraction of particles may be
+unclassified: ones that are processed by the main galaxy, land in a
+satellite galaxy, and then leave the satellite galaxy before spending
+enough time in it to be externally processed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If value at [i,j] is True, this is a particle that is
+in the CGM, is externally processed, is not in another galaxy,
+and last left a galaxy other than the main galaxy.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_IGM">
@@ -458,6 +581,28 @@ interface after index j.</td>
 <dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_satellite">
 <code class="descname">calc_is_CGM_to_satellite</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_is_CGM_to_satellite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_satellite" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_wind">
+<code class="descname">calc_is_CGM_wind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_is_CGM_wind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_wind" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is “wind” (from the central galaxy) in Hafen+2018.
+Note that under this definition a small fraction of particles may be
+unclassified: ones that are processed by a galaxy other than the main
+galaxy, land in the main galaxy, and then leave the main galaxy before
+spending enough time in it to be internally processed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If value at [i,j] is True, this is a particle that is
+in the CGM, is internally processed, is not in another galaxy,
+and lasft the main galaxy.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.calc_is_IP">
@@ -717,7 +862,7 @@ snapshot immediately before first accretion.</p>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">result[i,j] number of times that particle i has entered
 the galaxy prior to index j.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">self.data[‘n_out’] (array-like)</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like of integers, (n_particles, n_snaps)</td>
 </tr>
 </tbody>
 </table>
@@ -752,7 +897,7 @@ i has entered the CGM prior to index j.</td>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">self.data[‘n_out’], where the value of [i,j]th index is number
 of times that particle i has left the galaxy prior to index j.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like of integers, (n_particles, n_snaps)</td>
 </tr>
 </tbody>
 </table>
@@ -771,6 +916,25 @@ galaxy.</p>
 i has entered the CGM prior to index j.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like of integers, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_other_gal_event_id">
+<code class="descname">calc_other_gal_event_id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_other_gal_event_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_other_gal_event_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indication of when a particle moves in or out of galaxies other than
+the main galaxy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A value of -1 means the particle has left all other galaxies.
+A value of 1 means the particle has entered any other galaxy.
+A value of 0 indicates no change.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like, (n_particles, n_snaps - 1)</td>
 </tr>
 </tbody>
 </table>
@@ -809,6 +973,41 @@ i has entered the CGM prior to index j.</td>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_time_since_leaving_main_gal">
+<code class="descname">calc_time_since_leaving_main_gal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_time_since_leaving_main_gal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_time_since_leaving_main_gal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time since a particle has left the main galaxy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Value at index [i,j] is the time since particle i left the
+main galaxy at some index prior to j.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like of floats, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.calc_time_since_leaving_other_gal">
+<code class="descname">calc_time_since_leaving_other_gal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.calc_time_since_leaving_other_gal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.calc_time_since_leaving_other_gal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time since a particle has left all galaxies other than
+the main galaxy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Value at index [i,j] is the time since particle i left a galaxy
+other than the main galaxy at some index prior to j.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">array-like of floats, (n_particles, n_snaps)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="linefinder.analyze_data.worldlines.Worldlines.classifications">
 <code class="descname">classifications</code><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.classifications" title="Permalink to this definition">¶</a></dt>
@@ -836,7 +1035,7 @@ from the sample mass.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>boolean</strong> (<em>array-like</em>) – If true, the event happens at the given index.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>boolean</strong> (<em>array-like</em><em>, </em><em>(</em><em>n_particles</em><em>, </em><em>n_snaps</em><em>)</em>) – If true, the event happens at the given index.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">n_events[i,j] number of times that particle i has an event
 prior to index j.</td>
@@ -1240,6 +1439,25 @@ at each specified redshift.</p>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">selected_quantity (np.ndarray)</p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.worldlines.Worldlines.get_time_since_event">
+<code class="descname">get_time_since_event</code><span class="sig-paren">(</span><em>boolean</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldlines.html#Worldlines.get_time_since_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldlines.Worldlines.get_time_since_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the time since an event happened.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>boolean</strong> (<em>array-like</em><em>, </em><em>(</em><em>n_particles</em><em>, </em><em>n_snaps</em><em>)</em>) – If true, the event happens at the given index.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Value at index [i,j] is the time passed since an event prior
+to j for particle i.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">array-like of floats, (n_particles, n_snaps)</td>
 </tr>
 </tbody>
 </table>

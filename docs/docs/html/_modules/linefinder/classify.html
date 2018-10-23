@@ -58,6 +58,8 @@
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.constants</span> <span class="k">as</span> <span class="nn">constants</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
 
+<span class="kn">import</span> <span class="nn">analyze_data.worldlines</span> <span class="k">as</span> <span class="nn">analyze_worldlines</span>
+
 <span class="kn">import</span> <span class="nn">config</span>
 
 <span class="c1">########################################################################</span>
@@ -105,6 +107,11 @@
         <span class="n">main_halo_robustness_criteria</span> <span class="o">=</span> <span class="s1">&#39;n_star&#39;</span><span class="p">,</span>
         <span class="n">main_halo_robustness_value</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">min_gal_density</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">GALAXY_DENSITY_CUT</span><span class="p">,</span>
+        <span class="n">pp_classifications_to_save</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;is_in_CGM&#39;</span><span class="p">,</span> <span class="s1">&#39;is_in_galaxy_halo_interface&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;is_CGM_IGM_accretion&#39;</span><span class="p">,</span> <span class="s1">&#39;is_CGM_wind&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;is_CGM_satellite_wind&#39;</span><span class="p">,</span> <span class="s1">&#39;is_CGM_satellite_ISM&#39;</span><span class="p">,</span>
+        <span class="p">],</span>
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Setup the ID Finder.</span>
 
@@ -190,6 +197,10 @@
 <span class="sd">                Minimum density (n_particles in 1/cm^3) for gas to be counted as</span>
 <span class="sd">                being in a galaxy, on top of being sufficiently close to the</span>
 <span class="sd">                center of said galaxy.</span>
+
+<span class="sd">            pp_classifications_to_save (list of strs) :</span>
+<span class="sd">                Classifications available as part of Worldlines that will be</span>
+<span class="sd">                saved in the classifications_*.hdf5 file.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">pass</span>
@@ -260,6 +271,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">save_classifications</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifications_to_save</span> <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_events</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">save_events</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">events_to_save</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">additional_postprocessing</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">pp_classifications_to_save</span> <span class="p">)</span>
 
         <span class="c1"># Print out end information</span>
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -347,8 +359,10 @@
 
         <span class="c1"># Open up the file to save the data in.</span>
         <span class="n">classification_filename</span> <span class="o">=</span> <span class="s1">&#39;classifications_</span><span class="si">{}</span><span class="s1">.hdf5&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">classification_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span>
-                                                     <span class="n">classification_filename</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classification_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span>
+            <span class="n">classification_filename</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">classification_filepath</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span> <span class="p">)</span>
 
         <span class="c1"># Save the data</span>
@@ -398,6 +412,50 @@
         <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;linefinder_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">get_code_version</span><span class="p">(</span> <span class="bp">self</span> <span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;galaxy_dive_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">get_code_version</span><span class="p">(</span>
             <span class="n">read_ahf</span><span class="p">,</span> <span class="n">instance_type</span><span class="o">=</span><span class="s1">&#39;module&#39;</span> <span class="p">)</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.additional_postprocessing"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.additional_postprocessing">[docs]</a>    <span class="k">def</span> <span class="nf">additional_postprocessing</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">pp_classifications_to_save</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Save additional classifications that are available as part of the</span>
+<span class="sd">        analysis suite, but are not computed here.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pp_classifications_to_save (list of strs) :</span>
+<span class="sd">                Classifications available as part of Worldlines that will be</span>
+<span class="sd">                saved in the classifications_*.hdf5 file.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Starting final postprocessing...&quot;</span> <span class="p">)</span>
+
+        <span class="c1"># Load the post-processing analysis class</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">analyze_worldlines</span><span class="o">.</span><span class="n">Worldlines</span><span class="p">(</span>
+            <span class="n">data_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span>
+            <span class="n">ptracks_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks_tag</span><span class="p">,</span>
+            <span class="n">galids_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">galids_tag</span><span class="p">,</span>
+            <span class="n">halo_data_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span><span class="p">,</span>
+            <span class="n">mtree_halos_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtree_halos_index</span><span class="p">,</span>
+            <span class="n">main_halo_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="p">],</span>
+            <span class="n">halo_file_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_file_tag</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Open up the file to save the data in.</span>
+        <span class="n">classification_filename</span> <span class="o">=</span> <span class="s1">&#39;classifications_</span><span class="si">{}</span><span class="s1">.hdf5&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classification_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span>
+            <span class="n">classification_filename</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">classification_filepath</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span> <span class="p">)</span>
+
+        <span class="c1"># Save the data</span>
+        <span class="k">for</span> <span class="n">classification</span> <span class="ow">in</span> <span class="n">pp_classifications_to_save</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Calculating </span><span class="si">{}</span><span class="s2">...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">classification</span> <span class="p">)</span> <span class="p">)</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="n">classification</span> <span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span> <span class="n">classification</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span> <span class="p">)</span>
 
         <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -886,12 +944,12 @@
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="Classifier.identify_hitherto_NEP"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_hitherto_NEP">[docs]</a>    <span class="k">def</span> <span class="nf">identify_hitherto_NEP</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Identify particles that have been processed by another galaxy by</span>
+        <span class="sd">&#39;&#39;&#39;Identify particles that have not been processed by another galaxy by</span>
 <span class="sd">        the tabulated snapshot.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            is_hitherto_EP ( [n_particle,n_snap] np.ndarray of bools ) :</span>
-<span class="sd">                True for particle i at snapshot j if it has spent at least</span>
+<span class="sd">                True for particle i at snapshot j if it has not spent at least</span>
 <span class="sd">                t_pro in another galaxy by that point.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 

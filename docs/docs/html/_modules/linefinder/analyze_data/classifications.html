@@ -119,53 +119,8 @@
         <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">data_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span> <span class="n">data_arr</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span> <span class="p">)</span><span class="o">.</span><span class="n">compressed</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">data_arr</span></div>
+        <span class="k">return</span> <span class="n">data_arr</span></div></div>
 
-    <span class="c1">########################################################################</span>
-
-<div class="viewcode-block" id="Classifications.calc_base_fractions"><a class="viewcode-back" href="../../../linefinder.analyze_data.classifications.html#linefinder.analyze_data.classifications.Classifications.calc_base_fractions">[docs]</a>    <span class="k">def</span> <span class="nf">calc_base_fractions</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">return_or_store</span><span class="o">=</span><span class="s1">&#39;return&#39;</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Get first order results of the classifications data, in the form of</span>
-<span class="sd">        fractions of each main type of classifications data, relative to the</span>
-<span class="sd">        total.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            return_or_store (str) :</span>
-<span class="sd">                Whether to return base_fractions or store</span>
-<span class="sd">                it as an attribute</span>
-
-<span class="sd">            mask (np.array of bools) :</span>
-<span class="sd">                What mask to apply to the data, if any</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            base_fractions (dict) :</span>
-<span class="sd">                Contains the fractions for each main type of classifications</span>
-<span class="sd">                data, evaluated at the final snapshot</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-
-        <span class="n">base_fractions</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="c1"># Get the total number of particles</span>
-        <span class="n">is_pristine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_pristine&#39;</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span> <span class="p">)</span>
-        <span class="n">n_classified</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span> <span class="n">is_pristine</span><span class="o">.</span><span class="n">size</span> <span class="p">)</span>
-
-        <span class="n">base_fractions</span><span class="p">[</span><span class="s1">&#39;fresh accretion&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span> <span class="n">is_pristine</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="p">)</span> <span class="o">/</span> <span class="n">n_classified</span>
-        <span class="n">base_fractions</span><span class="p">[</span><span class="s1">&#39;merger&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_merger&#39;</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="p">)</span> <span class="o">/</span> \
-            <span class="n">n_classified</span>
-        <span class="n">base_fractions</span><span class="p">[</span><span class="s1">&#39;intergalactic transfer&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_mass_transfer&#39;</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="p">)</span> <span class="o">/</span> \
-            <span class="n">n_classified</span>
-
-        <span class="c1"># For wind, only evaluate at the last snapshot</span>
-        <span class="n">base_fractions</span><span class="p">[</span><span class="s1">&#39;wind&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_wind&#39;</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">slice_index</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="p">)</span>\
-            <span class="o">/</span> <span class="n">n_classified</span>
-
-        <span class="k">if</span> <span class="n">return_or_store</span> <span class="o">==</span> <span class="s1">&#39;return&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">base_fractions</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base_fractions</span> <span class="o">=</span> <span class="n">base_fractions</span></div></div>
 </pre></div>
 
           </div>
