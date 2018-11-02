@@ -108,12 +108,13 @@ STAMPEDE2_PARAMETERS = {
             'project_dir' : '/home1/03057/zhafen/papers/CGM_origin',
             'presentation_dir' : '/work/03057/zhafen/presentation_plots',
             'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_origin',
-            'export_data_dir' : '/work/03057/zhafen/CGM_origin_data',
+            'output_data_dir' : '/home1/03057/zhafen/nbs/CGM_origin_analysis/data',
         },
         'CGM_fate' : {
             'project_dir' : '/home1/03057/zhafen/papers/CGM_fate',
             'presentation_dir' : '/work/03057/zhafen/presentation_plots',
             'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_fate',
+            'output_data_dir' : '/home1/03057/zhafen/nbs/CGM_fate_analysis/data',
         },
         'winds' : {
             'project_dir' : '/home1/03057/zhafen/papers/fire2-winds',

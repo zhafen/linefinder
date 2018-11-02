@@ -2501,7 +2501,12 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
 
         self.clear_masks()
 
-        getattr( self, 'select_{}'.format( selection_routine ) )( ptype_value )
+        selection_routine_attr = 'select_{}'.format( selection_routine )
+        if hasattr( self, selection_routine_attr ):
+            getattr( self, selection_routine_attr )( ptype_value )
+        else:
+            self.select_ptype( ptype_value )
+            self.mask_data( selection_routine, data_value=True )
 
     ########################################################################
 

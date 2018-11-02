@@ -110,9 +110,9 @@ CLASSIFICATION_COLORS_B = {
     'is_merger_NYA': list( colors.hex2color( '#E32F0E' ) ),
     'is_merger_star': list( colors.hex2color( '#E32F0E' ) ),
     'is_merger_gas': list( colors.hex2color( '#E67711' ) ),
-    'is_CGM_to_IGM': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[0],
-    'is_CGM_to_gal_or_interface': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[1],
-    'is_hereafter_CGM': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[2],
+    'is_CGM_to_gal_or_interface': palettable.cartocolors.qualitative.Safe_3.mpl_colors[0],
+    'is_CGM_to_IGM': palettable.cartocolors.qualitative.Safe_3.mpl_colors[1],
+    'is_hereafter_CGM': palettable.cartocolors.qualitative.Safe_3.mpl_colors[2],
 }
 # This set is revised again to have greater variation in brightness
 # Revised to have greater variation in brightness
