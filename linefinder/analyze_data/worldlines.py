@@ -10,6 +10,7 @@ import copy
 import numpy as np
 import numpy.testing as npt
 import scipy.ndimage
+import verdict
 
 import galaxy_dive.analyze_data.ahf as analyze_ahf_data
 import galaxy_dive.analyze_data.generic_data as generic_data
@@ -360,7 +361,7 @@ class Worldlines( simulation_data.TimeData ):
                     fix_invalid=True,
                 ).sum()
 
-            self._mass_totals = utilities.SmartDict( self._mass_totals )
+            self._mass_totals = verdict.Dict( self._mass_totals )
 
         return self._mass_totals
 
@@ -997,7 +998,7 @@ class Worldlines( simulation_data.TimeData ):
             selected_quantity[mass_category] = selected_quantity_fn(
                 classification = mass_category, *args, **kwargs )
 
-        return utilities.SmartDict( selected_quantity )
+        return verdict.Dict( selected_quantity )
 
     def get_categories_selected_quantity_fraction(
         self,
@@ -1196,6 +1197,24 @@ class Worldlines( simulation_data.TimeData ):
 
             elif data_key in self.galids.data.keys():
                 self.data[data_key] = self.galids.data[data_key]
+
+    ########################################################################
+
+    def calc_Z_asplund( self ):
+        '''Calculate the metallicity in units of Z_sun = 0.0134
+        (from Asplund+2009), rescaled from
+        the metallicity in units of Z_sun = 0.02 (the value used in the
+        simulations, from Anders&Grevesse1989).
+
+        Returns:
+            array-like of floats (n_particles, n_snaps):
+                Value at [i,j] is the metallicity in units of Z_sun=0.0134
+                for particle i at index j.
+        '''
+
+        self.data['Z_asplund'] = self.get_data( 'Z' ) * 0.02 / 0.0134
+
+        return self.data['Z_asplund']
 
     ########################################################################
 
