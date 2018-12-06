@@ -43,7 +43,7 @@
 &#64;status: Development</p>
 <dl class="function">
 <dt id="linefinder.linefinder.run_linefinder">
-<code class="descclassname">linefinder.linefinder.</code><code class="descname">run_linefinder</code><span class="sig-paren">(</span><em>tag</em>, <em>out_dir=None</em>, <em>sim_name=None</em>, <em>selector_data_filters={}</em>, <em>selector_kwargs={}</em>, <em>sampler_kwargs={}</em>, <em>tracker_kwargs={}</em>, <em>gal_finder_kwargs={}</em>, <em>classifier_kwargs={}</em>, <em>run_id_selecting=True</em>, <em>run_id_sampling=True</em>, <em>run_tracking=True</em>, <em>run_galaxy_finding=True</em>, <em>run_classifying=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/linefinder.html#run_linefinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.linefinder.run_linefinder" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">linefinder.linefinder.</code><code class="descname">run_linefinder</code><span class="sig-paren">(</span><em>tag</em>, <em>out_dir=None</em>, <em>sim_name=None</em>, <em>selector_data_filters={}</em>, <em>selector_kwargs={}</em>, <em>sampler_kwargs={}</em>, <em>tracker_kwargs={}</em>, <em>gal_linker_kwargs={}</em>, <em>classifier_kwargs={}</em>, <em>run_id_selecting=True</em>, <em>run_id_sampling=True</em>, <em>run_tracking=True</em>, <em>run_galaxy_linking=True</em>, <em>run_classifying=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/linefinder.html#run_linefinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.linefinder.run_linefinder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main function for running linefinder.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -62,15 +62,15 @@ Arguments will be passed to select.IDSelector</li>
 Arguments will be passed to select.IDSampler</li>
 <li><strong>tracker_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Arguments to use when tracking particles.
 Arguments will be passedts to pass to track.ParticleTracker</li>
-<li><strong>gal_finder_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Arguments to use when associating particles with galaxies.
-Arguments will be passed to galaxy_find.ParticleTrackGalaxyFinder</li>
+<li><strong>gal_linker_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Arguments to use when associating particles with galaxies.
+Arguments will be passed to galaxy_link.ParticleTrackGalaxyLinker</li>
 <li><strong>classifier_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Arguments to use when classifying particles.
 Arguments will be passed to classify.Classifier</li>
 <li><strong>run_id_selecting</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for selecting particles.</li>
 <li><strong>run_id_sampling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for sampling from the full list of
 selected particles.</li>
 <li><strong>run_tracking</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for tracking particles.</li>
-<li><strong>run_galaxy_finding</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for associating particles with galaxies.</li>
+<li><strong>run_galaxy_linking</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for associating particles with galaxies.</li>
 <li><strong>run_classifying</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for classifying particles.</li>
 </ul>
 </td>
@@ -81,7 +81,7 @@ selected particles.</li>
 
 <dl class="function">
 <dt id="linefinder.linefinder.run_linefinder_jug">
-<code class="descclassname">linefinder.linefinder.</code><code class="descname">run_linefinder_jug</code><span class="sig-paren">(</span><em>tag</em>, <em>out_dir=None</em>, <em>sim_name=None</em>, <em>selector_data_filters={}</em>, <em>selector_kwargs={}</em>, <em>sampler_kwargs={}</em>, <em>tracker_kwargs={}</em>, <em>gal_finder_kwargs={}</em>, <em>classifier_kwargs={}</em>, <em>run_id_selecting=True</em>, <em>run_id_sampling=True</em>, <em>run_tracking=True</em>, <em>run_galaxy_finding=True</em>, <em>run_classifying=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/linefinder.html#run_linefinder_jug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.linefinder.run_linefinder_jug" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">linefinder.linefinder.</code><code class="descname">run_linefinder_jug</code><span class="sig-paren">(</span><em>tag</em>, <em>out_dir=None</em>, <em>sim_name=None</em>, <em>selector_data_filters={}</em>, <em>selector_kwargs={}</em>, <em>sampler_kwargs={}</em>, <em>tracker_kwargs={}</em>, <em>gal_linker_kwargs={}</em>, <em>classifier_kwargs={}</em>, <em>run_id_selecting=True</em>, <em>run_id_sampling=True</em>, <em>run_tracking=True</em>, <em>run_galaxy_linking=True</em>, <em>run_classifying=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/linefinder.html#run_linefinder_jug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.linefinder.run_linefinder_jug" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main function for running linefinder.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -97,15 +97,15 @@ Arguments will be passed to select.IDSelector</li>
 Arguments will be passed to select.IDSampler</li>
 <li><strong>tracker_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Arguments to use when tracking particles.
 Arguments will be passedts to pass to track.ParticleTracker</li>
-<li><strong>gal_finder_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Arguments to use when associating particles with galaxies.
-Arguments will be passed to galaxy_find.ParticleTrackGalaxyFinder</li>
+<li><strong>gal_linker_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Arguments to use when associating particles with galaxies.
+Arguments will be passed to galaxy_link.ParticleTrackGalaxyLinker</li>
 <li><strong>classifier_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Arguments to use when classifying particles.
 Arguments will be passed to classify.Classifier</li>
 <li><strong>run_id_selecting</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for selecting particles.</li>
 <li><strong>run_id_sampling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for sampling from the full list of
 selected particles.</li>
 <li><strong>run_tracking</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for tracking particles.</li>
-<li><strong>run_galaxy_finding</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for associating particles with galaxies.</li>
+<li><strong>run_galaxy_linking</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for associating particles with galaxies.</li>
 <li><strong>run_classifying</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, then run routines for classifying particles.</li>
 </ul>
 </td>

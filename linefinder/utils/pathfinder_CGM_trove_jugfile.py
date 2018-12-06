@@ -111,7 +111,7 @@ tracker_kwargs = {
 }
 
 # Galaxy Finding Parameters
-gal_finder_kwargs = {
+gal_linker_kwargs = {
     'length_scale' : galdef['length_scale'],
     'galaxy_cut' : galdef['galaxy_cut'],
 
@@ -130,12 +130,12 @@ linefinder.run_linefinder_jug(
     selector_kwargs = selector_kwargs,
     sampler_kwargs = sampler_kwargs,
     tracker_kwargs = tracker_kwargs,
-    gal_finder_kwargs = gal_finder_kwargs,
+    gal_linker_kwargs = gal_linker_kwargs,
     classifier_kwargs = classifier_kwargs,
     run_id_selecting = False,
     run_id_sampling = False,
     run_tracking = False,
-    # run_galaxy_finding = False,
+    # run_galaxy_linking = False,
     # run_classifying = False,
 )
 

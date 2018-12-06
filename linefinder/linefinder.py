@@ -12,7 +12,7 @@ import os
 import config as linefinder_config
 import select
 import track
-import galaxy_find
+import galaxy_link
 import classify
 
 import utils.file_management as file_management
@@ -31,12 +31,12 @@ def run_linefinder(
     selector_kwargs = {},
     sampler_kwargs = {},
     tracker_kwargs = {},
-    gal_finder_kwargs = {},
+    gal_linker_kwargs = {},
     classifier_kwargs = {},
     run_id_selecting = True,
     run_id_sampling = True,
     run_tracking = True,
-    run_galaxy_finding = True,
+    run_galaxy_linking = True,
     run_classifying = True,
 ):
     '''Main function for running linefinder.
@@ -68,9 +68,9 @@ def run_linefinder(
             Arguments to use when tracking particles.
             Arguments will be passedts to pass to track.ParticleTracker
 
-        gal_finder_kwargs (dict):
+        gal_linker_kwargs (dict):
             Arguments to use when associating particles with galaxies.
-            Arguments will be passed to galaxy_find.ParticleTrackGalaxyFinder
+            Arguments will be passed to galaxy_link.ParticleTrackGalaxyLinker
 
         classifier_kwargs (dict):
             Arguments to use when classifying particles.
@@ -86,7 +86,7 @@ def run_linefinder(
         run_tracking (bool):
             If True, then run routines for tracking particles.
 
-        run_galaxy_finding (bool):
+        run_galaxy_linking (bool):
             If True, then run routines for associating particles with galaxies.
 
         run_classifying (bool):
@@ -149,21 +149,21 @@ def run_linefinder(
         particle_tracker.save_particle_tracks()
 
     # Run the Galaxy Finding
-    if run_galaxy_finding:
+    if run_galaxy_linking:
 
         # Update arguments
-        gal_finder_kwargs = utilities.merge_two_dicts(
-            gal_finder_kwargs, general_kwargs )
+        gal_linker_kwargs = utilities.merge_two_dicts(
+            gal_linker_kwargs, general_kwargs )
 
         if sim_name is not None:
-            if 'halo_data_dir' not in gal_finder_kwargs:
-                gal_finder_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
-            if 'main_mt_halo_id' not in gal_finder_kwargs:
-                gal_finder_kwargs['main_mt_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
+            if 'halo_data_dir' not in gal_linker_kwargs:
+                gal_linker_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
+            if 'main_mt_halo_id' not in gal_linker_kwargs:
+                gal_linker_kwargs['main_mt_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
-        particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
-            **gal_finder_kwargs )
-        particle_track_gal_finder.find_galaxies_for_particle_tracks()
+        particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
+            **gal_linker_kwargs )
+        particle_track_gal_linker.find_galaxies_for_particle_tracks()
 
     # Run the Classification
     if run_classifying:
@@ -185,12 +185,12 @@ def run_linefinder_jug(
     selector_kwargs = {},
     sampler_kwargs = {},
     tracker_kwargs = {},
-    gal_finder_kwargs = {},
+    gal_linker_kwargs = {},
     classifier_kwargs = {},
     run_id_selecting = True,
     run_id_sampling = True,
     run_tracking = True,
-    run_galaxy_finding = True,
+    run_galaxy_linking = True,
     run_classifying = True,
 ):
     '''Main function for running linefinder.
@@ -217,9 +217,9 @@ def run_linefinder_jug(
             Arguments to use when tracking particles.
             Arguments will be passedts to pass to track.ParticleTracker
 
-        gal_finder_kwargs (dict):
+        gal_linker_kwargs (dict):
             Arguments to use when associating particles with galaxies.
-            Arguments will be passed to galaxy_find.ParticleTrackGalaxyFinder
+            Arguments will be passed to galaxy_link.ParticleTrackGalaxyLinker
 
         classifier_kwargs (dict):
             Arguments to use when classifying particles.
@@ -235,7 +235,7 @@ def run_linefinder_jug(
         run_tracking (bool):
             If True, then run routines for tracking particles.
 
-        run_galaxy_finding (bool):
+        run_galaxy_linking (bool):
             If True, then run routines for associating particles with galaxies.
 
         run_classifying (bool):
@@ -307,24 +307,24 @@ def run_linefinder_jug(
         particle_tracker.save_particle_tracks_jug()
 
     # Run the Galaxy Finding
-    if run_galaxy_finding:
+    if run_galaxy_linking:
 
         # Update arguments
-        gal_finder_kwargs = utilities.merge_two_dicts(
-            gal_finder_kwargs, general_kwargs )
+        gal_linker_kwargs = utilities.merge_two_dicts(
+            gal_linker_kwargs, general_kwargs )
 
         if sim_name is not None:
 
-            if 'halo_data_dir' not in gal_finder_kwargs:
-                gal_finder_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
+            if 'halo_data_dir' not in gal_linker_kwargs:
+                gal_linker_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
 
-            if 'main_mt_halo_id' not in gal_finder_kwargs:
-                gal_finder_kwargs['main_mt_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
+            if 'main_mt_halo_id' not in gal_linker_kwargs:
+                gal_linker_kwargs['main_mt_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
 
-        particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
-            **gal_finder_kwargs )
-        particle_track_gal_finder.find_galaxies_for_particle_tracks_jug()
+        particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
+            **gal_linker_kwargs )
+        particle_track_gal_linker.find_galaxies_for_particle_tracks_jug()
 
     # Run the Classification
     if run_classifying:

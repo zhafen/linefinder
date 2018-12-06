@@ -14,8 +14,8 @@ import pytest
 import shutil
 import unittest
 
-import galaxy_dive.galaxy_finder.finder as galaxy_finder
-from linefinder import galaxy_find
+import galaxy_dive.galaxy_linker.linker as galaxy_linker
+from linefinder import galaxy_link
 
 import linefinder.config as config
 
@@ -23,7 +23,7 @@ import linefinder.config as config
 # Useful global test variables
 ########################################################################
 
-gal_finder_kwargs = {
+gal_linker_kwargs = {
     'length_scale': 'Rvir',
 
     'redshift': 0.16946003,
@@ -47,7 +47,7 @@ gal_finder_kwargs = {
     'minimum_value': 0,
 }
 
-ptrack_gal_finder_kwargs = {
+ptrack_gal_linker_kwargs = {
     'length_scale': 'Rvir',
     'ids_to_return': [
         'gal_id',
@@ -80,7 +80,7 @@ slow = pytest.mark.skipif(
 ########################################################################
 
 
-class TestParticleTrackGalaxyFinder( unittest.TestCase ):
+class TestParticleTrackGalaxyLinker( unittest.TestCase ):
 
     def setUp( self ):
 
@@ -99,9 +99,9 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
     def test_find_galaxies_for_particle_tracks( self ):
 
-        particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
-            **ptrack_gal_finder_kwargs )
-        particle_track_gal_finder.find_galaxies_for_particle_tracks()
+        particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
+            **ptrack_gal_linker_kwargs )
+        particle_track_gal_linker.find_galaxies_for_particle_tracks()
 
         f = h5py.File( self.savefile, 'r' )
         g = h5py.File( self.originalfile, 'r' )
@@ -109,9 +109,9 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
         # What we expect (calculated using the positions of the particles in
         # snum 500 )
         particle_positions = g['P'][...][:, -1]
-        gal_finder = galaxy_finder.GalaxyFinder(
-            particle_positions, **gal_finder_kwargs )
-        expected = gal_finder.find_ids()
+        gal_linker = galaxy_linker.GalaxyLinker(
+            particle_positions, **gal_linker_kwargs )
+        expected = gal_linker.find_ids()
 
         # Make the comparison
         for key in expected.keys():
@@ -121,15 +121,15 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
 
         # What we expect (calculated using the positions of the particles in
         # snum 550 )
-        gal_finder_kwargs_copy = dict( gal_finder_kwargs )
-        gal_finder_kwargs_copy['snum'] = g['snum'][1]
-        gal_finder_kwargs_copy['redshift'] = g['redshift'][1]
+        gal_linker_kwargs_copy = dict( gal_linker_kwargs )
+        gal_linker_kwargs_copy['snum'] = g['snum'][1]
+        gal_linker_kwargs_copy['redshift'] = g['redshift'][1]
         particle_positions = g['P'][...][:, 1]
-        gal_finder = galaxy_finder.GalaxyFinder(
-            particle_positions, **gal_finder_kwargs_copy )
+        gal_linker = galaxy_linker.GalaxyLinker(
+            particle_positions, **gal_linker_kwargs_copy )
 
         # Make the comparison
-        expected = gal_finder.find_ids()
+        expected = gal_linker.find_ids()
         for key in expected.keys():
             npt.assert_allclose(
                 expected[key],
@@ -142,15 +142,15 @@ class TestParticleTrackGalaxyFinder( unittest.TestCase ):
         assert f.attrs['main_mt_halo_id'] == 0
 
         # Make sure we have stored the data parameters too.
-        for key in ptrack_gal_finder_kwargs.keys():
+        for key in ptrack_gal_linker_kwargs.keys():
             if (key != 'ids_to_return') and (key != 'main_mt_halo_id'):
                 assert \
-                    ptrack_gal_finder_kwargs[key] == f['parameters'].attrs[key]
+                    ptrack_gal_linker_kwargs[key] == f['parameters'].attrs[key]
 
 ########################################################################
 
 
-class TestParticleTrackGalaxyFinderParallel( unittest.TestCase ):
+class TestParticleTrackGalaxyLinkerParallel( unittest.TestCase ):
 
     def setUp( self ):
 
@@ -169,14 +169,14 @@ class TestParticleTrackGalaxyFinderParallel( unittest.TestCase ):
 
     def test_find_galaxies_for_particle_tracks_parallel( self ):
 
-        parallel_kwargs = dict( ptrack_gal_finder_kwargs )
+        parallel_kwargs = dict( ptrack_gal_linker_kwargs )
         parallel_kwargs['ptracks_tag'] = 'test'
         parallel_kwargs['tag'] = 'test_parallel'
         parallel_kwargs['n_processors'] = 2
 
-        particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
+        particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
             **parallel_kwargs )
-        particle_track_gal_finder.find_galaxies_for_particle_tracks()
+        particle_track_gal_linker.find_galaxies_for_particle_tracks()
 
         expected = \
             h5py.File( './tests/data/tracking_output/galids_test.hdf5', 'r' )
@@ -189,7 +189,7 @@ class TestParticleTrackGalaxyFinderParallel( unittest.TestCase ):
 ########################################################################
 
 
-class TestParticleTrackGalaxyFinderJug( unittest.TestCase ):
+class TestParticleTrackGalaxyLinkerJug( unittest.TestCase ):
 
     def setUp( self ):
 

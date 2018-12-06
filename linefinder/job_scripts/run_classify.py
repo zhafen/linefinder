@@ -75,6 +75,6 @@ linefinder.run_linefinder(
     run_id_selecting = False,
     run_id_sampling = False,
     run_tracking = False,
-    run_galaxy_finding = False,
+    run_galaxy_linking = False,
     # run_classifying = False,
 )

@@ -58,7 +58,7 @@ tracker_kwargs = {
 }
 
 # Galaxy Finding Parameters
-gal_finder_kwargs = {
+gal_linker_kwargs = {
     'halo_data_dir': ahf_sdir,
     'main_mt_halo_id': 0,
 
@@ -120,7 +120,7 @@ class TestLinefinderPartial( unittest.TestCase ):
             out_dir = out_dir,
             tag = 'analyze',
             tracker_kwargs = tracker_kwargs,
-            gal_finder_kwargs = gal_finder_kwargs,
+            gal_linker_kwargs = gal_linker_kwargs,
             classifier_kwargs = classifier_kwargs,
             run_id_selecting = False,
             run_id_sampling = False,
@@ -175,7 +175,7 @@ class TestLinefinder( unittest.TestCase ):
             tag = tag,
             selector_kwargs = selector_kwargs,
             sampler_kwargs = sampler_kwargs,
-            gal_finder_kwargs = gal_finder_kwargs,
+            gal_linker_kwargs = gal_linker_kwargs,
             classifier_kwargs = classifier_kwargs,
         )
 

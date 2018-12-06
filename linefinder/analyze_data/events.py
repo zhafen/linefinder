@@ -14,7 +14,7 @@ import os
 ########################################################################
 
 class Events( object ):
-    '''Loads and analyzes data created by galaxy_find.py
+    '''Loads and analyzes data created by galaxy_link.py
     '''
 
     def __init__( self, data_dir, tag ):

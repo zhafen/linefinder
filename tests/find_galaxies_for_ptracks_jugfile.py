@@ -1,4 +1,4 @@
-import linefinder.galaxy_find as galaxy_find
+import linefinder.galaxy_link as galaxy_link
 
 parallel_kwargs = {
     'length_scale': 'Rvir',
@@ -24,6 +24,6 @@ parallel_kwargs = {
     'n_processors': 2,
 }
 
-particle_track_gal_finder = galaxy_find.ParticleTrackGalaxyFinder(
+particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
     **parallel_kwargs )
-particle_track_gal_finder.find_galaxies_for_particle_tracks_jug()
+particle_track_gal_linker.find_galaxies_for_particle_tracks_jug()

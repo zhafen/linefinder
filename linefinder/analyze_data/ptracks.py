@@ -16,7 +16,7 @@ import galaxy_dive.analyze_data.simulation_data as simulation_data
 ########################################################################
 
 class PTracks( simulation_data.TimeData ):
-    '''Loads and analyzes data created by galaxy_find.py
+    '''Loads and analyzes data created by galaxy_link.py
     '''
 
     def __init__( self, data_dir, tag, ahf_index=None, *args, **kwargs ):

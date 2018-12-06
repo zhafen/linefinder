@@ -51,7 +51,7 @@
 <span class="kn">import</span> <span class="nn">config</span> <span class="k">as</span> <span class="nn">linefinder_config</span>
 <span class="kn">import</span> <span class="nn">select</span>
 <span class="kn">import</span> <span class="nn">track</span>
-<span class="kn">import</span> <span class="nn">galaxy_find</span>
+<span class="kn">import</span> <span class="nn">galaxy_link</span>
 <span class="kn">import</span> <span class="nn">classify</span>
 
 <span class="kn">import</span> <span class="nn">utils.file_management</span> <span class="k">as</span> <span class="nn">file_management</span>
@@ -70,12 +70,12 @@
     <span class="n">selector_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">sampler_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">tracker_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
-    <span class="n">gal_finder_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">gal_linker_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">classifier_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">run_id_selecting</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">run_id_sampling</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">run_tracking</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">run_galaxy_finding</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">run_galaxy_linking</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">run_classifying</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Main function for running linefinder.</span>
@@ -107,9 +107,9 @@
 <span class="sd">            Arguments to use when tracking particles.</span>
 <span class="sd">            Arguments will be passedts to pass to track.ParticleTracker</span>
 
-<span class="sd">        gal_finder_kwargs (dict):</span>
+<span class="sd">        gal_linker_kwargs (dict):</span>
 <span class="sd">            Arguments to use when associating particles with galaxies.</span>
-<span class="sd">            Arguments will be passed to galaxy_find.ParticleTrackGalaxyFinder</span>
+<span class="sd">            Arguments will be passed to galaxy_link.ParticleTrackGalaxyLinker</span>
 
 <span class="sd">        classifier_kwargs (dict):</span>
 <span class="sd">            Arguments to use when classifying particles.</span>
@@ -125,7 +125,7 @@
 <span class="sd">        run_tracking (bool):</span>
 <span class="sd">            If True, then run routines for tracking particles.</span>
 
-<span class="sd">        run_galaxy_finding (bool):</span>
+<span class="sd">        run_galaxy_linking (bool):</span>
 <span class="sd">            If True, then run routines for associating particles with galaxies.</span>
 
 <span class="sd">        run_classifying (bool):</span>
@@ -188,21 +188,21 @@
         <span class="n">particle_tracker</span><span class="o">.</span><span class="n">save_particle_tracks</span><span class="p">()</span>
 
     <span class="c1"># Run the Galaxy Finding</span>
-    <span class="k">if</span> <span class="n">run_galaxy_finding</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">run_galaxy_linking</span><span class="p">:</span>
 
         <span class="c1"># Update arguments</span>
-        <span class="n">gal_finder_kwargs</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">merge_two_dicts</span><span class="p">(</span>
-            <span class="n">gal_finder_kwargs</span><span class="p">,</span> <span class="n">general_kwargs</span> <span class="p">)</span>
+        <span class="n">gal_linker_kwargs</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">merge_two_dicts</span><span class="p">(</span>
+            <span class="n">gal_linker_kwargs</span><span class="p">,</span> <span class="n">general_kwargs</span> <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">sim_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s1">&#39;halo_data_dir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_finder_kwargs</span><span class="p">:</span>
-                <span class="n">gal_finder_kwargs</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_halo_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
-            <span class="k">if</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_finder_kwargs</span><span class="p">:</span>
-                <span class="n">gal_finder_kwargs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linefinder_config</span><span class="o">.</span><span class="n">MAIN_MT_HALO_ID</span><span class="p">[</span><span class="n">sim_name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;halo_data_dir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_linker_kwargs</span><span class="p">:</span>
+                <span class="n">gal_linker_kwargs</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_halo_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_linker_kwargs</span><span class="p">:</span>
+                <span class="n">gal_linker_kwargs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linefinder_config</span><span class="o">.</span><span class="n">MAIN_MT_HALO_ID</span><span class="p">[</span><span class="n">sim_name</span><span class="p">]</span>
 
-        <span class="n">particle_track_gal_finder</span> <span class="o">=</span> <span class="n">galaxy_find</span><span class="o">.</span><span class="n">ParticleTrackGalaxyFinder</span><span class="p">(</span>
-            <span class="o">**</span><span class="n">gal_finder_kwargs</span> <span class="p">)</span>
-        <span class="n">particle_track_gal_finder</span><span class="o">.</span><span class="n">find_galaxies_for_particle_tracks</span><span class="p">()</span>
+        <span class="n">particle_track_gal_linker</span> <span class="o">=</span> <span class="n">galaxy_link</span><span class="o">.</span><span class="n">ParticleTrackGalaxyLinker</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">gal_linker_kwargs</span> <span class="p">)</span>
+        <span class="n">particle_track_gal_linker</span><span class="o">.</span><span class="n">find_galaxies_for_particle_tracks</span><span class="p">()</span>
 
     <span class="c1"># Run the Classification</span>
     <span class="k">if</span> <span class="n">run_classifying</span><span class="p">:</span>
@@ -224,12 +224,12 @@
     <span class="n">selector_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">sampler_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">tracker_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
-    <span class="n">gal_finder_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">gal_linker_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">classifier_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">run_id_selecting</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">run_id_sampling</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">run_tracking</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">run_galaxy_finding</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">run_galaxy_linking</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">run_classifying</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Main function for running linefinder.</span>
@@ -256,9 +256,9 @@
 <span class="sd">            Arguments to use when tracking particles.</span>
 <span class="sd">            Arguments will be passedts to pass to track.ParticleTracker</span>
 
-<span class="sd">        gal_finder_kwargs (dict):</span>
+<span class="sd">        gal_linker_kwargs (dict):</span>
 <span class="sd">            Arguments to use when associating particles with galaxies.</span>
-<span class="sd">            Arguments will be passed to galaxy_find.ParticleTrackGalaxyFinder</span>
+<span class="sd">            Arguments will be passed to galaxy_link.ParticleTrackGalaxyLinker</span>
 
 <span class="sd">        classifier_kwargs (dict):</span>
 <span class="sd">            Arguments to use when classifying particles.</span>
@@ -274,7 +274,7 @@
 <span class="sd">        run_tracking (bool):</span>
 <span class="sd">            If True, then run routines for tracking particles.</span>
 
-<span class="sd">        run_galaxy_finding (bool):</span>
+<span class="sd">        run_galaxy_linking (bool):</span>
 <span class="sd">            If True, then run routines for associating particles with galaxies.</span>
 
 <span class="sd">        run_classifying (bool):</span>
@@ -346,24 +346,24 @@
         <span class="n">particle_tracker</span><span class="o">.</span><span class="n">save_particle_tracks_jug</span><span class="p">()</span>
 
     <span class="c1"># Run the Galaxy Finding</span>
-    <span class="k">if</span> <span class="n">run_galaxy_finding</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">run_galaxy_linking</span><span class="p">:</span>
 
         <span class="c1"># Update arguments</span>
-        <span class="n">gal_finder_kwargs</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">merge_two_dicts</span><span class="p">(</span>
-            <span class="n">gal_finder_kwargs</span><span class="p">,</span> <span class="n">general_kwargs</span> <span class="p">)</span>
+        <span class="n">gal_linker_kwargs</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">merge_two_dicts</span><span class="p">(</span>
+            <span class="n">gal_linker_kwargs</span><span class="p">,</span> <span class="n">general_kwargs</span> <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">sim_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="s1">&#39;halo_data_dir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_finder_kwargs</span><span class="p">:</span>
-                <span class="n">gal_finder_kwargs</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_halo_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;halo_data_dir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_linker_kwargs</span><span class="p">:</span>
+                <span class="n">gal_linker_kwargs</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_halo_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
 
-            <span class="k">if</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_finder_kwargs</span><span class="p">:</span>
-                <span class="n">gal_finder_kwargs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linefinder_config</span><span class="o">.</span><span class="n">MAIN_MT_HALO_ID</span><span class="p">[</span><span class="n">sim_name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_linker_kwargs</span><span class="p">:</span>
+                <span class="n">gal_linker_kwargs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linefinder_config</span><span class="o">.</span><span class="n">MAIN_MT_HALO_ID</span><span class="p">[</span><span class="n">sim_name</span><span class="p">]</span>
 
 
-        <span class="n">particle_track_gal_finder</span> <span class="o">=</span> <span class="n">galaxy_find</span><span class="o">.</span><span class="n">ParticleTrackGalaxyFinder</span><span class="p">(</span>
-            <span class="o">**</span><span class="n">gal_finder_kwargs</span> <span class="p">)</span>
-        <span class="n">particle_track_gal_finder</span><span class="o">.</span><span class="n">find_galaxies_for_particle_tracks_jug</span><span class="p">()</span>
+        <span class="n">particle_track_gal_linker</span> <span class="o">=</span> <span class="n">galaxy_link</span><span class="o">.</span><span class="n">ParticleTrackGalaxyLinker</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">gal_linker_kwargs</span> <span class="p">)</span>
+        <span class="n">particle_track_gal_linker</span><span class="o">.</span><span class="n">find_galaxies_for_particle_tracks_jug</span><span class="p">()</span>
 
     <span class="c1"># Run the Classification</span>
     <span class="k">if</span> <span class="n">run_classifying</span><span class="p">:</span>

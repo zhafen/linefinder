@@ -42,7 +42,7 @@ tracker_kwargs = {
 }
 
 # Galaxy Finding Parameters
-gal_finder_kwargs = {
+gal_linker_kwargs = {
     'halo_data_dir': halo_data_dir,
     'main_mt_halo_id': 0,
 
@@ -61,6 +61,6 @@ linefinder.run_linefinder_jug(
     selector_kwargs = selector_kwargs,
     sampler_kwargs = sampler_kwargs,
     tracker_kwargs = tracker_kwargs,
-    gal_finder_kwargs = gal_finder_kwargs,
+    gal_linker_kwargs = gal_linker_kwargs,
     classifier_kwargs = classifier_kwargs,
 )

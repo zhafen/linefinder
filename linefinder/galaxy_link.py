@@ -15,7 +15,7 @@ import sys
 import time
 
 import galaxy_dive.analyze_data.halo_data as halo_data
-import galaxy_dive.galaxy_finder.finder as galaxy_finder
+import galaxy_dive.galaxy_linker.linker as galaxy_linker
 import galaxy_dive.utils.mp_utils as mp_utils
 import galaxy_dive.utils.utilities as utilities
 
@@ -29,7 +29,7 @@ default = object()
 ########################################################################
 
 
-class ParticleTrackGalaxyFinder( object ):
+class ParticleTrackGalaxyLinker( object ):
     '''Find the association with galaxies for entire particle tracks.'''
 
     @utilities.store_parameters
@@ -201,7 +201,7 @@ class ParticleTrackGalaxyFinder( object ):
             # Get the particle positions
             particle_positions = self.ptrack['P'][...][ :, i ]
 
-            # Get the data parameters to pass to GalaxyFinder
+            # Get the data parameters to pass to GalaxyLinker
             kwargs = {
                 'halo_data': self.halo_data,
                 'galaxy_cut': self.galaxy_cut,
@@ -223,9 +223,9 @@ class ParticleTrackGalaxyFinder( object ):
             time_start = time.time()
 
             # Find the galaxy for a given snapshot
-            gal_finder = galaxy_finder.GalaxyFinder(
+            gal_linker = galaxy_linker.GalaxyLinker(
                 particle_positions, **kwargs )
-            galaxy_and_halo_ids = gal_finder.find_ids()
+            galaxy_and_halo_ids = gal_linker.find_ids()
 
             time_end = time.time()
 
@@ -243,15 +243,15 @@ class ParticleTrackGalaxyFinder( object ):
                 for key in galaxy_and_halo_ids.keys():
                     dtype = type( galaxy_and_halo_ids[key][0] )
                     self.ptrack_gal_ids[key] = np.empty(
-                        ( gal_finder.n_particles, n_snaps ), dtype=dtype )
+                        ( gal_linker.n_particles, n_snaps ), dtype=dtype )
 
             # Store the data in the primary array
             for key in galaxy_and_halo_ids.keys():
                 self.ptrack_gal_ids[key][ :, i ] = galaxy_and_halo_ids[key]
 
-            # Try clearing up memory again, in case gal_finder is hanging around
+            # Try clearing up memory again, in case gal_linker is hanging around
             del kwargs
-            del gal_finder
+            del gal_linker
             del galaxy_and_halo_ids
             gc.collect()
 
@@ -272,9 +272,9 @@ class ParticleTrackGalaxyFinder( object ):
             time_start = time.time()
 
             # Find the galaxy for a given snapshot
-            gal_finder = galaxy_finder.GalaxyFinder(
+            gal_linker = galaxy_linker.GalaxyLinker(
                 particle_positions, **kwargs )
-            galaxy_and_halo_ids = gal_finder.find_ids()
+            galaxy_and_halo_ids = gal_linker.find_ids()
 
             time_end = time.time()
 
@@ -288,7 +288,7 @@ class ParticleTrackGalaxyFinder( object ):
 
             # Try to avoid memory leaks
             del kwargs
-            del gal_finder
+            del gal_linker
             gc.collect()
 
             return galaxy_and_halo_ids
@@ -303,7 +303,7 @@ class ParticleTrackGalaxyFinder( object ):
             # Get the particle positions
             particle_positions = self.ptrack['P'][...][ :, i ]
 
-            # Get the data parameters to pass to GalaxyFinder
+            # Get the data parameters to pass to GalaxyLinker
             kwargs = {
                 'halo_data': None,
                 'galaxy_cut': self.galaxy_cut,
@@ -345,7 +345,7 @@ class ParticleTrackGalaxyFinder( object ):
             for key in galaxy_and_halo_ids.keys():
                 self.ptrack_gal_ids[key][ :, i ] = galaxy_and_halo_ids[key]
 
-            # Try clearing up memory again, in case gal_finder is hanging around
+            # Try clearing up memory again, in case gal_linker is hanging around
             del galaxy_and_halo_ids
             gc.collect()
 
@@ -365,7 +365,7 @@ class ParticleTrackGalaxyFinder( object ):
             # Get the particle positions
             particle_positions = self.ptrack['P'][...][ :, i ]
 
-            # Get the data parameters to pass to GalaxyFinder
+            # Get the data parameters to pass to GalaxyLinker
             kwargs = {
                 'halo_data': None,
                 'galaxy_cut': self.galaxy_cut,
@@ -387,9 +387,9 @@ class ParticleTrackGalaxyFinder( object ):
             time_start = time.time()
 
             # Find the galaxy for a given snapshot
-            gal_finder = galaxy_finder.GalaxyFinder(
+            gal_linker = galaxy_linker.GalaxyLinker(
                 particle_positions, **kwargs )
-            galaxy_and_halo_ids = gal_finder.find_ids()
+            galaxy_and_halo_ids = gal_linker.find_ids()
 
             time_end = time.time()
 
@@ -403,7 +403,7 @@ class ParticleTrackGalaxyFinder( object ):
 
             # Try to avoid memory leaks
             del kwargs
-            del gal_finder
+            del gal_linker
             gc.collect()
 
             return galaxy_and_halo_ids
@@ -440,7 +440,7 @@ class ParticleTrackGalaxyFinder( object ):
                 for key in galaxy_and_halo_ids.keys():
                     self.ptrack_gal_ids[key][ :, i ] = galaxy_and_halo_ids[key]
 
-                # Try clearing up memory again, in case gal_finder
+                # Try clearing up memory again, in case gal_linker
                 # is hanging around
                 del galaxy_and_halo_ids
                 gc.collect()
@@ -488,6 +488,6 @@ class ParticleTrackGalaxyFinder( object ):
         # Save the current code version
         f.attrs['linefinder_version'] = utilities.get_code_version( self )
         f.attrs['galaxy_dive_version'] = utilities.get_code_version(
-            galaxy_finder, instance_type='module' )
+            galaxy_linker, instance_type='module' )
 
         f.close()

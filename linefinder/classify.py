@@ -89,7 +89,7 @@ class Classifier( object ):
                 Identifying tag for the ptrack data. Defaults to 'tag'.
 
             galids_tag (str, optional) :
-                Identifying tag for the galaxy_finder data. Defaults to 'tag'.
+                Identifying tag for the galaxy_linker data. Defaults to 'tag'.
 
             halo_data_dir (str, optional) :
                 Data directory for AHF data.
@@ -106,7 +106,7 @@ class Classifier( object ):
                 in the galids file.
 
             not_in_main_gal_key (str, optional) :
-                The galaxy_finder data key used to identify when not in a main
+                The galaxy_linker data key used to identify when not in a main
                 galaxy. 'gal_id' is the default, meaning if a particle is in the
                 main galaxy and isn't inside another galaxy then it's
                 counted as in part of the main galaxy. Another potential option

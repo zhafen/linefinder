@@ -16,7 +16,7 @@ Submodules
 
    linefinder.classify
    linefinder.config
-   linefinder.galaxy_find
+   linefinder.galaxy_link
    linefinder.linefinder
    linefinder.select
    linefinder.track
