@@ -43,7 +43,7 @@ c_tag_format = '{}_tm{}'.format( tag_format, sys.argv[1] )
 file_format =  'classifications_{}.hdf5'.format( c_tag_format )
 
 # Start up a trove manager and use it to get next args
-trove_manager = trove_management.PathfinderTroveManager(
+trove_manager = trove_management.LinefinderTroveManager(
     file_format,
     sim_names,
     galdefs,

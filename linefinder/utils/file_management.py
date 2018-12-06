@@ -32,13 +32,27 @@ class FileManager( object ):
 
     def get_sim_subdir( self, sim_name ):
 
-        base_sim_name = sim_name[:4]
-        physics_used = sim_name[4:]
+        try:
+            base_sim_name = sim_name[:4]
+            physics_used = sim_name[4:]
 
-        return os.path.join(
-            config.FULL_PHYSICS_NAME[physics_used],
-            config.FULL_SIM_NAME[base_sim_name],
-        )
+            return os.path.join(
+                config.FULL_PHYSICS_NAME[physics_used],
+                config.FULL_SIM_NAME[base_sim_name],
+            )
+
+        # FIRE-1 exception
+        except KeyError:
+
+            print( "No FIRE-2 data found, so trying FIRE-1 sim format." )
+
+            base_sim_name = sim_name[:6]
+            physics_used = sim_name[6:]
+
+            return os.path.join(
+                config.FULL_PHYSICS_NAME[physics_used],
+                config.FULL_SIM_NAME[base_sim_name],
+            )
 
     ########################################################################
 

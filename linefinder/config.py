@@ -157,6 +157,7 @@ FULL_SIM_NAME = {
     'm12r': 'm12r_res7100',
     'm12w': 'm12w_res7100',
     'm12z': 'm12z_res4200',
+    'm12iF1': 'm12v_mr_Dec5_2013_3',
 }
 MAIN_MT_HALO_ID = {
     'm10q': 0,
@@ -183,6 +184,7 @@ MAIN_MT_HALO_ID = {
     'm12r_md': 0,
     'm12w_md': 0,
     'm12z_md': 0,
+    'm12iF1': 0,
 }
 
 MASS_BINS = {
@@ -210,6 +212,7 @@ MASS_BINS = {
     'm12r_md': 'm12',
     'm12w_md': 'm12',
     'm12z_md': 'm12',
+    'm12iF1': 'm12',
 }
 
 FULL_PHYSICS_NAME = {

@@ -19,11 +19,11 @@ snums = [ 500, 550, 600, ]
 ########################################################################
 ########################################################################
 
-class TestPathfinderTroveManager( unittest.TestCase ):
+class TestLinefinderTroveManager( unittest.TestCase ):
 
     def setUp( self ):
 
-        self.p_trove_manager = p_trove_management.PathfinderTroveManager(
+        self.p_trove_manager = p_trove_management.LinefinderTroveManager(
             file_format,
             sim_names,
             snums,

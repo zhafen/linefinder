@@ -84,7 +84,7 @@ tag_format = '{}{}'.format( ptracks_tag_format, '{}' )
 file_format =  'classifications_{}.hdf5'.format( tag_format )
 
 # Start up a trove manager and use it to get next args
-trove_manager = trove_management.PathfinderTroveManager(
+trove_manager = trove_management.LinefinderTroveManager(
     file_format,
     sim_names,
     snums,

@@ -17,7 +17,7 @@ import linefinder.utils.file_management as file_management
 ########################################################################
 
 
-class PathfinderTroveManager( trove_management.TroveManager ):
+class LinefinderTroveManager( trove_management.TroveManager ):
     '''Class for managing troves of data.'''
 
     ########################################################################

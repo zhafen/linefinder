@@ -92,7 +92,7 @@ slow = pytest.mark.skipif(
 ########################################################################
 
 
-class TestPathfinderPartial( unittest.TestCase ):
+class TestLinefinderPartial( unittest.TestCase ):
     '''These are really integration tests.'''
 
     def setUp( self ):
@@ -130,7 +130,7 @@ class TestPathfinderPartial( unittest.TestCase ):
 ########################################################################
 
 
-class TestPathfinder( unittest.TestCase ):
+class TestLinefinder( unittest.TestCase ):
     '''These are really integration tests.'''
 
     def setUp( self ):
