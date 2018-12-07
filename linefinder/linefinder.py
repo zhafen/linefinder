@@ -145,6 +145,9 @@ def run_linefinder(
         tracker_kwargs = utilities.merge_two_dicts(
             tracker_kwargs, general_kwargs )
 
+        if 'sdir' not in tracker_kwargs:
+            tracker_kwargs['sdir'] = file_manager.get_sim_dir( sim_name )
+
         particle_tracker = track.ParticleTracker( **tracker_kwargs )
         particle_tracker.save_particle_tracks()
 
@@ -302,6 +305,9 @@ def run_linefinder_jug(
         # Update arguments
         tracker_kwargs = utilities.merge_two_dicts(
             tracker_kwargs, general_kwargs )
+
+        if 'sdir' not in tracker_kwargs:
+            tracker_kwargs['sdir'] = file_manager.get_sim_dir( sim_name )
 
         particle_tracker = track.ParticleTracker( **tracker_kwargs )
         particle_tracker.save_particle_tracks_jug()
