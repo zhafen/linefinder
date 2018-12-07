@@ -170,11 +170,19 @@ class ParticleTracker( object ):
         def replace_default_attr( attr_name ):
             attr = getattr( self, attr_name )
             if attr is default:
-                if attr_name == 'sdir':
-                    attr = f['parameters/snapshot_parameters'].attrs[attr_name]
-                else:
-                    attr = f['parameters'].attrs[attr_name]
-                setattr( self, attr_name, attr )
+                try:
+                    if attr_name == 'sdir':
+                        attr = f['parameters/snapshot_parameters'].attrs[attr_name]
+                    else:
+                        attr = f['parameters'].attrs[attr_name]
+                    setattr( self, attr_name, attr )
+                except KeyError:
+                    raise LookupError(
+                        'Cannot fallback to default parameters because ' + \
+                        '{} does not include default parameters.'.format(
+                            id_filename,
+                        )
+                    )
         replace_default_attr( 'sdir' )
         replace_default_attr( 'p_types' )
         replace_default_attr( 'snum_start' )
