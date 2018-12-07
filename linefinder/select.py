@@ -632,7 +632,10 @@ class IDSampler( object ):
 
         inds = np.array( range( self.ids_to_sample.size ) )
 
-        self.sample_inds = np.random.choice( inds, self.n_samples, replace=False )
+        if self.n_samples < self.ids_to_sample.size:
+            self.sample_inds = np.random.choice( inds, self.n_samples, replace=False )
+        else:
+            self.sample_inds = inds
 
     ########################################################################
 
