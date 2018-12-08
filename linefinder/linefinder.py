@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-'''Main file for running linefinder.
-
-@author: Zach Hafen
-@contact: zachary.h.hafen@gmail.com
-@status: Development
+'''This module contains functions for easily running all aspects of linefinder.
 '''
 
 import jug
@@ -48,6 +44,10 @@ def run_linefinder(
 
         out_dir (str):
             Output directory to store the data in.
+
+        galdef (str):
+            Which set of parameters to use for the galaxy_linking and
+            classification steps?
 
         sim_name (str):
             Name of simulation to run linefinder for. If provided, linefinder
@@ -168,6 +168,10 @@ def run_linefinder(
             if 'main_mt_halo_id' not in gal_linker_kwargs:
                 gal_linker_kwargs['main_mt_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
+        if galdef is not None:
+            for key in [ 'galaxy_cut', 'length_scale', 'mt_length_scale' ]:
+                gal_linker_kwargs[key] = galdef_dict[key]
+
         particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
             **gal_linker_kwargs )
         particle_track_gal_linker.find_galaxies_for_particle_tracks()
@@ -188,6 +192,7 @@ def run_linefinder_jug(
     tag,
     out_dir = None,
     sim_name = None,
+    galdef = None,
     selector_data_filters = {},
     selector_kwargs = {},
     sampler_kwargs = {},
@@ -208,6 +213,10 @@ def run_linefinder_jug(
 
         tag (str):
             Filename identifier for data products.
+
+        galdef (str):
+            Which set of parameters to use for the galaxy_linking and
+            classification steps?
 
         selector_data_filters (dict):
             Data filters to pass to select.IDSelector.select_ids()

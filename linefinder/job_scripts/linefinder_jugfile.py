@@ -1,6 +1,3 @@
-import numpy as np
-import sys
-
 import linefinder.linefinder as linefinder
 
 ########################################################################
