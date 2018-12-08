@@ -27,6 +27,7 @@ def run_linefinder(
     tag,
     out_dir = None,
     sim_name = None,
+    galdef = None,
     selector_data_filters = {},
     selector_kwargs = {},
     sampler_kwargs = {},
@@ -99,6 +100,9 @@ def run_linefinder(
 
         if out_dir is None:
             out_dir = file_manager.get_linefinder_dir( sim_name )
+
+    if galdef is not None:
+        galdef_dict = linefinder_config.GALAXY_DEFINITIONS[galdef]
 
     # These are kwargs that could be used at any stage of running linefinder.
     general_kwargs = {
@@ -327,6 +331,9 @@ def run_linefinder_jug(
             if 'main_mt_halo_id' not in gal_linker_kwargs:
                 gal_linker_kwargs['main_mt_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
+        if galdef is not None:
+            for key in [ 'galaxy_cut', 'length_scale', 'mt_length_scale' ]:
+                gal_linker_kwargs[key] = galdef_dict[key]
 
         particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
             **gal_linker_kwargs )
@@ -338,6 +345,10 @@ def run_linefinder_jug(
         # Update arguments
         classifier_kwargs = utilities.merge_two_dicts(
             classifier_kwargs, general_kwargs )
+
+        if galdef is not None:
+            for key in [ 't_pro', 't_m', ]:
+                classifier_kwargs[key] = galdef_dict[key]
 
         classifier = classify.Classifier( **classifier_kwargs )
         jug.Task( classifier.classify_particles )
