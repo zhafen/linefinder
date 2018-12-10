@@ -265,6 +265,9 @@ def run_linefinder_jug(
         if out_dir is None:
             out_dir = file_manager.get_linefinder_dir( sim_name )
 
+    if galdef is not None:
+        galdef_dict = linefinder_config.GALAXY_DEFINITIONS[galdef]
+
     # Setup jugdata
     jugdir_tail = '{}.jugdata'.format( tag )
     jug.set_jugdir( os.path.join( out_dir, jugdir_tail ) )

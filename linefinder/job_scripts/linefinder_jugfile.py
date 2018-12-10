@@ -2,6 +2,14 @@ import linefinder.linefinder as linefinder
 
 ########################################################################
 
+sim_name = 'm12i'
+'''The simulation to run tracking on.'''
+
+tag = '{}_example'.format( sim_name )
+'''Identifying tag used as part of the filenames.
+E.g. the IDs file will have the format `ids_{}.hdf5.format( tag )`.
+'''
+
 # Tracking Parameters
 tracker_kwargs = {
     # What particle types to track. Typically just stars and gas.
@@ -14,11 +22,8 @@ tracker_kwargs = {
 }
 
 linefinder.run_linefinder_jug(
-    sim_name = 'm12i',
-    # The simulation to run tracking on.
-    tag = 'example',
-    # Identifying tag used as part of the filenames.
-    # E.g. the IDs file will have the format `ids_{}.hdf5.format( tag )`.
+    sim_name = sim_name,
+    tag = tag,
     galdef = '_galdefv3',
     # The galdef is a set of parameters used for the galaxy linking and
     # classification steps. Don't touch this unless you know what you're doing.

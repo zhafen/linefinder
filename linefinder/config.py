@@ -12,6 +12,151 @@ import numpy as np
 import utils.presentation_constants as p_constants
 
 ########################################################################
+# System Information
+########################################################################
+
+# Select the system you're running on here.
+ACTIVE_SYSTEM = 'Stampede2'
+
+QUEST_PARAMETERS = {
+    'simulation_data_dir': '/projects/b1026/zhafen',
+    'linefinder_data_dir': '/projects/b1026/zhafen/linefinder_data',
+    'halo_data_dir': '/projects/b1026/zhafen',
+}
+
+STAMPEDE_PARAMETERS = {
+    'linefinder_data_dir': '/work/03057/zhafen/linefinder_data',
+    'halo_data_dir': '/scratch/03057/zhafen',
+}
+
+STAMPEDE2_PARAMETERS = {
+    'simulation_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE',
+    'linefinder_data_dir': '/scratch/03057/zhafen/linefinder_data',
+    'halo_data_dir': '/scratch/03057/zhafen',
+
+    'project' : {
+        'CGM_origin' : {
+            'project_dir' : '/home1/03057/zhafen/papers/CGM_origin',
+            'presentation_dir' : '/work/03057/zhafen/presentation_plots',
+            'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_origin',
+            'output_data_dir' : '/home1/03057/zhafen/nbs/CGM_origin_analysis/data',
+        },
+        'CGM_fate' : {
+            'project_dir' : '/home1/03057/zhafen/papers/CGM_fate',
+            'presentation_dir' : '/work/03057/zhafen/presentation_plots',
+            'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_fate',
+            'output_data_dir' : '/home1/03057/zhafen/nbs/CGM_fate_analysis/data',
+        },
+        'winds' : {
+            'project_dir' : '/home1/03057/zhafen/papers/fire2-winds',
+        },
+        'galaxy_origin' : {
+            'project_dir' : '/home1/03057/zhafen/papers/galaxy_origin',
+        },
+        'code_paper' : {
+            'project_dir' : '/home1/03057/zhafen/papers/code-paper',
+        },
+    },
+}
+
+# Information about the location of jug.
+JUG_PATH = '~/.local/bin/jug'
+JUG_EXEC_PATH = '~/.local/bin/jug-execute'
+
+########################################################################
+# Simulation Information
+########################################################################
+
+# We refer to simulaitons using an abbreviated name.
+# Here are the corresponding full names of the simulations.
+FULL_SIM_NAME = {
+    'm10q': 'm10q_res250',
+    'm10v': 'm10v_res250',
+    'm10y': 'm10y_res250',
+    'm10z': 'm10z_res250',
+    'm11a': 'm11a_res2100',
+    'm11b': 'm11b_res2100',
+    'm11q': 'm11q_res7100',
+    'm11v': 'm11v_res7100',
+    'm11c': 'm11c_res2100',
+    'm11d': 'm11d_res7100',
+    'm11e': 'm11e_res7100',
+    'm11h': 'm11h_res7100',
+    'm11i': 'm11i_res7100',
+    'm12b': 'm12b_res7100',
+    'm12c': 'm12c_res7100',
+    'm12f': 'm12f_res7100',
+    'm12i': 'm12i_res7100',
+    'm12m': 'm12m_res7100',
+    'm12r': 'm12r_res7100',
+    'm12w': 'm12w_res7100',
+    'm12z': 'm12z_res4200',
+    'm12iF1': 'm12v_mr_Dec5_2013_3',
+}
+MAIN_MT_HALO_ID = {
+    'm10q': 0,
+    'm10v': 2,
+    'm10y': 0,
+    'm10z': 0,
+    'm11a': 0,
+    'm11b': 0,
+    'm11q': 0,
+    'm11v': 0,
+    'm11c': 0,
+    'm12i': 0,
+    'm12f': 0,
+    'm12m': 0,
+    'm11d_md': 0,
+    'm11e_md': 0,
+    'm11h_md': 0,
+    'm11i_md': 0,
+    'm10q_md': 0,
+    'm11q_md': 0,
+    'm12b_md': 0,
+    'm12c_md': 0,
+    'm12i_md': 0,
+    'm12r_md': 0,
+    'm12w_md': 0,
+    'm12z_md': 0,
+    'm12iF1': 0,
+}
+
+# Different zoom-in simulations focus on different halo masses.
+# These are the corresponding halo masses for a given simulaiton.
+MASS_BINS = {
+    'm10q': 'm10',
+    'm10v': 'm10',
+    'm10y': 'm10',
+    'm10z': 'm10',
+    'm11a': 'm10',
+    'm11b': 'm10',
+    'm11q': 'm11',
+    'm11v': 'm11',
+    'm11c': 'm11',
+    'm12i': 'm12',
+    'm12f': 'm12',
+    'm12m': 'm12',
+    'm10q_md': 'm10',
+    'm11i_md': 'm10',
+    'm11d_md': 'm11',
+    'm11e_md': 'm11',
+    'm11h_md': 'm11',
+    'm11q_md': 'm11',
+    'm12b_md': 'm12',
+    'm12c_md': 'm12',
+    'm12i_md': 'm12',
+    'm12r_md': 'm12',
+    'm12w_md': 'm12',
+    'm12z_md': 'm12',
+    'm12iF1': 'm12',
+}
+
+FULL_PHYSICS_NAME = {
+    '': 'core',
+    '_md': 'metal_diffusion',
+}
+
+########################################################################
 # Global Default Parameters
 ########################################################################
 # I do it this way that way I can access these global defaults from plotting
@@ -81,144 +226,6 @@ GALAXY_DEFINITIONS = {
     },
 }
 
-########################################################################
-# System Information
-########################################################################
-
-ACTIVE_SYSTEM = 'Stampede2'
-
-QUEST_PARAMETERS = {
-    'simulation_data_dir': '/projects/b1026/zhafen',
-    'linefinder_data_dir': '/projects/b1026/zhafen/linefinder_data',
-    'halo_data_dir': '/projects/b1026/zhafen',
-}
-
-STAMPEDE_PARAMETERS = {
-    'linefinder_data_dir': '/work/03057/zhafen/linefinder_data',
-    'halo_data_dir': '/scratch/03057/zhafen',
-}
-
-STAMPEDE2_PARAMETERS = {
-    'simulation_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE',
-    'linefinder_data_dir': '/scratch/03057/zhafen/linefinder_data',
-    'halo_data_dir': '/scratch/03057/zhafen',
-
-    'project' : {
-        'CGM_origin' : {
-            'project_dir' : '/home1/03057/zhafen/papers/CGM_origin',
-            'presentation_dir' : '/work/03057/zhafen/presentation_plots',
-            'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_origin',
-            'output_data_dir' : '/home1/03057/zhafen/nbs/CGM_origin_analysis/data',
-        },
-        'CGM_fate' : {
-            'project_dir' : '/home1/03057/zhafen/papers/CGM_fate',
-            'presentation_dir' : '/work/03057/zhafen/presentation_plots',
-            'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_fate',
-            'output_data_dir' : '/home1/03057/zhafen/nbs/CGM_fate_analysis/data',
-        },
-        'winds' : {
-            'project_dir' : '/home1/03057/zhafen/papers/fire2-winds',
-        },
-        'galaxy_origin' : {
-            'project_dir' : '/home1/03057/zhafen/papers/galaxy_origin',
-        },
-        'code_paper' : {
-            'project_dir' : '/home1/03057/zhafen/papers/code-paper',
-        },
-    },
-}
-
-JUG_PATH = '~/.local/bin/jug'
-JUG_EXEC_PATH = '~/.local/bin/jug-execute'
-
-########################################################################
-# Simulation Information
-########################################################################
-
-FULL_SIM_NAME = {
-    'm10q': 'm10q_res250',
-    'm10v': 'm10v_res250',
-    'm10y': 'm10y_res250',
-    'm10z': 'm10z_res250',
-    'm11a': 'm11a_res2100',
-    'm11b': 'm11b_res2100',
-    'm11q': 'm11q_res7100',
-    'm11v': 'm11v_res7100',
-    'm11c': 'm11c_res2100',
-    'm11d': 'm11d_res7100',
-    'm11e': 'm11e_res7100',
-    'm11h': 'm11h_res7100',
-    'm11i': 'm11i_res7100',
-    'm12b': 'm12b_res7100',
-    'm12c': 'm12c_res7100',
-    'm12f': 'm12f_res7100',
-    'm12i': 'm12i_res7100',
-    'm12m': 'm12m_res7100',
-    'm12r': 'm12r_res7100',
-    'm12w': 'm12w_res7100',
-    'm12z': 'm12z_res4200',
-    'm12iF1': 'm12v_mr_Dec5_2013_3',
-}
-MAIN_MT_HALO_ID = {
-    'm10q': 0,
-    'm10v': 2,
-    'm10y': 0,
-    'm10z': 0,
-    'm11a': 0,
-    'm11b': 0,
-    'm11q': 0,
-    'm11v': 0,
-    'm11c': 0,
-    'm12i': 0,
-    'm12f': 0,
-    'm12m': 0,
-    'm11d_md': 0,
-    'm11e_md': 0,
-    'm11h_md': 0,
-    'm11i_md': 0,
-    'm10q_md': 0,
-    'm11q_md': 0,
-    'm12b_md': 0,
-    'm12c_md': 0,
-    'm12i_md': 0,
-    'm12r_md': 0,
-    'm12w_md': 0,
-    'm12z_md': 0,
-    'm12iF1': 0,
-}
-
-MASS_BINS = {
-    'm10q': 'm10',
-    'm10v': 'm10',
-    'm10y': 'm10',
-    'm10z': 'm10',
-    'm11a': 'm10',
-    'm11b': 'm10',
-    'm11q': 'm11',
-    'm11v': 'm11',
-    'm11c': 'm11',
-    'm12i': 'm12',
-    'm12f': 'm12',
-    'm12m': 'm12',
-    'm10q_md': 'm10',
-    'm11i_md': 'm10',
-    'm11d_md': 'm11',
-    'm11e_md': 'm11',
-    'm11h_md': 'm11',
-    'm11q_md': 'm11',
-    'm12b_md': 'm12',
-    'm12c_md': 'm12',
-    'm12i_md': 'm12',
-    'm12r_md': 'm12',
-    'm12w_md': 'm12',
-    'm12z_md': 'm12',
-    'm12iF1': 'm12',
-}
-
-FULL_PHYSICS_NAME = {
-    '': 'core',
-    '_md': 'metal_diffusion',
-}
 ########################################################################
 # Miscellanious values
 ########################################################################
