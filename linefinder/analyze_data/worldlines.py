@@ -570,7 +570,7 @@ class Worldlines( simulation_data.TimeData ):
             return data
 
         # A lot of the data can be calculated from the particle tracks data, so we can also try to access it from there.
-        except KeyError, AttributeError:
+        except ( KeyError, AttributeError ) as e:
             data = self.ptracks.get_data( data_key, *args, **kwargs )
             return data
         # TODO: Fix the structure s.t. it's improved from this.

@@ -96,12 +96,14 @@ class ParticleTracker( object ):
 
         time_start = time.time()
 
-        print "#" * 80
-        print "Starting Tracking!"
-        print "#" * 80
-        print "Tracking particle data from this directory:\n    {}".format(
-            self.sdir )
-        print "Data will be saved here:\n    {}".format( self.out_dir )
+        print( "#" * 80 )
+        print( "Starting Tracking!" )
+        print( "#" * 80 )
+        print( "Tracking particle data from this directory:\n    {}".format(
+                self.sdir
+            )
+        )
+        print( "Data will be saved here:\n    {}".format( self.out_dir ) )
         sys.stdout.flush()
 
         # Get the target ids
@@ -118,12 +120,14 @@ class ParticleTracker( object ):
 
         time_end = time.time()
 
-        print "#" * 80
-        print "Done Tracking!"
-        print "#" * 80
-        print "Output file saved as:\n    {}".format( self.outname )
-        print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format(
-            time_end - time_start, (time_end - time_start) / self.ntrack )
+        print( "#" * 80 )
+        print( "Done Tracking!" )
+        print( "#" * 80 )
+        print( "Output file saved as:\n    {}".format( self.outname ) )
+        print( "Took {:.3g} seconds, or {:.3g} seconds per particle!".format(
+                time_end - time_start, (time_end - time_start) / self.ntrack
+            )
+        )
 
     ########################################################################
 
@@ -131,9 +135,9 @@ class ParticleTracker( object ):
         '''Loop over all redshifts, get the data, and save the particle tracks.
         '''
 
-        print "#" * 80
-        print "Starting Tracking!"
-        print "#" * 80
+        print( "#" * 80 )
+        print( "Starting Tracking!" )
+        print( "#" * 80 )
 
         # Get the target ids
         self.get_target_ids()
@@ -220,7 +224,7 @@ class ParticleTracker( object ):
 
         self.ntrack = self.target_ids.size
 
-        print "Tracking {} particles...".format( self.ntrack )
+        print( "Tracking {} particles...".format( self.ntrack ) )
         sys.stdout.flush()
 
         ptrack = {
@@ -290,8 +294,9 @@ class ParticleTracker( object ):
             time_2 = time.time()
 
             # Print output information.
-            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
+            print( 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
                 .format(  snum, redshift, time_2 - time_1 )
+            )
             sys.stdout.flush()
 
         return ptrack, attrs
@@ -318,7 +323,7 @@ class ParticleTracker( object ):
         myfloat = 'float32'
 
         self.ntrack = self.target_ids.size
-        print "Tracking {} particles...".format( self.ntrack )
+        print( "Tracking {} particles...".format( self.ntrack ) )
         sys.stdout.flush()
 
         def get_tracked_data_snapshot( args ):
@@ -343,8 +348,9 @@ class ParticleTracker( object ):
             time_2 = time.time()
 
             # Print output information.
-            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
+            print( 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
                 .format( snum, redshift, time_2 - time_1 )
+            )
             sys.stdout.flush()
 
             return i, dfid, redshift, attrs, snum
@@ -421,7 +427,7 @@ class ParticleTracker( object ):
             self.snum_end, self.snum_start - 1, -self.snum_step )
 
         self.ntrack = self.target_ids.size
-        print "Tracking {} particles...".format( self.ntrack )
+        print( "Tracking {} particles...".format( self.ntrack ) )
         sys.stdout.flush()
 
         def get_tracked_data_snapshot( args ):
@@ -446,8 +452,10 @@ class ParticleTracker( object ):
             time_2 = time.time()
 
             # Print output information.
-            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
+            print(
+                 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
                 .format( snum, redshift, time_2 - time_1 )
+            )
             sys.stdout.flush()
 
             return i, dfid, redshift, attrs, snum
@@ -648,7 +656,7 @@ class IDFinder( object ):
         '''
 
         if verbose:
-            print 'Reading data...'
+            print( 'Reading data...' )
             sys.stdout.flush()
 
         full_snap_data = {
@@ -709,7 +717,7 @@ class IDFinder( object ):
                 saved_header_info = True
 
             if verbose:
-                print '       ...  ', pnum, '   type', p_type, ' particles'
+                print( '       ...  ', pnum, '   type', p_type, ' particles' )
 
             if 'rho' in P:
                     Den = P['rho'] * constants.UNITDENSITY_IN_NUMDEN
@@ -757,8 +765,10 @@ class IDFinder( object ):
         time_end = time.time()
 
         if verbose:
-            print 'readsnap done in ... {:.3g} seconds'.format(
-                time_end - time_start )
+            print( 'readsnap done in ... {:.3g} seconds'.format(
+                    time_end - time_start
+                )
+            )
 
         # Convert to numpy arrays
         for key in full_snap_data.keys():

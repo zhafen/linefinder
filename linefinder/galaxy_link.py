@@ -120,12 +120,14 @@ class ParticleTrackGalaxyLinker( object ):
 
         self.time_start = time.time()
 
-        print "#" * 80
-        print "Starting Adding Galaxy and Halo IDs!"
-        print "#" * 80
-        print "Using halo data from this directory:\n    {}".format(
-            self.halo_data_dir )
-        print "Data will be saved here:\n    {}".format( self.out_dir )
+        print( "#" * 80 )
+        print( "Starting Adding Galaxy and Halo IDs!" )
+        print( "#" * 80 )
+        print( "Using halo data from this directory:\n    {}".format(
+                self.halo_data_dir
+            )
+        )
+        print( "Data will be saved here:\n    {}".format( self.out_dir ) )
         sys.stdout.flush()
 
         self.read_data()
@@ -139,13 +141,15 @@ class ParticleTrackGalaxyLinker( object ):
 
         time_end = time.time()
 
-        print "#" * 80
-        print "Done Adding Galaxy and Halo IDs!"
-        print "#" * 80
-        print "The data was saved at:\n    {}".format( self.save_filepath )
-        print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format(
-            time_end - self.time_start,
-            (time_end - self.time_start) / self.n_particles )
+        print( "#" * 80 )
+        print( "Done Adding Galaxy and Halo IDs!" )
+        print( "#" * 80 )
+        print( "The data was saved at:\n    {}".format( self.save_filepath ) )
+        print( "Took {:.3g} seconds, or {:.3g} seconds per particle!".format(
+                time_end - self.time_start,
+                (time_end - self.time_start) / self.n_particles
+            )
+        )
 
     ########################################################################
 
@@ -229,12 +233,13 @@ class ParticleTrackGalaxyLinker( object ):
 
             time_end = time.time()
 
-            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
+            print( 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
                 .format(
                     kwargs['snum'],
                     kwargs['redshift'],
                     time_end - time_start
                 )
+            )
             sys.stdout.flush()
 
             # Make the arrays to store the data in
@@ -278,12 +283,13 @@ class ParticleTrackGalaxyLinker( object ):
 
             time_end = time.time()
 
-            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
+            print( 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
                 .format(
                     kwargs['snum'],
                     kwargs['redshift'],
                     time_end - time_start
                 )
+            )
             sys.stdout.flush()
 
             # Try to avoid memory leaks
@@ -393,12 +399,13 @@ class ParticleTrackGalaxyLinker( object ):
 
             time_end = time.time()
 
-            print 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
+            print( 'Snapshot {:>3} | redshift {:>7.3g} | done in {:.3g} seconds'\
                 .format(
                     kwargs['snum'],
                     kwargs['redshift'],
                     time_end - time_start
                 )
+            )
             sys.stdout.flush()
 
             # Try to avoid memory leaks

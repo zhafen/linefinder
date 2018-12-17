@@ -175,27 +175,33 @@ class Classifier( object ):
 
         # Print out starting information
         time_start = time.time()
-        print "#" * 80
-        print "Starting Classifying!"
-        print "#" * 80
-        print "Using tracked particle data from this directory:\n    {}".format(
-            self.out_dir )
-        print "Using halo data from this directory:\n    {}".format(
-            self.halo_data_dir )
-        print "Data will be saved here:\n    {}".format(
-            self.out_dir )
+        print( "#" * 80 )
+        print( "Starting Classifying!" )
+        print( "#" * 80 )
+        print( "Using tracked particle data from this directory:\n    {}".format(
+                self.out_dir
+            )
+        )
+        print( "Using halo data from this directory:\n    {}".format(
+            self.halo_data_dir
+            )
+        )
+        print( "Data will be saved here:\n    {}".format(
+                self.out_dir
+            )
+        )
         sys.stdout.flush()
 
         # Get the data files out
         self.read_data_files()
 
         # Do the auxiliary calculations
-        print "Calculating radial velocity, circular velocity, and dt..."
+        print( "Calculating radial velocity, circular velocity, and dt..." )
         sys.stdout.flush()
         self.dt = self.get_time_difference()
 
         # Do the first wave of classifications
-        print "Identifying accretion, ejection, etc..."
+        print( "Identifying accretion, ejection, etc..." )
         sys.stdout.flush()
         self.is_in_other_gal = self.identify_is_in_other_gal()
         self.is_in_main_gal = self.identify_is_in_main_gal()
@@ -204,7 +210,7 @@ class Classifier( object ):
         self.is_ejected = self.identify_ejection()
 
         # Information on what happens before accretion.
-        print "Figuring out what happens before first accretion..."
+        print( "Figuring out what happens before first accretion..." )
         sys.stdout.flush()
         self.cum_num_acc = self.get_cum_num_acc()
         self.is_before_first_acc = self.identify_is_before_first_acc()
@@ -217,7 +223,7 @@ class Classifier( object ):
             self.get_time_in_other_gal_before_acc_during_interval()
 
         # Get the primary classifications
-        print "Performing the main classifications..."
+        print( "Performing the main classifications..." )
         sys.stdout.flush()
         self.is_hitherto_EP = self.identify_hitherto_EP()
         self.is_hitherto_NEP = self.identify_hitherto_NEP()
@@ -238,13 +244,17 @@ class Classifier( object ):
 
         # Print out end information
         time_end = time.time()
-        print "#" * 80
-        print "Done Classifying!"
-        print "#" * 80
-        print "Output file saved as:\n    {}".format(
-            self.classification_filepath )
-        print "Took {:.3g} seconds, or {:.3g} seconds per particle!".format(
-            time_end - time_start, (time_end - time_start) / self.n_particle )
+        print( "#" * 80 )
+        print( "Done Classifying!" )
+        print( "#" * 80 )
+        print( "Output file saved as:\n    {}".format(
+                self.classification_filepath
+            )
+        )
+        print( "Took {:.3g} seconds, or {:.3g} seconds per particle!".format(
+                time_end - time_start, (time_end - time_start) / self.n_particle
+            )
+        )
 
     ########################################################################
 
@@ -253,7 +263,7 @@ class Classifier( object ):
         easy access later on.
         '''
 
-        print "Reading data..."
+        print( "Reading data..." )
         sys.stdout.flush()
 
         self.ptrack = {}
