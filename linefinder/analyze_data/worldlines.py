@@ -32,6 +32,7 @@ import linefinder.config as config
 ########################################################################
 
 
+@utilities.store_parameters
 class Worldlines( simulation_data.TimeData ):
     '''Wrapper for analysis of all data products. It loads data in
     on-demand.
@@ -91,10 +92,6 @@ class Worldlines( simulation_data.TimeData ):
             classifications_tag = tag
         if events_tag is None:
             events_tag = tag
-
-        # Store the arguments
-        for arg in locals().keys():
-            setattr( self, arg, locals()[arg] )
 
         self.ptracks_kwargs = dict( kwargs )
 
