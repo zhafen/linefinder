@@ -19,11 +19,11 @@ import galaxy_dive.read_data.snapshot as read_snapshot
 import galaxy_dive.utils.astro as astro_tools
 import galaxy_dive.utils.utilities as utilities
 
-import ids
-import ptracks
-import galids
-import classifications
-import events
+from . import ids
+from . import ptracks
+from . import galids
+from . import classifications
+from . import events
 
 import linefinder.utils.presentation_constants as p_constants
 import linefinder.config as config

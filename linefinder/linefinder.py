@@ -5,13 +5,13 @@
 import jug
 import os
 
-import config as linefinder_config
-import select
-import track
-import galaxy_link
-import classify
+import linefinder.config as linefinder_config
+import linefinder.select as select
+import linefinder.track as track
+import linefinder.galaxy_link as galaxy_link
+import linefinder.classify as classify
 
-import utils.file_management as file_management
+import linefinder.utils.file_management as file_management
 
 import galaxy_dive.utils.utilities as utilities
 

@@ -20,7 +20,7 @@ import galaxy_dive.utils.constants as constants
 import galaxy_dive.utils.mp_utils as mp_utils
 import galaxy_dive.utils.utilities as utilities
 
-import config as linefinder_config
+import linefinder.config as linefinder_config
 
 ########################################################################
 

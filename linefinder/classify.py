@@ -19,9 +19,9 @@ import galaxy_dive.utils.astro as astro_tools
 import galaxy_dive.utils.constants as constants
 import galaxy_dive.utils.utilities as utilities
 
-import analyze_data.worldlines as analyze_worldlines
+import linefinder.analyze_data.worldlines as analyze_worldlines
 
-import config
+import linefinder.config as config
 
 ########################################################################
 

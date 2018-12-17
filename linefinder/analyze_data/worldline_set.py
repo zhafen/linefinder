@@ -16,8 +16,8 @@ import matplotlib
 matplotlib.use('PDF')
 import matplotlib.pyplot as plt
 
-import plot_worldlines
-import worldlines as a_worldlines
+from . import plot_worldlines
+from . import worldlines as a_worldlines
 
 import galaxy_dive.plot_data.plotting as gen_plot
 import galaxy_dive.utils.hdf5_wrapper as hdf5_wrapper

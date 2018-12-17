@@ -19,7 +19,7 @@ import galaxy_dive.galaxy_linker.linker as galaxy_linker
 import galaxy_dive.utils.mp_utils as mp_utils
 import galaxy_dive.utils.utilities as utilities
 
-import config
+import linefinder.config as config
 
 ########################################################################
 
