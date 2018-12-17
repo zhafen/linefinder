@@ -284,13 +284,23 @@ class Classifier( object ):
                 self.ptrack_attrs[ key ] = f.attrs[ key ]
 
             if store_parameters:
-                if self.halo_data_dir is default:
-                    self.halo_data_dir = f['parameters'].attrs['halo_data_dir']
-                if self.mtree_halos_index is default:
-                    self.mtree_halos_index = \
-                        f['parameters'].attrs['mtree_halos_index']
-                if self.halo_file_tag is default:
-                    self.halo_file_tag = f['parameters'].attrs['halo_file_tag']
+                default_attrs_to_replace = [
+                    'halo_data_dir',
+                    'mtree_halos_index',
+                    'halo_file_tag',
+                ]
+                for attr in default_attrs_to_replace:
+                    if getattr( self, attr ) is default:
+                        attr_value = f['parameters'].attrs[attr]
+                        # Account for bytes encoding.
+                        if isinstance( attr_value, bytes ):
+                            print(
+                                'Decoding attribute {} from bytes, assuming utf-8.'.format(
+                                    attr
+                                )
+                            )
+                            attr_value = attr_value.decode( 'utf-8' )
+                        setattr( self, attr, attr_value )
                 for parameter_key in [ 'galaxy_cut', 'length_scale', ]:
                     self.ptrack_attrs[ parameter_key ] = \
                         f['parameters'].attrs[parameter_key]
