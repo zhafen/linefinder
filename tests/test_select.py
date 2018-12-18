@@ -290,8 +290,10 @@ class TestIDSelector( unittest.TestCase ):
         actual = self.id_selector.format_selected_ids( self.selected_ids )
         expected = [ self.selected_ids_formatted, self.selected_child_ids_formatted ]
 
-        for i in range( 2 ):
-            npt.assert_allclose( expected[i], actual[i] )
+        for i, id_ in enumerate( expected[0] ):
+            assert id_ in actual[0]
+            match_actual = np.where(actual[0]==id_)
+            npt.assert_allclose( actual[1][match_actual], expected[1][i] )
 
     ########################################################################
 
