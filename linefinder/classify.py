@@ -291,15 +291,9 @@ class Classifier( object ):
                 ]
                 for attr in default_attrs_to_replace:
                     if getattr( self, attr ) is default:
-                        attr_value = f['parameters'].attrs[attr]
-                        # Account for bytes encoding.
-                        if isinstance( attr_value, bytes ):
-                            print(
-                                'Decoding attribute {} from bytes, assuming utf-8.'.format(
-                                    attr
-                                )
-                            )
-                            attr_value = attr_value.decode( 'utf-8' )
+                        attr_value = utilities.check_and_decode_bytes(
+                            f['parameters'].attrs[attr]
+                        )
                         setattr( self, attr, attr_value )
                 for parameter_key in [ 'galaxy_cut', 'length_scale', ]:
                     self.ptrack_attrs[ parameter_key ] = \

@@ -42,13 +42,17 @@ class PTracks( simulation_data.TimeData ):
             # Store the data attributes
             self.data_attrs = {}
             for key in f.attrs.keys():
-                self.data_attrs[key] = f.attrs[key]
+                self.data_attrs[key] = utilities.check_and_decode_bytes(
+                    f.attrs[key]
+                )
 
             # Store the parameters
             self.parameters = {}
             param_grp = f['parameters']
             for key in param_grp.attrs.keys():
-                self.parameters[key] = param_grp.attrs[key]
+                self.parameters[key] = utilities.check_and_decode_bytes(
+                    param_grp.attrs[key]
+                )
 
         # Reorganize data to match with formatting in TimeData
         self.data['P'] = np.rollaxis( self.data['P'], 2 )

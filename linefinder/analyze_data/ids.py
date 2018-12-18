@@ -46,13 +46,18 @@ class IDs( object ):
             self.parameters = {}
             param_grp = f['parameters']
             for key in param_grp.attrs.keys():
-                self.parameters[key] = param_grp.attrs[key]
+                self.parameters[key] = utilities.check_and_decode_bytes(
+                    param_grp.attrs[key]
+                )
+                    
 
             # Store the parameters
             self.snapshot_parameters = {}
             snap_param_grp = f['parameters/snapshot_parameters']
             for key in snap_param_grp.attrs.keys():
-                self.snapshot_parameters[key] = snap_param_grp.attrs[key]
+                self.snapshot_parameters[key] = utilities.check_and_decode_bytes(
+                     snap_param_grp.attrs[key]
+                )
 
             # Store the used data filters
             self.data_filters = {}
