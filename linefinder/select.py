@@ -6,6 +6,7 @@
 @status: Development
 '''
 
+import copy
 import gc
 import h5py
 import jug
@@ -566,6 +567,11 @@ class IDSampler( object ):
         for ptype in self.f['parameters'].attrs['p_types']:
 
             p_data_kwargs = dict( self.f['parameters/snapshot_parameters'].attrs )
+            
+            # Check for bytes data and decode
+            for key, item in copy.deepcopy( p_data_kwargs ).items():
+                p_data_kwargs[key] = utilities.check_and_decode_bytes( item )
+
             p_data_kwargs['snum'] = self.reference_snum_for_duplicates
             p_data_kwargs['ptype'] = ptype
             p_data = particle_data.ParticleData( **p_data_kwargs )
