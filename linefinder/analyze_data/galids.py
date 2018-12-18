@@ -10,6 +10,8 @@ import h5py
 import numpy as np
 import os
 
+import galaxy_dive.utils.utilities as utilities
+
 ########################################################################
 ########################################################################
 
@@ -17,16 +19,13 @@ class GalIDs( object ):
     '''Loads and analyzes data created by galaxy_link.py
     '''
 
+    @utilities.store_parameters
     def __init__( self, data_dir, tag ):
         '''
         Args:
             data_dir (str) : Data directory for the classified data
             tag (str) : Identifying tag for the data to load.
         '''
-
-        # Store the arguments
-        for arg in locals().keys():
-            setattr( self, arg, locals()[arg] )
 
         # Open the file
         galids_filepath = os.path.join( data_dir, 'galids_{}.hdf5'.format( tag ) )

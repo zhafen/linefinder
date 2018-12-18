@@ -9,6 +9,8 @@
 import h5py
 import os
 
+import galaxy_dive.utils.utilities as utilities
+
 ########################################################################
 ########################################################################
 
@@ -17,16 +19,13 @@ class IDs( object ):
     '''Loads and analyzes data created by select.py
     '''
 
+    @utilities.store_parameters
     def __init__( self, data_dir, tag ):
         '''
         Args:
             data_dir (str) : Data directory for the classified data
             tag (str) : Identifying tag for the data to load.
         '''
-
-        # Store the arguments
-        for arg in locals().keys():
-            setattr( self, arg, locals()[arg] )
 
         # Open the file
         ids_filepath = os.path.join( data_dir, 'ids_{}.hdf5'.format( tag ) )

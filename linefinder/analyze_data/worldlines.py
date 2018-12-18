@@ -32,7 +32,6 @@ import linefinder.config as config
 ########################################################################
 
 
-@utilities.store_parameters
 class Worldlines( simulation_data.TimeData ):
     '''Wrapper for analysis of all data products. It loads data in
     on-demand.
@@ -70,6 +69,7 @@ class Worldlines( simulation_data.TimeData ):
             Keyword arguments passed to self.ptracks, which is a PTracks object.
         '''
 
+    @utilities.store_parameters
     def __init__(
         self,
         data_dir,
@@ -82,18 +82,16 @@ class Worldlines( simulation_data.TimeData ):
         **kwargs
     ):
 
-        if ids_tag is None:
-            ids_tag = tag
-        if ptracks_tag is None:
-            ptracks_tag = tag
-        if galids_tag is None:
-            galids_tag = tag
-        if classifications_tag is None:
-            classifications_tag = tag
-        if events_tag is None:
-            events_tag = tag
-
-        self.ptracks_kwargs = dict( kwargs )
+        if self.ids_tag is None:
+            self.ids_tag = self.tag
+        if self.ptracks_tag is None:
+            self.ptracks_tag = self.tag
+        if self.galids_tag is None:
+            self.galids_tag = self.tag
+        if self.classifications_tag is None:
+            self.classifications_tag = self.tag
+        if self.events_tag is None:
+            self.events_tag = self.tag
 
         data_masker = WorldlineDataMasker( self )
         key_parser = WorldlineDataKeyParser()

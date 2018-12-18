@@ -11,6 +11,7 @@ import numpy as np
 import os
 
 import galaxy_dive.analyze_data.simulation_data as simulation_data
+import galaxy_dive.utils.utilities as utilities
 
 ########################################################################
 ########################################################################
@@ -19,6 +20,7 @@ class PTracks( simulation_data.TimeData ):
     '''Loads and analyzes data created by galaxy_link.py
     '''
 
+    @utilities.store_parameters
     def __init__( self, data_dir, tag, ahf_index=None, *args, **kwargs ):
         '''
         Args:
@@ -26,10 +28,6 @@ class PTracks( simulation_data.TimeData ):
             tag (str) : Identifying tag for the data to load.
             ahf_index (str or int) : Index to use for AHF data.
         '''
-
-        # Store the arguments
-        for arg in locals().keys():
-            setattr( self, arg, locals()[arg] )
 
         # Open the file
         ptracks_filepath = os.path.join( data_dir, 'ptracks_{}.hdf5'.format( tag ) )
