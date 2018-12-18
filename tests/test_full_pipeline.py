@@ -170,6 +170,11 @@ class TestLinefinder( unittest.TestCase ):
     def test_full_pipeline( self ):
         '''Test that everything runs, including ID selecting.'''
 
+        # Choose the same seed for reproducibility.
+        # Also, when I was creating the test data I wasn't careful enough to
+        # Make sure that the sub-sampled snapshots had always consistent IDs...
+        np.random.seed( 1234 )
+
         linefinder.run_linefinder(
             out_dir = out_dir2,
             tag = tag,
