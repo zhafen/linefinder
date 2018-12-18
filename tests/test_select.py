@@ -17,6 +17,8 @@ import unittest
 import linefinder.config as config
 import linefinder.select as select
 
+import galaxy_dive.utils.utilities as utilities
+
 ########################################################################
 
 # For IDSelector
@@ -861,8 +863,12 @@ class TestIDSelectorJug( unittest.TestCase ):
 
             try:
                 self.assertEqual(
-                    files[0]['parameters'].attrs[key],
-                    files[1]['parameters'].attrs[key],
+                    utilities.check_and_decode_bytes(
+                        files[0]['parameters'].attrs[key],
+                    ),
+                    utilities.check_and_decode_bytes(
+                        files[1]['parameters'].attrs[key],
+                    ),
                 )
             # In case it's an array
             except ValueError:
