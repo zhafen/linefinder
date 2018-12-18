@@ -9,7 +9,7 @@ For example, this contains the default fill values for invalid data.
 
 import numpy as np
 
-import linefinder.utils.presentation_constants as p_constants
+from .utils import presentation_constants as p_constants
 
 ########################################################################
 # System Information

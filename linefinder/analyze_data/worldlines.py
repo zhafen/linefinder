@@ -67,7 +67,7 @@ class Worldlines( simulation_data.TimeData ):
 
         **kwargs:
             Keyword arguments passed to self.ptracks, which is a PTracks object.
-        '''
+    '''
 
     @utilities.store_parameters
     def __init__(
@@ -92,6 +92,9 @@ class Worldlines( simulation_data.TimeData ):
             self.classifications_tag = self.tag
         if self.events_tag is None:
             self.events_tag = self.tag
+
+        # For compatibility we often refer to kwargs as ptracks_kwargs
+        self.ptracks_kwargs = self.kwargs
 
         data_masker = WorldlineDataMasker( self )
         key_parser = WorldlineDataKeyParser()

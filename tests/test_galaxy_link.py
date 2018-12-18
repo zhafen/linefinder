@@ -216,6 +216,8 @@ class TestParticleTrackGalaxyLinkerJug( unittest.TestCase ):
             config.JUG_EXEC_PATH )
         )
 
+        assert False, "I don't think this test is actually passing... I'm not sure I'm deleting the data..."
+
         expected = \
             h5py.File( './tests/data/tracking_output/galids_test.hdf5', 'r' )
         actual = h5py.File( self.savefile, 'r' )

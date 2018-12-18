@@ -5,13 +5,13 @@
 import jug
 import os
 
-import linefinder.config as linefinder_config
-import linefinder.select as select
-import linefinder.track as track
-import linefinder.galaxy_link as galaxy_link
-import linefinder.classify as classify
+from . import config as linefinder_config
+from . import select
+from . import track
+from . import galaxy_link
+from . import classify
 
-import linefinder.utils.file_management as file_management
+from .utils import file_management
 
 import galaxy_dive.utils.utilities as utilities
 
@@ -149,7 +149,7 @@ def run_linefinder(
         tracker_kwargs = utilities.merge_two_dicts(
             tracker_kwargs, general_kwargs )
 
-        # Change the sdir
+        # Choose the sdir
         if 'sdir' not in tracker_kwargs:
             # Try and load the default values if using the file manager.
             if sim_name is not None:

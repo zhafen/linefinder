@@ -197,6 +197,8 @@ class TestLinefinder( unittest.TestCase ):
             config.JUG_EXEC_PATH )
         )
 
+        assert False, "I never finished this test................"
+
 ########################################################################
 ########################################################################
 
