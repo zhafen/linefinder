@@ -176,9 +176,13 @@ class ParticleTracker( object ):
             if attr is default:
                 try:
                     if attr_name == 'sdir':
-                        attr = f['parameters/snapshot_parameters'].attrs[attr_name]
+                        attr = utilities.check_and_decode_bytes(
+                            f['parameters/snapshot_parameters'].attrs[attr_name]
+                        )
                     else:
-                        attr = f['parameters'].attrs[attr_name]
+                        attr = utilities.check_and_decode_bytes(
+                            f['parameters'].attrs[attr_name]
+                        )
                     setattr( self, attr_name, attr )
                 except KeyError:
                     raise LookupError(

@@ -149,8 +149,14 @@ def run_linefinder(
         tracker_kwargs = utilities.merge_two_dicts(
             tracker_kwargs, general_kwargs )
 
+        # Load the sdir
         if 'sdir' not in tracker_kwargs:
-            tracker_kwargs['sdir'] = file_manager.get_sim_dir( sim_name )
+            if 'snapshot_kwargs' in selector_kwargs:
+                if 'sdir' in 'snapshot_kwargs':
+                    tracker_kwargs['sdir'] = \
+                        selector_kwargs['snapshot_kwargs']['sdir']
+            elif sim_name is not None:
+                tracker_kwargs['sdir'] = file_manager.get_sim_dir( sim_name )
 
         particle_tracker = track.ParticleTracker( **tracker_kwargs )
         particle_tracker.save_particle_tracks()
