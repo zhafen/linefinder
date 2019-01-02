@@ -17,6 +17,8 @@ import linefinder.analyze_data.worldlines as analyze_worldlines
 import linefinder.config as config
 import linefinder.utils.presentation_constants as p_constants
 
+import galaxy_dive.utils.utilities as utilities
+
 ########################################################################
 # Commonly useful input variables
 
@@ -82,7 +84,12 @@ class TestWorldlines( unittest.TestCase ):
         for data_key in actual.keys():
             for key in actual[data_key].keys():
                 if not isinstance( actual[data_key][key], np.ndarray ):
-                    self.assertEqual( actual[data_key][key], expected[data_key].attrs[key] )
+                    self.assertEqual(
+                        actual[data_key][key],
+                        utilities.check_and_decode_bytes(
+                            expected[data_key].attrs[key]
+                        ),
+                    )
 
 ########################################################################
 
