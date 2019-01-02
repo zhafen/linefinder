@@ -39,6 +39,7 @@ sampler_kwargs = {
 
 # Tracking Parameters
 tracker_kwargs = {
+    'sdir': sdir,
 }
 
 # Galaxy Finding Parameters
