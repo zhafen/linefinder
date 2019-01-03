@@ -99,7 +99,7 @@ class WorldlineSet( verdict.Dict ):
 
             # Get the tag
             filename = os.path.split( filepath )[1]
-            filename_base = string.split( filename, '.' )[0]
+            filename_base = filename.split( '.' )[0]
             tag = filename_base[8:]
 
             # Add the variation to the dictionary
