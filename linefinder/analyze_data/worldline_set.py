@@ -122,6 +122,8 @@ class WorldlineSet( verdict.Dict ):
     ):
         '''Iterate over each Worldlines class in the set, obtaining a
         specified quantity and then saving that to an .hdf5 file.
+        Note that verdict.Dict's to_hdf5 method is simpler and more functional
+        for many cases.
 
         Args:
             output_filepath (str) :
@@ -154,22 +156,32 @@ class WorldlineSet( verdict.Dict ):
             quantities = quantity_method_used.call_custom_kwargs(
                 variations, kwargs, verbose=verbose )
 
-        # Setup data to store
+        # # Setup data to store
+        # data_to_store = {}
+        # for data_category in list( quantities.values() )[0].keys():
+        #     data_to_store[data_category] = []
+
+        # # Format the data
+        # labels = []
+        # for label, item in quantities.items():
+
+        #     # Store the data
+        #     for data_category, inner_item in quantities[label].items():
+        #         data_to_store[data_category].append( inner_item )
+
+        #     # Store what tag was used.
+        #     labels.append( label )
+        # data_to_store['label'] = np.array( labels )
+
+        # Store data
         data_to_store = {}
-        for data_category in quantities.values()[0].keys():
-            data_to_store[data_category] = []
+        labels_stored = False
+        for key, item in quantities.transpose().items():
+            data_to_store[key] = item.array()
 
-        # Format the data
-        labels = []
-        for label, item in quantities.items():
-
-            # Store the data
-            for data_category, inner_item in quantities[label].items():
-                data_to_store[data_category].append( inner_item )
-
-            # Store what tag was used.
-            labels.append( label )
-        data_to_store['label'] = np.array( labels )
+            # Store labels
+            if not labels_stored:
+                data_to_store['label'] = item.keys_array()
 
         h5_wrapper = hdf5_wrapper.HDF5Wrapper( output_filepath )
         h5_wrapper.save_data( data_to_store, index_key='label' )

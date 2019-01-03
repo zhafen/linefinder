@@ -188,11 +188,11 @@ class TestStoreQuantity( unittest.TestCase ):
 
         f = h5py.File( self.stored_data_file, 'r' )
 
-        expected_tags = np.array( [ 'analyze_snum600', 'analyze_snum550', ] )
+        expected_tags = np.array( [ 'analyze_snum550', 'analyze_snum600', ] )
         expected_fresh_acc = np.array( [ 0.50052142, 0.25078213 ] )
 
         for i, tag in enumerate( f['label'][...] ):
-            assert f['label'][i] in expected_tags
+            assert f['label'][i] == expected_tags[i]
         npt.assert_allclose( f['is_fresh_accretion'], expected_fresh_acc )
 
     ########################################################################
@@ -269,8 +269,8 @@ class TestStoreQuantity( unittest.TestCase ):
 
         mock_insert_data.assert_called_with(
             new_data = {
-                'snum': [ 550, 600 ],
-                'label': [ 'analyze_snum550', 'analyze_snum600' ],
+                'snum': [ 600, 550 ],
+                'label': [ 'analyze_snum600', 'analyze_snum550' ],
             },
             index_key = 'label',
             insert_columns = True,
