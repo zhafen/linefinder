@@ -267,11 +267,21 @@ class TestStoreQuantity( unittest.TestCase ):
             quantity_method = 'get_categories_selected_quantity',
         )
 
-        mock_insert_data.assert_called_with(
-            new_data = {
-                'snum': [ 600, 550 ],
-                'label': [ 'analyze_snum600', 'analyze_snum550' ],
-            },
-            index_key = 'label',
-            insert_columns = True,
-        )
+        try:
+            mock_insert_data.assert_called_with(
+                new_data = {
+                    'snum': [ 600, 550 ],
+                    'label': [ 'analyze_snum600', 'analyze_snum550' ],
+                },
+                index_key = 'label',
+                insert_columns = True,
+            )
+        except AssertionError:
+            mock_insert_data.assert_called_with(
+                new_data = {
+                    'snum': [ 550, 600 ],
+                    'label': [ 'analyze_snum550', 'analyze_snum600' ],
+                },
+                index_key = 'label',
+                insert_columns = True,
+            )
