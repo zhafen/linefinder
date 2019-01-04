@@ -12,10 +12,13 @@
 #SBATCH --mail-type=fail
 #SBATCH --mail-type=end
 
+# Number of cores to use. Remember to account for memory constraints!
+NCORES=$2
+
 JUGFILE=$1
 
 # Run JUG
-for i in $(seq 6); do jug execute $JUGFILE & done
+for i in $(seq $NCORES); do jug execute $JUGFILE & done
 
 # Workaround to check if JUG is done
 while ! jug check $JUGFILE; do

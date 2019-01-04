@@ -9,11 +9,10 @@
     <title>linefinder.analyze_data.worldline_set module &#8212; linefinder 0.8.1 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
@@ -87,7 +86,9 @@ with something else;</li>
 <dt id="linefinder.analyze_data.worldline_set.WorldlineSet.store_quantity">
 <code class="descname">store_quantity</code><span class="sig-paren">(</span><em>output_filepath</em>, <em>quantity_method='get_categories_selected_quantity_fraction'</em>, <em>variations=None</em>, <em>verbose=True</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/worldline_set.html#WorldlineSet.store_quantity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.worldline_set.WorldlineSet.store_quantity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Iterate over each Worldlines class in the set, obtaining a
-specified quantity and then saving that to an .hdf5 file.</p>
+specified quantity and then saving that to an .hdf5 file.
+Note that verdict.Dict’s to_hdf5 method is simpler and more functional
+for many cases.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -182,7 +183,7 @@ to the Worldlines.</li>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Zachary Hafen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
   </body>
 </html>

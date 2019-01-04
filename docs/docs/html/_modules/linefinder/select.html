@@ -9,11 +9,10 @@
     <title>linefinder.select &#8212; linefinder 0.8.1 documentation</title>
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -45,6 +44,7 @@
 <span class="sd">@status: Development</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">gc</span>
 <span class="kn">import</span> <span class="nn">h5py</span>
 <span class="kn">import</span> <span class="nn">jug</span>
@@ -605,6 +605,11 @@
         <span class="k">for</span> <span class="n">ptype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;p_types&#39;</span><span class="p">]:</span>
 
             <span class="n">p_data_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters/snapshot_parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="p">)</span>
+            
+            <span class="c1"># Check for bytes data and decode</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">p_data_kwargs</span> <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">p_data_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">check_and_decode_bytes</span><span class="p">(</span> <span class="n">item</span> <span class="p">)</span>
+
             <span class="n">p_data_kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_snum_for_duplicates</span>
             <span class="n">p_data_kwargs</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptype</span>
             <span class="n">p_data</span> <span class="o">=</span> <span class="n">particle_data</span><span class="o">.</span><span class="n">ParticleData</span><span class="p">(</span> <span class="o">**</span><span class="n">p_data_kwargs</span> <span class="p">)</span>
@@ -671,7 +676,10 @@
 
         <span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="nb">range</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_to_sample</span><span class="o">.</span><span class="n">size</span> <span class="p">)</span> <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span> <span class="n">inds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_to_sample</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sample_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span> <span class="n">inds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sample_inds</span> <span class="o">=</span> <span class="n">inds</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -738,7 +746,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Zachary Hafen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
   </body>
 </html>

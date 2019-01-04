@@ -1,0 +1,196 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Quickstart &#8212; linefinder 0.8.1 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.8.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<p>This page is to help you to start tracking particles.</p>
+<p>If you have access to the FIRE simulation data you can follow along
+step-by-step to make sure everything is working as expected.</p>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-linefinder-config-file">
+<h3>The Linefinder Config File<a class="headerlink" href="#the-linefinder-config-file" title="Permalink to this headline">¶</a></h3>
+<p>TBD.</p>
+</div>
+<div class="section" id="the-job-script">
+<h3>The Job Script<a class="headerlink" href="#the-job-script" title="Permalink to this headline">¶</a></h3>
+<p>TBD.</p>
+</div>
+</div>
+<div class="section" id="running-linefinder">
+<h2>Running Linefinder<a class="headerlink" href="#running-linefinder" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="on-an-interactive-node">
+<h3>On an Interactive Node<a class="headerlink" href="#on-an-interactive-node" title="Permalink to this headline">¶</a></h3>
+<p>The simplest way to run Linefinder is on an interactive node. To start a single core working on your Linefinder job, simply do e.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ jug execute linefinder_example.py &amp;
+</pre></div>
+</div>
+<p>If you’re using Linefinder to do particle tracking on many snapshots of a high resolution simulation chances are this will take longer than is desirable.
+Fortunately Linefinder is parallelized using <a class="reference external" href="https://jug.readthedocs.io/en/latest/">Jug</a> (see also <span class="xref std std-ref">a-note-about-jug</span>).
+To start more cores running Linefinder just reenter the line above, or better yet do a loop in bash, e.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ for i in $(seq 5) ; do jug execute linefinder_example.py &amp; done
+</pre></div>
+</div>
+<p>Each core will then be responsible for one snapshot at a time.
+Deciding how many cores to use (in the above example I use 5) is almost always a function of the memory availble to a node because each core needs a snapshot worth of memory.
+If you run out of memory and your job crashes you will need to restart linefinder (see <a class="reference internal" href="#restarting-a-job"><span class="std std-ref">Restarting a Job</span></a>).</p>
+</div>
+<div class="section" id="as-a-batch-job">
+<h3>As a Batch Job<a class="headerlink" href="#as-a-batch-job" title="Permalink to this headline">¶</a></h3>
+<p>Linefinder can also easily be run as a batch job.
+This is important for when you want to use more than a single node to speed up a particle tracking calculation.
+To submit as a batch job simply modify <a class="reference external" href="https://github.com/zhafen/linefinder/blob/master/linefinder/job_scripts/submit_linefinder.sh">submit_linefinder.sh</a> according to your cluster and preferences, then submit with e.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sbatch submit_linefinder.sh linefinder_example.py 6
+</pre></div>
+</div>
+<p>In this example the above command will run <code class="docutils literal notranslate"><span class="pre">linefinder_example.py</span></code> on a single node using 6 cores.
+Reentering the above command will do the same on another node.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Resubmitting the same job <em>does not</em> cause conflicts, but just speeds up the job by throwing more nodes at it.</p>
+</div>
+<p>The most computationally intensive parts of particle tracking are embarrassingly parallel, so please feel free to use a number of nodes to greatly speed up the work.
+Particle tracking isn’t <em>that</em> expensive, so about ten nodes is probably sufficient, and will complete most runs in about 10 minutes.</p>
+</div>
+<div class="section" id="restarting-a-job">
+<span id="id1"></span><h3>Restarting a Job<a class="headerlink" href="#restarting-a-job" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes jobs crash.
+Maybe too many cores were used per node and you ran out of memory, maybe you ran out of time, etc.
+When this happens you’ll want to restart the Linefinder run.
+This is simple and involves two steps:</p>
+<ol class="arabic simple">
+<li>Deleting all the jugdata in your output directory (e.g. <code class="docutils literal notranslate"><span class="pre">rm</span> <span class="pre">-r</span> <span class="pre">path/to/output/*jugdata</span></code>).</li>
+<li>Turning off the parts of your job that have already completed.</li>
+</ol>
+<p>Jug communicates through the filesystem (see <span class="xref std std-ref">a-note-about-jug</span>), so (1) is necessary to get a fresh start.
+(2) is necessary to prevent redoing work (and also crashing when Linefinder tries to save a file where one already exists), and is as simple as adding the argument e.g. <code class="docutils literal notranslate"><span class="pre">run_tracking</span> <span class="pre">=</span> <span class="pre">False,</span></code> in <code class="docutils literal notranslate"><span class="pre">linefinder.run_linefinder_jug()</span></code> in your job script.</p>
+</div>
+<div class="section" id="a-note-about-jug">
+<span id="id2"></span><h3>A Note About Jug<a class="headerlink" href="#a-note-about-jug" title="Permalink to this headline">¶</a></h3>
+<p>Linefinder is parallelized using <a class="reference external" href="https://jug.readthedocs.io/en/latest/">Jug</a> (see <span class="xref std std-ref">a-note-about-jug</span>).
+The most noteable thing about Jug is that it communicates between processes using the file system.
+The main benefit to this is easy communication between multiple nodes, even allowing the user to add more nodes as they become available/are needed.
+All the communications for Jug are kept in <cite>jugdata</cite> folders, tagged using the same tag used for a job, e.g. <cite>m12i_example.jugdata</cite>.
+To learn more, see <a class="reference external" href="https://jug.readthedocs.io/en/latest/">the official docs</a></p>
+</div>
+<div class="section" id="advanced-job-submission">
+<h3>Advanced Job Submission<a class="headerlink" href="#advanced-job-submission" title="Permalink to this headline">¶</a></h3>
+<p>In many cases you may want to run Linefinder not just on a single simulation, but on a number of simulations.
+Further, you might want to systematically vary the parameters used with Linefinder.
+Linefinder offers options to do this automatically with minimal monitoring by the user.
+However these options require additional explanation, and I’ve postponed creating a simplified example until there’s actual demand for them.
+If you’re actually interested, <a class="reference external" href="mailto:zachary&#46;h&#46;hafen&#37;&#52;&#48;gmail&#46;com">contact me</a>, and I’d be happy to put together an example.</p>
+<span class="target" id="id4"></span></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Quickstart</a><ul>
+<li><a class="reference internal" href="#setup">Setup</a><ul>
+<li><a class="reference internal" href="#the-linefinder-config-file">The Linefinder Config File</a></li>
+<li><a class="reference internal" href="#the-job-script">The Job Script</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#running-linefinder">Running Linefinder</a><ul>
+<li><a class="reference internal" href="#on-an-interactive-node">On an Interactive Node</a></li>
+<li><a class="reference internal" href="#as-a-batch-job">As a Batch Job</a></li>
+<li><a class="reference internal" href="#restarting-a-job">Restarting a Job</a></li>
+<li><a class="reference internal" href="#a-note-about-jug">A Note About Jug</a></li>
+<li><a class="reference internal" href="#advanced-job-submission">Advanced Job Submission</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/quickstart.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.8.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Zachary Hafen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+  </body>
+</html>

@@ -9,11 +9,10 @@
     <title>linefinder.utils.file_management &#8212; linefinder 0.8.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
   </head><body>
@@ -71,13 +70,27 @@
 
 <div class="viewcode-block" id="FileManager.get_sim_subdir"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_sim_subdir">[docs]</a>    <span class="k">def</span> <span class="nf">get_sim_subdir</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">sim_name</span> <span class="p">):</span>
 
-        <span class="n">base_sim_name</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
-        <span class="n">physics_used</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">base_sim_name</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
+            <span class="n">physics_used</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
 
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">FULL_PHYSICS_NAME</span><span class="p">[</span><span class="n">physics_used</span><span class="p">],</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">FULL_SIM_NAME</span><span class="p">[</span><span class="n">base_sim_name</span><span class="p">],</span>
-        <span class="p">)</span></div>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">FULL_PHYSICS_NAME</span><span class="p">[</span><span class="n">physics_used</span><span class="p">],</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">FULL_SIM_NAME</span><span class="p">[</span><span class="n">base_sim_name</span><span class="p">],</span>
+            <span class="p">)</span>
+
+        <span class="c1"># FIRE-1 exception</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;No FIRE-2 data found, so trying FIRE-1 sim format.&quot;</span> <span class="p">)</span>
+
+            <span class="n">base_sim_name</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span>
+            <span class="n">physics_used</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span>
+
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">FULL_PHYSICS_NAME</span><span class="p">[</span><span class="n">physics_used</span><span class="p">],</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">FULL_SIM_NAME</span><span class="p">[</span><span class="n">base_sim_name</span><span class="p">],</span>
+            <span class="p">)</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -319,7 +332,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Zachary Hafen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
   </body>
 </html>

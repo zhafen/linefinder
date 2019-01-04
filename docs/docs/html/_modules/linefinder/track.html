@@ -9,11 +9,10 @@
     <title>linefinder.track &#8212; linefinder 0.8.1 documentation</title>
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -59,7 +58,7 @@
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.mp_utils</span> <span class="k">as</span> <span class="nn">mp_utils</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
 
-<span class="kn">import</span> <span class="nn">config</span> <span class="k">as</span> <span class="nn">linefinder_config</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">linefinder_config</span>
 
 <span class="c1">########################################################################</span>
 
@@ -135,12 +134,14 @@
 
         <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Starting Tracking!&quot;</span>
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Tracking particle data from this directory:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sdir</span> <span class="p">)</span>
-        <span class="nb">print</span> <span class="s2">&quot;Data will be saved here:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Starting Tracking!&quot;</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Tracking particle data from this directory:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sdir</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Data will be saved here:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span> <span class="p">)</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="c1"># Get the target ids</span>
@@ -157,12 +158,14 @@
 
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Done Tracking!&quot;</span>
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Output file saved as:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">outname</span> <span class="p">)</span>
-        <span class="nb">print</span> <span class="s2">&quot;Took </span><span class="si">{:.3g}</span><span class="s2"> seconds, or </span><span class="si">{:.3g}</span><span class="s2"> seconds per particle!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">,</span> <span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Done Tracking!&quot;</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Output file saved as:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">outname</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Took </span><span class="si">{:.3g}</span><span class="s2"> seconds, or </span><span class="si">{:.3g}</span><span class="s2"> seconds per particle!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">,</span> <span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -170,9 +173,9 @@
         <span class="sd">&#39;&#39;&#39;Loop over all redshifts, get the data, and save the particle tracks.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Starting Tracking!&quot;</span>
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Starting Tracking!&quot;</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
 
         <span class="c1"># Get the target ids</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_target_ids</span><span class="p">()</span>
@@ -209,11 +212,23 @@
         <span class="k">def</span> <span class="nf">replace_default_attr</span><span class="p">(</span> <span class="n">attr_name</span> <span class="p">):</span>
             <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span> <span class="p">)</span>
             <span class="k">if</span> <span class="n">attr</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">attr_name</span> <span class="o">==</span> <span class="s1">&#39;sdir&#39;</span><span class="p">:</span>
-                    <span class="n">attr</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters/snapshot_parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">attr</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span>
-                <span class="nb">setattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr</span> <span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">attr_name</span> <span class="o">==</span> <span class="s1">&#39;sdir&#39;</span><span class="p">:</span>
+                        <span class="n">attr</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">check_and_decode_bytes</span><span class="p">(</span>
+                            <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters/snapshot_parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">attr</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">check_and_decode_bytes</span><span class="p">(</span>
+                            <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="nb">setattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr</span> <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
+                        <span class="s1">&#39;Cannot fallback to default parameters because &#39;</span> <span class="o">+</span> \
+                        <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> does not include default parameters.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">id_filename</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
         <span class="n">replace_default_attr</span><span class="p">(</span> <span class="s1">&#39;sdir&#39;</span> <span class="p">)</span>
         <span class="n">replace_default_attr</span><span class="p">(</span> <span class="s1">&#39;p_types&#39;</span> <span class="p">)</span>
         <span class="n">replace_default_attr</span><span class="p">(</span> <span class="s1">&#39;snum_start&#39;</span> <span class="p">)</span>
@@ -251,7 +266,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_ids</span><span class="o">.</span><span class="n">size</span>
 
-        <span class="nb">print</span> <span class="s2">&quot;Tracking </span><span class="si">{}</span><span class="s2"> particles...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Tracking </span><span class="si">{}</span><span class="s2"> particles...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="p">)</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="n">ptrack</span> <span class="o">=</span> <span class="p">{</span>
@@ -321,8 +336,9 @@
             <span class="n">time_2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
             <span class="c1"># Print output information.</span>
-            <span class="nb">print</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
+            <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span>  <span class="n">snum</span><span class="p">,</span> <span class="n">redshift</span><span class="p">,</span> <span class="n">time_2</span> <span class="o">-</span> <span class="n">time_1</span> <span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">ptrack</span><span class="p">,</span> <span class="n">attrs</span></div>
@@ -349,7 +365,7 @@
         <span class="n">myfloat</span> <span class="o">=</span> <span class="s1">&#39;float32&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_ids</span><span class="o">.</span><span class="n">size</span>
-        <span class="nb">print</span> <span class="s2">&quot;Tracking </span><span class="si">{}</span><span class="s2"> particles...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Tracking </span><span class="si">{}</span><span class="s2"> particles...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="p">)</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="k">def</span> <span class="nf">get_tracked_data_snapshot</span><span class="p">(</span> <span class="n">args</span> <span class="p">):</span>
@@ -374,8 +390,9 @@
             <span class="n">time_2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
             <span class="c1"># Print output information.</span>
-            <span class="nb">print</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
+            <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">snum</span><span class="p">,</span> <span class="n">redshift</span><span class="p">,</span> <span class="n">time_2</span> <span class="o">-</span> <span class="n">time_1</span> <span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
             <span class="k">return</span> <span class="n">i</span><span class="p">,</span> <span class="n">dfid</span><span class="p">,</span> <span class="n">redshift</span><span class="p">,</span> <span class="n">attrs</span><span class="p">,</span> <span class="n">snum</span>
@@ -452,7 +469,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">snum_end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">snum_start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">snum_step</span> <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_ids</span><span class="o">.</span><span class="n">size</span>
-        <span class="nb">print</span> <span class="s2">&quot;Tracking </span><span class="si">{}</span><span class="s2"> particles...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Tracking </span><span class="si">{}</span><span class="s2"> particles...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="p">)</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="k">def</span> <span class="nf">get_tracked_data_snapshot</span><span class="p">(</span> <span class="n">args</span> <span class="p">):</span>
@@ -477,8 +494,10 @@
             <span class="n">time_2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
             <span class="c1"># Print output information.</span>
-            <span class="nb">print</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
+            <span class="nb">print</span><span class="p">(</span>
+                 <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">snum</span><span class="p">,</span> <span class="n">redshift</span><span class="p">,</span> <span class="n">time_2</span> <span class="o">-</span> <span class="n">time_1</span> <span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
             <span class="k">return</span> <span class="n">i</span><span class="p">,</span> <span class="n">dfid</span><span class="p">,</span> <span class="n">redshift</span><span class="p">,</span> <span class="n">attrs</span><span class="p">,</span> <span class="n">snum</span>
@@ -679,7 +698,7 @@
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;Reading data...&#39;</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;Reading data...&#39;</span> <span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="n">full_snap_data</span> <span class="o">=</span> <span class="p">{</span>
@@ -740,7 +759,7 @@
                 <span class="n">saved_header_info</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span> <span class="s1">&#39;       ...  &#39;</span><span class="p">,</span> <span class="n">pnum</span><span class="p">,</span> <span class="s1">&#39;   type&#39;</span><span class="p">,</span> <span class="n">p_type</span><span class="p">,</span> <span class="s1">&#39; particles&#39;</span>
+                <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;       ...  &#39;</span><span class="p">,</span> <span class="n">pnum</span><span class="p">,</span> <span class="s1">&#39;   type&#39;</span><span class="p">,</span> <span class="n">p_type</span><span class="p">,</span> <span class="s1">&#39; particles&#39;</span> <span class="p">)</span>
 
             <span class="k">if</span> <span class="s1">&#39;rho&#39;</span> <span class="ow">in</span> <span class="n">P</span><span class="p">:</span>
                     <span class="n">Den</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="s1">&#39;rho&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">UNITDENSITY_IN_NUMDEN</span>
@@ -788,8 +807,10 @@
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;readsnap done in ... </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;readsnap done in ... </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="c1"># Convert to numpy arrays</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">full_snap_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -872,7 +893,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Zachary Hafen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
   </body>
 </html>

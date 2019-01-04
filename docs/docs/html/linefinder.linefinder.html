@@ -9,11 +9,10 @@
     <title>linefinder.linefinder module &#8212; linefinder 0.8.1 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
@@ -37,13 +36,10 @@
             
   <div class="section" id="module-linefinder.linefinder">
 <span id="linefinder-linefinder-module"></span><h1>linefinder.linefinder module<a class="headerlink" href="#module-linefinder.linefinder" title="Permalink to this headline">¶</a></h1>
-<p>Main file for running linefinder.</p>
-<p>&#64;author: Zach Hafen
-&#64;contact: <a class="reference external" href="mailto:zachary&#46;h&#46;hafen&#37;&#52;&#48;gmail&#46;com">zachary<span>&#46;</span>h<span>&#46;</span>hafen<span>&#64;</span>gmail<span>&#46;</span>com</a>
-&#64;status: Development</p>
+<p>This module contains functions for easily running all aspects of linefinder.</p>
 <dl class="function">
 <dt id="linefinder.linefinder.run_linefinder">
-<code class="descclassname">linefinder.linefinder.</code><code class="descname">run_linefinder</code><span class="sig-paren">(</span><em>tag</em>, <em>out_dir=None</em>, <em>sim_name=None</em>, <em>selector_data_filters={}</em>, <em>selector_kwargs={}</em>, <em>sampler_kwargs={}</em>, <em>tracker_kwargs={}</em>, <em>gal_linker_kwargs={}</em>, <em>classifier_kwargs={}</em>, <em>run_id_selecting=True</em>, <em>run_id_sampling=True</em>, <em>run_tracking=True</em>, <em>run_galaxy_linking=True</em>, <em>run_classifying=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/linefinder.html#run_linefinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.linefinder.run_linefinder" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">linefinder.linefinder.</code><code class="descname">run_linefinder</code><span class="sig-paren">(</span><em>tag</em>, <em>out_dir=None</em>, <em>sim_name=None</em>, <em>galdef=None</em>, <em>selector_data_filters={}</em>, <em>selector_kwargs={}</em>, <em>sampler_kwargs={}</em>, <em>tracker_kwargs={}</em>, <em>gal_linker_kwargs={}</em>, <em>classifier_kwargs={}</em>, <em>run_id_selecting=True</em>, <em>run_id_sampling=True</em>, <em>run_tracking=True</em>, <em>run_galaxy_linking=True</em>, <em>run_classifying=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/linefinder.html#run_linefinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.linefinder.run_linefinder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main function for running linefinder.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -52,6 +48,8 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Filename identifier for data products.</li>
 <li><strong>out_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Output directory to store the data in.</li>
+<li><strong>galdef</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Which set of parameters to use for the galaxy_linking and
+classification steps?</li>
 <li><strong>sim_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of simulation to run linefinder for. If provided, linefinder
 will automatically fill in many arguments using a file_manager
 and the linefinder.config file.</li>
@@ -81,7 +79,7 @@ selected particles.</li>
 
 <dl class="function">
 <dt id="linefinder.linefinder.run_linefinder_jug">
-<code class="descclassname">linefinder.linefinder.</code><code class="descname">run_linefinder_jug</code><span class="sig-paren">(</span><em>tag</em>, <em>out_dir=None</em>, <em>sim_name=None</em>, <em>selector_data_filters={}</em>, <em>selector_kwargs={}</em>, <em>sampler_kwargs={}</em>, <em>tracker_kwargs={}</em>, <em>gal_linker_kwargs={}</em>, <em>classifier_kwargs={}</em>, <em>run_id_selecting=True</em>, <em>run_id_sampling=True</em>, <em>run_tracking=True</em>, <em>run_galaxy_linking=True</em>, <em>run_classifying=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/linefinder.html#run_linefinder_jug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.linefinder.run_linefinder_jug" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">linefinder.linefinder.</code><code class="descname">run_linefinder_jug</code><span class="sig-paren">(</span><em>tag</em>, <em>out_dir=None</em>, <em>sim_name=None</em>, <em>galdef=None</em>, <em>selector_data_filters={}</em>, <em>selector_kwargs={}</em>, <em>sampler_kwargs={}</em>, <em>tracker_kwargs={}</em>, <em>gal_linker_kwargs={}</em>, <em>classifier_kwargs={}</em>, <em>run_id_selecting=True</em>, <em>run_id_sampling=True</em>, <em>run_tracking=True</em>, <em>run_galaxy_linking=True</em>, <em>run_classifying=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/linefinder.html#run_linefinder_jug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.linefinder.run_linefinder_jug" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main function for running linefinder.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -90,6 +88,8 @@ selected particles.</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>out_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Output directory to store the data in.</li>
 <li><strong>tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Filename identifier for data products.</li>
+<li><strong>galdef</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Which set of parameters to use for the galaxy_linking and
+classification steps?</li>
 <li><strong>selector_data_filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Data filters to pass to select.IDSelector.select_ids()</li>
 <li><strong>selector_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Arguments to use when selecting what particles to track.
 Arguments will be passed to select.IDSelector</li>
@@ -159,7 +159,7 @@ selected particles.</li>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Zachary Hafen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
   </body>
 </html>

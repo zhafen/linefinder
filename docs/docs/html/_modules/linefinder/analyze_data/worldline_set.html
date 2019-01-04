@@ -9,11 +9,10 @@
     <title>linefinder.analyze_data.worldline_set &#8212; linefinder 0.8.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
   </head><body>
@@ -55,8 +54,8 @@
 <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;PDF&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
-<span class="kn">import</span> <span class="nn">plot_worldlines</span>
-<span class="kn">import</span> <span class="nn">worldlines</span> <span class="k">as</span> <span class="nn">a_worldlines</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">plot_worldlines</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">worldlines</span> <span class="k">as</span> <span class="n">a_worldlines</span>
 
 <span class="kn">import</span> <span class="nn">galaxy_dive.plot_data.plotting</span> <span class="k">as</span> <span class="nn">gen_plot</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.hdf5_wrapper</span> <span class="k">as</span> <span class="nn">hdf5_wrapper</span>
@@ -138,7 +137,7 @@
 
             <span class="c1"># Get the tag</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span> <span class="n">filepath</span> <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">filename_base</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span> <span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span> <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">filename_base</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span> <span class="s1">&#39;.&#39;</span> <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">tag</span> <span class="o">=</span> <span class="n">filename_base</span><span class="p">[</span><span class="mi">8</span><span class="p">:]</span>
 
             <span class="c1"># Add the variation to the dictionary</span>
@@ -161,6 +160,8 @@
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Iterate over each Worldlines class in the set, obtaining a</span>
 <span class="sd">        specified quantity and then saving that to an .hdf5 file.</span>
+<span class="sd">        Note that verdict.Dict&#39;s to_hdf5 method is simpler and more functional</span>
+<span class="sd">        for many cases.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            output_filepath (str) :</span>
@@ -193,22 +194,32 @@
             <span class="n">quantities</span> <span class="o">=</span> <span class="n">quantity_method_used</span><span class="o">.</span><span class="n">call_custom_kwargs</span><span class="p">(</span>
                 <span class="n">variations</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span> <span class="p">)</span>
 
-        <span class="c1"># Setup data to store</span>
+        <span class="c1"># # Setup data to store</span>
+        <span class="c1"># data_to_store = {}</span>
+        <span class="c1"># for data_category in list( quantities.values() )[0].keys():</span>
+        <span class="c1">#     data_to_store[data_category] = []</span>
+
+        <span class="c1"># # Format the data</span>
+        <span class="c1"># labels = []</span>
+        <span class="c1"># for label, item in quantities.items():</span>
+
+        <span class="c1">#     # Store the data</span>
+        <span class="c1">#     for data_category, inner_item in quantities[label].items():</span>
+        <span class="c1">#         data_to_store[data_category].append( inner_item )</span>
+
+        <span class="c1">#     # Store what tag was used.</span>
+        <span class="c1">#     labels.append( label )</span>
+        <span class="c1"># data_to_store[&#39;label&#39;] = np.array( labels )</span>
+
+        <span class="c1"># Store data</span>
         <span class="n">data_to_store</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">data_category</span> <span class="ow">in</span> <span class="n">quantities</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">data_to_store</span><span class="p">[</span><span class="n">data_category</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">labels_stored</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">quantities</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">data_to_store</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">array</span><span class="p">()</span>
 
-        <span class="c1"># Format the data</span>
-        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">quantities</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-
-            <span class="c1"># Store the data</span>
-            <span class="k">for</span> <span class="n">data_category</span><span class="p">,</span> <span class="n">inner_item</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">data_to_store</span><span class="p">[</span><span class="n">data_category</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">inner_item</span> <span class="p">)</span>
-
-            <span class="c1"># Store what tag was used.</span>
-            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">label</span> <span class="p">)</span>
-        <span class="n">data_to_store</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">labels</span> <span class="p">)</span>
+            <span class="c1"># Store labels</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">labels_stored</span><span class="p">:</span>
+                <span class="n">data_to_store</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">keys_array</span><span class="p">()</span>
 
         <span class="n">h5_wrapper</span> <span class="o">=</span> <span class="n">hdf5_wrapper</span><span class="o">.</span><span class="n">HDF5Wrapper</span><span class="p">(</span> <span class="n">output_filepath</span> <span class="p">)</span>
         <span class="n">h5_wrapper</span><span class="o">.</span><span class="n">save_data</span><span class="p">(</span> <span class="n">data_to_store</span><span class="p">,</span> <span class="n">index_key</span><span class="o">=</span><span class="s1">&#39;label&#39;</span> <span class="p">)</span></div>
@@ -410,7 +421,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Zachary Hafen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
   </body>
 </html>

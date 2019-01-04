@@ -9,11 +9,10 @@
     <title>linefinder.select module &#8212; linefinder 0.8.1 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
@@ -43,7 +42,7 @@
 &#64;status: Development</p>
 <dl class="class">
 <dt id="linefinder.select.IDSampler">
-<em class="property">class </em><code class="descclassname">linefinder.select.</code><code class="descname">IDSampler</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSampler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">linefinder.select.</code><code class="descname">IDSampler</code><span class="sig-paren">(</span><em>out_dir</em>, <em>tag</em>, <em>n_samples=100000</em>, <em>ignore_child_particles=False</em>, <em>ignore_duplicates=False</em>, <em>reference_snum_for_duplicates=600</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="method">
 <dt id="linefinder.select.IDSampler.choose_particles_to_sample">
@@ -111,7 +110,7 @@ self.child_ids_to_sample (np.ndarray, optional) : An array of the child IDs to s
 
 <dl class="method">
 <dt id="linefinder.select.IDSampler.sample_ids">
-<code class="descname">sample_ids</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSampler.sample_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSampler.sample_ids" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sample_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSampler.sample_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSampler.sample_ids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample a saved ID file for a subset, which can then be run through particle tracking.</p>
 </dd></dl>
 
@@ -129,7 +128,7 @@ self.child_ids_to_sample (np.ndarray, optional) : An array of the child IDs to s
 
 <dl class="class">
 <dt id="linefinder.select.IDSelector">
-<em class="property">class </em><code class="descclassname">linefinder.select.</code><code class="descname">IDSelector</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSelector" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">linefinder.select.</code><code class="descname">IDSelector</code><span class="sig-paren">(</span><em>out_dir</em>, <em>tag</em>, <em>snum_start</em>, <em>snum_end</em>, <em>snum_step</em>, <em>p_types</em>, <em>snapshot_kwargs</em>, <em>n_processors=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSelector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSelector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="method">
 <dt id="linefinder.select.IDSelector.format_selected_ids">
@@ -229,7 +228,7 @@ snapshots open at once.</p>
 
 <dl class="method">
 <dt id="linefinder.select.IDSelector.select_ids">
-<code class="descname">select_ids</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSelector.select_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSelector.select_ids" title="Permalink to this definition">¶</a></dt>
+<code class="descname">select_ids</code><span class="sig-paren">(</span><em>data_filters={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/select.html#IDSelector.select_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.select.IDSelector.select_ids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a set of all ids that match a set of data filters to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -370,7 +369,7 @@ child_ids (optional) : Child IDs for the particles that match the filtered requi
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Zachary Hafen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
   </body>
 </html>

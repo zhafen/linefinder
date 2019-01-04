@@ -9,6 +9,9 @@ linefinder
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+    
+   installation
+   quickstart
 
 This is currently under construction. 
 

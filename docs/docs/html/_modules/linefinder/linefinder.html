@@ -9,11 +9,10 @@
     <title>linefinder.linefinder &#8212; linefinder 0.8.1 documentation</title>
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -38,23 +37,19 @@
             
   <h1>Source code for linefinder.linefinder</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="sd">&#39;&#39;&#39;Main file for running linefinder.</span>
-
-<span class="sd">@author: Zach Hafen</span>
-<span class="sd">@contact: zachary.h.hafen@gmail.com</span>
-<span class="sd">@status: Development</span>
+<span class="sd">&#39;&#39;&#39;This module contains functions for easily running all aspects of linefinder.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="kn">import</span> <span class="nn">jug</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">config</span> <span class="k">as</span> <span class="nn">linefinder_config</span>
-<span class="kn">import</span> <span class="nn">select</span>
-<span class="kn">import</span> <span class="nn">track</span>
-<span class="kn">import</span> <span class="nn">galaxy_link</span>
-<span class="kn">import</span> <span class="nn">classify</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">linefinder_config</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">select</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">track</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">galaxy_link</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">classify</span>
 
-<span class="kn">import</span> <span class="nn">utils.file_management</span> <span class="k">as</span> <span class="nn">file_management</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">file_management</span>
 
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
 
@@ -66,6 +61,7 @@
     <span class="n">tag</span><span class="p">,</span>
     <span class="n">out_dir</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">sim_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">galdef</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">selector_data_filters</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">selector_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">sampler_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
@@ -86,6 +82,10 @@
 
 <span class="sd">        out_dir (str):</span>
 <span class="sd">            Output directory to store the data in.</span>
+
+<span class="sd">        galdef (str):</span>
+<span class="sd">            Which set of parameters to use for the galaxy_linking and</span>
+<span class="sd">            classification steps?</span>
 
 <span class="sd">        sim_name (str):</span>
 <span class="sd">            Name of simulation to run linefinder for. If provided, linefinder</span>
@@ -139,6 +139,9 @@
         <span class="k">if</span> <span class="n">out_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">out_dir</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_linefinder_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">galdef</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">galdef_dict</span> <span class="o">=</span> <span class="n">linefinder_config</span><span class="o">.</span><span class="n">GALAXY_DEFINITIONS</span><span class="p">[</span><span class="n">galdef</span><span class="p">]</span>
+
     <span class="c1"># These are kwargs that could be used at any stage of running linefinder.</span>
     <span class="n">general_kwargs</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;out_dir&#39;</span><span class="p">:</span> <span class="n">out_dir</span><span class="p">,</span>
@@ -184,6 +187,17 @@
         <span class="n">tracker_kwargs</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">merge_two_dicts</span><span class="p">(</span>
             <span class="n">tracker_kwargs</span><span class="p">,</span> <span class="n">general_kwargs</span> <span class="p">)</span>
 
+        <span class="c1"># Choose the sdir</span>
+        <span class="k">if</span> <span class="s1">&#39;sdir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tracker_kwargs</span><span class="p">:</span>
+            <span class="c1"># Try and load the default values if using the file manager.</span>
+            <span class="k">if</span> <span class="n">sim_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">tracker_kwargs</span><span class="p">[</span><span class="s1">&#39;sdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_sim_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
+            <span class="c1"># Try to use the sdir passed to the selector kwargs</span>
+            <span class="k">elif</span> <span class="s1">&#39;snapshot_kwargs&#39;</span> <span class="ow">in</span> <span class="n">selector_kwargs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;sdir&#39;</span> <span class="ow">in</span> <span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">:</span>
+                    <span class="n">tracker_kwargs</span><span class="p">[</span><span class="s1">&#39;sdir&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">selector_kwargs</span><span class="p">[</span><span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;sdir&#39;</span><span class="p">]</span>
+
         <span class="n">particle_tracker</span> <span class="o">=</span> <span class="n">track</span><span class="o">.</span><span class="n">ParticleTracker</span><span class="p">(</span> <span class="o">**</span><span class="n">tracker_kwargs</span> <span class="p">)</span>
         <span class="n">particle_tracker</span><span class="o">.</span><span class="n">save_particle_tracks</span><span class="p">()</span>
 
@@ -199,6 +213,10 @@
                 <span class="n">gal_linker_kwargs</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_halo_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
             <span class="k">if</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_linker_kwargs</span><span class="p">:</span>
                 <span class="n">gal_linker_kwargs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linefinder_config</span><span class="o">.</span><span class="n">MAIN_MT_HALO_ID</span><span class="p">[</span><span class="n">sim_name</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">galdef</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;galaxy_cut&#39;</span><span class="p">,</span> <span class="s1">&#39;length_scale&#39;</span><span class="p">,</span> <span class="s1">&#39;mt_length_scale&#39;</span> <span class="p">]:</span>
+                <span class="n">gal_linker_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">galdef_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
         <span class="n">particle_track_gal_linker</span> <span class="o">=</span> <span class="n">galaxy_link</span><span class="o">.</span><span class="n">ParticleTrackGalaxyLinker</span><span class="p">(</span>
             <span class="o">**</span><span class="n">gal_linker_kwargs</span> <span class="p">)</span>
@@ -220,6 +238,7 @@
     <span class="n">tag</span><span class="p">,</span>
     <span class="n">out_dir</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">sim_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">galdef</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">selector_data_filters</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">selector_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">sampler_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
@@ -240,6 +259,10 @@
 
 <span class="sd">        tag (str):</span>
 <span class="sd">            Filename identifier for data products.</span>
+
+<span class="sd">        galdef (str):</span>
+<span class="sd">            Which set of parameters to use for the galaxy_linking and</span>
+<span class="sd">            classification steps?</span>
 
 <span class="sd">        selector_data_filters (dict):</span>
 <span class="sd">            Data filters to pass to select.IDSelector.select_ids()</span>
@@ -287,6 +310,9 @@
 
         <span class="k">if</span> <span class="n">out_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">out_dir</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_linefinder_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">galdef</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">galdef_dict</span> <span class="o">=</span> <span class="n">linefinder_config</span><span class="o">.</span><span class="n">GALAXY_DEFINITIONS</span><span class="p">[</span><span class="n">galdef</span><span class="p">]</span>
 
     <span class="c1"># Setup jugdata</span>
     <span class="n">jugdir_tail</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.jugdata&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">tag</span> <span class="p">)</span>
@@ -342,6 +368,9 @@
         <span class="n">tracker_kwargs</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">merge_two_dicts</span><span class="p">(</span>
             <span class="n">tracker_kwargs</span><span class="p">,</span> <span class="n">general_kwargs</span> <span class="p">)</span>
 
+        <span class="k">if</span> <span class="s1">&#39;sdir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tracker_kwargs</span><span class="p">:</span>
+            <span class="n">tracker_kwargs</span><span class="p">[</span><span class="s1">&#39;sdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_sim_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
+
         <span class="n">particle_tracker</span> <span class="o">=</span> <span class="n">track</span><span class="o">.</span><span class="n">ParticleTracker</span><span class="p">(</span> <span class="o">**</span><span class="n">tracker_kwargs</span> <span class="p">)</span>
         <span class="n">particle_tracker</span><span class="o">.</span><span class="n">save_particle_tracks_jug</span><span class="p">()</span>
 
@@ -360,6 +389,9 @@
             <span class="k">if</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_linker_kwargs</span><span class="p">:</span>
                 <span class="n">gal_linker_kwargs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linefinder_config</span><span class="o">.</span><span class="n">MAIN_MT_HALO_ID</span><span class="p">[</span><span class="n">sim_name</span><span class="p">]</span>
 
+        <span class="k">if</span> <span class="n">galdef</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;galaxy_cut&#39;</span><span class="p">,</span> <span class="s1">&#39;length_scale&#39;</span><span class="p">,</span> <span class="s1">&#39;mt_length_scale&#39;</span> <span class="p">]:</span>
+                <span class="n">gal_linker_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">galdef_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
         <span class="n">particle_track_gal_linker</span> <span class="o">=</span> <span class="n">galaxy_link</span><span class="o">.</span><span class="n">ParticleTrackGalaxyLinker</span><span class="p">(</span>
             <span class="o">**</span><span class="n">gal_linker_kwargs</span> <span class="p">)</span>
@@ -371,6 +403,10 @@
         <span class="c1"># Update arguments</span>
         <span class="n">classifier_kwargs</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">merge_two_dicts</span><span class="p">(</span>
             <span class="n">classifier_kwargs</span><span class="p">,</span> <span class="n">general_kwargs</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">galdef</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;t_pro&#39;</span><span class="p">,</span> <span class="s1">&#39;t_m&#39;</span><span class="p">,</span> <span class="p">]:</span>
+                <span class="n">classifier_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">galdef_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
         <span class="n">classifier</span> <span class="o">=</span> <span class="n">classify</span><span class="o">.</span><span class="n">Classifier</span><span class="p">(</span> <span class="o">**</span><span class="n">classifier_kwargs</span> <span class="p">)</span>
         <span class="n">jug</span><span class="o">.</span><span class="n">Task</span><span class="p">(</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify_particles</span> <span class="p">)</span></div>
@@ -414,7 +450,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Zachary Hafen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
   </body>
 </html>

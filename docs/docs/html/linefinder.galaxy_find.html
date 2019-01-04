@@ -6,14 +6,13 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>linefinder.galaxy_link module &#8212; linefinder 0.8.1 documentation</title>
+    <title>linefinder.galaxy_find module &#8212; linefinder 0.8.1 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
@@ -36,14 +35,14 @@
           <div class="body" role="main">
             
   <div class="section" id="module-linefinder.galaxy_link">
-<span id="linefinder-galaxy-find-module"></span><h1>linefinder.galaxy_link module<a class="headerlink" href="#module-linefinder.galaxy_link" title="Permalink to this headline">¶</a></h1>
+<span id="linefinder-galaxy-find-module"></span><h1>linefinder.galaxy_find module<a class="headerlink" href="#module-linefinder.galaxy_link" title="Permalink to this headline">¶</a></h1>
 <p>Means to associate particles with galaxies and halos at any given time.</p>
 <p>&#64;author: Zach Hafen
 &#64;contact: <a class="reference external" href="mailto:zachary&#46;h&#46;hafen&#37;&#52;&#48;gmail&#46;com">zachary<span>&#46;</span>h<span>&#46;</span>hafen<span>&#64;</span>gmail<span>&#46;</span>com</a>
 &#64;status: Development</p>
 <dl class="class">
 <dt id="linefinder.galaxy_link.ParticleTrackGalaxyLinker">
-<em class="property">class </em><code class="descclassname">linefinder.galaxy_link.</code><code class="descname">ParticleTrackGalaxyLinker</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/galaxy_link.html#ParticleTrackGalaxyLinker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.galaxy_link.ParticleTrackGalaxyLinker" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">linefinder.galaxy_link.</code><code class="descname">ParticleTrackGalaxyLinker</code><span class="sig-paren">(</span><em>out_dir, tag, main_mt_halo_id, mtree_halos_index=None, halo_file_tag='smooth', halo_data_dir=&lt;object object&gt;, ptracks_tag=&lt;object object&gt;, galaxy_cut=4.0, length_scale='Rstar0.5', mt_length_scale='sRstar0.5', ids_to_return=['gal_id', 'mt_gal_id', 'd_other_gal', 'd_other_gal_scaled'], minimum_criteria='n_star', minimum_value=10, n_processors=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/galaxy_link.html#ParticleTrackGalaxyLinker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.galaxy_link.ParticleTrackGalaxyLinker" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Find the association with galaxies for entire particle tracks.</p>
 <dl class="method">
@@ -119,7 +118,7 @@ self.halo_data (HaloData instance): For the halo data.</dd>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/linefinder.galaxy_link.rst.txt"
+      <li><a href="_sources/linefinder.galaxy_find.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -153,7 +152,7 @@ self.halo_data (HaloData instance): For the halo data.</dd>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Zachary Hafen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
   </body>
 </html>

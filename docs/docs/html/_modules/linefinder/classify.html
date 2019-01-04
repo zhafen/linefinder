@@ -9,11 +9,10 @@
     <title>linefinder.classify &#8212; linefinder 0.8.1 documentation</title>
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -58,9 +57,9 @@
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.constants</span> <span class="k">as</span> <span class="nn">constants</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
 
-<span class="kn">import</span> <span class="nn">analyze_data.worldlines</span> <span class="k">as</span> <span class="nn">analyze_worldlines</span>
+<span class="kn">from</span> <span class="nn">.analyze_data</span> <span class="k">import</span> <span class="n">worldlines</span> <span class="k">as</span> <span class="n">analyze_worldlines</span>
 
-<span class="kn">import</span> <span class="nn">config</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">config</span>
 
 <span class="c1">########################################################################</span>
 
@@ -111,6 +110,8 @@
             <span class="s1">&#39;is_in_CGM&#39;</span><span class="p">,</span> <span class="s1">&#39;is_in_galaxy_halo_interface&#39;</span><span class="p">,</span>
             <span class="s1">&#39;is_CGM_IGM_accretion&#39;</span><span class="p">,</span> <span class="s1">&#39;is_CGM_wind&#39;</span><span class="p">,</span>
             <span class="s1">&#39;is_CGM_satellite_wind&#39;</span><span class="p">,</span> <span class="s1">&#39;is_CGM_satellite_ISM&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;is_CGM_to_IGM&#39;</span><span class="p">,</span> <span class="s1">&#39;is_CGM_to_gal_or_interface&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;is_hereafter_CGM&#39;</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Setup the ID Finder.</span>
@@ -212,27 +213,33 @@
 
         <span class="c1"># Print out starting information</span>
         <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Starting Classifying!&quot;</span>
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Using tracked particle data from this directory:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span> <span class="p">)</span>
-        <span class="nb">print</span> <span class="s2">&quot;Using halo data from this directory:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="p">)</span>
-        <span class="nb">print</span> <span class="s2">&quot;Data will be saved here:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Starting Classifying!&quot;</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Using tracked particle data from this directory:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Using halo data from this directory:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Data will be saved here:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="c1"># Get the data files out</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_data_files</span><span class="p">()</span>
 
         <span class="c1"># Do the auxiliary calculations</span>
-        <span class="nb">print</span> <span class="s2">&quot;Calculating radial velocity, circular velocity, and dt...&quot;</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Calculating radial velocity, circular velocity, and dt...&quot;</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_difference</span><span class="p">()</span>
 
         <span class="c1"># Do the first wave of classifications</span>
-        <span class="nb">print</span> <span class="s2">&quot;Identifying accretion, ejection, etc...&quot;</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Identifying accretion, ejection, etc...&quot;</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_in_other_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_is_in_other_gal</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_in_main_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_is_in_main_gal</span><span class="p">()</span>
@@ -241,7 +248,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">is_ejected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_ejection</span><span class="p">()</span>
 
         <span class="c1"># Information on what happens before accretion.</span>
-        <span class="nb">print</span> <span class="s2">&quot;Figuring out what happens before first accretion...&quot;</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Figuring out what happens before first accretion...&quot;</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cum_num_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cum_num_acc</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_before_first_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_is_before_first_acc</span><span class="p">()</span>
@@ -254,7 +261,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">get_time_in_other_gal_before_acc_during_interval</span><span class="p">()</span>
 
         <span class="c1"># Get the primary classifications</span>
-        <span class="nb">print</span> <span class="s2">&quot;Performing the main classifications...&quot;</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Performing the main classifications...&quot;</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_hitherto_EP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_hitherto_EP</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_hitherto_NEP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_hitherto_NEP</span><span class="p">()</span>
@@ -275,13 +282,17 @@
 
         <span class="c1"># Print out end information</span>
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Done Classifying!&quot;</span>
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Output file saved as:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">classification_filepath</span> <span class="p">)</span>
-        <span class="nb">print</span> <span class="s2">&quot;Took </span><span class="si">{:.3g}</span><span class="s2"> seconds, or </span><span class="si">{:.3g}</span><span class="s2"> seconds per particle!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">,</span> <span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span> <span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Done Classifying!&quot;</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Output file saved as:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classification_filepath</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Took </span><span class="si">{:.3g}</span><span class="s2"> seconds, or </span><span class="si">{:.3g}</span><span class="s2"> seconds per particle!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">,</span> <span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -290,7 +301,7 @@
 <span class="sd">        easy access later on.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="nb">print</span> <span class="s2">&quot;Reading data...&quot;</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Reading data...&quot;</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span> <span class="o">=</span> <span class="p">{}</span>
@@ -311,13 +322,17 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span> <span class="n">key</span> <span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span> <span class="n">key</span> <span class="p">]</span>
 
             <span class="k">if</span> <span class="n">store_parameters</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtree_halos_index</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">mtree_halos_index</span> <span class="o">=</span> \
-                        <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;mtree_halos_index&#39;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_file_tag</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">halo_file_tag</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;halo_file_tag&#39;</span><span class="p">]</span>
+                <span class="n">default_attrs_to_replace</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="s1">&#39;halo_data_dir&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;mtree_halos_index&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;halo_file_tag&#39;</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">default_attrs_to_replace</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">attr</span> <span class="p">)</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+                        <span class="n">attr_value</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">check_and_decode_bytes</span><span class="p">(</span>
+                            <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="nb">setattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">attr_value</span> <span class="p">)</span>
                 <span class="k">for</span> <span class="n">parameter_key</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;galaxy_cut&#39;</span><span class="p">,</span> <span class="s1">&#39;length_scale&#39;</span><span class="p">,</span> <span class="p">]:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span> <span class="n">parameter_key</span> <span class="p">]</span> <span class="o">=</span> \
                         <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">parameter_key</span><span class="p">]</span>
@@ -1241,7 +1256,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Zachary Hafen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
   </body>
 </html>

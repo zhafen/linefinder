@@ -9,11 +9,10 @@
     <title>linefinder.galaxy_link &#8212; linefinder 0.8.1 documentation</title>
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -58,7 +57,7 @@
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.mp_utils</span> <span class="k">as</span> <span class="nn">mp_utils</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
 
-<span class="kn">import</span> <span class="nn">config</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">config</span>
 
 <span class="c1">########################################################################</span>
 
@@ -159,12 +158,14 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Starting Adding Galaxy and Halo IDs!&quot;</span>
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Using halo data from this directory:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span> <span class="p">)</span>
-        <span class="nb">print</span> <span class="s2">&quot;Data will be saved here:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Starting Adding Galaxy and Halo IDs!&quot;</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Using halo data from this directory:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Data will be saved here:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span> <span class="p">)</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">read_data</span><span class="p">()</span>
@@ -178,13 +179,15 @@
 
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;Done Adding Galaxy and Halo IDs!&quot;</span>
-        <span class="nb">print</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span>
-        <span class="nb">print</span> <span class="s2">&quot;The data was saved at:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_filepath</span> <span class="p">)</span>
-        <span class="nb">print</span> <span class="s2">&quot;Took </span><span class="si">{:.3g}</span><span class="s2"> seconds, or </span><span class="si">{:.3g}</span><span class="s2"> seconds per particle!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">time_end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span><span class="p">,</span>
-            <span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particles</span> <span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Done Adding Galaxy and Halo IDs!&quot;</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;The data was saved at:</span><span class="se">\n</span><span class="s2">    </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_filepath</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Took </span><span class="si">{:.3g}</span><span class="s2"> seconds, or </span><span class="si">{:.3g}</span><span class="s2"> seconds per particle!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">time_end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particles</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -268,12 +271,13 @@
 
             <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-            <span class="nb">print</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
+            <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">],</span>
                     <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">],</span>
                     <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span>
                 <span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
             <span class="c1"># Make the arrays to store the data in</span>
@@ -317,12 +321,13 @@
 
             <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-            <span class="nb">print</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
+            <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">],</span>
                     <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">],</span>
                     <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span>
                 <span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
             <span class="c1"># Try to avoid memory leaks</span>
@@ -432,12 +437,13 @@
 
             <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-            <span class="nb">print</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
+            <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;Snapshot </span><span class="si">{:&gt;3}</span><span class="s1"> | redshift </span><span class="si">{:&gt;7.3g}</span><span class="s1"> | done in </span><span class="si">{:.3g}</span><span class="s1"> seconds&#39;</span>\
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">],</span>
                     <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">],</span>
                     <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span>
                 <span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
             <span class="c1"># Try to avoid memory leaks</span>
@@ -568,7 +574,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Zachary Hafen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
   </body>
 </html>
