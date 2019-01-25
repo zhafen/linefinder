@@ -115,8 +115,11 @@ def run_linefinder(
 
         # Update arguments
         selector_kwargs = utilities.merge_two_dicts(
-            selector_kwargs, general_kwargs )
+            selector_kwargs,
+            general_kwargs,
+        )
 
+        # Use sim name to find defaults
         if sim_name is not None:
             snapshot_kwargs = selector_kwargs['snapshot_kwargs']
 
@@ -129,6 +132,14 @@ def run_linefinder(
             if 'main_halo_id' not in snapshot_kwargs:
                 snapshot_kwargs['main_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
+        # Add in sim data dir if given
+        if sim_data_dir is not None:
+            selector_kwargs['snapshot_kwargs']['sdir'] = sim_data_dir
+
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            selector_kwargs['snapshot_kwargs']['halo_data_dir'] = halo_data_dir
+
         id_selector = select.IDSelector( **selector_kwargs )
         id_selector.select_ids( selector_data_filters )
 
@@ -137,7 +148,9 @@ def run_linefinder(
 
         # Update arguments
         sampler_kwargs = utilities.merge_two_dicts(
-            sampler_kwargs, general_kwargs )
+            sampler_kwargs,
+            general_kwargs,
+        )
 
         id_sampler = select.IDSampler( **sampler_kwargs )
         id_sampler.sample_ids()
@@ -147,7 +160,13 @@ def run_linefinder(
 
         # Update arguments
         tracker_kwargs = utilities.merge_two_dicts(
-            tracker_kwargs, general_kwargs )
+            tracker_kwargs,
+            general_kwargs,
+        )
+
+        # Add in sim data dir if given
+        if sim_data_dir is not None:
+            tracker_kwargs['sdir'] = sim_data_dir
 
         # Choose the sdir
         if 'sdir' not in tracker_kwargs:
@@ -180,6 +199,10 @@ def run_linefinder(
             for key in [ 'galaxy_cut', 'length_scale', 'mt_length_scale' ]:
                 gal_linker_kwargs[key] = galdef_dict[key]
 
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            gal_linker_kwargs['halo_data_dir'] = halo_data_dir
+
         particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
             **gal_linker_kwargs )
         particle_track_gal_linker.find_galaxies_for_particle_tracks()
@@ -191,6 +214,10 @@ def run_linefinder(
         classifier_kwargs = utilities.merge_two_dicts(
             classifier_kwargs, general_kwargs )
 
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            classifier_kwargs['halo_data_dir'] = halo_data_dir
+
         classifier = classify.Classifier( **classifier_kwargs )
         classifier.classify_particles()
 
@@ -199,6 +226,8 @@ def run_linefinder(
 def run_linefinder_jug(
     tag,
     out_dir = None,
+    sim_data_dir = None,
+    halo_data_dir = None,
     sim_name = None,
     galdef = None,
     selector_data_filters = {},
@@ -216,11 +245,25 @@ def run_linefinder_jug(
     '''Main function for running linefinder.
 
     Args:
+        tag (str):
+            Filename identifier for data products.
+
         out_dir (str):
             Output directory to store the data in.
 
-        tag (str):
-            Filename identifier for data products.
+        sim_data_dir (str):
+            Directory the simulation data is stored in.
+
+        halo_data_dir (str):
+            Directory the halo data (e.g. AHF output) is stored in.
+            Halo data is necessary for linking particles to galaxies.
+
+        sim_name (str):
+            Name of the simulation this is being run for.
+            If provided then linefinder will automatically choose the location
+            of the simulation and halo data, according to the linefinder.config
+            file. The sim_data_dir or halo_data_dir arguments directly
+            overwrites this.
 
         galdef (str):
             Which set of parameters to use for the galaxy_linking and
@@ -294,6 +337,9 @@ def run_linefinder_jug(
         # Update arguments
         selector_kwargs = utilities.merge_two_dicts(
             selector_kwargs, general_kwargs )
+
+        if sdir is not None:
+            selector_kwargs['snapshot_kwargs
 
         if sim_name is not None:
             snapshot_kwargs = selector_kwargs['snapshot_kwargs']

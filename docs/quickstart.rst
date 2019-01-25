@@ -3,15 +3,12 @@ Quickstart
 
 This page is to help you to start tracking particles.
 
-If you have access to the FIRE simulation data you can follow along
-step-by-step to make sure everything is working as expected.
+If you have access to the FIRE simulation data you can follow along step-by-step to make sure everything is working as expected.
 
 Setup
 -----
 
-The Linefinder Config File
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-TBD.
+Linefinder uses two customizable files to determine the runtime parameters.
 
 The Job Script
 ~~~~~~~~~~~~~~~~~~~~~
@@ -24,11 +21,12 @@ Running Linefinder
 On an Interactive Node
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The simplest way to run Linefinder is on an interactive node. To start a single core working on your Linefinder job, simply do e.g. ::
+The simplest way to run Linefinder is on an interactive node.
+To start a single core working on your Linefinder job, simply do e.g. ::
 
     $ jug execute linefinder_example.py &
 
-If you're using Linefinder to do particle tracking on many snapshots of a high resolution simulation chances are this will take longer than is desirable.
+If you're using Linefinder to do particle tracking on many snapshots of a high resolution simulation chances are this will take longer than preferred.
 Fortunately Linefinder is parallelized using `Jug <https://jug.readthedocs.io/en/latest/>`_ (see also :ref:`a-note-about-jug`).
 To start more cores running Linefinder just reenter the line above, or better yet do a loop in bash, e.g. ::
 
@@ -83,13 +81,3 @@ The main benefit to this is easy communication between multiple nodes, even allo
 All the communications for Jug are kept in `jugdata` folders, tagged using the same tag used for a job, e.g. `m12i_example.jugdata`.
 To learn more, see `the official docs <https://jug.readthedocs.io/en/latest/>`_
 
-Advanced Job Submission
-~~~~~~~~~~~~~~~~~~~~~~~
-
-In many cases you may want to run Linefinder not just on a single simulation, but on a number of simulations.
-Further, you might want to systematically vary the parameters used with Linefinder.
-Linefinder offers options to do this automatically with minimal monitoring by the user.
-However these options require additional explanation, and I've postponed creating a simplified example until there's actual demand for them.
-If you're actually interested, `contact me <zachary.h.hafen@gmail.com>`_, and I'd be happy to put together an example.
-
-.. _a-note-about-jug:

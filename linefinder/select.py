@@ -457,6 +457,8 @@ class IDSampler( object ):
         ignore_child_particles = False,
         ignore_duplicates = False,
         reference_snum_for_duplicates = 600,
+        p_types = None,
+        snapshot_kwargs = None,
     ):
         '''Sample an ID file to obtain and save a subset of size n_samples.
         Assumes the full set of IDs are saved as ids_full_tag.hdf5, and will save the sampled IDs as ids_tag.hdf5.
@@ -562,19 +564,26 @@ class IDSampler( object ):
 
         assert 'target_child_ids' not in self.f.keys(), "Identifying duplicate IDs does not work with new ID system."
 
+        if self.p_types is None:
+            self.p_types = self.f['parameters'].attrs['p_types']
+
+        if self.snapshot_kwargs is None:
+            self.snapshot_kwargs = dict(
+                self.f['parameters/snapshot_parameters'].attrs
+            )
+
         duplicate_ids = set()
         id_sets = []
-        for ptype in self.f['parameters'].attrs['p_types']:
+        for ptype in self.p_types:
 
-            p_data_kwargs = dict( self.f['parameters/snapshot_parameters'].attrs )
-            
             # Check for bytes data and decode
-            for key, item in copy.deepcopy( p_data_kwargs ).items():
-                p_data_kwargs[key] = utilities.check_and_decode_bytes( item )
+            for key, item in copy.deepcopy( self.snapshot_kwargs ).items():
+                self.snapshot_kwargs[key] = \
+                     utilities.check_and_decode_bytes( item )
 
-            p_data_kwargs['snum'] = self.reference_snum_for_duplicates
-            p_data_kwargs['ptype'] = ptype
-            p_data = particle_data.ParticleData( **p_data_kwargs )
+            self.snapshot_kwargs['snum'] = self.reference_snum_for_duplicates
+            self.snapshot_kwargs['ptype'] = ptype
+            p_data = particle_data.ParticleData( **self.snapshot_kwargs )
 
             duplicate_ids = duplicate_ids | set( p_data.find_duplicate_ids() )
 

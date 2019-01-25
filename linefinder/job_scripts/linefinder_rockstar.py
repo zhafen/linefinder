@@ -39,9 +39,6 @@ gal_linker_kwargs = {
 linefinder.run_linefinder_jug(
     sim_name = sim_name,
     tag = tag,
-    galdef = '_galdefv3',
-    # The galdef is a set of parameters used for the galaxy linking and
-    # classification steps. Don't touch this unless you know what you're doing.
     tracker_kwargs = tracker_kwargs,
     run_id_selecting = False,
     # run_id_sampling = False,

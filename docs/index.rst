@@ -12,6 +12,7 @@ linefinder
     
    installation
    quickstart
+   more-features
 
 This is currently under construction. 
 
