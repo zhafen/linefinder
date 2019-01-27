@@ -164,10 +164,6 @@ def run_linefinder(
             general_kwargs,
         )
 
-        # Add in sim data dir if given
-        if sim_data_dir is not None:
-            tracker_kwargs['sdir'] = sim_data_dir
-
         # Choose the sdir
         if 'sdir' not in tracker_kwargs:
             # Try and load the default values if using the file manager.
@@ -178,6 +174,10 @@ def run_linefinder(
                 if 'sdir' in 'snapshot_kwargs':
                     tracker_kwargs['sdir'] = \
                         selector_kwargs['snapshot_kwargs']['sdir']
+
+        # Add in sim data dir if given
+        if sim_data_dir is not None:
+            tracker_kwargs['sdir'] = sim_data_dir
 
         particle_tracker = track.ParticleTracker( **tracker_kwargs )
         particle_tracker.save_particle_tracks()
@@ -228,6 +228,7 @@ def run_linefinder_jug(
     out_dir = None,
     sim_data_dir = None,
     halo_data_dir = None,
+    main_mt_halo_id = 45,
     sim_name = None,
     galdef = None,
     selector_data_filters = {},
@@ -258,6 +259,11 @@ def run_linefinder_jug(
             Directory the halo data (e.g. AHF output) is stored in.
             Halo data is necessary for linking particles to galaxies.
 
+        main_mt_halo_id (int):
+            Halo ID for the main merger tree halo that's being tracked.
+            If not provided defaults to 0 (or whatever value is cataloged for
+            the sim name).
+
         sim_name (str):
             Name of the simulation this is being run for.
             If provided then linefinder will automatically choose the location
@@ -267,7 +273,8 @@ def run_linefinder_jug(
 
         galdef (str):
             Which set of parameters to use for the galaxy_linking and
-            classification steps?
+            classification steps? Defaults to the parameters in
+            linefinder.config
 
         selector_data_filters (dict):
             Data filters to pass to select.IDSelector.select_ids()
@@ -309,13 +316,21 @@ def run_linefinder_jug(
             If True, then run routines for classifying particles.
     '''
 
+    # Expand data dirs, if possible
+    if out_dir is not None:
+        out_dir = os.path.expandvars( out_dir )
+    if sim_data_dir is not None:
+        sim_data_dir = os.path.expandvars( sim_data_dir )
+    if halo_data_dir is not None:
+        halo_data_dir = os.path.expandvars( halo_data_dir )
+
+    # Set up for auto-retrieval, if chosen
     if sim_name is not None:
-
         file_manager = file_management.FileManager()
-
         if out_dir is None:
             out_dir = file_manager.get_linefinder_dir( sim_name )
 
+    # Setup for galaxy definitions, if chosen
     if galdef is not None:
         galdef_dict = linefinder_config.GALAXY_DEFINITIONS[galdef]
 
@@ -338,9 +353,7 @@ def run_linefinder_jug(
         selector_kwargs = utilities.merge_two_dicts(
             selector_kwargs, general_kwargs )
 
-        if sdir is not None:
-            selector_kwargs['snapshot_kwargs
-
+        # Use sim name to find defaults
         if sim_name is not None:
             snapshot_kwargs = selector_kwargs['snapshot_kwargs']
 
@@ -352,6 +365,14 @@ def run_linefinder_jug(
 
             if 'main_halo_id' not in snapshot_kwargs:
                 snapshot_kwargs['main_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
+
+        # Add in sim data dir if given
+        if sim_data_dir is not None:
+            selector_kwargs['snapshot_kwargs']['sdir'] = sim_data_dir
+
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            selector_kwargs['snapshot_kwargs']['halo_data_dir'] = halo_data_dir
 
         id_selector = select.IDSelector( **selector_kwargs )
         id_selector.select_ids_jug( selector_data_filters )
@@ -376,8 +397,20 @@ def run_linefinder_jug(
         tracker_kwargs = utilities.merge_two_dicts(
             tracker_kwargs, general_kwargs )
 
+        # Choose the sdir automatically, if possible
         if 'sdir' not in tracker_kwargs:
-            tracker_kwargs['sdir'] = file_manager.get_sim_dir( sim_name )
+            # Try and load the default values if using the file manager.
+            if sim_name is not None:
+                tracker_kwargs['sdir'] = file_manager.get_sim_dir( sim_name )
+            # Try to use the sdir passed to the selector kwargs
+            elif 'snapshot_kwargs' in selector_kwargs:
+                if 'sdir' in 'snapshot_kwargs':
+                    tracker_kwargs['sdir'] = \
+                        selector_kwargs['snapshot_kwargs']['sdir']
+
+        # Add in sim data dir if given
+        if sim_data_dir is not None:
+            tracker_kwargs['sdir'] = sim_data_dir
 
         particle_tracker = track.ParticleTracker( **tracker_kwargs )
         particle_tracker.save_particle_tracks_jug()
@@ -397,12 +430,21 @@ def run_linefinder_jug(
             if 'main_mt_halo_id' not in gal_linker_kwargs:
                 gal_linker_kwargs['main_mt_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            gal_linker_kwargs['halo_data_dir'] = halo_data_dir
+
+        # Default to halo 0 if MT halo ID not given
+        if 'main_mt_halo_id' not in gal_linker_kwargs:
+            gal_linker_kwargs['main_mt_halo_id'] = 0
+
         if galdef is not None:
             for key in [ 'galaxy_cut', 'length_scale', 'mt_length_scale' ]:
                 gal_linker_kwargs[key] = galdef_dict[key]
 
         particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
-            **gal_linker_kwargs )
+            **gal_linker_kwargs
+        )
         particle_track_gal_linker.find_galaxies_for_particle_tracks_jug()
 
     # Run the Classification
@@ -411,6 +453,10 @@ def run_linefinder_jug(
         # Update arguments
         classifier_kwargs = utilities.merge_two_dicts(
             classifier_kwargs, general_kwargs )
+
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            classifier_kwargs['halo_data_dir'] = halo_data_dir
 
         if galdef is not None:
             for key in [ 't_pro', 't_m', ]:
