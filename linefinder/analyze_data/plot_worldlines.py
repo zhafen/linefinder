@@ -6,7 +6,12 @@
 @status: Development
 '''
 
+import imp
+import git
 import numpy as np
+import os
+import subprocess
+import sys
 
 import matplotlib
 matplotlib.use('PDF')
@@ -935,3 +940,160 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         if return_y_max:
             return y_max
+
+    ########################################################################
+
+    def export_to_firefly(
+        self,
+        firefly_dir,
+        install_firefly = False,
+        firefly_source = 'https://github.com/ageller/Firefly.git',
+        write_startup = 'append',
+        pathlines = True,
+        n_pathlines = 100,
+        snum = 600,
+        classifications = [ None, ],
+        classification_ui_labels = [ 'All' ],
+        tracked_properties = [
+            'T',
+            'Z',
+            'Den',
+            'is_in_main_gal',
+            'is_in_other_gal',
+            'PType',
+        ],
+        log_properties = [ 'T', 'Z', 'Den', ],
+        tracked_filter_flags = [ True, ] * 6,
+        tracked_colormap_flags = [ True, True, True, False, False, False, ],
+    ):
+
+        if install_firefly:
+
+            print( "Cloning Firefly..." )
+
+            # Make and switch to the directory containing firefly
+            containing_dir = os.path.dirname( firefly_dir )
+            if not os.path.isdir( containing_dir ):
+                os.makedirs( containing_dir )
+            os.chdir( containing_dir )
+
+            # Clone
+            git.Repo.clone_from( firefly_source, firefly_dir )
+
+            # Validate install
+            if os.path.isfile( os.path.join( firefly_dir, 'index.html' ) ):
+                print(
+                    "Successfully cloned Firefly at {}".format( firefly_dir )
+                )
+            else:
+                raise Exception( "Failed to install Firefly." )
+
+        # Import the Firefly data parser
+        sys.path.append(
+            os.path.join( firefly_dir, 'data' )
+        )
+        import dataParser
+
+        # Setup a reader
+        firefly_reader = dataParser.Reader(
+            JSONdir = os.path.join( firefly_dir, 'data' ),
+            write_startup = write_startup,
+            clean_JSONdir = True,
+        )
+
+        def get_data(
+            data_key,
+            classification,
+            seed = None,
+            *args, **kwargs
+        ):
+            '''Function for inserting linefinder data into Firefly.
+            '''
+
+            if pathlines:
+                
+                return self.data_object.get_selected_data_over_time(
+                    data_key,
+                    snum = snum,
+                    classification = classification,
+                    n_samples = n_pathlines,
+                    seed = seed,
+                    *args, **kwargs
+                ).flatten()
+                
+            else:
+               
+                return self.data_object.get_selected_data(
+                    data_key,
+                    sl = (slice(None),ind),
+                    classification = classification,
+                    *args, **kwargs
+                )
+
+        for i, classification in enumerate( classifications ):
+
+            # We choose a random seed for each classification.
+            # When doing time data this is important for making sure we
+            # select the same data
+            seed = np.random.randint( 1e7 )
+
+            # Grabbing the position and velocity
+            coords = []
+            vels = []
+            for pos_key, vel_key in zip(
+                [ 'Rx', 'Ry', 'Rz' ],
+                [ 'Vx', 'Vy', 'Vz' ],
+            ):
+
+                # Get position data
+                ri = get_data(
+                    pos_key,
+                    classification = classification,
+                    seed = seed,
+                )
+                coords.append( ri )
+
+                # Get velocity data
+                vi = get_data(
+                    vel_key,
+                    classification = classification,
+                    seed = seed,
+                )
+                vels.append( vi )
+                    
+            # Make coords and velocities into a numpy array
+            coords = np.array( coords ).transpose()
+            vels = np.array( vels ).transpose()
+
+            tracked_arrs = []
+            tracked_labels = []
+            for tracked_key in tracked_properties:
+
+                # Add the Array
+                tracked_arr = get_data(
+                    tracked_key,
+                    classification = classification,
+                    seed = seed,
+                )
+                tracked_arrs.append( tracked_arr )
+
+                # Add the label
+                # TODO: When I implement the log part then this needs
+                # to be updated to account for that.
+                tracked_labels.append(
+                    tracked_key
+                )
+
+            # Create a particle group and add to the firefly reader
+            particle_group = ParticleGroup(
+                UIname = ui_labels[i],
+                coords = class_pos,
+                tracked_arrays = tracked_arrs,
+                tracked_names = tracked_labels,
+                tracked_filter_flags = tracked_filter_flags,
+                tracked_colormap_flags = tracked_colormap_flags,
+            )
+            firefly_reader.addParticleGroup( particle_group )
+
+        # Finish up and write data
+        firefly_reader.dumpToJSON()

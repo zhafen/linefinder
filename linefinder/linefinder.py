@@ -37,6 +37,7 @@ def run_linefinder(
     run_classifying = True,
 ):
     '''Main function for running linefinder.
+    Not as feature complete as the Jug-enabled version.
 
     Args:
         tag (str):
