@@ -6,7 +6,7 @@
 @status: Development
 '''
 
-import imp
+import copy
 import git
 import numpy as np
 import os
@@ -970,6 +970,75 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         include_ruler = True,
         include_disk = True,
     ):
+        '''Export data to a Firefly visualization.
+
+        Args:
+            firefly_dir (str):
+                Directory that should contain the Firefly visualization.
+
+            install_firefly (bool):
+                If True, clone Firefly.
+
+            firefly_source (str):
+                Location of Firefly repository to clone from.
+
+            write_startup (str or bool):
+                The startup.json file controls what datasets you can select
+                for Firefly to visualize at startup.
+                Options:
+                    True: Write the file, including overwriting.
+                    False: Don't write the file.
+                    'append': Append onto existing startup or write a new one.
+
+            pathlines (bool):
+                If True plot the pathlines for a subset of the data instead of
+                instantaneous points.
+
+            n_pathlines (int):
+                Number of pathlines to plot if pathlines is True.
+
+            snum (int):
+                If not plotting pathlines plot the particle tracking data
+                at this snapshot.
+
+            center_time_on_snum (bool):
+                If True any displayed time is relative to the snapshot given
+                in snum.
+
+            classifications (list of strs):
+                What classifications to display on Firefly. Defaults to no
+                classification, but any that are part of the analysis package
+                are available to use.
+
+            classification_ui_labels (list of strs):
+                For each classification how you want it to show up on the UI.
+
+            tracked_properties (list of strs):
+                What properties you want to display colormaps of or filter on.
+
+            tracked_filter_flags (list of bools):
+                Which of the tracked_properties you want to filter on.
+
+            tracked_colormap_flags (list of bools):
+                Which of the tracked_properties you want to show colormaps of.
+
+            include_ruler (bool):
+                If True display a 100x100x100 ruler centered at (0,0,0) with
+                1 kpc spacing between points.
+
+            include_disk (bool):
+                If True display a 50 kpc line starting at the galaxy center and
+                extending out 50 kpc parallel to the total angular momentum of
+                the stars in the galaxy. In addition draw a circle
+                perpendicular to the total angular momentum and with a radius
+                of R_gal.
+        '''
+
+        # Make copies of some of the input to avoid changing
+        # which can happen...
+        tracked_properties = copy.deepcopy( tracked_properties )
+        tracked_filter_flags = copy.deepcopy( tracked_filter_flags )
+        tracked_colormap_flags = copy.deepcopy( tracked_colormap_flags )
 
         # The index (along the redshift direction) is often used instead of
         # the snapshot itself
@@ -1004,10 +1073,13 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         import dataParser
 
         # Make the JSON dir exist if it doesn't
+        data_subdir = self.data_object.tag
+        if pathlines:
+            data_subdir += '_pathlines'
         json_dir = os.path.join(
             firefly_dir,
             'data',
-            self.data_object.tag,
+            data_subdir,
         )
         if not os.path.isdir( json_dir ):
             os.makedirs( json_dir )
@@ -1214,7 +1286,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 coordinates = coords,
             )
             firefly_reader.addParticleGroup( particle_group )
-
 
         # Finish up and write data
         firefly_reader.dumpToJSON()
