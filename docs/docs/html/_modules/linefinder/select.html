@@ -495,6 +495,8 @@
         <span class="n">ignore_child_particles</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">ignore_duplicates</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">reference_snum_for_duplicates</span> <span class="o">=</span> <span class="mi">600</span><span class="p">,</span>
+        <span class="n">p_types</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">snapshot_kwargs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Sample an ID file to obtain and save a subset of size n_samples.</span>
 <span class="sd">        Assumes the full set of IDs are saved as ids_full_tag.hdf5, and will save the sampled IDs as ids_tag.hdf5.</span>
@@ -600,19 +602,26 @@
 
         <span class="k">assert</span> <span class="s1">&#39;target_child_ids&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="s2">&quot;Identifying duplicate IDs does not work with new ID system.&quot;</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p_types</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;p_types&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters/snapshot_parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+            <span class="p">)</span>
+
         <span class="n">duplicate_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">id_sets</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">ptype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;p_types&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">ptype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_types</span><span class="p">:</span>
 
-            <span class="n">p_data_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters/snapshot_parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="p">)</span>
-            
             <span class="c1"># Check for bytes data and decode</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">p_data_kwargs</span> <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">p_data_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">check_and_decode_bytes</span><span class="p">(</span> <span class="n">item</span> <span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kwargs</span> <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> \
+                     <span class="n">utilities</span><span class="o">.</span><span class="n">check_and_decode_bytes</span><span class="p">(</span> <span class="n">item</span> <span class="p">)</span>
 
-            <span class="n">p_data_kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_snum_for_duplicates</span>
-            <span class="n">p_data_kwargs</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptype</span>
-            <span class="n">p_data</span> <span class="o">=</span> <span class="n">particle_data</span><span class="o">.</span><span class="n">ParticleData</span><span class="p">(</span> <span class="o">**</span><span class="n">p_data_kwargs</span> <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_snum_for_duplicates</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kwargs</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptype</span>
+            <span class="n">p_data</span> <span class="o">=</span> <span class="n">particle_data</span><span class="o">.</span><span class="n">ParticleData</span><span class="p">(</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kwargs</span> <span class="p">)</span>
 
             <span class="n">duplicate_ids</span> <span class="o">=</span> <span class="n">duplicate_ids</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span> <span class="n">p_data</span><span class="o">.</span><span class="n">find_duplicate_ids</span><span class="p">()</span> <span class="p">)</span>
 

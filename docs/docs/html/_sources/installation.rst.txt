@@ -1,8 +1,9 @@
 Installation
 ==========
 
-Installation of linefinder is straightforward using pip: ::
+Installation of linefinder is straightforward using pip.
+Because you may alter some parts of linefinder, e.g. the config file, it's recommended you specify the install directory, e.g. ::
 
-   pip install linefinder
+   pip install linefinder --target=/where/you/want
 
-If you don't have access to your root directory you may need to add the ``--user`` option.
+This is also useful for clusters, which don't usually allow root access (an alternative is the ``--user`` flag).

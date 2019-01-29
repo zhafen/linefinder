@@ -10,6 +10,7 @@ from . import select
 from . import track
 from . import galaxy_link
 from . import classify
+from . import visualize
 
 from .utils import file_management
 
@@ -22,6 +23,9 @@ import galaxy_dive.utils.utilities as utilities
 def run_linefinder(
     tag,
     out_dir = None,
+    sim_data_dir = None,
+    halo_data_dir = None,
+    main_mt_halo_id = None,
     sim_name = None,
     galdef = None,
     selector_data_filters = {},
@@ -229,7 +233,7 @@ def run_linefinder_jug(
     out_dir = None,
     sim_data_dir = None,
     halo_data_dir = None,
-    main_mt_halo_id = 45,
+    main_mt_halo_id = None,
     sim_name = None,
     galdef = None,
     selector_data_filters = {},
@@ -238,11 +242,13 @@ def run_linefinder_jug(
     tracker_kwargs = {},
     gal_linker_kwargs = {},
     classifier_kwargs = {},
+    visualization_kwargs = {},
     run_id_selecting = True,
     run_id_sampling = True,
     run_tracking = True,
     run_galaxy_linking = True,
     run_classifying = True,
+    run_visualization = True,
 ):
     '''Main function for running linefinder.
 
@@ -299,6 +305,10 @@ def run_linefinder_jug(
         classifier_kwargs (dict):
             Arguments to use when classifying particles.
             Arguments will be passed to classify.Classifier
+
+        visualization_kwargs (dict):
+            Arguments to use when visualizing the data.
+            Arguments will be passed to visualize.export_to_firefly
 
         run_id_selecting (bool):
             If True, then run routines for selecting particles.
@@ -455,6 +465,11 @@ def run_linefinder_jug(
         classifier_kwargs = utilities.merge_two_dicts(
             classifier_kwargs, general_kwargs )
 
+        if sim_name is not None:
+
+            if 'halo_data_dir' not in gal_linker_kwargs:
+                gal_linker_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
+
         # Add in halo data dir if given
         if halo_data_dir is not None:
             classifier_kwargs['halo_data_dir'] = halo_data_dir
@@ -465,5 +480,27 @@ def run_linefinder_jug(
 
         classifier = classify.Classifier( **classifier_kwargs )
         jug.Task( classifier.classify_particles )
+
+    # Run Visualizing
+    if run_visualization:
+
+        if sim_name is not None:
+
+            if 'halo_data_dir' not in gal_linker_kwargs:
+                visualization_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
+
+            if 'main_mt_halo_id' not in gal_linker_kwargs:
+                visualization_kwargs['main_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
+
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            visualization_kwargs['halo_data_dir'] = halo_data_dir
+
+        jug.Task(
+            visualize.export_to_firefly,
+            tag = tag,
+            data_dir = out_dir,
+            **visualization_kwargs
+        )
 
 ########################################################################

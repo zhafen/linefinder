@@ -15,6 +15,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="More Features" href="more-features.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -26,6 +27,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="more-features.html" title="More Features"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="installation.html" title="Installation"
              accesskey="P">previous</a> |</li>
@@ -41,14 +45,10 @@
   <div class="section" id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
 <p>This page is to help you to start tracking particles.</p>
-<p>If you have access to the FIRE simulation data you can follow along
-step-by-step to make sure everything is working as expected.</p>
+<p>If you have access to the FIRE simulation data you can follow along step-by-step to make sure everything is working as expected.</p>
 <div class="section" id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="the-linefinder-config-file">
-<h3>The Linefinder Config File<a class="headerlink" href="#the-linefinder-config-file" title="Permalink to this headline">¶</a></h3>
-<p>TBD.</p>
-</div>
+<p>Linefinder uses two customizable files to determine the runtime parameters.</p>
 <div class="section" id="the-job-script">
 <h3>The Job Script<a class="headerlink" href="#the-job-script" title="Permalink to this headline">¶</a></h3>
 <p>TBD.</p>
@@ -58,12 +58,13 @@ step-by-step to make sure everything is working as expected.</p>
 <h2>Running Linefinder<a class="headerlink" href="#running-linefinder" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="on-an-interactive-node">
 <h3>On an Interactive Node<a class="headerlink" href="#on-an-interactive-node" title="Permalink to this headline">¶</a></h3>
-<p>The simplest way to run Linefinder is on an interactive node. To start a single core working on your Linefinder job, simply do e.g.</p>
+<p>The simplest way to run Linefinder is on an interactive node.
+To start a single core working on your Linefinder job, simply do e.g.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ jug execute linefinder_example.py &amp;
 </pre></div>
 </div>
-<p>If you’re using Linefinder to do particle tracking on many snapshots of a high resolution simulation chances are this will take longer than is desirable.
-Fortunately Linefinder is parallelized using <a class="reference external" href="https://jug.readthedocs.io/en/latest/">Jug</a> (see also <span class="xref std std-ref">a-note-about-jug</span>).
+<p>If you’re using Linefinder to do particle tracking on many snapshots of a high resolution simulation chances are this will take longer than preferred.
+Fortunately Linefinder is parallelized using <a class="reference external" href="https://jug.readthedocs.io/en/latest/">Jug</a> (see also <a class="reference internal" href="#a-note-about-jug"><span class="std std-ref">A Note About Jug</span></a>).
 To start more cores running Linefinder just reenter the line above, or better yet do a loop in bash, e.g.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ for i in $(seq 5) ; do jug execute linefinder_example.py &amp; done
 </pre></div>
@@ -99,25 +100,17 @@ This is simple and involves two steps:</p>
 <li>Deleting all the jugdata in your output directory (e.g. <code class="docutils literal notranslate"><span class="pre">rm</span> <span class="pre">-r</span> <span class="pre">path/to/output/*jugdata</span></code>).</li>
 <li>Turning off the parts of your job that have already completed.</li>
 </ol>
-<p>Jug communicates through the filesystem (see <span class="xref std std-ref">a-note-about-jug</span>), so (1) is necessary to get a fresh start.
+<p>Jug communicates through the filesystem (see <a class="reference internal" href="#a-note-about-jug"><span class="std std-ref">A Note About Jug</span></a>), so (1) is necessary to get a fresh start.
 (2) is necessary to prevent redoing work (and also crashing when Linefinder tries to save a file where one already exists), and is as simple as adding the argument e.g. <code class="docutils literal notranslate"><span class="pre">run_tracking</span> <span class="pre">=</span> <span class="pre">False,</span></code> in <code class="docutils literal notranslate"><span class="pre">linefinder.run_linefinder_jug()</span></code> in your job script.</p>
 </div>
 <div class="section" id="a-note-about-jug">
 <span id="id2"></span><h3>A Note About Jug<a class="headerlink" href="#a-note-about-jug" title="Permalink to this headline">¶</a></h3>
-<p>Linefinder is parallelized using <a class="reference external" href="https://jug.readthedocs.io/en/latest/">Jug</a> (see <span class="xref std std-ref">a-note-about-jug</span>).
+<p>Linefinder is parallelized using <a class="reference external" href="https://jug.readthedocs.io/en/latest/">Jug</a> (see <a class="reference internal" href="#a-note-about-jug"><span class="std std-ref">A Note About Jug</span></a>).
 The most noteable thing about Jug is that it communicates between processes using the file system.
 The main benefit to this is easy communication between multiple nodes, even allowing the user to add more nodes as they become available/are needed.
 All the communications for Jug are kept in <cite>jugdata</cite> folders, tagged using the same tag used for a job, e.g. <cite>m12i_example.jugdata</cite>.
 To learn more, see <a class="reference external" href="https://jug.readthedocs.io/en/latest/">the official docs</a></p>
 </div>
-<div class="section" id="advanced-job-submission">
-<h3>Advanced Job Submission<a class="headerlink" href="#advanced-job-submission" title="Permalink to this headline">¶</a></h3>
-<p>In many cases you may want to run Linefinder not just on a single simulation, but on a number of simulations.
-Further, you might want to systematically vary the parameters used with Linefinder.
-Linefinder offers options to do this automatically with minimal monitoring by the user.
-However these options require additional explanation, and I’ve postponed creating a simplified example until there’s actual demand for them.
-If you’re actually interested, <a class="reference external" href="mailto:zachary&#46;h&#46;hafen&#37;&#52;&#48;gmail&#46;com">contact me</a>, and I’d be happy to put together an example.</p>
-<span class="target" id="id4"></span></div>
 </div>
 </div>
 
@@ -131,7 +124,6 @@ If you’re actually interested, <a class="reference external" href="mailto:zach
   <ul>
 <li><a class="reference internal" href="#">Quickstart</a><ul>
 <li><a class="reference internal" href="#setup">Setup</a><ul>
-<li><a class="reference internal" href="#the-linefinder-config-file">The Linefinder Config File</a></li>
 <li><a class="reference internal" href="#the-job-script">The Job Script</a></li>
 </ul>
 </li>
@@ -140,7 +132,6 @@ If you’re actually interested, <a class="reference external" href="mailto:zach
 <li><a class="reference internal" href="#as-a-batch-job">As a Batch Job</a></li>
 <li><a class="reference internal" href="#restarting-a-job">Restarting a Job</a></li>
 <li><a class="reference internal" href="#a-note-about-jug">A Note About Jug</a></li>
-<li><a class="reference internal" href="#advanced-job-submission">Advanced Job Submission</a></li>
 </ul>
 </li>
 </ul>
@@ -150,6 +141,9 @@ If you’re actually interested, <a class="reference external" href="mailto:zach
   <h4>Previous topic</h4>
   <p class="topless"><a href="installation.html"
                         title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="more-features.html"
+                        title="next chapter">More Features</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -182,6 +176,9 @@ If you’re actually interested, <a class="reference external" href="mailto:zach
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="more-features.html" title="More Features"
+             >next</a> |</li>
         <li class="right" >
           <a href="installation.html" title="Installation"
              >previous</a> |</li>

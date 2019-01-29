@@ -44,7 +44,12 @@
 <span class="sd">@status: Development</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">git</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib</span>
 <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;PDF&#39;</span><span class="p">)</span>
@@ -54,9 +59,11 @@
 
 <span class="kn">import</span> <span class="nn">galaxy_dive.plot_data.generic_plotter</span> <span class="k">as</span> <span class="nn">generic_plotter</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.ahf</span> <span class="k">as</span> <span class="nn">analyze_ahf</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.particle_data</span> <span class="k">as</span> <span class="nn">particle_data</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.plot_data.ahf</span> <span class="k">as</span> <span class="nn">plot_ahf</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.plot_data.plotting</span> <span class="k">as</span> <span class="nn">gen_plot</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.astro</span> <span class="k">as</span> <span class="nn">astro_utils</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.utils.data_operations</span> <span class="k">as</span> <span class="nn">data_operations</span>
 
 <span class="kn">import</span> <span class="nn">linefinder.config</span> <span class="k">as</span> <span class="nn">config</span>
 <span class="kn">import</span> <span class="nn">linefinder.utils.presentation_constants</span> <span class="k">as</span> <span class="nn">p_constants</span>
@@ -972,7 +979,357 @@
                 <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">return_y_max</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">y_max</span></div></div>
+            <span class="k">return</span> <span class="n">y_max</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="WorldlinesPlotter.export_to_firefly"><a class="viewcode-back" href="../../../linefinder.analyze_data.plot_worldlines.html#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.export_to_firefly">[docs]</a>    <span class="k">def</span> <span class="nf">export_to_firefly</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">firefly_dir</span><span class="p">,</span>
+        <span class="n">install_firefly</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">firefly_source</span> <span class="o">=</span> <span class="s1">&#39;https://github.com/ageller/Firefly.git&#39;</span><span class="p">,</span>
+        <span class="n">write_startup</span> <span class="o">=</span> <span class="s1">&#39;append&#39;</span><span class="p">,</span>
+        <span class="n">pathlines</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">n_pathlines</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">snum</span> <span class="o">=</span> <span class="mi">600</span><span class="p">,</span>
+        <span class="n">center_time_on_snum</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">classifications</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">None</span><span class="p">,</span> <span class="p">],</span>
+        <span class="n">classification_ui_labels</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;All&#39;</span> <span class="p">],</span>
+        <span class="n">tracked_properties</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;logT&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;logZ&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;logDen&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;is_in_main_gal&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;is_in_other_gal&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;PType&#39;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">tracked_filter_flags</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">True</span><span class="p">,</span> <span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="n">tracked_colormap_flags</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="p">],</span>
+        <span class="n">include_ruler</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">include_disk</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Export data to a Firefly visualization.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            firefly_dir (str):</span>
+<span class="sd">                Directory that should contain the Firefly visualization.</span>
+
+<span class="sd">            install_firefly (bool):</span>
+<span class="sd">                If True, clone Firefly.</span>
+
+<span class="sd">            firefly_source (str):</span>
+<span class="sd">                Location of Firefly repository to clone from.</span>
+
+<span class="sd">            write_startup (str or bool):</span>
+<span class="sd">                The startup.json file controls what datasets you can select</span>
+<span class="sd">                for Firefly to visualize at startup.</span>
+<span class="sd">                Options:</span>
+<span class="sd">                    True: Write the file, including overwriting.</span>
+<span class="sd">                    False: Don&#39;t write the file.</span>
+<span class="sd">                    &#39;append&#39;: Append onto existing startup or write a new one.</span>
+
+<span class="sd">            pathlines (bool):</span>
+<span class="sd">                If True plot the pathlines for a subset of the data instead of</span>
+<span class="sd">                instantaneous points.</span>
+
+<span class="sd">            n_pathlines (int):</span>
+<span class="sd">                Number of pathlines to plot if pathlines is True.</span>
+
+<span class="sd">            snum (int):</span>
+<span class="sd">                If not plotting pathlines plot the particle tracking data</span>
+<span class="sd">                at this snapshot.</span>
+
+<span class="sd">            center_time_on_snum (bool):</span>
+<span class="sd">                If True any displayed time is relative to the snapshot given</span>
+<span class="sd">                in snum.</span>
+
+<span class="sd">            classifications (list of strs):</span>
+<span class="sd">                What classifications to display on Firefly. Defaults to no</span>
+<span class="sd">                classification, but any that are part of the analysis package</span>
+<span class="sd">                are available to use.</span>
+
+<span class="sd">            classification_ui_labels (list of strs):</span>
+<span class="sd">                For each classification how you want it to show up on the UI.</span>
+
+<span class="sd">            tracked_properties (list of strs):</span>
+<span class="sd">                What properties you want to display colormaps of or filter on.</span>
+
+<span class="sd">            tracked_filter_flags (list of bools):</span>
+<span class="sd">                Which of the tracked_properties you want to filter on.</span>
+
+<span class="sd">            tracked_colormap_flags (list of bools):</span>
+<span class="sd">                Which of the tracked_properties you want to show colormaps of.</span>
+
+<span class="sd">            include_ruler (bool):</span>
+<span class="sd">                If True display a 100x100x100 ruler centered at (0,0,0) with</span>
+<span class="sd">                1 kpc spacing between points.</span>
+
+<span class="sd">            include_disk (bool):</span>
+<span class="sd">                If True display a 50 kpc line starting at the galaxy center and</span>
+<span class="sd">                extending out 50 kpc parallel to the total angular momentum of</span>
+<span class="sd">                the stars in the galaxy. In addition draw a circle</span>
+<span class="sd">                perpendicular to the total angular momentum and with a radius</span>
+<span class="sd">                of R_gal.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Make sure we&#39;re using the full path</span>
+        <span class="n">firefly_dir</span> <span class="o">=</span>  <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span> <span class="n">firefly_dir</span> <span class="p">)</span>
+
+        <span class="c1"># Make copies of some of the input to avoid changing</span>
+        <span class="c1"># which can happen...</span>
+        <span class="n">tracked_properties</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">tracked_properties</span> <span class="p">)</span>
+        <span class="n">tracked_filter_flags</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">tracked_filter_flags</span> <span class="p">)</span>
+        <span class="n">tracked_colormap_flags</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">tracked_colormap_flags</span> <span class="p">)</span>
+
+        <span class="c1"># The index (along the redshift direction) is often used instead of</span>
+        <span class="c1"># the snapshot itself</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">snum</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">snum</span>
+
+        <span class="k">if</span> <span class="n">install_firefly</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Cloning Firefly...&quot;</span> <span class="p">)</span>
+
+            <span class="c1"># Make and switch to the directory containing firefly</span>
+            <span class="n">containing_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span> <span class="n">firefly_dir</span> <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span> <span class="n">containing_dir</span> <span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span> <span class="n">containing_dir</span> <span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span> <span class="n">containing_dir</span> <span class="p">)</span>
+
+            <span class="c1"># Clone</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">Repo</span><span class="o">.</span><span class="n">clone_from</span><span class="p">(</span> <span class="n">firefly_source</span><span class="p">,</span> <span class="n">firefly_dir</span> <span class="p">)</span>
+
+            <span class="c1"># Validate install</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">firefly_dir</span><span class="p">,</span> <span class="s1">&#39;index.html&#39;</span> <span class="p">)</span> <span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Successfully cloned Firefly at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">firefly_dir</span> <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span> <span class="s2">&quot;Failed to install Firefly.&quot;</span> <span class="p">)</span>
+
+        <span class="c1"># Import the Firefly data parser</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">firefly_dir</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span> <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">dataParser</span>
+
+        <span class="c1"># Make the JSON dir exist if it doesn&#39;t</span>
+        <span class="n">data_subdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">tag</span>
+        <span class="k">if</span> <span class="n">pathlines</span><span class="p">:</span>
+            <span class="n">data_subdir</span> <span class="o">+=</span> <span class="s1">&#39;_pathlines&#39;</span>
+        <span class="n">json_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">firefly_dir</span><span class="p">,</span>
+            <span class="s1">&#39;data&#39;</span><span class="p">,</span>
+            <span class="n">data_subdir</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span> <span class="n">json_dir</span> <span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span> <span class="n">json_dir</span> <span class="p">)</span>
+
+        <span class="c1"># Setup a reader</span>
+        <span class="n">firefly_reader</span> <span class="o">=</span> <span class="n">dataParser</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span>
+            <span class="n">JSONdir</span> <span class="o">=</span> <span class="n">json_dir</span><span class="p">,</span>
+            <span class="n">write_startup</span> <span class="o">=</span> <span class="n">write_startup</span><span class="p">,</span>
+            <span class="n">clean_JSONdir</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span>
+            <span class="n">data_key</span><span class="p">,</span>
+            <span class="n">classification</span><span class="p">,</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;Function for inserting linefinder data into Firefly.</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+
+            <span class="k">if</span> <span class="n">pathlines</span><span class="p">:</span>
+
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_selected_data_over_time</span><span class="p">(</span>
+                    <span class="n">data_key</span><span class="p">,</span>
+                    <span class="n">snum</span> <span class="o">=</span> <span class="n">snum</span><span class="p">,</span>
+                    <span class="n">classification</span> <span class="o">=</span> <span class="n">classification</span><span class="p">,</span>
+                    <span class="n">n_samples</span> <span class="o">=</span> <span class="n">n_pathlines</span><span class="p">,</span>
+                    <span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span><span class="p">,</span>
+                    <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                
+            <span class="k">else</span><span class="p">:</span>
+               
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
+                    <span class="n">data_key</span><span class="p">,</span>
+                    <span class="n">sl</span> <span class="o">=</span> <span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span><span class="n">ind</span><span class="p">),</span>
+                    <span class="n">classification</span> <span class="o">=</span> <span class="n">classification</span><span class="p">,</span>
+                    <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Actually loop through each classification</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">classification</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span> <span class="n">classifications</span> <span class="p">):</span>
+
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Getting data for classification </span><span class="si">{}</span><span class="s2">...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">classification</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1"># We choose a random seed for each classification.</span>
+            <span class="c1"># When doing time data this is important for making sure we</span>
+            <span class="c1"># select the same data</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span> <span class="mf">1e7</span> <span class="p">)</span>
+
+            <span class="c1"># Grabbing the position and velocity</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">vels</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">pos_key</span><span class="p">,</span> <span class="n">vel_key</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="p">[</span> <span class="s1">&#39;Rx&#39;</span><span class="p">,</span> <span class="s1">&#39;Ry&#39;</span><span class="p">,</span> <span class="s1">&#39;Rz&#39;</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="s1">&#39;Vx&#39;</span><span class="p">,</span> <span class="s1">&#39;Vy&#39;</span><span class="p">,</span> <span class="s1">&#39;Vz&#39;</span> <span class="p">],</span>
+            <span class="p">):</span>
+
+                <span class="c1"># Get position data</span>
+                <span class="n">ri</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span>
+                    <span class="n">pos_key</span><span class="p">,</span>
+                    <span class="n">classification</span> <span class="o">=</span> <span class="n">classification</span><span class="p">,</span>
+                    <span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ri</span> <span class="p">)</span>
+
+                <span class="c1"># Get velocity data</span>
+                <span class="n">vi</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span>
+                    <span class="n">vel_key</span><span class="p">,</span>
+                    <span class="n">classification</span> <span class="o">=</span> <span class="n">classification</span><span class="p">,</span>
+                    <span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">vels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">vi</span> <span class="p">)</span>
+                    
+            <span class="c1"># Make coords and velocities into a numpy array</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">coords</span> <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+            <span class="n">vels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">vels</span> <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+            <span class="c1"># Initialize labels and arrays list</span>
+            <span class="n">tracked_arrs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">tracked_labels</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># Allow to filter/color on particle ind as well</span>
+            <span class="k">if</span> <span class="n">pathlines</span><span class="p">:</span>
+                <span class="n">tracked_properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s1">&#39;particle_ind&#39;</span> <span class="p">)</span>
+                <span class="n">tracked_filter_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="kc">True</span> <span class="p">)</span>
+                <span class="n">tracked_colormap_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="kc">True</span> <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">tracked_key</span> <span class="ow">in</span> <span class="n">tracked_properties</span><span class="p">:</span>
+
+                <span class="c1"># Add the Array</span>
+                <span class="n">tracked_arr</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span>
+                    <span class="n">tracked_key</span><span class="p">,</span>
+                    <span class="n">classification</span> <span class="o">=</span> <span class="n">classification</span><span class="p">,</span>
+                    <span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">tracked_arrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">tracked_arr</span> <span class="p">)</span>
+
+                <span class="c1"># Add the label</span>
+                <span class="n">tracked_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">tracked_key</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Add a time filter</span>
+            <span class="k">if</span> <span class="n">pathlines</span><span class="p">:</span>
+                <span class="n">tracked_arr</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span>
+                    <span class="s1">&#39;time&#39;</span><span class="p">,</span>
+                    <span class="n">classification</span> <span class="o">=</span> <span class="n">classification</span><span class="p">,</span>
+                    <span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span><span class="p">,</span>
+                    <span class="n">tile_data</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">center_time_on_snum</span><span class="p">:</span>
+                    <span class="n">tracked_arr</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
+
+                <span class="n">tracked_arrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">tracked_arr</span> <span class="p">)</span>
+
+                <span class="n">tracked_filter_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="kc">True</span> <span class="p">)</span>
+                <span class="n">tracked_colormap_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="kc">True</span> <span class="p">)</span>
+                <span class="n">tracked_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s1">&#39;time&#39;</span> <span class="p">)</span>
+
+            <span class="c1"># Add the velocities to the tracked arrays</span>
+            <span class="n">tracked_arrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">vels</span> <span class="p">)</span>
+            <span class="n">tracked_filter_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="kc">False</span> <span class="p">)</span>
+            <span class="n">tracked_colormap_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="kc">False</span> <span class="p">)</span>
+            <span class="n">tracked_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s1">&#39;Velocities&#39;</span> <span class="p">)</span>
+
+            <span class="c1"># Create a particle group and add to the firefly reader</span>
+            <span class="n">particle_group</span> <span class="o">=</span> <span class="n">dataParser</span><span class="o">.</span><span class="n">ParticleGroup</span><span class="p">(</span>
+                <span class="n">UIname</span> <span class="o">=</span> <span class="n">classification_ui_labels</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">coordinates</span> <span class="o">=</span> <span class="n">coords</span><span class="p">,</span>
+                <span class="n">tracked_arrays</span> <span class="o">=</span> <span class="n">tracked_arrs</span><span class="p">,</span>
+                <span class="n">tracked_names</span> <span class="o">=</span> <span class="n">tracked_labels</span><span class="p">,</span>
+                <span class="n">tracked_filter_flags</span> <span class="o">=</span> <span class="n">tracked_filter_flags</span><span class="p">,</span>
+                <span class="n">tracked_colormap_flags</span> <span class="o">=</span> <span class="n">tracked_colormap_flags</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">firefly_reader</span><span class="o">.</span><span class="n">addParticleGroup</span><span class="p">(</span> <span class="n">particle_group</span> <span class="p">)</span>
+
+        <span class="c1"># Add a ruler</span>
+        <span class="k">if</span> <span class="n">include_ruler</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Adding a reference ruler...&quot;</span> <span class="p">)</span>
+
+            <span class="n">n_ruler_points</span> <span class="o">=</span> <span class="mi">101</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">100.</span><span class="p">,</span> <span class="n">n_ruler_points</span> <span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="n">n_ruler_points</span> <span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="n">n_ruler_points</span> <span class="p">),</span>
+            <span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span> <span class="mi">2</span> <span class="p">)</span>
+
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">[</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="p">]</span> <span class="p">)</span>
+            
+            <span class="n">particle_group</span> <span class="o">=</span> <span class="n">dataParser</span><span class="o">.</span><span class="n">ParticleGroup</span><span class="p">(</span>
+                <span class="n">UIname</span> <span class="o">=</span> <span class="s1">&#39;ruler&#39;</span><span class="p">,</span>
+                <span class="n">coordinates</span> <span class="o">=</span> <span class="n">coords</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">firefly_reader</span><span class="o">.</span><span class="n">addParticleGroup</span><span class="p">(</span> <span class="n">particle_group</span> <span class="p">)</span>
+
+        <span class="c1"># Add a disk</span>
+        <span class="k">if</span> <span class="n">include_disk</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Adding a reference disk...&quot;</span> <span class="p">)</span>
+            
+            <span class="c1"># Load data</span>
+            <span class="n">galids_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">galids</span><span class="o">.</span><span class="n">parameters</span>
+            <span class="n">s_data</span> <span class="o">=</span> <span class="n">particle_data</span><span class="o">.</span><span class="n">ParticleData</span><span class="p">(</span>
+                <span class="n">sdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;sdir&#39;</span><span class="p">],</span>
+                <span class="n">snum</span> <span class="o">=</span> <span class="n">snum</span><span class="p">,</span>
+                <span class="n">ptype</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">PTYPE_STAR</span><span class="p">,</span>
+                <span class="n">halo_data_dir</span> <span class="o">=</span> <span class="n">galids_params</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">],</span>
+                <span class="n">main_halo_id</span> <span class="o">=</span> <span class="n">galids_params</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">],</span>
+            <span class="p">)</span>
+            
+            <span class="c1"># Get length scale</span>
+            <span class="n">r_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">r_gal</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+
+            <span class="c1"># Create cicle to rotate</span>
+            <span class="n">circle</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">phi</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">2.</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">256</span> <span class="p">):</span>
+
+                <span class="n">circle</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">[</span> <span class="n">r_gal</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi</span><span class="p">),</span> <span class="n">r_gal</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">),</span> <span class="mf">0.</span> <span class="p">]</span>
+                <span class="p">)</span>
+
+            <span class="n">circle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">circle</span> <span class="p">)</span>
+
+            <span class="n">ang_mom_vec</span> <span class="o">=</span> <span class="n">s_data</span><span class="o">.</span><span class="n">total_ang_momentum</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span> <span class="n">s_data</span><span class="o">.</span><span class="n">total_ang_momentum</span> <span class="p">)</span>
+            <span class="n">disk_pos</span> <span class="o">=</span> <span class="n">data_operations</span><span class="o">.</span><span class="n">align_axes</span><span class="p">(</span> <span class="n">circle</span><span class="p">,</span> <span class="n">ang_mom_vec</span><span class="p">,</span> <span class="n">align_frame</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span>
+
+            <span class="c1"># Get axis pos</span>
+            <span class="n">ang_mom_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span> <span class="n">ang_mom_vec</span><span class="p">,</span> <span class="p">(</span><span class="mi">51</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+            <span class="n">axis_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">50.</span><span class="p">,</span> <span class="mi">51</span> <span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">ang_mom_pos</span>
+            
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">[</span> <span class="n">disk_pos</span><span class="p">,</span> <span class="n">axis_pos</span> <span class="p">])</span>
+
+            <span class="n">particle_group</span> <span class="o">=</span> <span class="n">dataParser</span><span class="o">.</span><span class="n">ParticleGroup</span><span class="p">(</span>
+                <span class="n">UIname</span> <span class="o">=</span> <span class="s1">&#39;disk&#39;</span><span class="p">,</span>
+                <span class="n">coordinates</span> <span class="o">=</span> <span class="n">coords</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">firefly_reader</span><span class="o">.</span><span class="n">addParticleGroup</span><span class="p">(</span> <span class="n">particle_group</span> <span class="p">)</span>
+
+        <span class="c1"># Finish up and write data</span>
+        <span class="n">firefly_reader</span><span class="o">.</span><span class="n">dumpToJSON</span><span class="p">()</span></div></div>
 </pre></div>
 
           </div>

@@ -7,12 +7,11 @@
 '''
 
 from .analyze_data import worldlines as analyze_worldlines
-import linefinder.analyze_data.plot_worldlines as plot_worldlines
+from .analyze_data import plot_worldlines
 
 ########################################################################
 
 def export_to_firefly(
-    firefly_dir,
     export_to_firefly_kwargs = {},
     **kwargs
 ):
@@ -38,7 +37,6 @@ def export_to_firefly(
 
     # Make fiducial visualization
     w_plotter.export_to_firefly(
-        firefly_dir = firefly_dir,
         install_firefly = True,
         write_startup = True,
         **export_to_firefly_kwargs
@@ -46,7 +44,6 @@ def export_to_firefly(
 
     # Make a pathlines visualization
     w_plotter.export_to_firefly(
-        firefly_dir = firefly_dir,
         pathlines = True,
         **export_to_firefly_kwargs
     )

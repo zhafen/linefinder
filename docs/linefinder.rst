@@ -20,6 +20,7 @@ Submodules
    linefinder.linefinder
    linefinder.select
    linefinder.track
+   linefinder.visualize
 
 Module contents
 ---------------

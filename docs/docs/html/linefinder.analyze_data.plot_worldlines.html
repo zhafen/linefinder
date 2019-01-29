@@ -45,6 +45,54 @@
 <em class="property">class </em><code class="descclassname">linefinder.analyze_data.plot_worldlines.</code><code class="descname">WorldlinesPlotter</code><span class="sig-paren">(</span><em>data_object</em>, <em>label=None</em>, <em>color='black'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">galaxy_dive.plot_data.generic_plotter.GenericPlotter</span></code></p>
 <dl class="method">
+<dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.export_to_firefly">
+<code class="descname">export_to_firefly</code><span class="sig-paren">(</span><em>firefly_dir, install_firefly=False, firefly_source='https://github.com/ageller/Firefly.git', write_startup='append', pathlines=False, n_pathlines=100, snum=600, center_time_on_snum=True, classifications=[None], classification_ui_labels=['All'], tracked_properties=['logT', 'logZ', 'logDen', 'is_in_main_gal', 'is_in_other_gal', 'PType'], tracked_filter_flags=[True, True, True, True, True, True], tracked_colormap_flags=[True, True, True, False, False, False], include_ruler=True, include_disk=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.export_to_firefly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.export_to_firefly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export data to a Firefly visualization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>firefly_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Directory that should contain the Firefly visualization.</li>
+<li><strong>install_firefly</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, clone Firefly.</li>
+<li><strong>firefly_source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Location of Firefly repository to clone from.</li>
+<li><strong>write_startup</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – <p>The startup.json file controls what datasets you can select
+for Firefly to visualize at startup.
+Options:</p>
+<blockquote>
+<div>True: Write the file, including overwriting.
+False: Don’t write the file.
+‘append’: Append onto existing startup or write a new one.</div></blockquote>
+</li>
+<li><strong>pathlines</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True plot the pathlines for a subset of the data instead of
+instantaneous points.</li>
+<li><strong>n_pathlines</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of pathlines to plot if pathlines is True.</li>
+<li><strong>snum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – If not plotting pathlines plot the particle tracking data
+at this snapshot.</li>
+<li><strong>center_time_on_snum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True any displayed time is relative to the snapshot given
+in snum.</li>
+<li><strong>classifications</strong> (<em>list of strs</em>) – What classifications to display on Firefly. Defaults to no
+classification, but any that are part of the analysis package
+are available to use.</li>
+<li><strong>classification_ui_labels</strong> (<em>list of strs</em>) – For each classification how you want it to show up on the UI.</li>
+<li><strong>tracked_properties</strong> (<em>list of strs</em>) – What properties you want to display colormaps of or filter on.</li>
+<li><strong>tracked_filter_flags</strong> (<em>list of bools</em>) – Which of the tracked_properties you want to filter on.</li>
+<li><strong>tracked_colormap_flags</strong> (<em>list of bools</em>) – Which of the tracked_properties you want to show colormaps of.</li>
+<li><strong>include_ruler</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True display a 100x100x100 ruler centered at (0,0,0) with
+1 kpc spacing between points.</li>
+<li><strong>include_disk</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True display a 50 kpc line starting at the galaxy center and
+extending out 50 kpc parallel to the total angular momentum of
+the stars in the galaxy. In addition draw a circle
+perpendicular to the total angular momentum and with a radius
+of R_gal.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classification_bar">
 <code class="descname">plot_classification_bar</code><span class="sig-paren">(</span><em>x_pos, classification_list=['is_fresh_accretion', 'is_NEP_wind_recycling', 'is_mass_transfer', 'is_merger_gas', 'is_merger_star'], classification_colors={'all': 'black', None: 'black', 'is_in_CGM': 'black', 'is_CGM_IGM_accretion': array([0.196, 0.532, 0.7  ]), 'is_CGM_NEP': array([0.196, 0.532, 0.7  ]), 'is_CGM_wind': array([0.224, 0.8  , 0.416]), 'is_CGM_IP': array([0.224, 0.8  , 0.416]), 'is_outside_any_gal_IP': array([0.224, 0.8  , 0.416]), 'is_CGM_satellite_wind': array([0.7    , 0.46984, 0.196  ]), 'is_CGM_EP': array([0.7    , 0.46984, 0.196  ]), 'is_outside_any_gal_EP': array([0.7    , 0.46984, 0.196  ]), 'is_CGM_satellite_ISM': array([0.5       , 0.16266667, 0.1       ]), 'is_CGM_satellite': array([0.5       , 0.16266667, 0.1       ]), 'is_in_galaxy_halo_interface': array([0.8  , 0.32 , 0.784]), 'is_pristine': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_NEP_NYA': [0.0, 0.47843137254901963, 0.6862745098039216], 'is_fresh_accretion': [0.0392156862745098, 0.29411764705882354, 0.7764705882352941], 'is_NEP_wind_recycling': [0.027450980392156862, 0.7372549019607844, 0.43137254901960786], 'is_IP': [0.2980392156862745, 0.6862745098039216, 0.0], 'is_wind': [0.2980392156862745, 0.6862745098039216, 0.0], 'is_preprocessed': [0.984313725490196, 0.5764705882352941, 0.09803921568627451], 'is_mass_transfer': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_mass_transfer_NYA': [0.9921568627450981, 0.8274509803921568, 0.050980392156862744], 'is_merger': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_NYA': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_star': [0.8901960784313725, 0.1843137254901961, 0.054901960784313725], 'is_merger_gas': [0.9019607843137255, 0.4666666666666667, 0.06666666666666667], 'is_CGM_to_gal_or_interface': (0.5333333333333333, 0.8, 0.9333333333333333), 'is_CGM_to_IGM': (0.8, 0.4, 0.4666666666666667), 'is_hereafter_CGM': (0.8666666666666667, 0.8, 0.4666666666666667)}, ind=0, ax=&lt;object object&gt;, width=0.5, add_label=False, alpha=1.0, *args, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/plot_worldlines.html#WorldlinesPlotter.plot_classification_bar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classification_bar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a bar plotting the classifications.</p>

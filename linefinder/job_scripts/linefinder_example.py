@@ -27,16 +27,25 @@ linefinder_args = {
         'snum_step': 1,
     },
 
+    # Arguments used for the visualization step
+    'visualization_kwargs': {
+        # These kwargs are used for tuning the Firefly visualization
+        'export_to_firefly_kwargs': {
+            'firefly_dir': '$SCRATCH/firefly_repos/firefly_trails',
+            'firefly_source': 'git@github.com:zhafen/Firefly.git',
+        },
+    },
+
     # The following arguments are for turning on/off different parts
     # of the pipeline
     'run_id_selecting': False,
     # Most users will identify the list of IDs using their own methods, so
     # we turn ID selecting off.
-    'run_id_sampling': False,
-    'run_tracking': False,
-    'run_galaxy_linking': False,
-    'run_classifying': False,
-    'run_visualizing': False,
+    'run_id_sampling': True,
+    'run_tracking': True,
+    'run_galaxy_linking': True,
+    'run_classifying': True,
+    'run_visualization': True,
 }
 
 # Actually run Linefinder

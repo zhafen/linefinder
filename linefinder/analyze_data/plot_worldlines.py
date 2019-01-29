@@ -951,7 +951,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         install_firefly = False,
         firefly_source = 'https://github.com/ageller/Firefly.git',
         write_startup = 'append',
-        pathlines = True,
+        pathlines = False,
         n_pathlines = 100,
         snum = 600,
         center_time_on_snum = True,
@@ -1033,6 +1033,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 perpendicular to the total angular momentum and with a radius
                 of R_gal.
         '''
+
+        # Make sure we're using the full path
+        firefly_dir =  os.path.expandvars( firefly_dir )
 
         # Make copies of some of the input to avoid changing
         # which can happen...

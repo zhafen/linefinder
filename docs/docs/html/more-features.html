@@ -1,0 +1,132 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>More Features &#8212; linefinder 0.8.1 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Quickstart"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.8.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="more-features">
+<h1>More Features<a class="headerlink" href="#more-features" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-linefinder-config-file">
+<h2>The Linefinder Config File<a class="headerlink" href="#the-linefinder-config-file" title="Permalink to this headline">¶</a></h2>
+<p>The config file contains defaults that Linefinder falls back to when they aren’t specified in the job script.
+This is useful when running Linefinder for a variety of simulations, a variety of parameters, or both.
+The config file is useful when you start to use linefinder more extensively.</p>
+<p>The config file is located at e.g. <code class="docutils literal notranslate"><span class="pre">your/linefinder/dir/config.py</span></code>.
+If you specified the install directory (<a class="reference external" href="https://zhafen.github.io/linefinder/docs/html/installation.html">as recommended</a>), then the file will be in that directory.
+An overview of each section in the config file is described below, with descriptions of each variable in-line in the config file itself.</p>
+<p>1. <strong>Global Default Parameters:</strong>
+A number of choices are made when linking particles to galaxies or classifying particles.
+The most important choices are set here as default parameters.
+2. <strong>Miscellanious Values:</strong>
+Constants that aren’t important for the physics, but are still necessary for linefinder to run.
+3. <strong>Simulation Information:</strong>
+Information about the simulation sample being analyzed.
+4. <strong>System Information:</strong>
+Information about the computing environment.</p>
+</div>
+<div class="section" id="advanced-job-submission">
+<h2>Advanced Job Submission<a class="headerlink" href="#advanced-job-submission" title="Permalink to this headline">¶</a></h2>
+<p>In many cases you may want to run Linefinder not just on a single simulation, but on a number of simulations.
+Further, you might want to systematically vary the parameters used with Linefinder.
+Linefinder offers options to do this automatically with minimal monitoring by the user.
+However these options require additional explanation, and I’ve postponed creating a simplified example until there’s actual demand.
+If you’re actually interested, <a class="reference external" href="mailto:zachary&#46;h&#46;hafen&#37;&#52;&#48;gmail&#46;com">contact me</a>, and I’d be happy to put together an example.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">More Features</a><ul>
+<li><a class="reference internal" href="#the-linefinder-config-file">The Linefinder Config File</a></li>
+<li><a class="reference internal" href="#advanced-job-submission">Advanced Job Submission</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="quickstart.html"
+                        title="previous chapter">Quickstart</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/more-features.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Quickstart"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.8.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Zachary Hafen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+  </body>
+</html>

@@ -68,29 +68,15 @@
     <span class="c1">########################################################################</span>
     <span class="c1">########################################################################</span>
 
-<div class="viewcode-block" id="FileManager.get_sim_subdir"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_sim_subdir">[docs]</a>    <span class="k">def</span> <span class="nf">get_sim_subdir</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">sim_name</span> <span class="p">):</span>
+<div class="viewcode-block" id="FileManager.get_sim_subdir"><a class="viewcode-back" href="../../../linefinder.utils.file_management.html#linefinder.utils.file_management.FileManager.get_sim_subdir">[docs]</a>    <span class="k">def</span> <span class="nf">get_sim_subdir</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">sim_name</span><span class="p">,</span> <span class="n">physics</span><span class="o">=</span><span class="s1">&#39;core&#39;</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="p">):</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">base_sim_name</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
-            <span class="n">physics_used</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
-
-            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">FULL_PHYSICS_NAME</span><span class="p">[</span><span class="n">physics_used</span><span class="p">],</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">FULL_SIM_NAME</span><span class="p">[</span><span class="n">base_sim_name</span><span class="p">],</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">physics</span><span class="p">,</span>
+            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_res</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">sim_name</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">DEFAULT_SIM_RESOLUTIONS</span><span class="p">[</span><span class="n">sim_name</span><span class="p">],</span>
             <span class="p">)</span>
-
-        <span class="c1"># FIRE-1 exception</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-
-            <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;No FIRE-2 data found, so trying FIRE-1 sim format.&quot;</span> <span class="p">)</span>
-
-            <span class="n">base_sim_name</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span>
-            <span class="n">physics_used</span> <span class="o">=</span> <span class="n">sim_name</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span>
-
-            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">FULL_PHYSICS_NAME</span><span class="p">[</span><span class="n">physics_used</span><span class="p">],</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">FULL_SIM_NAME</span><span class="p">[</span><span class="n">base_sim_name</span><span class="p">],</span>
-            <span class="p">)</span></div>
+        <span class="p">)</span></div>
 
     <span class="c1">########################################################################</span>
 
