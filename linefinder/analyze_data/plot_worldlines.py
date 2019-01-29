@@ -21,9 +21,11 @@ import matplotlib.collections as collections
 
 import galaxy_dive.plot_data.generic_plotter as generic_plotter
 import galaxy_dive.analyze_data.ahf as analyze_ahf
+import galaxy_dive.analyze_data.particle_data as particle_data
 import galaxy_dive.plot_data.ahf as plot_ahf
 import galaxy_dive.plot_data.plotting as gen_plot
 import galaxy_dive.utils.astro as astro_utils
+import galaxy_dive.utils.data_operations as data_operations
 
 import linefinder.config as config
 import linefinder.utils.presentation_constants as p_constants
@@ -952,6 +954,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         pathlines = True,
         n_pathlines = 100,
         snum = 600,
+        center_time_on_snum = True,
         classifications = [ None, ],
         classification_ui_labels = [ 'All' ],
         tracked_properties = [
@@ -965,7 +968,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         tracked_filter_flags = [ True, ] * 6,
         tracked_colormap_flags = [ True, True, True, False, False, False, ],
         include_ruler = True,
+        include_disk = True,
     ):
+
+        # The index (along the redshift direction) is often used instead of
+        # the snapshot itself
+        ind = self.data_object.ptracks.snum.max() - snum
 
         if install_firefly:
 
@@ -1040,7 +1048,14 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     *args, **kwargs
                 )
 
+        # Actually loop through each classification
         for i, classification in enumerate( classifications ):
+
+            print(
+                "Getting data for classification {}...".format(
+                    classification
+                )
+            )
 
             # We choose a random seed for each classification.
             # When doing time data this is important for making sure we
@@ -1108,6 +1123,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     seed = seed,
                     tile_data = True,
                 )
+
+                if center_time_on_snum:
+                    tracked_arr -= self.data_object.data['time'][ind]
+
                 tracked_arrs.append( tracked_arr )
 
                 tracked_filter_flags.append( True )
@@ -1133,6 +1152,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         # Add a ruler
         if include_ruler:
+
+            print( "Adding a reference ruler..." )
+
             n_ruler_points = 101
             x = np.array([
                 np.linspace( 0., 100., n_ruler_points ),
@@ -1149,6 +1171,50 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 coordinates = coords,
             )
             firefly_reader.addParticleGroup( particle_group )
+
+        # Add a disk
+        if include_disk:
+
+            print( "Adding a reference disk..." )
+            
+            # Load data
+            galids_params = self.data_object.galids.parameters
+            s_data = particle_data.ParticleData(
+                sdir = self.data_object.ptracks.parameters['sdir'],
+                snum = snum,
+                ptype = config.PTYPE_STAR,
+                halo_data_dir = galids_params['halo_data_dir'],
+                main_halo_id = galids_params['main_mt_halo_id'],
+            )
+            
+            # Get length scale
+            r_gal = self.data_object.r_gal[ind]
+
+            # Create cicle to rotate
+            circle = []
+            for phi in np.linspace( 0., 2.*np.pi, 256 ):
+
+                circle.append(
+                    [ r_gal*np.cos(phi), r_gal*np.sin(phi), 0. ]
+                )
+
+            circle = np.array( circle )
+
+            ang_mom_vec = s_data.total_ang_momentum / np.linalg.norm( s_data.total_ang_momentum )
+            disk_pos = data_operations.align_axes( circle, ang_mom_vec, align_frame=False )
+
+            # Get axis pos
+            ang_mom_pos = np.tile( ang_mom_vec, (51,1) )
+            axis_pos = np.linspace( 0., 50., 51 )[:,np.newaxis]*ang_mom_pos
+            
+            coords = np.concatenate( [ disk_pos, axis_pos ])
+
+            particle_group = dataParser.ParticleGroup(
+                UIname = 'disk',
+                coordinates = coords,
+            )
+            firefly_reader.addParticleGroup( particle_group )
+
 
         # Finish up and write data
         firefly_reader.dumpToJSON()
