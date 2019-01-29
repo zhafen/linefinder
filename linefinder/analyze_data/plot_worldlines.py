@@ -1074,8 +1074,16 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             coords = np.array( coords ).transpose()
             vels = np.array( vels ).transpose()
 
+            # Initialize labels and arrays list
             tracked_arrs = []
             tracked_labels = []
+
+            # Allow to filter/color on particle ind as well
+            if pathlines:
+                tracked_properties.append( 'particle_ind' )
+                tracked_filter_flags.append( True )
+                tracked_colormap_flags.append( True )
+
             for tracked_key in tracked_properties:
 
                 # Add the Array
@@ -1087,8 +1095,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 tracked_arrs.append( tracked_arr )
 
                 # Add the label
-                # TODO: When I implement the log part then this needs
-                # to be updated to account for that.
                 tracked_labels.append(
                     tracked_key
                 )
@@ -1106,6 +1112,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 tracked_filter_flags.append( True )
                 tracked_colormap_flags.append( True )
                 tracked_labels.append( 'time' )
+
+            # Add the velocities to the tracked arrays
+            tracked_arrs.append( vels )
+            tracked_filter_flags.append( False )
+            tracked_colormap_flags.append( False )
+            tracked_labels.append( 'Velocities' )
 
             # Create a particle group and add to the firefly reader
             particle_group = dataParser.ParticleGroup(
