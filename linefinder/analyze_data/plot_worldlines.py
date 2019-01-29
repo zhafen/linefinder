@@ -973,6 +973,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             # Make and switch to the directory containing firefly
             containing_dir = os.path.dirname( firefly_dir )
+
             if not os.path.isdir( containing_dir ):
                 os.makedirs( containing_dir )
             os.chdir( containing_dir )
@@ -994,9 +995,18 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         )
         import dataParser
 
+        # Make the JSON dir exist if it doesn't
+        json_dir = os.path.join(
+            firefly_dir,
+            'data',
+            self.data_object.tag,
+        )
+        if not os.path.isdir( json_dir ):
+            os.makedirs( json_dir )
+
         # Setup a reader
         firefly_reader = dataParser.Reader(
-            JSONdir = os.path.join( firefly_dir, 'data' ),
+            JSONdir = json_dir,
             write_startup = write_startup,
             clean_JSONdir = True,
         )
@@ -1011,7 +1021,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             '''
 
             if pathlines:
-                
+
                 return self.data_object.get_selected_data_over_time(
                     data_key,
                     snum = snum,
@@ -1085,9 +1095,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 )
 
             # Create a particle group and add to the firefly reader
-            particle_group = ParticleGroup(
-                UIname = ui_labels[i],
-                coords = class_pos,
+            particle_group = dataParser.ParticleGroup(
+                UIname = classification_ui_labels[i],
+                coordinates = coords,
                 tracked_arrays = tracked_arrs,
                 tracked_names = tracked_labels,
                 tracked_filter_flags = tracked_filter_flags,
