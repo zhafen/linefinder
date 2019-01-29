@@ -5,15 +5,12 @@ This page is to help you to start tracking particles.
 
 If you have access to the FIRE simulation data you can follow along step-by-step to make sure everything is working as expected.
 
-Setup
------
-
-Linefinder uses two customizable files to determine the runtime parameters.
-
 The Job Script
-~~~~~~~~~~~~~~~~~~~~~
-TBD.
+--------------
 
+After `installing linefinder <https://zhafen.github.io/linefinder/docs/html/installation.html>`_ you will find a basic example job script at ``/your/linefinder/dir/job_scripts``.
+This script will be used as an example below, and you can also use it as a base for creating your own job script.
+The ID file for this example job script is in the same location.
 
 Running Linefinder
 ------------------

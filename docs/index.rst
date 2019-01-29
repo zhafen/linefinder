@@ -3,8 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-linefinder
+Linefinder
 ======================================
+
+A tool for efficiently tracking the full history of individual particles and providing context to their pathlines.
 
 .. toctree::
    :maxdepth: 2
@@ -13,8 +15,6 @@ linefinder
    installation
    quickstart
    more-features
-
-This is currently under construction. 
 
 Indices and tables
 ==================
