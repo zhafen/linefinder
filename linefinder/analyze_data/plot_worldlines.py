@@ -964,6 +964,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ],
         tracked_filter_flags = [ True, ] * 6,
         tracked_colormap_flags = [ True, True, True, False, False, False, ],
+        include_ruler = True,
     ):
 
         if install_firefly:
@@ -1127,6 +1128,25 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 tracked_names = tracked_labels,
                 tracked_filter_flags = tracked_filter_flags,
                 tracked_colormap_flags = tracked_colormap_flags,
+            )
+            firefly_reader.addParticleGroup( particle_group )
+
+        # Add a ruler
+        if include_ruler:
+            n_ruler_points = 101
+            x = np.array([
+                np.linspace( 0., 100., n_ruler_points ),
+                np.zeros( n_ruler_points ),
+                np.zeros( n_ruler_points ),
+            ]).transpose()
+            y = np.roll( x, 1 )
+            z = np.roll( x, 2 )
+
+            coords = np.concatenate( [ x, y, z ] )
+            
+            particle_group = dataParser.ParticleGroup(
+                UIname = 'ruler',
+                coordinates = coords,
             )
             firefly_reader.addParticleGroup( particle_group )
 
