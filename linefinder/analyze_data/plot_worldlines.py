@@ -955,14 +955,13 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         classifications = [ None, ],
         classification_ui_labels = [ 'All' ],
         tracked_properties = [
-            'T',
-            'Z',
-            'Den',
+            'logT',
+            'logZ',
+            'logDen',
             'is_in_main_gal',
             'is_in_other_gal',
             'PType',
         ],
-        log_properties = [ 'T', 'Z', 'Den', ],
         tracked_filter_flags = [ True, ] * 6,
         tracked_colormap_flags = [ True, True, True, False, False, False, ],
     ):
@@ -1093,6 +1092,20 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 tracked_labels.append(
                     tracked_key
                 )
+
+            # Add a time filter
+            if pathlines:
+                tracked_arr = get_data(
+                    'time',
+                    classification = classification,
+                    seed = seed,
+                    tile_data = True,
+                )
+                tracked_arrs.append( tracked_arr )
+
+                tracked_filter_flags.append( True )
+                tracked_colormap_flags.append( True )
+                tracked_labels.append( 'time' )
 
             # Create a particle group and add to the firefly reader
             particle_group = dataParser.ParticleGroup(
