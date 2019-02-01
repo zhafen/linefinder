@@ -1095,22 +1095,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         if not os.path.isdir( json_dir ):
             os.makedirs( json_dir )
 
-        # if use_default_colors:
-        #     options = dataParser.Options()
-        #     options['color'] = {}
-        #     for i, classification in enumerate(classifications):
-        #         if classification is not None:
-        #             color = config.COLORSCHEME[classification]
-        #             color = np.insert( color, -1, 1. )
-        #             options['color'][classification_ui_labels[i]] = color
-        #         else:
-        #             options['color'][classification_ui_labels[i]] = [ 1., 1., 1., 1., ]
-        # else:
-        #     options = None
-
-        #DEBUG
-        # import pdb; pdb.set_trace()
-
         # Setup a reader
         firefly_reader = dataParser.Reader(
             JSONdir = json_dir,
@@ -1249,9 +1233,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     color = config.COLORSCHEME[classification]
                 else:
                     color = np.array([ 1., 1., 1., ])
-
-                #DEBUG
-                import pdb; pdb.set_trace()
                 color = np.append( color, np.array([ 1. ]) )
                 option_kwargs['color'] = np.array( color )
 
@@ -1331,9 +1312,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 coordinates = coords,
             )
             firefly_reader.addParticleGroup( particle_group )
-
-        #DEBUG
-        import pdb; pdb.set_trace()
 
         # Finish up and write data
         firefly_reader.dumpToJSON()
