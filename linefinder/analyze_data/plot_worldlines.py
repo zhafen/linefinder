@@ -955,8 +955,13 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         n_pathlines = 100,
         snum = 600,
         center_time_on_snum = True,
-        classifications = [ None, ],
-        classification_ui_labels = [ 'All' ],
+        classifications = [
+            None,
+            'is_hitherto_EP',
+            'is_hitherto_NEP',
+            'is_IP',
+        ],
+        classification_ui_labels = [ 'All', 'EP', 'NEP', 'IP' ],
         tracked_properties = [
             'logT',
             'logZ',
@@ -969,6 +974,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         tracked_colormap_flags = [ True, True, True, False, False, False, ],
         include_ruler = True,
         include_disk = True,
+        use_default_colors = True,
     ):
         '''Export data to a Firefly visualization.
 
@@ -1032,6 +1038,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 the stars in the galaxy. In addition draw a circle
                 perpendicular to the total angular momentum and with a radius
                 of R_gal.
+
+            use_default_colors (bool):
+                If True, colors used for different classifications come from
+                config.COLORSCHEME
         '''
 
         # Make sure we're using the full path
@@ -1040,8 +1050,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         # Make copies of some of the input to avoid changing
         # which can happen...
         tracked_properties = copy.deepcopy( tracked_properties )
-        tracked_filter_flags = copy.deepcopy( tracked_filter_flags )
-        tracked_colormap_flags = copy.deepcopy( tracked_colormap_flags )
 
         # The index (along the redshift direction) is often used instead of
         # the snapshot itself
@@ -1086,6 +1094,22 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         )
         if not os.path.isdir( json_dir ):
             os.makedirs( json_dir )
+
+        # if use_default_colors:
+        #     options = dataParser.Options()
+        #     options['color'] = {}
+        #     for i, classification in enumerate(classifications):
+        #         if classification is not None:
+        #             color = config.COLORSCHEME[classification]
+        #             color = np.insert( color, -1, 1. )
+        #             options['color'][classification_ui_labels[i]] = color
+        #         else:
+        #             options['color'][classification_ui_labels[i]] = [ 1., 1., 1., 1., ]
+        # else:
+        #     options = None
+
+        #DEBUG
+        # import pdb; pdb.set_trace()
 
         # Setup a reader
         firefly_reader = dataParser.Reader(
@@ -1132,6 +1156,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 )
             )
 
+            # Make copies so that we don't keep adding on
+            tracked_filter_flags_class = copy.copy( tracked_filter_flags )
+            tracked_colormap_flags_class = copy.copy( tracked_colormap_flags )
+
             # We choose a random seed for each classification.
             # When doing time data this is important for making sure we
             # select the same data
@@ -1172,8 +1200,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             # Allow to filter/color on particle ind as well
             if pathlines:
                 tracked_properties.append( 'particle_ind' )
-                tracked_filter_flags.append( True )
-                tracked_colormap_flags.append( True )
+                tracked_filter_flags_class.append( True )
+                tracked_colormap_flags_class.append( True )
 
             for tracked_key in tracked_properties:
 
@@ -1204,15 +1232,28 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
                 tracked_arrs.append( tracked_arr )
 
-                tracked_filter_flags.append( True )
-                tracked_colormap_flags.append( True )
+                tracked_filter_flags_class.append( True )
+                tracked_colormap_flags_class.append( True )
                 tracked_labels.append( 'time' )
 
             # Add the velocities to the tracked arrays
             tracked_arrs.append( vels )
-            tracked_filter_flags.append( False )
-            tracked_colormap_flags.append( False )
+            tracked_filter_flags_class.append( False )
+            tracked_colormap_flags_class.append( False )
             tracked_labels.append( 'Velocities' )
+
+            # Add other options
+            option_kwargs = {}
+            if use_default_colors:
+                if classification is not None:
+                    color = config.COLORSCHEME[classification]
+                else:
+                    color = np.array([ 1., 1., 1., ])
+
+                #DEBUG
+                import pdb; pdb.set_trace()
+                color = np.append( color, np.array([ 1. ]) )
+                option_kwargs['color'] = np.array( color )
 
             # Create a particle group and add to the firefly reader
             particle_group = dataParser.ParticleGroup(
@@ -1220,8 +1261,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 coordinates = coords,
                 tracked_arrays = tracked_arrs,
                 tracked_names = tracked_labels,
-                tracked_filter_flags = tracked_filter_flags,
-                tracked_colormap_flags = tracked_colormap_flags,
+                tracked_filter_flags = tracked_filter_flags_class,
+                tracked_colormap_flags = tracked_colormap_flags_class,
+                **option_kwargs
             )
             firefly_reader.addParticleGroup( particle_group )
 
@@ -1289,6 +1331,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 coordinates = coords,
             )
             firefly_reader.addParticleGroup( particle_group )
+
+        #DEBUG
+        import pdb; pdb.set_trace()
 
         # Finish up and write data
         firefly_reader.dumpToJSON()

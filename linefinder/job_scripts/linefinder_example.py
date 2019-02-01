@@ -32,7 +32,6 @@ linefinder_args = {
         # These kwargs are used for tuning the Firefly visualization
         'export_to_firefly_kwargs': {
             'firefly_dir': '$SCRATCH/firefly_repos/firefly_trails',
-            'firefly_source': 'git@github.com:zhafen/Firefly.git',
         },
     },
 

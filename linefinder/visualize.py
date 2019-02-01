@@ -13,13 +13,14 @@ from .analyze_data import plot_worldlines
 
 def export_to_firefly(
     export_to_firefly_kwargs = {},
+    install_firefly = True,
     **kwargs
 ):
     '''Wrapper for exporting a particle tracking dataset to Firefly.
 
     Args:
-        firefly_dir (str):
-            Directory that should contain the Firefly visualization.
+        install_firefly (bool):
+            If True, clone Firefly before exporting.
 
         export_to_firefly_kwargs (dict):
             Arguments to be passed to
@@ -37,7 +38,7 @@ def export_to_firefly(
 
     # Make fiducial visualization
     w_plotter.export_to_firefly(
-        install_firefly = True,
+        install_firefly = install_firefly,
         write_startup = True,
         **export_to_firefly_kwargs
     )
@@ -45,5 +46,6 @@ def export_to_firefly(
     # Make a pathlines visualization
     w_plotter.export_to_firefly(
         pathlines = True,
+        install_firefly = False,
         **export_to_firefly_kwargs
     )
