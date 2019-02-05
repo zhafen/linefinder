@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     linefinder.analyze_data
+    linefinder.job_scripts
     linefinder.utils
 
 Submodules

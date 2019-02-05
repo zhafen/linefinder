@@ -1,16 +1,21 @@
 Quickstart
 ==========
 
-This page is to help you to start tracking particles.
+This page is to help you to start tracking particles once you've `installed linefinder <https://zhafen.github.io/linefinder/docs/html/installation.html>`_.
+Please `contact me <mailto:zachary.h.hafen@gmail.com>`_ if you find anything confusing or have any questions.
+If you find a bug please `open an issue <https://github.com/zhafen/linefinder/issues/new/choose>`_.
+
+Example Files
+-------------
 
 If you have access to the FIRE simulation data you can follow along step-by-step to make sure everything is working as expected.
+Enter the following commands to download an example job script, submission script, and list of IDs (for the fiducial ``m12i_res7100`` simulation): ::
 
-The Job Script
---------------
+    curl -LO https://raw.githubusercontent.com/zhafen/linefinder/master/linefinder/job_scripts/linefinder_example.py
+    curl -LO https://raw.githubusercontent.com/zhafen/linefinder/master/linefinder/job_scripts/submit_linefinder.sh
+    curl -Lo ids_full_m12i_example.hdf5 https://github.com/zhafen/linefinder/blob/master/linefinder/job_scripts/ids_full_m12i_example.hdf5?raw=true
 
-After `installing linefinder <https://zhafen.github.io/linefinder/docs/html/installation.html>`_ you will find a basic example job script at ``/your/linefinder/dir/job_scripts``.
-This script will be used as an example below, and you can also use it as a base for creating your own job script.
-The ID file for this example job script is in the same location.
+These files will be used as examples, but you can feel free to edit them for your own purposes.
 
 Running Linefinder
 ------------------
@@ -19,15 +24,15 @@ On an Interactive Node
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The simplest way to run Linefinder is on an interactive node.
-To start a single core working on your Linefinder job, simply do e.g. ::
+To start a single core working on your Linefinder job, simply enter on the commandline ::
 
-    $ jug execute linefinder_example.py &
+    jug execute linefinder_example.py &
 
 If you're using Linefinder to do particle tracking on many snapshots of a high resolution simulation chances are this will take longer than preferred.
 Fortunately Linefinder is parallelized using `Jug <https://jug.readthedocs.io/en/latest/>`_ (see also :ref:`a-note-about-jug`).
 To start more cores running Linefinder just reenter the line above, or better yet do a loop in bash, e.g. ::
 
-    $ for i in $(seq 5) ; do jug execute linefinder_example.py & done
+    for i in $(seq 5) ; do jug execute linefinder_example.py & done
 
 Each core will then be responsible for one snapshot at a time.
 Deciding how many cores to use (in the above example I use 5) is almost always a function of the memory availble to a node because each core needs a snapshot worth of memory.
@@ -40,7 +45,7 @@ Linefinder can also easily be run as a batch job.
 This is important for when you want to use more than a single node to speed up a particle tracking calculation.
 To submit as a batch job simply modify `submit_linefinder.sh <https://github.com/zhafen/linefinder/blob/master/linefinder/job_scripts/submit_linefinder.sh>`_ according to your cluster and preferences, then submit with e.g. ::
 
-    $ sbatch submit_linefinder.sh linefinder_example.py 6
+    sbatch submit_linefinder.sh linefinder_example.py 6
 
 In this example the above command will run ``linefinder_example.py`` on a single node using 6 cores.
 Reentering the above command will do the same on another node.

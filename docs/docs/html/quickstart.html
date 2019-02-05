@@ -44,27 +44,33 @@
             
   <div class="section" id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
-<p>This page is to help you to start tracking particles.</p>
-<p>If you have access to the FIRE simulation data you can follow along step-by-step to make sure everything is working as expected.</p>
-<div class="section" id="the-job-script">
-<h2>The Job Script<a class="headerlink" href="#the-job-script" title="Permalink to this headline">¶</a></h2>
-<p>After <a class="reference external" href="https://zhafen.github.io/linefinder/docs/html/installation.html">installing linefinder</a> you will find a basic example job script at <code class="docutils literal notranslate"><span class="pre">/your/linefinder/dir/job_scripts</span></code>.
-This script will be used as an example below, and you can also use it as a base for creating your own job script.
-The ID file for this example job script is in the same location.</p>
+<p>This page is to help you to start tracking particles once you’ve <a class="reference external" href="https://zhafen.github.io/linefinder/docs/html/installation.html">installed linefinder</a>.
+Please <a class="reference external" href="mailto:zachary&#46;h&#46;hafen&#37;&#52;&#48;gmail&#46;com">contact me</a> if you find anything confusing or have any questions.
+If you find a bug please <a class="reference external" href="https://github.com/zhafen/linefinder/issues/new/choose">open an issue</a>.</p>
+<div class="section" id="example-files">
+<h2>Example Files<a class="headerlink" href="#example-files" title="Permalink to this headline">¶</a></h2>
+<p>If you have access to the FIRE simulation data you can follow along step-by-step to make sure everything is working as expected.
+Enter the following commands to download an example job script, submission script, and list of IDs (for the fiducial <code class="docutils literal notranslate"><span class="pre">m12i_res7100</span></code> simulation):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>curl -LO https://raw.githubusercontent.com/zhafen/linefinder/master/linefinder/job_scripts/linefinder_example.py
+curl -LO https://raw.githubusercontent.com/zhafen/linefinder/master/linefinder/job_scripts/submit_linefinder.sh
+curl -Lo ids_full_m12i_example.hdf5 https://github.com/zhafen/linefinder/blob/master/linefinder/job_scripts/ids_full_m12i_example.hdf5?raw=true
+</pre></div>
+</div>
+<p>These files will be used as examples, but you can feel free to edit them for your own purposes.</p>
 </div>
 <div class="section" id="running-linefinder">
 <h2>Running Linefinder<a class="headerlink" href="#running-linefinder" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="on-an-interactive-node">
 <h3>On an Interactive Node<a class="headerlink" href="#on-an-interactive-node" title="Permalink to this headline">¶</a></h3>
 <p>The simplest way to run Linefinder is on an interactive node.
-To start a single core working on your Linefinder job, simply do e.g.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ jug execute linefinder_example.py &amp;
+To start a single core working on your Linefinder job, simply enter on the commandline</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">jug</span> <span class="n">execute</span> <span class="n">linefinder_example</span><span class="o">.</span><span class="n">py</span> <span class="o">&amp;</span>
 </pre></div>
 </div>
 <p>If you’re using Linefinder to do particle tracking on many snapshots of a high resolution simulation chances are this will take longer than preferred.
 Fortunately Linefinder is parallelized using <a class="reference external" href="https://jug.readthedocs.io/en/latest/">Jug</a> (see also <a class="reference internal" href="#a-note-about-jug"><span class="std std-ref">A Note About Jug</span></a>).
 To start more cores running Linefinder just reenter the line above, or better yet do a loop in bash, e.g.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ for i in $(seq 5) ; do jug execute linefinder_example.py &amp; done
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>for i in $(seq 5) ; do jug execute linefinder_example.py &amp; done
 </pre></div>
 </div>
 <p>Each core will then be responsible for one snapshot at a time.
@@ -76,7 +82,7 @@ If you run out of memory and your job crashes you will need to restart linefinde
 <p>Linefinder can also easily be run as a batch job.
 This is important for when you want to use more than a single node to speed up a particle tracking calculation.
 To submit as a batch job simply modify <a class="reference external" href="https://github.com/zhafen/linefinder/blob/master/linefinder/job_scripts/submit_linefinder.sh">submit_linefinder.sh</a> according to your cluster and preferences, then submit with e.g.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sbatch submit_linefinder.sh linefinder_example.py 6
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sbatch</span> <span class="n">submit_linefinder</span><span class="o">.</span><span class="n">sh</span> <span class="n">linefinder_example</span><span class="o">.</span><span class="n">py</span> <span class="mi">6</span>
 </pre></div>
 </div>
 <p>In this example the above command will run <code class="docutils literal notranslate"><span class="pre">linefinder_example.py</span></code> on a single node using 6 cores.
@@ -121,7 +127,7 @@ To learn more, see <a class="reference external" href="https://jug.readthedocs.i
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Quickstart</a><ul>
-<li><a class="reference internal" href="#the-job-script">The Job Script</a></li>
+<li><a class="reference internal" href="#example-files">Example Files</a></li>
 <li><a class="reference internal" href="#running-linefinder">Running Linefinder</a><ul>
 <li><a class="reference internal" href="#on-an-interactive-node">On an Interactive Node</a></li>
 <li><a class="reference internal" href="#as-a-batch-job">As a Batch Job</a></li>

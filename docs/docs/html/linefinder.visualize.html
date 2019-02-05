@@ -42,14 +42,14 @@
 &#64;status: Development</p>
 <dl class="function">
 <dt id="linefinder.visualize.export_to_firefly">
-<code class="descclassname">linefinder.visualize.</code><code class="descname">export_to_firefly</code><span class="sig-paren">(</span><em>export_to_firefly_kwargs={}</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/visualize.html#export_to_firefly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.visualize.export_to_firefly" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">linefinder.visualize.</code><code class="descname">export_to_firefly</code><span class="sig-paren">(</span><em>export_to_firefly_kwargs={}</em>, <em>install_firefly=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/visualize.html#export_to_firefly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.visualize.export_to_firefly" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrapper for exporting a particle tracking dataset to Firefly.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>firefly_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Directory that should contain the Firefly visualization.</li>
+<li><strong>install_firefly</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, clone Firefly before exporting.</li>
 <li><strong>export_to_firefly_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Arguments to be passed to
 analyze_data.plot_worldlines.WorldlinesPlotter.export_to_firefly</li>
 <li><strong>kwargs</strong> – Arguments to be used for loading Worldlines</li>

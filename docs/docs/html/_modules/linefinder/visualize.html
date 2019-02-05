@@ -51,13 +51,14 @@
 
 <div class="viewcode-block" id="export_to_firefly"><a class="viewcode-back" href="../../linefinder.visualize.html#linefinder.visualize.export_to_firefly">[docs]</a><span class="k">def</span> <span class="nf">export_to_firefly</span><span class="p">(</span>
     <span class="n">export_to_firefly_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">install_firefly</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Wrapper for exporting a particle tracking dataset to Firefly.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        firefly_dir (str):</span>
-<span class="sd">            Directory that should contain the Firefly visualization.</span>
+<span class="sd">        install_firefly (bool):</span>
+<span class="sd">            If True, clone Firefly before exporting.</span>
 
 <span class="sd">        export_to_firefly_kwargs (dict):</span>
 <span class="sd">            Arguments to be passed to</span>
@@ -75,7 +76,7 @@
 
     <span class="c1"># Make fiducial visualization</span>
     <span class="n">w_plotter</span><span class="o">.</span><span class="n">export_to_firefly</span><span class="p">(</span>
-        <span class="n">install_firefly</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">install_firefly</span> <span class="o">=</span> <span class="n">install_firefly</span><span class="p">,</span>
         <span class="n">write_startup</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">export_to_firefly_kwargs</span>
     <span class="p">)</span>
@@ -83,6 +84,7 @@
     <span class="c1"># Make a pathlines visualization</span>
     <span class="n">w_plotter</span><span class="o">.</span><span class="n">export_to_firefly</span><span class="p">(</span>
         <span class="n">pathlines</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">install_firefly</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">export_to_firefly_kwargs</span>
     <span class="p">)</span></div>
 </pre></div>

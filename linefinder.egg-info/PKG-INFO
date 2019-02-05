@@ -1,0 +1,27 @@
+Metadata-Version: 2.1
+Name: linefinder
+Version: 0.9.1
+Summary: A tool for finding and classifying the worldlines of Lagrangian parcels of mass, in the context of hydrodynamic simulations of galaxy formation.
+Home-page: https://github.com/zhafen/linefinder
+Author: Zach Hafen
+Author-email: zachary.h.hafen@gmail.com
+License: UNKNOWN
+Description: # linefinder
+        A tool for finding the worldlines of Lagrangian parcels of mass, in the context of hydrodynamic simulations of galaxy formation.
+        
+        Fundamental parts of this code are based on previous work by Daniel Anglés-Alcázar.
+        
+        ## Installation
+        
+        `pip install linefinder`
+        
+        ## Using Data Products
+        
+        Please [see the wiki for information on how to work with data products produced by the code](https://github.com/zhafen/linefinder/wiki).
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
