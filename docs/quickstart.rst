@@ -22,9 +22,17 @@ On an Interactive Node
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The simplest way to run Linefinder is on an interactive node.
+On Stampede 2, for example, you can start an interactive node with e.g. ``idev``.
+I recommend using ``idev -m 120 -p skx-dev`` to request two hours on a Skylake development node (which has more memory than a KNL node).
 To start a single core working on your Linefinder job, simply enter on the commandline ::
 
     jug execute linefinder_example.py &
+
+.. NOTE::
+   For this to work the jug executable must be on your ``$PATH``.
+   If you installed Linefinder on a cluster this likely means adding ``~/.local/bin`` to your ``$PATH``,
+   e.g. by adding ``export PATH=$PATH:$HOME/.local/bin`` to your ``~/.bashrc``.
+   Alternatively you can refer to the executable directly.
 
 If you're using Linefinder to do particle tracking on many snapshots of a high resolution simulation chances are this will take longer than preferred.
 Fortunately Linefinder is parallelized using `Jug <https://jug.readthedocs.io/en/latest/>`_ (see also :ref:`a-note-about-jug`).

@@ -62,9 +62,18 @@ curl -Lo ids_full_m12i_example.hdf5 https://github.com/zhafen/linefinder/blob/ma
 <div class="section" id="on-an-interactive-node">
 <h3>On an Interactive Node<a class="headerlink" href="#on-an-interactive-node" title="Permalink to this headline">¶</a></h3>
 <p>The simplest way to run Linefinder is on an interactive node.
+On Stampede 2, for example, you can start an interactive node with e.g. <code class="docutils literal notranslate"><span class="pre">idev</span></code>.
+I recommend using <code class="docutils literal notranslate"><span class="pre">idev</span> <span class="pre">-m</span> <span class="pre">120</span> <span class="pre">-p</span> <span class="pre">skx-dev</span></code> to request two hours on a Skylake development node (which has more memory than a KNL node).
 To start a single core working on your Linefinder job, simply enter on the commandline</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">jug</span> <span class="n">execute</span> <span class="n">linefinder_example</span><span class="o">.</span><span class="n">py</span> <span class="o">&amp;</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For this to work the jug executable must be on your <code class="docutils literal notranslate"><span class="pre">$PATH</span></code>.
+If you installed Linefinder on a cluster this likely means adding <code class="docutils literal notranslate"><span class="pre">~/.local/bin</span></code> to your <code class="docutils literal notranslate"><span class="pre">$PATH</span></code>,
+e.g. by adding <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">PATH=$PATH:$HOME/.local/bin</span></code> to your <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>.
+Alternatively you can refer to the executable directly.</p>
 </div>
 <p>If you’re using Linefinder to do particle tracking on many snapshots of a high resolution simulation chances are this will take longer than preferred.
 Fortunately Linefinder is parallelized using <a class="reference external" href="https://jug.readthedocs.io/en/latest/">Jug</a> (see also <a class="reference internal" href="#a-note-about-jug"><span class="std std-ref">A Note About Jug</span></a>).
