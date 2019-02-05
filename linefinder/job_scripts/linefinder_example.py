@@ -14,7 +14,7 @@ linefinder_args = {
     'sim_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE/core/m12i_res7100/output',
 
     # Location of halo file data
-    'halo_data_dir': '$SCRATCH/core/m12i_res7100/halo',
+    'halo_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE/core/m12i_res7100/halo/ahf',
 
     # Arguments used for the particle tracking step
     'tracker_kwargs': {

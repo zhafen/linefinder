@@ -8,14 +8,12 @@ If you find a bug please `open an issue <https://github.com/zhafen/linefinder/is
 Example Files
 -------------
 
-If you have access to the FIRE simulation data you can follow along step-by-step to make sure everything is working as expected.
+If you have access to the FIRE simulation data on Stampede 2 you can follow along step-by-step to make sure everything is working as expected.
 Enter the following commands to download an example job script, submission script, and list of IDs (for the fiducial ``m12i_res7100`` simulation): ::
 
     curl -LO https://raw.githubusercontent.com/zhafen/linefinder/master/linefinder/job_scripts/linefinder_example.py
     curl -LO https://raw.githubusercontent.com/zhafen/linefinder/master/linefinder/job_scripts/submit_linefinder.sh
     curl -Lo ids_full_m12i_example.hdf5 https://github.com/zhafen/linefinder/blob/master/linefinder/job_scripts/ids_full_m12i_example.hdf5?raw=true
-
-These files will be used as examples, but you can feel free to edit them for your own purposes.
 
 Running Linefinder
 ------------------
