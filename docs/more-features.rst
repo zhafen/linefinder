@@ -1,6 +1,12 @@
 More Features
 =============
 
+Creating Your Own Halo Files
+----------------------------
+
+Linefinder can currently support halo files from either `AHF <http://popia.ft.uam.es/AHF/>`_ or `Rockstar <https://bitbucket.org/gfcstanford/rockstar>`.
+If you want to run linefinder on a FIRE simulation that doesn't have halo files I recommend using `AHF wrapper <https://bitbucket.org/zhafen/ahf_wrapper/src>`, which makes it easier to run AHF.
+
 The Linefinder Config File
 --------------------------
 
