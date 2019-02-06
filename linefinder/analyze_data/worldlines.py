@@ -1395,6 +1395,35 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_in_IGM( self ):
+        '''Material that is in the IGM.
+
+        Returns:
+            array-like of booleans, (n_particles, n_snaps):
+                Array where the value of [i,j]th index indicates if particle i
+                is currently in the IGM, as defined in Hafen+19.
+        '''
+
+        # Get relation to main galaxy
+        r_rvir = self.get_processed_data(
+            'R',
+            scale_key = 'Rvir',
+            scale_a_power = 1.,
+            scale_h_power = -1.,
+        )
+        outside_main_CGM_and_gal = ( r_rvir > config.OUTER_CGM_BOUNDARY )
+
+        # Get relation to other galaxies
+        # TODO: Account for being in external CGMs
+        is_in_other_gal = self.get_data( 'is_in_other_gal' )
+
+        self.data['is_in_IGM'] = (
+            outside_main_CGM_and_gal &
+            np.invert( is_in_other_gal )
+        )
+
+    ########################################################################
+
     def calc_is_in_CGM( self ):
         '''Material that is in the CGM.
 
@@ -1508,14 +1537,7 @@ class Worldlines( simulation_data.TimeData ):
         # Did the particle leave the CGM and enter the IGM?
         leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
         leaves_CGM[:,:-1] = self.get_data( 'CGM_event_id' ) == -1
-        r_rvir = self.get_processed_data(
-            'R',
-            scale_key = 'Rvir',
-            scale_a_power = 1.,
-            scale_h_power = -1.,
-        )
-        in_IGM = ( r_rvir > config.OUTER_CGM_BOUNDARY )
-        CGM_to_IGM_event = leaves_CGM & in_IGM
+        CGM_to_IGM_event = leaves_CGM & self.get_data( 'is_in_IGM' )
 
         self.data['is_CGM_to_IGM'] = self.get_is_CGM_to_other(
             CGM_to_IGM_event,

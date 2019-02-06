@@ -1433,6 +1433,35 @@
 
     <span class="c1">########################################################################</span>
 
+<div class="viewcode-block" id="Worldlines.calc_is_in_IGM"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_in_IGM">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_in_IGM</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that is in the IGM.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of booleans, (n_particles, n_snaps):</span>
+<span class="sd">                Array where the value of [i,j]th index indicates if particle i</span>
+<span class="sd">                is currently in the IGM, as defined in Hafen+19.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Get relation to main galaxy</span>
+        <span class="n">r_rvir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_processed_data</span><span class="p">(</span>
+            <span class="s1">&#39;R&#39;</span><span class="p">,</span>
+            <span class="n">scale_key</span> <span class="o">=</span> <span class="s1">&#39;Rvir&#39;</span><span class="p">,</span>
+            <span class="n">scale_a_power</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
+            <span class="n">scale_h_power</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">outside_main_CGM_and_gal</span> <span class="o">=</span> <span class="p">(</span> <span class="n">r_rvir</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">OUTER_CGM_BOUNDARY</span> <span class="p">)</span>
+
+        <span class="c1"># Get relation to other galaxies</span>
+        <span class="c1"># TODO: Account for being in external CGMs</span>
+        <span class="n">is_in_other_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_in_IGM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">outside_main_CGM_and_gal</span> <span class="o">&amp;</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="n">is_in_other_gal</span> <span class="p">)</span>
+        <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
 <div class="viewcode-block" id="Worldlines.calc_is_in_CGM"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_in_CGM">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_in_CGM</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Material that is in the CGM.</span>
 
@@ -1546,14 +1575,7 @@
         <span class="c1"># Did the particle leave the CGM and enter the IGM?</span>
         <span class="n">leaves_CGM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
         <span class="n">leaves_CGM</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="n">r_rvir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_processed_data</span><span class="p">(</span>
-            <span class="s1">&#39;R&#39;</span><span class="p">,</span>
-            <span class="n">scale_key</span> <span class="o">=</span> <span class="s1">&#39;Rvir&#39;</span><span class="p">,</span>
-            <span class="n">scale_a_power</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
-            <span class="n">scale_h_power</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">in_IGM</span> <span class="o">=</span> <span class="p">(</span> <span class="n">r_rvir</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">OUTER_CGM_BOUNDARY</span> <span class="p">)</span>
-        <span class="n">CGM_to_IGM_event</span> <span class="o">=</span> <span class="n">leaves_CGM</span> <span class="o">&amp;</span> <span class="n">in_IGM</span>
+        <span class="n">CGM_to_IGM_event</span> <span class="o">=</span> <span class="n">leaves_CGM</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_IGM&#39;</span> <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_IGM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_is_CGM_to_other</span><span class="p">(</span>
             <span class="n">CGM_to_IGM_event</span><span class="p">,</span>

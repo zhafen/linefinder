@@ -48,6 +48,7 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_is_hitherto_EP_NYA
     .. automethod:: calc_is_hitherto_NEP_NYA
     .. automethod:: calc_is_in_CGM
+    .. automethod:: calc_is_in_IGM
     .. automethod:: calc_is_in_galaxy_halo_interface
     .. automethod:: calc_is_mass_transfer_NYA
     .. automethod:: calc_is_merger_NYA

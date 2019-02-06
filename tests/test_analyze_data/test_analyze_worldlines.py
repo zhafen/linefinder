@@ -477,7 +477,13 @@ class TestWorldlineCalcData( unittest.TestCase ):
             [ 0, 1, 0, 1, ],
             [ 0, 1, 0, 0, ],
             [ 1, 1, 0, 1, ],
-        ])
+        ]).astype( bool )
+        self.worldlines.data['is_in_other_gal'] = np.array([
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+        ]).astype( bool )
 
         expected = np.array([
             [ 0, 1, 1, 1, ],

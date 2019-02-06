@@ -40,10 +40,10 @@ linefinder_args = {
     'run_id_selecting': False,
     # Most users will identify the list of IDs using their own methods, so
     # we turn ID selecting off.
-    'run_id_sampling': True,
-    'run_tracking': True,
-    'run_galaxy_linking': True,
-    'run_classifying': True,
+    'run_id_sampling': False,
+    'run_tracking': False,
+    'run_galaxy_linking': False,
+    'run_classifying': False,
     'run_visualization': True,
 }
 
