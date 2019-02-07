@@ -16,6 +16,7 @@ import galaxy_dive.analyze_data.ahf as analyze_ahf_data
 import galaxy_dive.analyze_data.generic_data as generic_data
 import galaxy_dive.analyze_data.simulation_data as simulation_data
 import galaxy_dive.read_data.snapshot as read_snapshot
+import galaxy_dive.trends.cgm as cgm_trends
 import galaxy_dive.utils.astro as astro_tools
 import galaxy_dive.utils.utilities as utilities
 
@@ -1232,6 +1233,33 @@ class Worldlines( simulation_data.TimeData ):
         self.data['HDen'] = X_H * self.get_data( 'Den' )
 
         return self.data['HDen']
+
+    ########################################################################
+
+    def calc_t_cool_lookup( self ):
+        '''Calculate the cooling time for a given particle, according to a
+        lookup table.
+
+        This makes some assumption about how the filepath informs the
+        what simulation we're looking at, but it will fail if those don't fit.
+        (Probably.)
+
+        Returns:
+            array-like of floats (n_particles, n_snaps):
+                Value of t_cool for each particle according to a lookup table
+                that uses distance from the central galaxy and redshift.
+        '''
+
+        split_halo_data_dir = self.halo_data_dir.split( '/' )
+
+        self.data['t_cool_lookup'] = cgm_trends.cooling_time(
+            r = self.get_data( 'R' ),
+            z = self.get_processed_data( 'redshift', tile_data=True ),
+            sim_name = split_halo_data_dir[-2][:4],
+            physics = split_halo_data_dir[-3],
+        )
+
+        return self.data['t_cool_lookup']
 
     ########################################################################
 
