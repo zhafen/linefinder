@@ -30,12 +30,19 @@ class FileManager( object ):
     ########################################################################
     ########################################################################
 
-    def get_sim_subdir( self, sim_name, physics='core', resolution=None, ):
+    def get_sim_subdir( self, sim_name, physics=None, resolution=None, ):
+
+        if physics is None:
+            name_mapping = {
+                '': 'core',
+                '_md': 'metal_diffusion',
+            }
+            physics = name_mapping[sim_name[4:]]
 
         return os.path.join(
             physics,
             '{}_res{}'.format(
-                sim_name,
+                sim_name[:4],
                 config.DEFAULT_SIM_RESOLUTIONS[sim_name],
             )
         )
