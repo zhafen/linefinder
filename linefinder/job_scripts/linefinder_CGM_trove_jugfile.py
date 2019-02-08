@@ -8,27 +8,27 @@ import linefinder.utils.trove_management as trove_management
 ########################################################################
 
 sim_names = [
-    'm10q',
-    'm10v',
-    'm10y', # Ran with more time data
-    'm10z',
-    'm11q', # Ran with more time data
-    'm11v',
-    'm11a',
-    'm11b',
-    'm11c',
+    # 'm10q',
+    # 'm10v',
+    # 'm10y', # Ran with more time data
+    # 'm10z',
+    # 'm11q', # Ran with more time data
+    # 'm11v',
+    # 'm11a',
+    # 'm11b',
+    # 'm11c',
     'm12i', # Ran with more time data
-    'm12f',
-    'm12m',
-    'm11d_md',
-    'm11e_md',
-    'm11h_md',
-    'm11i_md',
-    'm12b_md',
-    'm12c_md',
-    'm12z_md',
-    'm12r_md',
-    'm12w_md', # Ran with more time data
+    # 'm12f',
+    # 'm12m',
+    # 'm11d_md',
+    # 'm11e_md',
+    # 'm11h_md',
+    # 'm11i_md',
+    # 'm12b_md',
+    # 'm12c_md',
+    # 'm12z_md',
+    # 'm12r_md',
+    # 'm12w_md', # Ran with more time data
     # 'm10q_md',
     # 'm11q_md',
     # 'm12i_md',
@@ -42,7 +42,7 @@ snums = [
     # 492,
     # 486,
     # 471,
-    465, # z = 0.25
+    600, # z = 0.25
     # 451,
     # 431,
     # 412,
@@ -56,7 +56,7 @@ snums = [
     # 277, # z = 1
     # 242,
     # 214,
-    172, # z = 2
+    # 172, # z = 2
     # 156,
     # 142,
     # 120, # z = 3
@@ -81,7 +81,7 @@ galdefs = [
 # Get the file format
 ptracks_tag_format = '{}_CGM_snum{}'
 tag_format = '{}{}'.format( ptracks_tag_format, '{}' )
-file_format =  'classifications_{}.hdf5'.format( tag_format )
+file_format =  'nonexistant_{}.hdf5'.format( tag_format )
 
 # Start up a trove manager and use it to get next args
 trove_manager = trove_management.LinefinderTroveManager(
@@ -143,19 +143,38 @@ tracker_kwargs = {
 # Galaxy Finding Parameters
 gal_linker_kwargs = {
     'ptracks_tag' : ptracks_tag,
-    'galaxy_cut' : galdef_dict['galaxy_cut'],
-    'length_scale' : galdef_dict['length_scale'],
-    'mt_length_scale' : galdef_dict['mt_length_scale'],
 }
 
 # Classifying Parameters
 classifier_kwargs = {
-    'ptracks_tag' : ptracks_tag,
-    't_pro': galdef_dict['t_pro'],
-    't_m': galdef_dict['t_m'],
 }
 
-linefinder.run_linefinder(
+visualization_kwargs = {
+    'ptracks_tag' : ptracks_tag,
+    'install_firefly': False,
+    'export_to_firefly_kwargs': {
+        'firefly_dir': '/work/03057/zhafen/firefly_repos/cooling_flow',
+        'classifications': [
+            'is_in_CGM',
+            'is_CGM_IGM_accretion',
+            'is_CGM_wind',
+            'is_CGM_satellite_wind',
+            'is_CGM_satellite_ISM',
+        ],
+        'classification_ui_labels': [ 'All', 'IGMAcc', 'Wind', 'SatWind', 'Sat' ],
+        'tracked_properties': [
+            'logT',
+            'logZ',
+            'logDen',
+            'vr_div_v_cool',
+            'logvr_div_v_cool_offset',
+        ],
+        'tracked_filter_flags': [ True, ] * 5,
+        'tracked_colormap_flags': [ True, ] * 5,
+    },
+}
+
+linefinder.run_linefinder_jug(
     sim_name = sim_name,
     tag = tag,
     selector_data_filters = selector_data_filters,
@@ -164,9 +183,11 @@ linefinder.run_linefinder(
     tracker_kwargs = tracker_kwargs,
     gal_linker_kwargs = gal_linker_kwargs,
     classifier_kwargs = classifier_kwargs,
+    visualization_kwargs = visualization_kwargs,
     run_id_selecting = False,
     run_id_sampling = False,
     run_tracking = False,
     run_galaxy_linking = False,
-    # run_classifying = False,
+    run_classifying = False,
+    run_visualization = True,
 )

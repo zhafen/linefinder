@@ -1233,6 +1233,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     color = config.COLORSCHEME[classification]
                 else:
                     color = np.array([ 1., 1., 1., ])
+
+                # Make sure the color is interpretable, and that we don't plot
+                # black colors
+                if color == 'black':
+                    color = np.array([ 1., 1., 1., ])
                 color = np.append( color, np.array([ 1. ]) )
                 option_kwargs['color'] = np.array( color )
 

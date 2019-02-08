@@ -1263,6 +1263,30 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_vr_div_v_cool( self ):
+        '''Comparison to Stern+19 model.'''
+
+        self.data['vr_div_v_cool'] = (
+            self.get_data( 'Vr' ) / (
+                self.get_data( 'R' ) / self.get_data('t_cool_lookup')
+            )
+        )
+
+        return self.data['vr_div_v_cool']
+
+    ########################################################################
+
+    def calc_vr_div_v_cool_offset( self, offset=11 ):
+        '''Comparison to Stern+19 model.'''
+
+
+        self.data['vr_div_v_cool_offset'] = \
+            self.get_data( 'vr_div_v_cool' ) + offset
+
+        return self.data['vr_div_v_cool_offset']
+
+    ########################################################################
+
     def calc_is_fresh_accretion( self ):
         '''Find material classified as fresh accretion (pristine gas that has not recycled).
 
