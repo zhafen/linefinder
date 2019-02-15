@@ -8,7 +8,7 @@ import linefinder.utils.file_management as file_management
 sim_name = 'm12i'
 '''The simulation to run tracking on.'''
 
-tag = '{}_downthebarrel'.format( sim_name )
+tag = '{}_sightline'.format( sim_name )
 '''Identifying tag used as part of the filenames.
 E.g. the IDs file will have the format `ids_{}.hdf5.format( tag )`.
 '''
@@ -40,6 +40,31 @@ sampler_kwargs = {
     }
 }
 
+visualization_kwargs = {
+    'install_firefly': True,
+    'export_to_firefly_kwargs': {
+        'firefly_dir': '/work/03057/zhafen/firefly_repos/sightline',
+        'classifications': [
+            'is_in_CGM',
+            'is_CGM_IGM_accretion',
+            'is_CGM_wind',
+            'is_CGM_satellite_wind',
+            'is_CGM_satellite_ISM',
+        ],
+        'classification_ui_labels': [ 'All', 'IGMAcc', 'Wind', 'SatWind', 'Sat' ],
+        'tracked_properties': [
+            'logT',
+            'logZ',
+            'logDen',
+            'vr_div_v_cool',
+            'logvr_div_v_cool_offset',
+        ],
+        'tracked_filter_flags': [ True, ] * 5,
+        'tracked_colormap_flags': [ True, ] * 5,
+        'snum': 465,
+    },
+}
+
 # This is the actual function that runs linefinder.
 # In general you don't need to touch this function but if you want to,
 # for example, turn off one of the steps because you're rerunning and you
@@ -52,9 +77,10 @@ linefinder.run_linefinder_jug(
     # classification steps. Don't touch this unless you know what you're doing.
     tracker_kwargs = tracker_kwargs,
     sampler_kwargs = sampler_kwargs,
+    visualization_kwargs = visualization_kwargs,
     run_id_selecting = False,
-    # run_id_sampling = False,
-    # run_tracking = False,
-    # run_galaxy_linking = False,
-    # run_classifying = False,
+    run_id_sampling = False,
+    run_tracking = False,
+    run_galaxy_linking = False,
+    run_classifying = False,
 )

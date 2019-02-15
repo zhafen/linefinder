@@ -1049,7 +1049,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         # Make copies of some of the input to avoid changing
         # which can happen...
-        tracked_properties = copy.deepcopy( tracked_properties )
+        # tracked_properties = copy.deepcopy( tracked_properties )
 
         # The index (along the redshift direction) is often used instead of
         # the snapshot itself
@@ -1123,7 +1123,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 ).flatten()
                 
             else:
-               
+
+                #DEBUG
+                # import pdb; pdb.set_trace()
+                               
                 return self.data_object.get_selected_data(
                     data_key,
                     sl = (slice(None),ind),
@@ -1141,6 +1144,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             )
 
             # Make copies so that we don't keep adding on
+            tracked_properties_class = copy.copy( tracked_properties )
             tracked_filter_flags_class = copy.copy( tracked_filter_flags )
             tracked_colormap_flags_class = copy.copy( tracked_colormap_flags )
 
@@ -1172,6 +1176,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     seed = seed,
                 )
                 vels.append( vi )
+
+            # Skip to next classification if there aren't enough particles
+            if ri.size == 0:
+                continue
                     
             # Make coords and velocities into a numpy array
             coords = np.array( coords ).transpose()
@@ -1183,11 +1191,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             # Allow to filter/color on particle ind as well
             if pathlines:
-                tracked_properties.append( 'particle_ind' )
+                tracked_properties_class.append( 'particle_ind' )
                 tracked_filter_flags_class.append( True )
                 tracked_colormap_flags_class.append( True )
 
-            for tracked_key in tracked_properties:
+            for tracked_key in tracked_properties_class:
 
                 # Add the Array
                 tracked_arr = get_data(
@@ -1196,6 +1204,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     seed = seed,
                 )
                 tracked_arrs.append( tracked_arr )
+
+                if tracked_arr.size == 0:
+                    #DEBUG
+                    import pdb; pdb.set_trace()
 
                 # Add the label
                 tracked_labels.append(
@@ -1289,7 +1301,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 halo_data_dir = galids_params['halo_data_dir'],
                 main_halo_id = galids_params['main_mt_halo_id'],
             )
-            
+
             # Get length scale
             r_gal = self.data_object.r_gal[ind]
 
