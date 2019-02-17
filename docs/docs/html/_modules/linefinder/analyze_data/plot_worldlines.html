@@ -1087,7 +1087,7 @@
 
         <span class="c1"># Make copies of some of the input to avoid changing</span>
         <span class="c1"># which can happen...</span>
-        <span class="n">tracked_properties</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">tracked_properties</span> <span class="p">)</span>
+        <span class="c1"># tracked_properties = copy.deepcopy( tracked_properties )</span>
 
         <span class="c1"># The index (along the redshift direction) is often used instead of</span>
         <span class="c1"># the snapshot itself</span>
@@ -1161,7 +1161,10 @@
                 <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
                 
             <span class="k">else</span><span class="p">:</span>
-               
+
+                <span class="c1">#DEBUG</span>
+                <span class="c1"># import pdb; pdb.set_trace()</span>
+                               
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
                     <span class="n">data_key</span><span class="p">,</span>
                     <span class="n">sl</span> <span class="o">=</span> <span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span><span class="n">ind</span><span class="p">),</span>
@@ -1179,6 +1182,7 @@
             <span class="p">)</span>
 
             <span class="c1"># Make copies so that we don&#39;t keep adding on</span>
+            <span class="n">tracked_properties_class</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span> <span class="n">tracked_properties</span> <span class="p">)</span>
             <span class="n">tracked_filter_flags_class</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span> <span class="n">tracked_filter_flags</span> <span class="p">)</span>
             <span class="n">tracked_colormap_flags_class</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span> <span class="n">tracked_colormap_flags</span> <span class="p">)</span>
 
@@ -1210,6 +1214,10 @@
                     <span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">vels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">vi</span> <span class="p">)</span>
+
+            <span class="c1"># Skip to next classification if there aren&#39;t enough particles</span>
+            <span class="k">if</span> <span class="n">ri</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
                     
             <span class="c1"># Make coords and velocities into a numpy array</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">coords</span> <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
@@ -1221,11 +1229,11 @@
 
             <span class="c1"># Allow to filter/color on particle ind as well</span>
             <span class="k">if</span> <span class="n">pathlines</span><span class="p">:</span>
-                <span class="n">tracked_properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s1">&#39;particle_ind&#39;</span> <span class="p">)</span>
+                <span class="n">tracked_properties_class</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s1">&#39;particle_ind&#39;</span> <span class="p">)</span>
                 <span class="n">tracked_filter_flags_class</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="kc">True</span> <span class="p">)</span>
                 <span class="n">tracked_colormap_flags_class</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="kc">True</span> <span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">tracked_key</span> <span class="ow">in</span> <span class="n">tracked_properties</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">tracked_key</span> <span class="ow">in</span> <span class="n">tracked_properties_class</span><span class="p">:</span>
 
                 <span class="c1"># Add the Array</span>
                 <span class="n">tracked_arr</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span>
@@ -1234,6 +1242,10 @@
                     <span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">tracked_arrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">tracked_arr</span> <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">tracked_arr</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1">#DEBUG</span>
+                    <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
 
                 <span class="c1"># Add the label</span>
                 <span class="n">tracked_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -1270,6 +1282,11 @@
                 <span class="k">if</span> <span class="n">classification</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">color</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">COLORSCHEME</span><span class="p">[</span><span class="n">classification</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="p">])</span>
+
+                <span class="c1"># Make sure the color is interpretable, and that we don&#39;t plot</span>
+                <span class="c1"># black colors</span>
+                <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;black&#39;</span><span class="p">:</span>
                     <span class="n">color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="p">])</span>
                 <span class="n">color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">color</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mf">1.</span> <span class="p">])</span> <span class="p">)</span>
                 <span class="n">option_kwargs</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">color</span> <span class="p">)</span>
@@ -1322,7 +1339,7 @@
                 <span class="n">halo_data_dir</span> <span class="o">=</span> <span class="n">galids_params</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">],</span>
                 <span class="n">main_halo_id</span> <span class="o">=</span> <span class="n">galids_params</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">],</span>
             <span class="p">)</span>
-            
+
             <span class="c1"># Get length scale</span>
             <span class="n">r_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">r_gal</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
 

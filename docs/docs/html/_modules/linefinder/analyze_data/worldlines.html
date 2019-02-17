@@ -54,6 +54,7 @@
 <span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.generic_data</span> <span class="k">as</span> <span class="nn">generic_data</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.simulation_data</span> <span class="k">as</span> <span class="nn">simulation_data</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.read_data.snapshot</span> <span class="k">as</span> <span class="nn">read_snapshot</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.trends.cgm</span> <span class="k">as</span> <span class="nn">cgm_trends</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.astro</span> <span class="k">as</span> <span class="nn">astro_tools</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.utils.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
 
@@ -1270,6 +1271,57 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;HDen&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">X_H</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Den&#39;</span> <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;HDen&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_t_cool_lookup"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_t_cool_lookup">[docs]</a>    <span class="k">def</span> <span class="nf">calc_t_cool_lookup</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate the cooling time for a given particle, according to a</span>
+<span class="sd">        lookup table.</span>
+
+<span class="sd">        This makes some assumption about how the filepath informs the</span>
+<span class="sd">        what simulation we&#39;re looking at, but it will fail if those don&#39;t fit.</span>
+<span class="sd">        (Probably.)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of floats (n_particles, n_snaps):</span>
+<span class="sd">                Value of t_cool for each particle according to a lookup table</span>
+<span class="sd">                that uses distance from the central galaxy and redshift.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">split_halo_data_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span><span class="o">.</span><span class="n">split</span><span class="p">(</span> <span class="s1">&#39;/&#39;</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;t_cool_lookup&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cgm_trends</span><span class="o">.</span><span class="n">cooling_time</span><span class="p">(</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;R&#39;</span> <span class="p">),</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_processed_data</span><span class="p">(</span> <span class="s1">&#39;redshift&#39;</span><span class="p">,</span> <span class="n">tile_data</span><span class="o">=</span><span class="kc">True</span> <span class="p">),</span>
+            <span class="n">sim_name</span> <span class="o">=</span> <span class="n">split_halo_data_dir</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][:</span><span class="mi">4</span><span class="p">],</span>
+            <span class="n">physics</span> <span class="o">=</span> <span class="n">split_halo_data_dir</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;t_cool_lookup&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_vr_div_v_cool"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_vr_div_v_cool">[docs]</a>    <span class="k">def</span> <span class="nf">calc_vr_div_v_cool</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Comparison to Stern+19 model.&#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;vr_div_v_cool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Vr&#39;</span> <span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;R&#39;</span> <span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="s1">&#39;t_cool_lookup&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;vr_div_v_cool&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_vr_div_v_cool_offset"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_vr_div_v_cool_offset">[docs]</a>    <span class="k">def</span> <span class="nf">calc_vr_div_v_cool_offset</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">11</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Comparison to Stern+19 model.&#39;&#39;&#39;</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;vr_div_v_cool_offset&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;vr_div_v_cool&#39;</span> <span class="p">)</span> <span class="o">+</span> <span class="n">offset</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;vr_div_v_cool_offset&#39;</span><span class="p">]</span></div>
 
     <span class="c1">########################################################################</span>
 

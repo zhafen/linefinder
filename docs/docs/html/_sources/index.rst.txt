@@ -9,12 +9,12 @@ Linefinder
 A tool for efficiently tracking the full history of individual particles and providing context to their pathlines.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
     
    installation
    quickstart
    more-features
+   troubleshooting
 
 Indices and tables
 ==================

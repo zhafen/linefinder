@@ -32,5 +32,6 @@ setuptools.setup(
         'GitPython>=2.1.11',
         'scipy>=1.2.0',
         'verdict>=1.0',
+        'galaxy-dive>=0.9.1'
     ],
 )

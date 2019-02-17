@@ -1541,10 +1541,17 @@
 
         <span class="c1"># If we want to get the particle ind, we do something different</span>
         <span class="k">if</span> <span class="n">data_key</span> <span class="o">==</span> <span class="s1">&#39;particle_ind&#39;</span><span class="p">:</span>
+
+            <span class="n">n_particles_mask</span> <span class="o">=</span> <span class="n">sl</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
             <span class="k">if</span> <span class="n">n_samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">n_particles_selected</span> <span class="o">=</span> <span class="n">sl</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="n">n_particles_selected</span> <span class="o">=</span> <span class="n">n_particles_mask</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">n_particles_selected</span> <span class="o">=</span> <span class="n">n_samples</span>
+
+            <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&gt;=</span> <span class="n">n_particles_mask</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;n_samples &gt; n_particles_selected, not sampling.&quot;</span> <span class="p">)</span>
+                <span class="n">n_particles_selected</span> <span class="o">=</span> <span class="n">n_particles_mask</span>
 
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span> <span class="n">n_particles_selected</span> <span class="p">),</span>
@@ -1565,21 +1572,17 @@
             <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span> <span class="n">seed</span> <span class="p">)</span>
 
-            <span class="n">n_selected_particles</span> <span class="o">=</span> <span class="n">masked_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&gt;=</span> <span class="n">n_selected_particles</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;n_samples &gt; n_selected_particles, not sampling.&quot;</span> <span class="p">)</span>
+            <span class="n">n_particles_selected</span> <span class="o">=</span> <span class="n">masked_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&gt;=</span> <span class="n">n_particles_selected</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;n_samples &gt; n_particles_selected, not sampling.&quot;</span> <span class="p">)</span>
                 <span class="k">return</span> <span class="n">masked_data</span>
 
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">sampled_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span> <span class="n">n_selected_particles</span> <span class="p">),</span>
-                    <span class="n">n_samples</span><span class="p">,</span>
-                    <span class="n">replace</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">masked_data</span> <span class="o">=</span> <span class="n">masked_data</span><span class="p">[</span><span class="n">sampled_inds</span><span class="p">,:]</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="c1">#DEBUG</span>
-                <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+            <span class="n">sampled_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span> <span class="n">n_particles_selected</span> <span class="p">),</span>
+                <span class="n">n_samples</span><span class="p">,</span>
+                <span class="n">replace</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">masked_data</span> <span class="o">=</span> <span class="n">masked_data</span><span class="p">[</span><span class="n">sampled_inds</span><span class="p">,:]</span>
 
         <span class="k">return</span> <span class="n">masked_data</span>
 

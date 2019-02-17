@@ -66,7 +66,10 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_radial_distance
     .. automethod:: calc_radial_velocity
     .. automethod:: calc_t_EP
+    .. automethod:: calc_t_cool_lookup
     .. automethod:: calc_time
     .. automethod:: calc_time_as_classification
     .. automethod:: calc_time_since_leaving_main_gal
     .. automethod:: calc_time_since_leaving_other_gal
+    .. automethod:: calc_vr_div_v_cool
+    .. automethod:: calc_vr_div_v_cool_offset
