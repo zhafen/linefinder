@@ -56,6 +56,11 @@ To submit as a batch job simply modify `submit_linefinder.sh <https://github.com
 In this example the above command will run ``linefinder_example.py`` on a single node using 6 cores.
 Reentering the above command will do the same on another node.
 
+.. TIP::
+   Tired of having to ssh into the cluster multiple times when you want to have multiple windows up (e.g. one interactive node running linefinder, one node for submitting jobs, etc)?
+   Try using `tmux <https://github.com/tmux/tmux>`_!
+   Using tmux will also allow your interactive jobs to keep going even when your connection breaks!
+
 .. NOTE::
    Resubmitting the same job *does not* cause conflicts, but just speeds up the job by throwing more nodes at it.
 
