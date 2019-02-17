@@ -45,7 +45,7 @@
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <p>Installation of Linefinder is straightforward using pip.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">linefinder</span> <span class="o">--</span><span class="n">user</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install linefinder --user</span>
 </pre></div>
 </div>
 <p>Note that the <code class="docutils literal notranslate"><span class="pre">--user</span></code> command is automatically included because it’s assumed you’re using a cluster.</p>
@@ -58,8 +58,9 @@ Linefinder works with both Python 2 and Python 3, but it’s recommended to use 
 (Don’t forget to only have one Python module loaded at once.)</p>
 </div>
 <p>Alternatively, you can install by cloning the git repository and then installing:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">zhafen</span><span class="o">/</span><span class="n">linefinder</span><span class="o">.</span><span class="n">git</span>
-<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone git@github.com:zhafen/linefinder.git</span>
+<span class="go">cd linefinder</span>
+<span class="go">python setup.py install --user</span>
 </pre></div>
 </div>
 </div>
