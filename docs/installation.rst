@@ -13,3 +13,8 @@ Note that the ``--user`` command is automatically included because it's assumed 
    ``module load python3`` and ``module load phdf5`` on Stampede.
    Linefinder works with both Python 2 and Python 3, but it's recommended to use Python 3.
    (Don't forget to only have one Python module loaded at once.)
+
+Alternatively, you can install by cloning the git repository and then installing: ::
+
+    git clone git@github.com:zhafen/linefinder.git
+    python setup.py install --user
