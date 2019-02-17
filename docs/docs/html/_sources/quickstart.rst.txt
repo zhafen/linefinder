@@ -53,6 +53,7 @@ To submit as a batch job simply modify `submit_linefinder.sh <https://github.com
 
     sbatch submit_linefinder.sh linefinder_example.py 6
 
+Don't forget to make ``submit_linefinder.sh`` executable.
 In this example the above command will run ``linefinder_example.py`` on a single node using 6 cores.
 Reentering the above command will do the same on another node.
 

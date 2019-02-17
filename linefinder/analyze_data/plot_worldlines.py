@@ -1124,9 +1124,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 
             else:
 
-                #DEBUG
-                # import pdb; pdb.set_trace()
-                               
                 return self.data_object.get_selected_data(
                     data_key,
                     sl = (slice(None),ind),
@@ -1204,10 +1201,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     seed = seed,
                 )
                 tracked_arrs.append( tracked_arr )
-
-                if tracked_arr.size == 0:
-                    #DEBUG
-                    import pdb; pdb.set_trace()
 
                 # Add the label
                 tracked_labels.append(

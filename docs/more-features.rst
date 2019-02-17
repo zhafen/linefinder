@@ -4,8 +4,8 @@ More Features
 Creating Your Own Halo Files
 ----------------------------
 
-Linefinder can currently support halo files from either `AHF <http://popia.ft.uam.es/AHF/>`_ or `Rockstar <https://bitbucket.org/gfcstanford/rockstar>`.
-If you want to run linefinder on a FIRE simulation that doesn't have halo files I recommend using `AHF wrapper <https://bitbucket.org/zhafen/ahf_wrapper/src>`, which makes it easier to run AHF.
+Linefinder can currently support halo files from either `AHF <http://popia.ft.uam.es/AHF/>`_ or `Rockstar <https://bitbucket.org/gfcstanford/rockstar>`_.
+If you want to run linefinder on a FIRE simulation that doesn't have halo files I recommend using `AHF wrapper <https://bitbucket.org/zhafen/ahf_wrapper/src>`_, which makes it easier to run AHF.
 
 The Linefinder Config File
 --------------------------
@@ -21,10 +21,13 @@ An overview of each section in the config file is described below, with descript
 1. **Global Default Parameters:**
 A number of choices are made when linking particles to galaxies or classifying particles.
 The most important choices are set here as default parameters.
+
 2. **Miscellanious Values:**
 Constants that aren't important for the physics, but are still necessary for linefinder to run.
+
 3. **Simulation Information:**
 Information about the simulation sample being analyzed.
+
 4. **System Information:**
 Information about the computing environment.
 

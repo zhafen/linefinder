@@ -53,6 +53,7 @@ To submit as a batch job simply modify `submit_linefinder.sh <https://github.com
 
     sbatch submit_linefinder.sh linefinder_example.py 6
 
+Don't forget to make ``submit_linefinder.sh`` executable.
 In this example the above command will run ``linefinder_example.py`` on a single node using 6 cores.
 Reentering the above command will do the same on another node.
 
@@ -88,7 +89,7 @@ Jug communicates through the filesystem (see :ref:`a-note-about-jug`), so (1) is
 A Note About Jug
 ~~~~~~~~~~~~~~~~
 
-Linefinder is parallelized using `Jug <https://jug.readthedocs.io/en/latest/>`_ (see :ref:`a-note-about-jug`).
+Linefinder is parallelized using `Jug <https://jug.readthedocs.io/en/latest/>`_.
 The most noteable thing about Jug is that it communicates between processes using the file system.
 The main benefit to this is easy communication between multiple nodes, even allowing the user to add more nodes as they become available/are needed.
 All the communications for Jug are kept in `jugdata` folders, tagged using the same tag used for a job, e.g. `m12i_example.jugdata`.

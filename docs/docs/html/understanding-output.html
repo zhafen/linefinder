@@ -1,0 +1,213 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Understanding Output &#8212; linefinder 0.9.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="More Features" href="more-features.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="more-features.html" title="More Features"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Quickstart"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.9.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="understanding-output">
+<h1>Understanding Output<a class="headerlink" href="#understanding-output" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="particle-worldline-data">
+<h2>Particle Worldline Data<a class="headerlink" href="#particle-worldline-data" title="Permalink to this headline">¶</a></h2>
+<p>Some of the most important data are the files containing the position, density, etc. of the tracked particles at each moment in time.
+We typically find the worldlines for 10^5 particles.
+These data have filenames like <cite>ptracks_*.hdf5</cite>.</p>
+<div class="section" id="description-of-keys">
+<h3>Description of keys<a class="headerlink" href="#description-of-keys" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">ID</span></code> is particle ID.</li>
+<li><code class="docutils literal notranslate"><span class="pre">ChildID</span></code> is particle Child ID.</li>
+<li><code class="docutils literal notranslate"><span class="pre">PType</span></code> is particle type (usually an integer).</li>
+<li><code class="docutils literal notranslate"><span class="pre">Den</span></code> is baryonic number density in cgs.</li>
+<li><code class="docutils literal notranslate"><span class="pre">M</span></code> is mass in solar masses.</li>
+<li><code class="docutils literal notranslate"><span class="pre">P</span></code> is position in physical kpc.</li>
+<li><code class="docutils literal notranslate"><span class="pre">SFR</span></code> is star formation rate in solar masses/year.</li>
+<li><code class="docutils literal notranslate"><span class="pre">T</span></code> is temperature in kelvin.</li>
+<li><code class="docutils literal notranslate"><span class="pre">V</span></code> is velocity in peculiar km/s.</li>
+<li><code class="docutils literal notranslate"><span class="pre">Z</span></code> is metal mass fraction in solar units (using Z_sun = 0.02).</li>
+<li><code class="docutils literal notranslate"><span class="pre">redshift</span></code> is, well, redshift.</li>
+<li><code class="docutils literal notranslate"><span class="pre">snum</span></code> is snapshot number.</li>
+<li><code class="docutils literal notranslate"><span class="pre">parameters</span></code> are the parameters the pathfinding was done with.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="galaxy-ids-data">
+<h2>Galaxy IDs Data<a class="headerlink" href="#galaxy-ids-data" title="Permalink to this headline">¶</a></h2>
+<p>These data contain information about what galaxies and halos the tracked particles are associated with.
+These data have filenames like <cite>galids_*.hdf5</cite>.</p>
+<div class="section" id="id1">
+<h3>Description of keys<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Some data may not contain all these keys if the creator of the data decided not to generate them.</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">gal_id</span></code> is the ID of the galaxy this particle is associated with, at each time. This is defined as the ID of the _least_ massive galaxy that contains the particle within its characteristic radius. The default characteristic radius is five times the stellar half-mass radius. By choosing the least massive galaxy, we preferentially associate particles with satellites. As of right now, the galaxy ID itself is the same as the instantaneous ID (i.e. not merger tree ID) of the host halo. A value of <cite>-2</cite> means the particle is not associated with any galaxy.</li>
+<li><code class="docutils literal notranslate"><span class="pre">mt_gal_id</span></code> is the merger tree ID of the galaxy this particle is associated with, at each time. This is defined as the ID of the _most_ massive galaxy that contains the particle within its characteristic radius. Not all galaxies are tracked by the merger tree, so by choosing the most massive galaxy we are more likely to choose the central galaxy in the simulation. As of right now, the galaxy ID itself is the same as the merger tree ID of the host halo. A value of <cite>-2</cite> means the particle is not associated with any galaxy.</li>
+<li><code class="docutils literal notranslate"><span class="pre">host_halo_id</span></code> is the halo ID of the host halo the particle is part of.</li>
+<li><code class="docutils literal notranslate"><span class="pre">d_gal</span></code> is the distance to the center of the closest galaxy, in proper kpc.</li>
+<li><code class="docutils literal notranslate"><span class="pre">d_gal_scaled</span></code> is the distance to the center of the closest galaxy, after scaling by the stellar half-mass radius. Note: if the characteristic radius is not a multiple of the stellar half-mass radius, but some other length scale, then d_gal_scaled will be scaled by that length scale instead.</li>
+<li><code class="docutils literal notranslate"><span class="pre">d_other_gal</span></code> is the same as <code class="docutils literal notranslate"><span class="pre">d_gal</span></code>, but only for galaxies other than the simulation’s central galaxy.</li>
+<li><code class="docutils literal notranslate"><span class="pre">d_other_gal_scaled</span></code> is the equivalent of <code class="docutils literal notranslate"><span class="pre">d_gal_scaled</span></code> but for <code class="docutils literal notranslate"><span class="pre">d_other_gal</span></code>.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="events-data">
+<h2>Events Data<a class="headerlink" href="#events-data" title="Permalink to this headline">¶</a></h2>
+<p>These are derived data products, created by post-processing the particle worldlines and galaxy IDs.</p>
+<div class="section" id="id2">
+<h3>Description of Keys<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">is_in_main_gal</span></code> is a boolean array used to identify particles in the simulation’s main galaxy.</li>
+<li><code class="docutils literal notranslate"><span class="pre">gal_event_id</span></code> (n_particles, n_snap-1) is an identifier used when particles leave or enter the main galaxy. A value of 1 (-1) means the particle has just entered (left) the main galaxy, as defined by <code class="docutils literal notranslate"><span class="pre">is_in_main_gal[:,0:n_snap-1]</span> <span class="pre">-</span> <span class="pre">is_in_main_gal[:,1:n_snap]</span></code>. A value of 0 indicates no change.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="very-basic-analysis-examples">
+<h2>Very Basic Analysis Examples<a class="headerlink" href="#very-basic-analysis-examples" title="Permalink to this headline">¶</a></h2>
+<p>Load the particle tracks data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">h5py</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="s1">&#39;path_to_data/ptracks_example.hdf5&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Get the IDs of all the particles that were tracked.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Get the snapshots used when compiling the data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Get the density of particle with index 10 at every snapshot.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;Den&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Get the density of all particles at the latest snapshot.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;Den&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Get the parameters the particle tracking was done with.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">key</span><span class="p">,</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>The versions of the code that the pathfinding was run with, along with relevant cosmological constants, are stored in the <cite>.hdf5</cite> attributes.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Understanding Output</a><ul>
+<li><a class="reference internal" href="#particle-worldline-data">Particle Worldline Data</a><ul>
+<li><a class="reference internal" href="#description-of-keys">Description of keys</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#galaxy-ids-data">Galaxy IDs Data</a><ul>
+<li><a class="reference internal" href="#id1">Description of keys</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#events-data">Events Data</a><ul>
+<li><a class="reference internal" href="#id2">Description of Keys</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#very-basic-analysis-examples">Very Basic Analysis Examples</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="quickstart.html"
+                        title="previous chapter">Quickstart</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="more-features.html"
+                        title="next chapter">More Features</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/understanding-output.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="more-features.html" title="More Features"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Quickstart"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">linefinder 0.9.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Zachary Hafen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+  </body>
+</html>

@@ -50,6 +50,13 @@
 <p>To solve this ensure you have the right HDF5 library loaded.
 For example in the case of Python3 on Stampede 2 you probably need <code class="docutils literal notranslate"><span class="pre">module</span> <span class="pre">load</span> <span class="pre">phdf5</span></code> instead of <code class="docutils literal notranslate"><span class="pre">module</span> <span class="pre">load</span> <span class="pre">hdf5</span></code>.</p>
 </div>
+<div class="section" id="firefly-fails-to-install">
+<h2>Firefly Fails to Install<a class="headerlink" href="#firefly-fails-to-install" title="Permalink to this headline">¶</a></h2>
+<p>If Firefly fails to install (as part of the visualization step), there’s a good chance it’s because you haven’t set up an automatic connection to GitHub using ssh.
+<a class="reference external" href="https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/">Follow GitHub’s tutorial to do so.</a>
+Alternatively you can turn the Firefly install off (<code class="docutils literal notranslate"><span class="pre">install_firefly=False</span></code> as one of the <code class="docutils literal notranslate"><span class="pre">visualization_kwargs</span></code>) and clone it yourself.
+Afterwards change <code class="docutils literal notranslate"><span class="pre">firefly_dir</span></code> in <code class="docutils literal notranslate"><span class="pre">export_to_firefly_kwargs</span></code> to the location of the Firefly repository you clone.</p>
+</div>
 </div>
 
 
@@ -62,6 +69,7 @@ For example in the case of Python3 on Stampede 2 you probably need <code class="
   <ul>
 <li><a class="reference internal" href="#">Troubleshooting</a><ul>
 <li><a class="reference internal" href="#hdf5-import-errors">HDF5 Import Errors</a></li>
+<li><a class="reference internal" href="#firefly-fails-to-install">Firefly Fails to Install</a></li>
 </ul>
 </li>
 </ul>

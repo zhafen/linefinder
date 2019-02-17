@@ -13,6 +13,7 @@ A tool for efficiently tracking the full history of individual particles and pro
     
    installation
    quickstart
+   understanding-output
    more-features
    troubleshooting
 
