@@ -799,7 +799,7 @@ class IDFinder( object ):
         df = pd.DataFrame( data=self.full_snap_data, index=index )
 
         # Sort for faster indexing
-        df.sort_index()
+        df = df.sort_index()
 
         # Make a data frame selecting only the target ids
         dfid = df.loc[ target_selection ]
