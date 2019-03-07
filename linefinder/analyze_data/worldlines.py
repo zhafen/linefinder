@@ -2592,12 +2592,22 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
 
         self.clear_masks()
 
-        selection_routine_attr = 'select_{}'.format( selection_routine )
-        if hasattr( self, selection_routine_attr ):
-            getattr( self, selection_routine_attr )( ptype_value )
+        def selection_subroutine( s_routine, apply_ptype_selection=True ):
+            '''Subroutine for selection.'''
+            s_routine_attr = 'select_{}'.format( s_routine )
+            if hasattr( self, s_routine_attr ):
+                getattr( self, s_routine_attr )( ptype_value )
+            else:
+                if apply_ptype_selection:
+                    self.select_ptype( ptype_value )
+                self.mask_data( s_routine, data_value=True )
+
+        if isinstance( selection_routine, list ):
+            for s in selection_routine:
+                self.select_ptype( ptype_value )
+                selection_subroutine( s, False )
         else:
-            self.select_ptype( ptype_value )
-            self.mask_data( selection_routine, data_value=True )
+            selection_subroutine( selection_routine )
 
     ########################################################################
 
