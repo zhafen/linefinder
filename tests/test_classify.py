@@ -1051,6 +1051,11 @@ class TestFullClassifierPipeline( unittest.TestCase ):
             [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
             [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
             ]).astype( bool )
+        self.classifier.is_in_other_CGM = np.array([
+            [ 0, 1, 1, 0, 0, ], # Merger, except in early snapshots
+            [ 0, 0, 0, 0, 0, ], # Always part of main galaxy
+            [ 0, 0, 0, 0, 0, ], # CGM -> main galaxy -> CGM
+            ]).astype( bool )
         self.classifier.is_in_main_gal = np.array([
             [ 1, 0, 0, 0, 0, ], # Merger, except in early snapshots
             [ 1, 1, 1, 1, 1, ], # Always part of main galaxy
