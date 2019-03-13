@@ -96,7 +96,8 @@
             <span class="s1">&#39;is_in_other_gal&#39;</span><span class="p">,</span> <span class="s1">&#39;is_in_main_gal&#39;</span><span class="p">,</span> <span class="s1">&#39;is_accreted&#39;</span><span class="p">,</span>
             <span class="s1">&#39;is_ejected&#39;</span><span class="p">,</span> <span class="s1">&#39;redshift_first_acc&#39;</span><span class="p">,</span> <span class="s1">&#39;ind_first_acc&#39;</span><span class="p">,</span>
             <span class="s1">&#39;cumulative_time_in_other_gal&#39;</span><span class="p">,</span> <span class="s1">&#39;gal_event_id&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;time_in_other_gal_before_acc_during_interval&#39;</span> <span class="p">],</span>
+            <span class="s1">&#39;time_in_other_gal_before_acc_during_interval&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;is_in_other_CGM&#39;</span><span class="p">,</span> <span class="p">],</span>
         <span class="n">velocity_scale</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">VELOCITY_SCALE</span><span class="p">,</span>
         <span class="n">wind_cut</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">WIND_CUT</span><span class="p">,</span>
         <span class="n">absolute_wind_cut</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">ABSOLUTE_WIND_CUT</span><span class="p">,</span>
@@ -242,6 +243,7 @@
         <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Identifying accretion, ejection, etc...&quot;</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_in_other_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_is_in_other_gal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_in_other_CGM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_is_in_other_CGM</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_in_main_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_is_in_main_gal</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gal_event_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_gal_event_id</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_accreted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_accretion</span><span class="p">()</span>
@@ -639,6 +641,38 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">meets_density_requirement</span> <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">is_in_other_gal</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Classifier.identify_is_in_other_CGM"><a class="viewcode-back" href="../../linefinder.classify.html#linefinder.classify.Classifier.identify_is_in_other_CGM">[docs]</a>    <span class="k">def</span> <span class="nf">identify_is_in_other_CGM</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify what particles are in a CGM besides the main CGM.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            is_in_other_cgm ( [n_particle, n_snap-1] np.ndarray of bools) :</span>
+<span class="sd">                True if in a CGM other than the main CGM at</span>
+<span class="sd">                that redshift.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Get the ID of the main halo for a given snapshot</span>
+        <span class="c1"># (remember that the mtree halo ID isn&#39;t the same as the ID at a given</span>
+        <span class="c1"># snapshot).</span>
+        <span class="n">main_mt_halo_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack_attrs</span><span class="p">[</span><span class="s1">&#39;main_mt_halo_id&#39;</span><span class="p">]</span>
+        <span class="n">main_mtree_halo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ahf_reader</span><span class="o">.</span><span class="n">mtree_halos</span><span class="p">[</span> <span class="n">main_mt_halo_id</span> <span class="p">]</span>
+        <span class="n">main_halo_id</span> <span class="o">=</span> <span class="n">main_mtree_halo</span><span class="p">[</span> <span class="s1">&#39;ID&#39;</span> <span class="p">][</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span> <span class="s1">&#39;snum&#39;</span> <span class="p">]</span> <span class="p">]</span>
+        <span class="n">main_halo_id_tiled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span> <span class="n">main_halo_id</span><span class="p">,</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_particle</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="c1"># Check if we&#39;re inside the galaxy/halo other than the main CGM</span>
+        <span class="c1"># This step is necessary, and the inverse of it is not redundant,</span>
+        <span class="c1"># because it removes anything that&#39;s in the</span>
+        <span class="c1"># main CGM *and* that&#39;s the least massive halo it&#39;s in.</span>
+        <span class="n">is_not_only_in_main_cgm</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;1.0_Rvir&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">main_halo_id_tiled</span>
+        <span class="p">)</span>
+        <span class="n">is_in_cgm</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;1.0_Rvir&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="p">)</span>
+
+        <span class="n">is_in_other_cgm</span> <span class="o">=</span> <span class="p">(</span> <span class="n">is_in_cgm</span> <span class="o">&amp;</span> <span class="n">is_not_only_in_main_cgm</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_in_other_cgm</span></div>
 
     <span class="c1">########################################################################</span>
 

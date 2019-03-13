@@ -8,6 +8,7 @@
 
 import copy
 import h5py
+import inspect
 from mock import patch
 import numpy as np
 import numpy.testing as npt
@@ -27,7 +28,7 @@ import galaxy_dive.utils.constants as constants
 
 def example_fn_1( dfid, df ):
 
-    dfid['above_med_Den'] = dfid['Den'] > df['Den'].median()
+    dfid['above_med_Den'] = dfid['Den'] > np.nanmedian( df['Den'] )
 
     return dfid
 
@@ -48,6 +49,8 @@ default_data_p = {
 
     'out_dir': './tests/data/tracking_output',
     'tag': 'test',
+
+    'custom_fns': test_apply_fns,
 }
 
 star_data_p = {
@@ -59,6 +62,8 @@ star_data_p = {
 
     'out_dir': './tests/data/tracking_output',
     'tag': 'test_star',
+
+    'custom_fns': test_apply_fns,
 }
 
 early_star_data_p = {
@@ -70,6 +75,8 @@ early_star_data_p = {
 
     'out_dir': './tests/data/tracking_output',
     'tag': 'test_star_early',
+
+    'custom_fns': test_apply_fns,
 }
 
 fire1_data_p = copy.deepcopy( star_data_p )
@@ -399,6 +406,10 @@ class TestSaveTargetedParticles( unittest.TestCase ):
 
         assert 'Potential' in f.keys()
 
+        expected_above_med =  np.array([ True, False, False, True ])
+        actual_above_med = f['above_med_Den'][...][:,0]
+        npt.assert_allclose( expected_above_med, actual_above_med )
+
     ########################################################################
 
     def test_works_with_stars( self ):
@@ -491,7 +502,12 @@ class TestSaveTargetedParticles( unittest.TestCase ):
             npt.assert_allclose( P[key], f.attrs[key] )
 
         for key in default_data_p.keys():
-            if key != 'check_same_sdir':
+            if key == 'check_same_sdir' or key == 'custom_fns':
+                continue
+            elif key == 'custom_fns_str':
+                for i, fn in enumerate( default_data_p[key] ):
+                    assert inspect.getsource( fn ) == f['parameters'].attrs[key][i]
+            else:
                 assert default_data_p[key] == f['parameters'].attrs[key]
 
     ########################################################################

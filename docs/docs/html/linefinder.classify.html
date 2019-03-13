@@ -42,7 +42,7 @@
 &#64;status: Development</p>
 <dl class="class">
 <dt id="linefinder.classify.Classifier">
-<em class="property">class </em><code class="descclassname">linefinder.classify.</code><code class="descname">Classifier</code><span class="sig-paren">(</span><em>out_dir, tag, ptracks_tag=&lt;object object&gt;, galids_tag=&lt;object object&gt;, halo_data_dir=&lt;object object&gt;, mtree_halos_index=&lt;object object&gt;, halo_file_tag=&lt;object object&gt;, not_in_main_gal_key='gal_id', classifications_to_save=['is_unaccreted', 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', 'is_hitherto_EP', 'is_hitherto_NEP', 'is_unaccreted_EP', 'is_unaccreted_NEP'], write_events=True, events_to_save=['is_in_other_gal', 'is_in_main_gal', 'is_accreted', 'is_ejected', 'redshift_first_acc', 'ind_first_acc', 'cumulative_time_in_other_gal', 'gal_event_id', 'time_in_other_gal_before_acc_during_interval'], velocity_scale='Vmax', wind_cut=1.0, absolute_wind_cut=15.0, t_pro=0.03, t_m=0.5, neg=10, main_halo_robustness_criteria='n_star', main_halo_robustness_value=100, min_gal_density=0.173, pp_classifications_to_save=['is_in_CGM', 'is_in_galaxy_halo_interface', 'is_CGM_IGM_accretion', 'is_CGM_wind', 'is_CGM_satellite_wind', 'is_CGM_satellite_ISM', 'is_CGM_to_IGM', 'is_CGM_to_gal_or_interface', 'is_hereafter_CGM']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/classify.html#Classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.classify.Classifier" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">linefinder.classify.</code><code class="descname">Classifier</code><span class="sig-paren">(</span><em>out_dir, tag, ptracks_tag=&lt;object object&gt;, galids_tag=&lt;object object&gt;, halo_data_dir=&lt;object object&gt;, mtree_halos_index=&lt;object object&gt;, halo_file_tag=&lt;object object&gt;, not_in_main_gal_key='gal_id', classifications_to_save=['is_unaccreted', 'is_pristine', 'is_preprocessed', 'is_merger', 'is_mass_transfer', 'is_wind', 'is_hitherto_EP', 'is_hitherto_NEP', 'is_unaccreted_EP', 'is_unaccreted_NEP'], write_events=True, events_to_save=['is_in_other_gal', 'is_in_main_gal', 'is_accreted', 'is_ejected', 'redshift_first_acc', 'ind_first_acc', 'cumulative_time_in_other_gal', 'gal_event_id', 'time_in_other_gal_before_acc_during_interval', 'is_in_other_CGM'], velocity_scale='Vmax', wind_cut=1.0, absolute_wind_cut=15.0, t_pro=0.03, t_m=0.5, neg=10, main_halo_robustness_criteria='n_star', main_halo_robustness_value=100, min_gal_density=0.173, pp_classifications_to_save=['is_in_CGM', 'is_in_galaxy_halo_interface', 'is_CGM_IGM_accretion', 'is_CGM_wind', 'is_CGM_satellite_wind', 'is_CGM_satellite_ISM', 'is_CGM_to_IGM', 'is_CGM_to_gal_or_interface', 'is_hereafter_CGM']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/classify.html#Classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.classify.Classifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Loads the tracked particle data, and uses that to classify the particles
 into different categories.</p>
@@ -350,6 +350,23 @@ at that redshift, even a subhalo galaxy.</p>
 (and not any other galaxy) at that redshift.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">is_in_main_gal ( [n_particle, n_snap-1] np.ndarray of bools)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.classify.Classifier.identify_is_in_other_CGM">
+<code class="descname">identify_is_in_other_CGM</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/classify.html#Classifier.identify_is_in_other_CGM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.classify.Classifier.identify_is_in_other_CGM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identify what particles are in a CGM besides the main CGM.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if in a CGM other than the main CGM at
+that redshift.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">is_in_other_cgm ( [n_particle, n_snap-1] np.ndarray of bools)</td>
 </tr>
 </tbody>
 </table>

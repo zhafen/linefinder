@@ -7,7 +7,7 @@ Submodules
 .. toctree::
 
    linefinder.job_scripts.linefinder_CGM_trove_jugfile
-   linefinder.job_scripts.linefinder_CGM_trove_jugfile_temp
+   linefinder.job_scripts.linefinder_CGM_trove_jugfile_copy
    linefinder.job_scripts.linefinder_example
    linefinder.job_scripts.linefinder_rockstar
    linefinder.job_scripts.linefinder_sightlines

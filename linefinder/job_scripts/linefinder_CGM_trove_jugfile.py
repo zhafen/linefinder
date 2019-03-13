@@ -29,9 +29,9 @@ sim_names = [
     'm12z_md',
     'm12r_md',
     'm12w_md', # Ran with more time data
-    'm10q_md',
-    'm11q_md',
-    'm12i_md',
+    # 'm10q_md',
+    # 'm11q_md',
+    # 'm12i_md',
 ]
 snums = [
     # 600,
@@ -81,7 +81,7 @@ galdefs = [
 # Get the file format
 ptracks_tag_format = '{}_CGM_snum{}'
 tag_format = '{}{}'.format( ptracks_tag_format, '{}' )
-file_format =  'classifications_{}.hdf5'.format( tag_format )
+file_format =  'galids_{}.hdf5'.format( tag_format )
 
 # Start up a trove manager and use it to get next args
 trove_manager = trove_management.LinefinderTroveManager(
@@ -187,7 +187,7 @@ linefinder.run_linefinder_jug(
     run_id_selecting = False,
     run_id_sampling = False,
     run_tracking = False,
-    run_galaxy_linking = False,
-    run_classifying = False,
+    run_galaxy_linking = True,
+    run_classifying = True,
     run_visualization = True,
 )

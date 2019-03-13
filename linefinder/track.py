@@ -9,6 +9,7 @@
 import copy
 import gc
 import h5py
+import inspect
 import jug
 import numpy as np
 import os
@@ -48,6 +49,7 @@ class ParticleTracker( object ):
         snum_end = default,
         snum_step = default,
         n_processors = 1,
+        custom_fns = None,
     ):
         '''Setup the ID Finder. Looks for data in the form of "out_dir/ids_tag.hdf5"
 
@@ -82,6 +84,14 @@ class ParticleTracker( object ):
 
             n_processors (int, optional) :
                 Number of processors to use.
+
+            custom_fns (list of functions):
+                If not None, a list of functions to calculate additional
+                derived products for the selected IDs. Arguments should be a
+                pandas DataFrame named dfid that contains the data of the
+                selected IDs, and a pandas DataFrame named df that contains
+                the full snapshot data. The derived products should be stored
+                as new columns in dfid.
         '''
 
         if self.ids_tag is default:
@@ -261,7 +271,8 @@ class ParticleTracker( object ):
                 snum,
                 self.p_types,
                 self.target_ids,
-                target_child_ids=self.target_child_ids,
+                target_child_ids = self.target_child_ids,
+                custom_fns = self.custom_fns,
             )
 
             ptrack['redshift'][j] = redshift
@@ -285,6 +296,24 @@ class ParticleTracker( object ):
             ptrack['V'][:, j, :] = np.array(
                 [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ]
             ).T
+
+            # Include custom derived products
+            for data_key in dfid.columns:
+
+                # Skip existing data
+                if data_key in ptrack.keys():
+                    continue
+
+                # Store the data
+                try:
+                    ptrack[data_key][:, j] = dfid[data_key].values
+                except KeyError:
+                    ptrack[data_key] = np.zeros(
+                        self.ntrack,
+                        dtype=( myfloat, (nsnap,) ),
+                    )
+                    ptrack[data_key][:, j] = dfid[data_key].values
+
 
             if 'Potential' in dfid.keys():
                 try:
@@ -327,7 +356,7 @@ class ParticleTracker( object ):
         # Choose between single or double precision.
         myfloat = 'float32'
 
-        self.ntrack = self.target_ids.size
+        self.ntrack  =  self.target_ids.size
         print( "Tracking {} particles...".format( self.ntrack ) )
         sys.stdout.flush()
 
@@ -343,7 +372,8 @@ class ParticleTracker( object ):
                 snum,
                 self.p_types,
                 self.target_ids,
-                target_child_ids=self.target_child_ids,
+                target_child_ids = self.target_child_ids,
+                custom_fns = self.custom_fns,
             )
 
             # Maybe helps stop leaking memory
@@ -413,6 +443,24 @@ class ParticleTracker( object ):
                 [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ]
             ).T
 
+            # Include custom derived products
+            for data_key in dfid.columns:
+
+                # Skip existing data
+                if data_key in ptrack.keys():
+                    continue
+
+                # Store the data
+                try:
+                    ptrack[data_key][:, j] = dfid[data_key].values
+                except KeyError:
+                    ptrack[data_key] = np.zeros(
+                        self.ntrack,
+                        dtype=( myfloat, (nsnap,) ),
+                    )
+                    ptrack[data_key][:, j] = dfid[data_key].values
+
+
         return ptrack, attrs
 
     ########################################################################
@@ -447,7 +495,8 @@ class ParticleTracker( object ):
                 snum,
                 self.p_types,
                 self.target_ids,
-                target_child_ids=self.target_child_ids,
+                target_child_ids = self.target_child_ids,
+                custom_fns = self.custom_fns,
             )
 
             # Maybe helps stop leaking memory
@@ -541,6 +590,23 @@ class ParticleTracker( object ):
                 [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ]
             ).T
 
+            # Include custom derived products
+            for data_key in dfid.columns:
+
+                # Skip existing data
+                if data_key in ptrack.keys():
+                    continue
+
+                # Store the data
+                try:
+                    ptrack[data_key][:, j] = dfid[data_key].values
+                except KeyError:
+                    ptrack[data_key] = np.zeros(
+                        self.ntrack,
+                        dtype=( myfloat, (nsnap,) ),
+                    )
+                    ptrack[data_key][:, j] = dfid[data_key].values
+
         return ptrack, attrs
 
     ########################################################################
@@ -577,6 +643,12 @@ class ParticleTracker( object ):
         for key in attrs.keys():
             f.attrs[key] = attrs[key]
 
+        # Save the code of the custom_fns as a string too.
+        if self.custom_fns is not None:
+            self.custom_fns_str = [
+                inspect.getsource( _ ) for _ in self.custom_fns
+            ]
+
         utilities.save_parameters( self, f )
 
         # Save the current code version
@@ -605,16 +677,33 @@ class IDFinder( object ):
         snum,
         p_types,
         target_ids,
-        target_child_ids=None,
+        target_child_ids = None,
+        custom_fns = None,
     ):
         '''Find the information for particular IDs in a given snapshot, ordered
         by the ID list you pass.
 
         Args:
-            sdir (str): The targeted simulation directory.
-            snum (int): The snapshot to find the IDs for.
-            p_types (list of ints): Which particle types to target.
-            target_ids (np.array): The particle IDs you want to find.
+            sdir (str):
+                The targeted simulation directory.
+
+            snum (int):
+                The snapshot to find the IDs for.
+
+            p_types (list of ints):
+                Which particle types to target.
+
+            target_ids (np.array):
+                The particle IDs you want to find.
+
+            target_child_ids (np.array):
+                The particle child IDs you want to find.
+
+            custom_fns (list of functions):
+                If not None, additional derived products you want to calculate
+                for the selected IDs. Arguments should be a pandas DataFrame
+                named dfid that contains the data of the selected IDs, and a
+                pandas DataFrame named df that contains the full snapshot data.
 
         Returns:
             dfid (pandas.DataFrame):
@@ -643,6 +732,14 @@ class IDFinder( object ):
 
         # Find target_ids
         self.dfid, self.df = self.select_ids()
+
+        # Apply additional functions
+        if custom_fns is not None:
+            self.dfid = self.apply_functions(
+                custom_fns,
+                self.dfid,
+                self.df,
+            )
 
         return self.dfid, self.redshift, self.attrs
 
@@ -840,7 +937,9 @@ class IDFinder( object ):
 
         Returns:
             pandas DataFrame:
-                Modified dfid from having the fns applied to it.
+                Modified dfid from having the fns applied to it. As a
+                precaution, modifying any of the original columns will raise
+                an error.
         '''
 
         # Make a copy before modifying
@@ -852,7 +951,10 @@ class IDFinder( object ):
 
         # Check that the original data is intact
         for key in original_dfid.columns:
-            assert np.allclose( original_dfid[key], dfid[key] ), \
-                "One of the functions has modified the original data!"
+            np.testing.assert_allclose(
+                original_dfid[key],
+                dfid[key],
+                err_msg = "A custom function modified the {} column of the data, which is part of the raw data!".format( key ),
+            )
 
         return dfid

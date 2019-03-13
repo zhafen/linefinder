@@ -2630,12 +2630,22 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">clear_masks</span><span class="p">()</span>
 
-        <span class="n">selection_routine_attr</span> <span class="o">=</span> <span class="s1">&#39;select_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">selection_routine</span> <span class="p">)</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">selection_routine_attr</span> <span class="p">):</span>
-            <span class="nb">getattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">selection_routine_attr</span> <span class="p">)(</span> <span class="n">ptype_value</span> <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">selection_subroutine</span><span class="p">(</span> <span class="n">s_routine</span><span class="p">,</span> <span class="n">apply_ptype_selection</span><span class="o">=</span><span class="kc">True</span> <span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;Subroutine for selection.&#39;&#39;&#39;</span>
+            <span class="n">s_routine_attr</span> <span class="o">=</span> <span class="s1">&#39;select_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">s_routine</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">s_routine_attr</span> <span class="p">):</span>
+                <span class="nb">getattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">s_routine_attr</span> <span class="p">)(</span> <span class="n">ptype_value</span> <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">apply_ptype_selection</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">select_ptype</span><span class="p">(</span> <span class="n">ptype_value</span> <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mask_data</span><span class="p">(</span> <span class="n">s_routine</span><span class="p">,</span> <span class="n">data_value</span><span class="o">=</span><span class="kc">True</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">selection_routine</span><span class="p">,</span> <span class="nb">list</span> <span class="p">):</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">selection_routine</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">select_ptype</span><span class="p">(</span> <span class="n">ptype_value</span> <span class="p">)</span>
+                <span class="n">selection_subroutine</span><span class="p">(</span> <span class="n">s</span><span class="p">,</span> <span class="kc">False</span> <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">select_ptype</span><span class="p">(</span> <span class="n">ptype_value</span> <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mask_data</span><span class="p">(</span> <span class="n">selection_routine</span><span class="p">,</span> <span class="n">data_value</span><span class="o">=</span><span class="kc">True</span> <span class="p">)</span></div>
+            <span class="n">selection_subroutine</span><span class="p">(</span> <span class="n">selection_routine</span> <span class="p">)</span></div>
 
     <span class="c1">########################################################################</span>
 

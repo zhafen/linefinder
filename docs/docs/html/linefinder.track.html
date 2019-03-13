@@ -46,6 +46,37 @@
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Finds target ids in a single snapshot.</p>
 <dl class="method">
+<dt id="linefinder.track.IDFinder.apply_functions">
+<code class="descname">apply_functions</code><span class="sig-paren">(</span><em>fns</em>, <em>dfid</em>, <em>df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/track.html#IDFinder.apply_functions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.track.IDFinder.apply_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate and store the results of arbitrary functions of the full
+snapshot data and the subset of the snapshot data containing the IDs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fns</strong> (<em>list of fns</em>) – Functions to apply to the data. Should accept dfid and df as
+arguments, and modify dfid as desired.</li>
+<li><strong>dfid</strong> (<em>pandas DataFrame</em>) – Contains attributes of the selected ID particles. Indexed by
+the ID.</li>
+<li><strong>df</strong> (<em>pandas DataFrame</em>) – Contains attributes of the full snapshot data. Indexed by the
+ID.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Modified dfid from having the fns applied to it. As a
+precaution, modifying any of the original columns will raise
+an error.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="linefinder.track.IDFinder.concatenate_particle_data">
 <code class="descname">concatenate_particle_data</code><span class="sig-paren">(</span><em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/track.html#IDFinder.concatenate_particle_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.track.IDFinder.concatenate_particle_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all the particle data for the snapshot in one big array, to allow
@@ -67,7 +98,7 @@ A dictionary of the concatenated particle data.</dd>
 
 <dl class="method">
 <dt id="linefinder.track.IDFinder.find_ids">
-<code class="descname">find_ids</code><span class="sig-paren">(</span><em>sdir</em>, <em>snum</em>, <em>p_types</em>, <em>target_ids</em>, <em>target_child_ids=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/track.html#IDFinder.find_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.track.IDFinder.find_ids" title="Permalink to this definition">¶</a></dt>
+<code class="descname">find_ids</code><span class="sig-paren">(</span><em>sdir</em>, <em>snum</em>, <em>p_types</em>, <em>target_ids</em>, <em>target_child_ids=None</em>, <em>custom_fns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/track.html#IDFinder.find_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.track.IDFinder.find_ids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the information for particular IDs in a given snapshot, ordered
 by the ID list you pass.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -79,6 +110,11 @@ by the ID list you pass.</p>
 <li><strong>snum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The snapshot to find the IDs for.</li>
 <li><strong>p_types</strong> (<em>list of ints</em>) – Which particle types to target.</li>
 <li><strong>target_ids</strong> (<em>np.array</em>) – The particle IDs you want to find.</li>
+<li><strong>target_child_ids</strong> (<em>np.array</em>) – The particle child IDs you want to find.</li>
+<li><strong>custom_fns</strong> (<em>list of functions</em>) – If not None, additional derived products you want to calculate
+for the selected IDs. Arguments should be a pandas DataFrame
+named dfid that contains the data of the selected IDs, and a
+pandas DataFrame named df that contains the full snapshot data.</li>
 </ul>
 </td>
 </tr>
@@ -114,7 +150,7 @@ position, metallicity, etc.</p>
 
 <dl class="class">
 <dt id="linefinder.track.ParticleTracker">
-<em class="property">class </em><code class="descclassname">linefinder.track.</code><code class="descname">ParticleTracker</code><span class="sig-paren">(</span><em>out_dir</em>, <em>tag</em>, <em>ids_tag=&lt;object object&gt;</em>, <em>sdir=&lt;object object&gt;</em>, <em>p_types=&lt;object object&gt;</em>, <em>snum_start=&lt;object object&gt;</em>, <em>snum_end=&lt;object object&gt;</em>, <em>snum_step=&lt;object object&gt;</em>, <em>n_processors=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/track.html#ParticleTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.track.ParticleTracker" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">linefinder.track.</code><code class="descname">ParticleTracker</code><span class="sig-paren">(</span><em>out_dir</em>, <em>tag</em>, <em>ids_tag=&lt;object object&gt;</em>, <em>sdir=&lt;object object&gt;</em>, <em>p_types=&lt;object object&gt;</em>, <em>snum_start=&lt;object object&gt;</em>, <em>snum_end=&lt;object object&gt;</em>, <em>snum_step=&lt;object object&gt;</em>, <em>n_processors=1</em>, <em>custom_fns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/track.html#ParticleTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.track.ParticleTracker" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Searches IDs across snapshots, then saves the results.</p>
 <dl class="method">

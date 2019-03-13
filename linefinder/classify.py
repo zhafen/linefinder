@@ -623,16 +623,16 @@ class Classifier( object ):
         main_halo_id = main_mtree_halo[ 'ID' ][ self.ptrack[ 'snum' ] ]
         main_halo_id_tiled = np.tile( main_halo_id, ( self.n_particle, 1 ) )
 
-        # Check if we're inside the galaxy/halo other than the main galaxy
+        # Check if we're inside the galaxy/halo other than the main CGM
         # This step is necessary, and the inverse of it is not redundant,
         # because it removes anything that's in the
-        # main halo *and* that's the least massive halo it's in.
-        is_not_in_main_cgm = (
+        # main CGM *and* that's the least massive halo it's in.
+        is_not_only_in_main_cgm = (
             self.ptrack['1.0_Rvir'] != main_halo_id_tiled
         )
         is_in_cgm = ( self.ptrack['1.0_Rvir'] >= 0 )
 
-        is_in_other_cgm = ( is_in_cgm & is_not_in_main_cgm )
+        is_in_other_cgm = ( is_in_cgm & is_not_only_in_main_cgm )
 
         return is_in_other_cgm
 

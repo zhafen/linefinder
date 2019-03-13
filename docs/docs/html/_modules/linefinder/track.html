@@ -44,8 +44,10 @@
 <span class="sd">@status: Development</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">gc</span>
 <span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">jug</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -85,6 +87,7 @@
         <span class="n">snum_end</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
         <span class="n">snum_step</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
         <span class="n">n_processors</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">custom_fns</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Setup the ID Finder. Looks for data in the form of &quot;out_dir/ids_tag.hdf5&quot;</span>
 
@@ -119,6 +122,14 @@
 
 <span class="sd">            n_processors (int, optional) :</span>
 <span class="sd">                Number of processors to use.</span>
+
+<span class="sd">            custom_fns (list of functions):</span>
+<span class="sd">                If not None, a list of functions to calculate additional</span>
+<span class="sd">                derived products for the selected IDs. Arguments should be a</span>
+<span class="sd">                pandas DataFrame named dfid that contains the data of the</span>
+<span class="sd">                selected IDs, and a pandas DataFrame named df that contains</span>
+<span class="sd">                the full snapshot data. The derived products should be stored</span>
+<span class="sd">                as new columns in dfid.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_tag</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
@@ -298,7 +309,8 @@
                 <span class="n">snum</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">p_types</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">target_ids</span><span class="p">,</span>
-                <span class="n">target_child_ids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_child_ids</span><span class="p">,</span>
+                <span class="n">target_child_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_child_ids</span><span class="p">,</span>
+                <span class="n">custom_fns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_fns</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;redshift&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">redshift</span>
@@ -322,6 +334,24 @@
             <span class="n">ptrack</span><span class="p">[</span><span class="s1">&#39;V&#39;</span><span class="p">][:,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                 <span class="p">[</span> <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;V0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;V1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;V2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="p">]</span>
             <span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="c1"># Include custom derived products</span>
+            <span class="k">for</span> <span class="n">data_key</span> <span class="ow">in</span> <span class="n">dfid</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+
+                <span class="c1"># Skip existing data</span>
+                <span class="k">if</span> <span class="n">data_key</span> <span class="ow">in</span> <span class="n">ptrack</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Store the data</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">ptrack</span><span class="p">[</span><span class="n">data_key</span><span class="p">][:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfid</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">ptrack</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span><span class="p">,</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="p">(</span> <span class="n">myfloat</span><span class="p">,</span> <span class="p">(</span><span class="n">nsnap</span><span class="p">,)</span> <span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="n">ptrack</span><span class="p">[</span><span class="n">data_key</span><span class="p">][:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfid</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
 
             <span class="k">if</span> <span class="s1">&#39;Potential&#39;</span> <span class="ow">in</span> <span class="n">dfid</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -364,7 +394,7 @@
         <span class="c1"># Choose between single or double precision.</span>
         <span class="n">myfloat</span> <span class="o">=</span> <span class="s1">&#39;float32&#39;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_ids</span><span class="o">.</span><span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span>  <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">target_ids</span><span class="o">.</span><span class="n">size</span>
         <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Tracking </span><span class="si">{}</span><span class="s2"> particles...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span> <span class="p">)</span> <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
@@ -380,7 +410,8 @@
                 <span class="n">snum</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">p_types</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">target_ids</span><span class="p">,</span>
-                <span class="n">target_child_ids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_child_ids</span><span class="p">,</span>
+                <span class="n">target_child_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_child_ids</span><span class="p">,</span>
+                <span class="n">custom_fns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_fns</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="c1"># Maybe helps stop leaking memory</span>
@@ -450,6 +481,24 @@
                 <span class="p">[</span> <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;V0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;V1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;V2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="p">]</span>
             <span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
+            <span class="c1"># Include custom derived products</span>
+            <span class="k">for</span> <span class="n">data_key</span> <span class="ow">in</span> <span class="n">dfid</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+
+                <span class="c1"># Skip existing data</span>
+                <span class="k">if</span> <span class="n">data_key</span> <span class="ow">in</span> <span class="n">ptrack</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Store the data</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">ptrack</span><span class="p">[</span><span class="n">data_key</span><span class="p">][:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfid</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">ptrack</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span><span class="p">,</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="p">(</span> <span class="n">myfloat</span><span class="p">,</span> <span class="p">(</span><span class="n">nsnap</span><span class="p">,)</span> <span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="n">ptrack</span><span class="p">[</span><span class="n">data_key</span><span class="p">][:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfid</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+
         <span class="k">return</span> <span class="n">ptrack</span><span class="p">,</span> <span class="n">attrs</span></div>
 
     <span class="c1">########################################################################</span>
@@ -484,7 +533,8 @@
                 <span class="n">snum</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">p_types</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">target_ids</span><span class="p">,</span>
-                <span class="n">target_child_ids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_child_ids</span><span class="p">,</span>
+                <span class="n">target_child_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_child_ids</span><span class="p">,</span>
+                <span class="n">custom_fns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_fns</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="c1"># Maybe helps stop leaking memory</span>
@@ -578,6 +628,23 @@
                 <span class="p">[</span> <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;V0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;V1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;V2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="p">]</span>
             <span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
+            <span class="c1"># Include custom derived products</span>
+            <span class="k">for</span> <span class="n">data_key</span> <span class="ow">in</span> <span class="n">dfid</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+
+                <span class="c1"># Skip existing data</span>
+                <span class="k">if</span> <span class="n">data_key</span> <span class="ow">in</span> <span class="n">ptrack</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Store the data</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">ptrack</span><span class="p">[</span><span class="n">data_key</span><span class="p">][:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfid</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">ptrack</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ntrack</span><span class="p">,</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="p">(</span> <span class="n">myfloat</span><span class="p">,</span> <span class="p">(</span><span class="n">nsnap</span><span class="p">,)</span> <span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="n">ptrack</span><span class="p">[</span><span class="n">data_key</span><span class="p">][:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfid</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
         <span class="k">return</span> <span class="n">ptrack</span><span class="p">,</span> <span class="n">attrs</span></div>
 
     <span class="c1">########################################################################</span>
@@ -614,6 +681,12 @@
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
+        <span class="c1"># Save the code of the custom_fns as a string too.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_fns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">custom_fns_str</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span> <span class="n">_</span> <span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_fns</span>
+            <span class="p">]</span>
+
         <span class="n">utilities</span><span class="o">.</span><span class="n">save_parameters</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">f</span> <span class="p">)</span>
 
         <span class="c1"># Save the current code version</span>
@@ -642,16 +715,33 @@
         <span class="n">snum</span><span class="p">,</span>
         <span class="n">p_types</span><span class="p">,</span>
         <span class="n">target_ids</span><span class="p">,</span>
-        <span class="n">target_child_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">target_child_ids</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">custom_fns</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Find the information for particular IDs in a given snapshot, ordered</span>
 <span class="sd">        by the ID list you pass.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sdir (str): The targeted simulation directory.</span>
-<span class="sd">            snum (int): The snapshot to find the IDs for.</span>
-<span class="sd">            p_types (list of ints): Which particle types to target.</span>
-<span class="sd">            target_ids (np.array): The particle IDs you want to find.</span>
+<span class="sd">            sdir (str):</span>
+<span class="sd">                The targeted simulation directory.</span>
+
+<span class="sd">            snum (int):</span>
+<span class="sd">                The snapshot to find the IDs for.</span>
+
+<span class="sd">            p_types (list of ints):</span>
+<span class="sd">                Which particle types to target.</span>
+
+<span class="sd">            target_ids (np.array):</span>
+<span class="sd">                The particle IDs you want to find.</span>
+
+<span class="sd">            target_child_ids (np.array):</span>
+<span class="sd">                The particle child IDs you want to find.</span>
+
+<span class="sd">            custom_fns (list of functions):</span>
+<span class="sd">                If not None, additional derived products you want to calculate</span>
+<span class="sd">                for the selected IDs. Arguments should be a pandas DataFrame</span>
+<span class="sd">                named dfid that contains the data of the selected IDs, and a</span>
+<span class="sd">                pandas DataFrame named df that contains the full snapshot data.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            dfid (pandas.DataFrame):</span>
@@ -679,7 +769,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">concatenate_particle_data</span><span class="p">()</span>
 
         <span class="c1"># Find target_ids</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dfid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_ids</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dfid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_ids</span><span class="p">()</span>
+
+        <span class="c1"># Apply additional functions</span>
+        <span class="k">if</span> <span class="n">custom_fns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dfid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_functions</span><span class="p">(</span>
+                <span class="n">custom_fns</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dfid</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dfid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span></div>
 
@@ -837,7 +935,7 @@
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">full_snap_data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span> <span class="p">)</span>
 
         <span class="c1"># Sort for faster indexing</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
 
         <span class="c1"># Make a data frame selecting only the target ids</span>
         <span class="n">dfid</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span> <span class="n">target_selection</span> <span class="p">]</span>
@@ -853,6 +951,49 @@
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span> <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span> <span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_ids</span> <span class="p">),</span> \
             <span class="s2">&quot;Snapshot </span><span class="si">{}</span><span class="s2"> failed, len( df ) = </span><span class="si">{}</span><span class="s2">, len( self.target_ids ) = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span>\
             <span class="nb">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">snum</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span> <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span> <span class="p">),</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_ids</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dfid</span><span class="p">,</span> <span class="n">df</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="IDFinder.apply_functions"><a class="viewcode-back" href="../../linefinder.track.html#linefinder.track.IDFinder.apply_functions">[docs]</a>    <span class="k">def</span> <span class="nf">apply_functions</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">fns</span><span class="p">,</span> <span class="n">dfid</span><span class="p">,</span> <span class="n">df</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate and store the results of arbitrary functions of the full</span>
+<span class="sd">        snapshot data and the subset of the snapshot data containing the IDs.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            fns (list of fns):</span>
+<span class="sd">                Functions to apply to the data. Should accept dfid and df as</span>
+<span class="sd">                arguments, and modify dfid as desired.</span>
+
+<span class="sd">            dfid (pandas DataFrame):</span>
+<span class="sd">                Contains attributes of the selected ID particles. Indexed by</span>
+<span class="sd">                the ID.</span>
+
+<span class="sd">            df (pandas DataFrame):</span>
+<span class="sd">                Contains attributes of the full snapshot data. Indexed by the</span>
+<span class="sd">                ID.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pandas DataFrame:</span>
+<span class="sd">                Modified dfid from having the fns applied to it. As a</span>
+<span class="sd">                precaution, modifying any of the original columns will raise</span>
+<span class="sd">                an error.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Make a copy before modifying</span>
+        <span class="n">original_dfid</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">dfid</span> <span class="p">)</span>
+
+        <span class="c1"># Apply the functions</span>
+        <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
+            <span class="n">dfid</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span> <span class="n">dfid</span><span class="o">=</span><span class="n">dfid</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span> <span class="p">)</span>
+
+        <span class="c1"># Check that the original data is intact</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">original_dfid</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+                <span class="n">original_dfid</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">dfid</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;A custom function modified the </span><span class="si">{}</span><span class="s2"> column of the data, which is part of the raw data!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">key</span> <span class="p">),</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">dfid</span></div></div>
 </pre></div>
