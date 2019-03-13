@@ -25,6 +25,20 @@ import galaxy_dive.utils.constants as constants
 # Global Setup
 ########################################################################
 
+def example_fn_1( dfid, df ):
+
+    dfid['above_med_Den'] = dfid['Den'] > df['Den'].median()
+
+    return dfid
+
+def example_fn_2( dfid, df ):
+
+    dfid['IDx2'] = dfid['ID'] * 2
+
+    return dfid
+
+test_apply_fns = [ example_fn_1, example_fn_2 ]
+
 default_data_p = {
     'sdir': './tests/data/test_data_with_new_id_scheme',
     'p_types': [0, ],
@@ -175,7 +189,7 @@ class TestSelectIDs( unittest.TestCase ):
         }
         self.id_finder.full_snap_data['Den'] *= constants.UNITDENSITY_IN_NUMDEN
 
-        dfid = self.fn()
+        dfid, df = self.fn()
 
         expected = {
             'ID': np.array([ 38913508, 3211791, 10952235 ]),
@@ -200,7 +214,7 @@ class TestSelectIDs( unittest.TestCase ):
         }
         self.id_finder.full_snap_data['Den'] *= constants.UNITDENSITY_IN_NUMDEN
 
-        dfid = self.fn()
+        dfid, df = self.fn()
 
         expected = {
             'ID': self.id_finder.target_ids,
@@ -230,7 +244,7 @@ class TestSelectIDs( unittest.TestCase ):
         }
         self.id_finder.full_snap_data['Den'] *= constants.UNITDENSITY_IN_NUMDEN
 
-        dfid = self.fn()
+        dfid, df = self.fn()
 
         expected = {
             'ID': self.id_finder.target_ids,
@@ -242,6 +256,38 @@ class TestSelectIDs( unittest.TestCase ):
         for key in dfid.keys():
             npt.assert_allclose( dfid[key], expected[key] )
 
+
+########################################################################
+
+class TestApplyFunctions( unittest.TestCase ):
+
+    def setUp(self):
+
+        self.id_finder = track.IDFinder()
+
+    ########################################################################
+
+    def test_runs(self):
+        '''Test that it even runs'''
+
+        # Dummy data set
+        self.id_finder.target_ids = np.array([ 38913508, 3211791, 10952235 ])
+        self.id_finder.full_snap_data = {
+            'ID': np.array([56037496,  3211791, 41221636, 63924292, 38913508, 10952235]),
+            'Den': np.array([  3.80374093e-10,   6.80917722e-09,   3.02682572e-08, 1.07385445e-09,   3.45104532e-08,   1.54667816e-08]),
+        }
+        self.id_finder.full_snap_data['Den'] *= constants.UNITDENSITY_IN_NUMDEN
+
+        dfid, df = self.id_finder.select_ids()
+
+        dfid = self.id_finder.apply_functions( test_apply_fns, dfid, df )
+
+        expected = {
+            'above_med_Den': np.array([ True, False, True ]),
+            'IDx2': np.array([ 77827016, 6423582, 21904470 ]),
+        }
+        for key in expected.keys():
+            npt.assert_allclose( expected[key], dfid[key] )
 
 ########################################################################
 

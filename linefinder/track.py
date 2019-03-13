@@ -6,6 +6,7 @@
 @status: Development
 '''
 
+import copy
 import gc
 import h5py
 import jug
@@ -641,7 +642,7 @@ class IDFinder( object ):
         self.concatenate_particle_data()
 
         # Find target_ids
-        self.dfid = self.select_ids()
+        self.dfid, self.df = self.select_ids()
 
         return self.dfid, self.redshift, self.attrs
 
@@ -815,5 +816,43 @@ class IDFinder( object ):
         assert len( dfid['ID'] ) == len( self.target_ids ), \
             "Snapshot {} failed, len( df ) = {}, len( self.target_ids ) = {}".\
             format( self.snum, len( dfid['ID'] ), len( self.target_ids ) )
+
+        return dfid, df
+
+    ########################################################################
+
+    def apply_functions( self, fns, dfid, df ):
+        '''Calculate and store the results of arbitrary functions of the full
+        snapshot data and the subset of the snapshot data containing the IDs.
+        
+        Args:
+            fns (list of fns):
+                Functions to apply to the data. Should accept dfid and df as
+                arguments, and modify dfid as desired.
+
+            dfid (pandas DataFrame):
+                Contains attributes of the selected ID particles. Indexed by
+                the ID.
+
+            df (pandas DataFrame):
+                Contains attributes of the full snapshot data. Indexed by the
+                ID.
+
+        Returns:
+            pandas DataFrame:
+                Modified dfid from having the fns applied to it.
+        '''
+
+        # Make a copy before modifying
+        original_dfid = copy.deepcopy( dfid )
+
+        # Apply the functions
+        for fn in fns:
+            dfid = fn( dfid=dfid, df=df )
+
+        # Check that the original data is intact
+        for key in original_dfid.columns:
+            assert np.allclose( original_dfid[key], dfid[key] ), \
+                "One of the functions has modified the original data!"
 
         return dfid
