@@ -1539,6 +1539,46 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def get_is_A_to_B( self, A_to_B_event, A_key ):
+        '''Material that's currently in classification A, and next enters
+        classification B.
+
+        Args:
+            A_to_B (array-like of booleans):
+                Boolean that indicates the particle left A and entered
+                the other category, B. The value of the [i,j]th index should be
+                True if particle i is in B at index j, and was in A
+                at index j+1.
+
+        Returns:
+            array-like of booleans, (n_particles, n_snaps):
+                Array where the value of [i,j]th index indicates if particle i
+                will transfer from A to B category after index j.
+        '''
+
+        # Format event
+        A_to_B_event = np.roll( A_to_B_event, 1 )
+
+        # Find contiguous regions
+        labeled_is_A, n_features = scipy.ndimage.label(
+            self.get_data( A_key ),
+            np.array([
+                [ 0, 0, 0, ],
+                [ 1, 1, 1, ],
+                [ 0, 0, 0, ],
+            ]),
+        )
+        slices = scipy.ndimage.find_objects( labeled_is_A )
+
+        # Apply classification to contiguous regions
+        is_A_to_B = np.zeros( self.base_data_shape ).astype( bool )
+        for sl in slices:
+            is_A_to_B[sl] = np.any( A_to_B_event[sl] )
+
+        return is_A_to_B
+
+    ########################################################################
+
     def get_is_CGM_to_other( self, CGM_to_other_event ):
         '''Material that's currently in the CGM, and next enters another
         category.
@@ -1556,26 +1596,7 @@ class Worldlines( simulation_data.TimeData ):
                 will transfer from the CGM to the other category after index j.
         '''
 
-        # Format event
-        CGM_to_other_event = np.roll( CGM_to_other_event, 1 )
-
-        # Find contiguous regions
-        labeled_is_in_CGM, n_features = scipy.ndimage.label(
-            self.get_data( 'is_in_CGM' ),
-            np.array([
-                [ 0, 0, 0, ],
-                [ 1, 1, 1, ],
-                [ 0, 0, 0, ],
-            ]),
-        )
-        slices = scipy.ndimage.find_objects( labeled_is_in_CGM )
-
-        # Apply classification to contiguous regions
-        is_CGM_to_other = np.zeros( self.base_data_shape ).astype( bool )
-        for sl in slices:
-            is_CGM_to_other[sl] = np.any( CGM_to_other_event[sl] )
-
-        return is_CGM_to_other
+        return self.get_is_A_to_B( CGM_to_other_event, 'is_in_CGM' )
 
     def calc_is_CGM_to_IGM( self ):
         '''Material that's currently in the CGM, and next enters the IGM.
@@ -1776,6 +1797,43 @@ class Worldlines( simulation_data.TimeData ):
         )
 
         return self.data['is_CGM_wind']
+
+    ########################################################################
+
+    def calc_is_CGM_accreted_satellite( self ):
+
+        # Did the particle enter another galaxy while in the CGM?
+        enters_other_gal = np.zeros( self.base_data_shape ).astype( bool )
+        enters_other_gal[:,:-1] = self.get_data( 'other_gal_event_id' ) == 1
+        CGM_to_other_gal_event = (
+            enters_other_gal &
+            self.get_data( 'is_in_CGM' )
+        )
+
+        # Find contiguous regions where we're in the CGM and outside any other
+        # gal
+        is_in_CGM_not_other_gal = (
+            self.get_data( 'is_in_CGM' ) &
+            np.invert( self.get_data( 'is_in_other_gal' ) )
+        )
+        labeled_CGM_not_other_gal, n_features = scipy.ndimage.label(
+            is_in_CGM_not_other_gal,
+            np.array([
+                [ 0, 0, 0, ],
+                [ 1, 1, 1, ],
+                [ 0, 0, 0, ],
+            ]),
+        )
+        slices = scipy.ndimage.find_objects( labeled_CGM_not_other_gal )
+
+        # Apply classification to contiguous regions
+        is_CGM_to_other_gal = np.zeros( self.base_data_shape ).astype( bool )
+        for sl in slices:
+            is_CGM_to_other_gal[sl] = np.any( CGM_to_other_gal_event[sl] )
+
+        self.data['is_CGM_accreted_satellite'] = is_CGM_to_other_gal
+
+        return self.data['is_CGM_accreted_satellite']
 
     ########################################################################
 
