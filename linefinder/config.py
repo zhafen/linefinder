@@ -274,5 +274,8 @@ STAMPEDE2_PARAMETERS = {
         'code_paper' : {
             'project_dir' : '/home1/03057/zhafen/papers/code-paper',
         },
+        'AMIGA' : {
+            'project_dir' : '/home1/03057/zhafen/papers/AMIGA_theory',
+        },
     },
 }

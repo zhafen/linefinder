@@ -53,6 +53,8 @@ class ParticleTrackGalaxyLinker( object ):
             'd_other_gal',
             'd_other_gal_scaled',
         ],
+        ids_with_supplementary_data = [],
+        supplementary_data_keys = [],
         minimum_criteria = 'n_star',
         minimum_value = 10,
         n_processors = 1,
@@ -100,6 +102,14 @@ class ParticleTrackGalaxyLinker( object ):
 
             ids_to_return (list of strs, optional):
                 The types of id you want to get out.
+
+            ids_with_supplementary_data (list of strs, optional) :
+                What types of IDs should include supplementary data pulled
+                from the halo files.
+
+            supplementary_data_keys (list of strs, optional) :
+                What data keys in the halo files should be accessed and
+                included as part of supplementary data.
 
             minimum_criteria (str, optional) :
                 Options...
@@ -218,6 +228,8 @@ class ParticleTrackGalaxyLinker( object ):
                 'length_scale': self.length_scale,
                 'mt_length_scale': self.mt_length_scale,
                 'ids_to_return': self.ids_to_return,
+                'ids_with_supplementary_data': self.ids_with_supplementary_data,
+                'supplementary_data_keys': self.supplementary_data_keys,
                 'minimum_criteria': self.minimum_criteria,
                 'minimum_value': self.minimum_value,
 

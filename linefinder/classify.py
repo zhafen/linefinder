@@ -73,8 +73,7 @@ class Classifier( object ):
             'is_in_CGM', 'is_in_galaxy_halo_interface',
             'is_CGM_IGM_accretion', 'is_CGM_wind',
             'is_CGM_satellite_wind', 'is_CGM_satellite_ISM',
-            'is_CGM_to_IGM', 'is_CGM_to_gal_or_interface',
-            'is_hereafter_CGM',
+            'is_CGM_to_IGM',
         ],
     ):
         '''Setup the ID Finder.

@@ -28,7 +28,7 @@ sim_names = [
     'm12c_md',
     'm12z_md',
     'm12r_md',
-    'm12w_md', # Ran with more time data
+    # 'm12w_md', # Ran with more time data
     # 'm10q_md',
     # 'm11q_md',
     # 'm12i_md',
@@ -56,7 +56,7 @@ snums = [
     # 277, # z = 1
     # 242,
     # 214,
-    172, # z = 2
+    # 172, # z = 2
     # 156,
     # 142,
     # 120, # z = 3
@@ -81,7 +81,7 @@ galdefs = [
 # Get the file format
 ptracks_tag_format = '{}_CGM_snum{}'
 tag_format = '{}{}'.format( ptracks_tag_format, '{}' )
-file_format =  'galids_{}.hdf5'.format( tag_format )
+file_format =  'classifications_{}.hdf5'.format( tag_format )
 
 # Start up a trove manager and use it to get next args
 trove_manager = trove_management.LinefinderTroveManager(
@@ -142,7 +142,9 @@ tracker_kwargs = {
 
 # Galaxy Finding Parameters
 gal_linker_kwargs = {
-    'ptracks_tag' : ptracks_tag,
+    'ptracks_tag': ptracks_tag,
+    'ids_with_supplementary_data': [ 'd_gal', ],
+    'supplementary_data_keys': [ 'Xc', 'Yc', 'Zc', 'VXc', 'VYc', 'VZc', 'M_star', ],
 }
 
 # Classifying Parameters
@@ -151,9 +153,10 @@ classifier_kwargs = {
 
 visualization_kwargs = {
     'ptracks_tag' : ptracks_tag,
-    'install_firefly': False,
+    'install_firefly': True,
     'export_to_firefly_kwargs': {
-        'firefly_dir': '/work/03057/zhafen/firefly_repos/cooling_flow',
+        'firefly_source': 'git@github.com:zhafen/Firefly.git',
+        'firefly_dir': '/work/03057/zhafen/firefly_repos/CGM-origins-new',
         'classifications': [
             'is_in_CGM',
             'is_CGM_IGM_accretion',
@@ -189,5 +192,5 @@ linefinder.run_linefinder_jug(
     run_tracking = False,
     run_galaxy_linking = True,
     run_classifying = True,
-    run_visualization = True,
+    run_visualization = False,
 )

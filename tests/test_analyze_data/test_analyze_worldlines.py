@@ -26,7 +26,7 @@ tracking_dir = './tests/data/tracking_output_for_analysis'
 tag = 'analyze'
 
 kwargs = {
-    'ahf_data_dir': './tests/data/ahf_test_data',
+    'halo_data_dir': './tests/data/ahf_test_data',
     'ahf_index': 600,
 }
 
@@ -232,7 +232,7 @@ class TestWorldlineGetData( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'galaxy_dive.analyze_data.ahf.HaloData.get_mt_data' )
+    @mock.patch( 'galaxy_dive.analyze_data.halo_data.HaloData.get_mt_data' )
     def test_get_data_at_ind_units_used( self, mock_get_mt_data ):
         '''Test we can get the data at a specified index, including scaling by some unit.
         '''
@@ -250,7 +250,7 @@ class TestWorldlineGetData( unittest.TestCase ):
         ]
 
         actual = self.worldlines.get_data_at_ind( 'test_data', 'ind_test', units='Rvir' )
-        expected = np.array([ 1., 2., 3., 4., ])*0.702
+        expected = np.array([ 1., 2., 3., 4. ])*0.702
 
         npt.assert_allclose( expected, actual )
 
@@ -1133,7 +1133,7 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
-                'is_CGM_accreted_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # IGM Accretion that accretes onto the main galaxy
             # And is ejected back into the CGM as wind
@@ -1148,7 +1148,7 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 1, 1, 0, 0, 0, 0, 0, ],
-                'is_CGM_accreted_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite wind that accretes onto the main galaxy and then
             # is ejected back into the CGM, beyond that, and then back in
@@ -1162,7 +1162,7 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 1, 0, ],
                 'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 1, 0, 0, ],
                 'is_CGM_wind': [ 1, 0, 1, 0, 0, 0, 0, 0, ],
-                'is_CGM_accreted_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite wind that stays in the CGM
             {
@@ -1175,7 +1175,7 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_satellite_wind': [ 1, 1, 1, 1, 1, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
-                'is_CGM_accreted_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite wind that is accreted onto the main galaxy
             {
@@ -1188,7 +1188,7 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 1, 0, 0, 0, 0, ],
                 'is_CGM_satellite_wind': [ 0, 0, 1, 0, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
-                'is_CGM_accreted_satellite': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
+                'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
             },
             # Satellite wind that is ejected from the CGM but reaccretes
             {
@@ -1201,7 +1201,7 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 1, 0, 0, 0, ],
                 'is_CGM_satellite_wind': [ 1, 0, 0, 1, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
-                'is_CGM_accreted_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite wind that is ejected after it's host passes through
             # the main galaxy
@@ -1215,7 +1215,7 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 1, 0, 0, 1, 1, 0, ],
                 'is_CGM_satellite_wind': [ 1, 1, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
-                'is_CGM_accreted_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite ISM that moves in and out of the CGM,
             # including nearly merging
@@ -1229,7 +1229,7 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 1, 0, 1, 0, 0, 1, 0, 0, ],
                 'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
-                'is_CGM_accreted_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
         ]
 
@@ -1239,7 +1239,7 @@ class TestCGMClassifications( unittest.TestCase ):
             'is_CGM_satellite_ISM',
             'is_CGM_wind',
             'is_CGM_satellite_wind',
-            'is_CGM_accreted_satellite',
+            'is_CGM_accreted_to_satellite',
         ]
         # Dictionary to store the expected values in
         self.expected_values = {}
@@ -1309,11 +1309,11 @@ class TestCGMClassifications( unittest.TestCase ):
 
     ########################################################################
 
-    def test_calc_is_CGM_accreted_satellite( self ):
+    def test_calc_is_CGM_accreted_to_satellite( self ):
 
         # Do calculation
-        actual = self.worldlines.calc_is_CGM_accreted_satellite()
-        expected = self.expected_values['is_CGM_accreted_satellite']
+        actual = self.worldlines.calc_is_CGM_accreted_to_satellite()
+        expected = self.expected_values['is_CGM_accreted_to_satellite']
 
         npt.assert_allclose(
             expected,

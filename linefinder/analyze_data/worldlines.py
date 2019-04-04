@@ -12,7 +12,7 @@ import numpy.testing as npt
 import scipy.ndimage
 import verdict
 
-import galaxy_dive.analyze_data.ahf as analyze_ahf_data
+import galaxy_dive.analyze_data.halo_data as halo_data
 import galaxy_dive.analyze_data.generic_data as generic_data
 import galaxy_dive.analyze_data.simulation_data as simulation_data
 import galaxy_dive.read_data.snapshot as read_snapshot
@@ -201,9 +201,13 @@ class Worldlines( simulation_data.TimeData ):
         '''
 
         if not hasattr( self, '_halo_data' ):
-            self._halo_data = analyze_ahf_data.HaloData(
+            self._halo_data = halo_data.HaloData(
                 data_dir = self.halo_data_dir,
                 tag = self.galids.parameters['halo_file_tag'],
+                mt_kwargs = {
+                    'tag': self.galids.parameters['halo_file_tag'],
+                    'index': self.galids.parameters['mtree_halos_index'],
+                },
             )
 
         return self._halo_data
@@ -1456,23 +1460,9 @@ class Worldlines( simulation_data.TimeData ):
                 is currently in the IGM, as defined in Hafen+19.
         '''
 
-        # Get relation to main galaxy
-        r_rvir = self.get_processed_data(
-            'R',
-            scale_key = 'Rvir',
-            scale_a_power = 1.,
-            scale_h_power = -1.,
-        )
-        outside_main_CGM_and_gal = ( r_rvir > config.OUTER_CGM_BOUNDARY )
+        self.data['is_in_IGM'] = self.get_data( '1.0_Rvir' ) == -2
 
-        # Get relation to other galaxies
-        # TODO: Account for being in external CGMs
-        is_in_other_gal = self.get_data( 'is_in_other_gal' )
-
-        self.data['is_in_IGM'] = (
-            outside_main_CGM_and_gal &
-            np.invert( is_in_other_gal )
-        )
+        return self.data['is_in_IGM']
 
     ########################################################################
 
@@ -1506,6 +1496,26 @@ class Worldlines( simulation_data.TimeData ):
         is_in_CGM = is_in_CGM_rvir & is_in_CGM_length_scale
 
         self.data['is_in_CGM'] = is_in_CGM
+
+        return self.data['is_in_CGM']
+
+    ########################################################################
+
+    def calc_is_in_CGM_not_sat( self ):
+        '''Material that is in the CGM and not in an satellite galaxy
+
+        Returns:
+            self.data['is_in_CGM_not_sat'] (np.ndarray):
+                If True, the particle is currently in the CGM, as defined
+                in Hafen+18.
+        '''
+
+        self.data['is_in_CGM_not_sat'] = (
+            self.get_data( 'is_in_CGM' ) &
+            np.invert( self.get_data( 'is_in_other_gal' ) )
+        )
+
+        return self.data['is_in_CGM_not_sat']
 
     ########################################################################
 
@@ -1617,36 +1627,6 @@ class Worldlines( simulation_data.TimeData ):
         )
 
         return self.data['is_CGM_to_IGM']
-
-    def calc_is_CGM_to_gal_or_interface( self ):
-        '''Material that's currently in the CGM, and next enters either the
-        galaxy or the galaxy-halo interface.
-
-        Returns:
-            array-like of booleans, (n_particles, n_snaps):
-                Array where the value of [i,j]th index indicates if particle i
-                will transfer from the CGM to either the galaxy or galaxy-halo
-                interface after index j.
-        '''
-
-        # Did the particle leave the CGM and enter the galaxy or the interface?
-        leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
-        leaves_CGM[:,:-1] = self.get_data( 'CGM_event_id' ) == -1
-        is_in_gal_or_interface = np.ma.mask_or(
-            self.get_data( 'is_in_main_gal' ),
-            self.get_data( 'is_in_galaxy_halo_interface' ),
-        )
-        CGM_to_gal_or_interface_event = leaves_CGM & is_in_gal_or_interface
-
-        self.data['is_CGM_to_gal_or_interface'] = self.get_is_CGM_to_other(
-            CGM_to_gal_or_interface_event,
-        )
-
-        return self.data['is_CGM_to_gal_or_interface']
-
-    def calc_is_CGM_to_satellite( self ):
-
-        pass
 
     ########################################################################
 
@@ -1800,40 +1780,103 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_is_CGM_accreted_satellite( self ):
+    def calc_is_CGM_accreted( self ):
+        '''Material that's currently in the CGM, and next enters either the
+        galaxy or the galaxy-halo interface.
 
-        # Did the particle enter another galaxy while in the CGM?
-        enters_other_gal = np.zeros( self.base_data_shape ).astype( bool )
-        enters_other_gal[:,:-1] = self.get_data( 'other_gal_event_id' ) == 1
-        CGM_to_other_gal_event = (
-            enters_other_gal &
-            self.get_data( 'is_in_CGM' )
+        Returns:
+            array-like of booleans, (n_particles, n_snaps):
+                Array where the value of [i,j]th index indicates if particle i
+                will transfer from the CGM to either the galaxy or galaxy-halo
+                interface after index j.
+        '''
+
+        # Did the particle leave the CGM and enter the galaxy or the interface?
+        leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
+        leaves_CGM[:,:-1] = self.get_data( 'CGM_sat_event_id' ) == -1
+        is_in_gal_or_interface = np.ma.mask_or(
+            self.get_data( 'is_in_main_gal' ),
+            self.get_data( 'is_in_galaxy_halo_interface' ),
+        )
+        CGM_to_gal_or_interface_event = leaves_CGM & is_in_gal_or_interface
+
+        self.data['is_CGM_accreted'] = self.get_is_A_to_B(
+            CGM_to_gal_or_interface_event,
+            'is_in_CGM_not_sat',
         )
 
-        # Find contiguous regions where we're in the CGM and outside any other
-        # gal
-        is_in_CGM_not_other_gal = (
-            self.get_data( 'is_in_CGM' ) &
-            np.invert( self.get_data( 'is_in_other_gal' ) )
+        return self.data['is_CGM_accreted']
+
+    ########################################################################
+
+    def calc_is_CGM_accreted_to_satellite( self ):
+        '''Material that's currently in the CGM, outside a satellite,
+        and next enters a satellite.
+
+        Returns:
+            array-like of booleans, (n_particles, n_snaps):
+                Array where the value of [i,j]th index indicates if particle i
+                will transfer from the CGM to the IGM after index j.
+        '''
+
+        # Did the particle leave the CGM and enter the IGM?
+        leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
+        leaves_CGM[:,:-1] = self.get_data( 'CGM_sat_event_id' ) == -1
+        CGM_to_sat_event = leaves_CGM & self.get_data( 'is_in_other_gal' )
+
+        self.data['is_CGM_accreted_to_satellite'] = self.get_is_A_to_B(
+            CGM_to_sat_event,
+            'is_in_CGM_not_sat',
         )
-        labeled_CGM_not_other_gal, n_features = scipy.ndimage.label(
-            is_in_CGM_not_other_gal,
-            np.array([
-                [ 0, 0, 0, ],
-                [ 1, 1, 1, ],
-                [ 0, 0, 0, ],
-            ]),
+
+        return self.data['is_CGM_accreted_to_satellite']
+
+    ########################################################################
+
+    def calc_is_CGM_splashback_halo_bound( self ):
+        '''Material that's currently in the CGM, and next enters a halo
+        adjacent to the CGM
+
+        Returns:
+            array-like of booleans, (n_particles, n_snaps):
+                Array where the value of [i,j]th index indicates if particle i
+                will transfer from the CGM to the IGM after index j.
+        '''
+
+        # Did the particle leave the CGM and enter the IGM?
+        leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
+        leaves_CGM[:,:-1] = self.get_data( 'CGM_sat_event_id' ) == -1
+        CGM_to_halo_event = leaves_CGM & self.get_data( 'is_in_other_CGM' )
+
+        self.data['is_CGM_splashback_halo_bound'] = self.get_is_A_to_B(
+            CGM_to_halo_event,
+            'is_in_CGM_not_sat',
         )
-        slices = scipy.ndimage.find_objects( labeled_CGM_not_other_gal )
 
-        # Apply classification to contiguous regions
-        is_CGM_to_other_gal = np.zeros( self.base_data_shape ).astype( bool )
-        for sl in slices:
-            is_CGM_to_other_gal[sl] = np.any( CGM_to_other_gal_event[sl] )
+        return self.data['is_CGM_splashback_halo_bound']
 
-        self.data['is_CGM_accreted_satellite'] = is_CGM_to_other_gal
+    ########################################################################
 
-        return self.data['is_CGM_accreted_satellite']
+    def calc_is_CGM_ejected( self ):
+        '''Material that's currently in the CGM, and next enters the IGM.
+
+        Returns:
+            array-like of booleans, (n_particles, n_snaps):
+                Array where the value of [i,j]th index indicates if particle i
+                will transfer from the CGM to the IGM after index j.
+        '''
+
+        # Did the particle leave the CGM and enter the IGM?
+        leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
+        leaves_CGM[:,:-1] = self.get_data( 'CGM_sat_event_id' ) == -1
+        CGM_to_IGM_event = leaves_CGM & self.get_data( 'is_in_IGM' )
+
+        self.data['is_CGM_ejected'] = self.get_is_A_to_B(
+            CGM_to_IGM_event,
+            'is_in_CGM_not_sat',
+        )
+
+        return self.data['is_CGM_ejected']
 
     ########################################################################
 
@@ -2105,6 +2148,23 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_d_gal( self ):
+        '''Calculate the minimum distance to any galaxy.
+        '''
+
+        d_other_gal = self.get_data( 'd_other_gal', )
+        r = self.get_data( 'R', )
+
+        self.data['d_gal'] = np.where(
+            d_other_gal < r,
+            d_other_gal,
+            r,
+        )
+
+        return self.data['d_gal']
+
+    ########################################################################
+
     def calc_d_sat_scaled_min( self ):
         '''Calculate the minimum distance to a a galaxy other than the main galaxy, prior to accretion onto the main gal.
 
@@ -2122,6 +2182,49 @@ class Worldlines( simulation_data.TimeData ):
         d_ma = np.ma.masked_array( d, mask=mask )
 
         self.data['d_sat_scaled_min'] = d_ma.min( axis=1 )
+
+    ########################################################################
+
+    def get_rho_closest_gal( self, axis1, axis2 ):
+        
+        x_cg = self.get_data( 'd_gal_{}c'.format( axis1 ) )
+        y_cg = self.get_data( 'd_gal_{}c'.format( axis2 ) )
+
+        # Convert to co-moving
+        x_cg /= (
+            ( 1. + self.get_data( 'redshift' ) )
+            * self.ptracks.parameters['hubble']
+        )
+        y_cg /= (
+            ( 1. + self.get_data( 'redshift' ) )
+            * self.ptracks.parameters['hubble']
+        )
+
+        return (
+            ( x_cg - self.get_data( axis1 ) )**2. +
+            ( y_cg - self.get_data( axis2 ) )**2.
+        )
+
+    def calc_d_gal_rho_xy( self ):
+        '''Calculate the impact parameter to the closest galaxy in the XY plane.'''
+
+        self.data['d_gal_rho_xy'] = self.get_rho_closest_gal( 'X', 'Y' )
+
+        return self.data['d_gal_rho_xy']
+
+    def calc_d_gal_rho_yz( self ):
+        '''Calculate the impact parameter to the closest galaxy in the YZ plane.'''
+
+        self.data['d_gal_rho_yz'] = self.get_rho_closest_gal( 'Y', 'Z' )
+
+        return self.data['d_gal_rho_yz']
+
+    def calc_d_gal_rho_xz( self ):
+        '''Calculate the impact parameter to the closest galaxy in the XZ plane.'''
+
+        self.data['d_gal_rho_xz'] = self.get_rho_closest_gal( 'X', 'Z' )
+
+        return self.data['d_gal_rho_xz']
 
     ########################################################################
 
@@ -2197,6 +2300,22 @@ class Worldlines( simulation_data.TimeData ):
         )
 
         return self.data['CGM_event_id']
+
+    def calc_CGM_sat_event_id( self ):
+        '''Indication of when a particle moves in or out of the CGM.
+
+        Returns:
+            array-like, (n_particles, n_snaps - 1):
+                A value of -1 means the particle has left the CGM.
+                A value of 1 means the particle has entered the CGM.
+                A value of 0 indicates no change.
+        '''
+
+        self.data['CGM_sat_event_id'] = self.get_event_id(
+            self.get_data( 'is_in_CGM_not_sat' ),
+        )
+
+        return self.data['CGM_sat_event_id']
 
     def calc_other_gal_event_id( self ):
         '''Indication of when a particle moves in or out of galaxies other than
