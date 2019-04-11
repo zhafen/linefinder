@@ -458,46 +458,85 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.get_processed_data' )
-    def test_is_CGM_to_IGM( self, mock_get_processed_data ):
+    # @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.get_processed_data' )
+    # def test_is_CGM_to_IGM( self, mock_get_processed_data ):
 
-        # Setup test data
-        self.worldlines.ptracks._base_data_shape = ( 4, 4 )
-        mock_get_processed_data.side_effect = [
-            # R/R_vir
-            np.array([ 
-                [ 2, 0.5, 0.5, 0.5 ],
-                [ 10, 0.75, 0.05, 0.6 ],
-                [ 3, 0.4, 10, 20 ],
-                [ 2, 0.5, 10, 0.5 ],
-            ]),
-        ]
-        self.worldlines.data['is_in_CGM'] = np.array([
-            [ 0, 1, 1, 1, ],
-            [ 0, 1, 0, 1, ],
-            [ 0, 1, 0, 0, ],
-            [ 1, 1, 0, 1, ],
-        ]).astype( bool )
-        self.worldlines.data['is_in_other_gal'] = np.array([
-            [ 0, 0, 0, 0, ],
-            [ 0, 0, 0, 0, ],
-            [ 0, 0, 0, 0, ],
-            [ 0, 0, 0, 0, ],
-        ]).astype( bool )
+    #     # Setup test data
+    #     self.worldlines.ptracks._base_data_shape = ( 4, 4 )
+    #     mock_get_processed_data.side_effect = [
+    #         # R/R_vir
+    #         np.array([ 
+    #             [ 2, 0.5, 0.5, 0.5 ],
+    #             [ 10, 0.75, 0.05, 0.6 ],
+    #             [ 3, 0.4, 10, 20 ],
+    #             [ 2, 0.5, 10, 0.5 ],
+    #         ]),
+    #     ]
+    #     self.worldlines.data['is_in_CGM'] = np.array([
+    #         [ 0, 1, 1, 1, ],
+    #         [ 0, 1, 0, 1, ],
+    #         [ 0, 1, 0, 0, ],
+    #         [ 1, 1, 0, 1, ],
+    #     ]).astype( bool )
+    #     self.worldlines.data['is_in_other_gal'] = np.array([
+    #         [ 0, 0, 0, 0, ],
+    #         [ 0, 0, 0, 0, ],
+    #         [ 0, 0, 0, 0, ],
+    #         [ 0, 0, 0, 0, ],
+    #     ]).astype( bool )
 
-        expected = np.array([
-            [ 0, 1, 1, 1, ],
-            [ 0, 1, 0, 0, ],
-            [ 0, 1, 0, 0, ],
-            [ 0, 0, 0, 1, ],
-        ]).astype( bool )
+    #     expected = np.array([
+    #         [ 0, 1, 1, 1, ],
+    #         [ 0, 1, 0, 0, ],
+    #         [ 0, 1, 0, 0, ],
+    #         [ 0, 0, 0, 1, ],
+    #     ]).astype( bool )
 
-        # Actual calculation
-        self.worldlines.calc_is_CGM_to_IGM()
+    #     # Actual calculation
+    #     self.worldlines.calc_is_CGM_to_IGM()
 
-        actual = self.worldlines.data['is_CGM_to_IGM']
+    #     actual = self.worldlines.data['is_CGM_to_IGM']
 
-        npt.assert_allclose( expected, actual )
+    #     npt.assert_allclose( expected, actual )
+
+    # ########################################################################
+
+    # def test_is_CGM_to_gal_or_interface( self ):
+
+    #     # Setup test data
+    #     self.worldlines.ptracks._base_data_shape = ( 4, 4 )
+    #     self.worldlines.data['is_in_CGM'] = np.array([
+    #         [ 0, 1, 1, 1, ],
+    #         [ 0, 1, 0, 1, ],
+    #         [ 0, 1, 0, 0, ],
+    #         [ 1, 1, 0, 1, ],
+    #     ])
+    #     self.worldlines.data['is_in_galaxy_halo_interface'] = np.array([
+    #         [ 1, 0, 0, 0, ],
+    #         [ 1, 0, 0, 0, ],
+    #         [ 0, 0, 0, 0, ],
+    #         [ 0, 0, 0, 0, ],
+    #     ])
+    #     self.worldlines.data['is_in_main_gal'] = np.array([
+    #         [ 0, 0, 0, 0, ],
+    #         [ 0, 0, 0, 0, ],
+    #         [ 1, 0, 0, 0, ],
+    #         [ 0, 0, 1, 0, ],
+    #     ])
+    #     
+    #     expected = np.array([
+    #         [ 0, 1, 1, 1, ],
+    #         [ 0, 1, 0, 0, ],
+    #         [ 0, 1, 0, 0, ],
+    #         [ 0, 0, 0, 1, ],
+    #     ]).astype( bool )
+
+    #     # Actual calculation
+    #     self.worldlines.calc_is_CGM_to_gal_or_interface()
+
+    #     actual = self.worldlines.data['is_CGM_to_gal_or_interface']
+
+    #     npt.assert_allclose( expected, actual )
 
     ########################################################################
 
@@ -1085,36 +1124,50 @@ class TestCGMClassifications( unittest.TestCase ):
         data = [
             # IGM Accretion that's ejected out of the CGM but reaccretes
             {
+                '1.0_Rvir': [ 0, 0, -2, 0, 0, -2, -2, -2, ],
                 'is_in_CGM': [ 1, 1, 0, 1, 1, 0, 0, 0, ],
+                'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_hitherto_EP': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'gal_event_id': [ 0, 0, 0, 0, 0, 0, 0, ],
-                'is_CGM_IGM_accretion': [ 1, 1, 0, 1, 1, 0, 0, 0, ],
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_IGM_accretion': [ 1, 1, 0, 1, 1, 0, 0, 0, ],
                 'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_ejected': [ 0, 0, 0, 1, 1, 0, 0, 0, ],
+                'is_CGM_halo_transfer': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_still': [ 1, 1, 0, 0, 0, 0, 0, 0, ],
             },
             # IGM Accretion that accretes onto the main galaxy
             # And is ejected back into the CGM as wind
             # before reaccreting once more
             {
+                '1.0_Rvir': [ 0, 0, 0, 0, 0, 0, 0, -2, ],
                 'is_in_CGM': [ 0, 1, 1, 0, 0, 1, 1, 0, ], 
+                'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 1, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_hitherto_EP': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'gal_event_id': [ 0, 0, -1, 0, 1, 0, 0, ],
-                'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
                 'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 1, 1, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted': [ 0, 1, 1, 0, 0, 1, 1, 0, ],
                 'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_ejected': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_halo_transfer': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_still': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite wind that accretes onto the main galaxy and then
             # is ejected back into the CGM, beyond that, and then back in
             {
+                '1.0_Rvir': [ 0, -2, 0, 0, 0, 0, 5, 5, ],
                 'is_in_CGM': [ 1, 0, 1, 0, 0, 1, 1, 0, ], 
+                'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 1, 1, ],
                 'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 1, 0, ],
@@ -1123,11 +1176,17 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 1, 0, ],
                 'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 1, 0, 0, ],
                 'is_CGM_wind': [ 1, 0, 1, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted': [ 0, 0, 0, 0, 0, 1, 0, 0, ],
                 'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_ejected': [ 0, 0, 1, 0, 0, 0, 0, 0, ],
+                'is_CGM_halo_transfer': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_still': [ 1, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite wind that stays in the CGM
             {
+                '1.0_Rvir': [ 0, 0, 0, 0, 0, 5, 5, -2, ],
                 'is_in_CGM': [ 1, 1, 1, 1, 1, 0, 0, 0, ], 
+                'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
                 'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 0, 0, ],
@@ -1136,11 +1195,17 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_satellite_wind': [ 1, 1, 1, 1, 1, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_ejected': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_halo_transfer': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_still': [ 1, 1, 1, 1, 1, 0, 0, 0, ],
             },
             # Satellite wind that is accreted onto the main galaxy
             {
+                '1.0_Rvir': [ 0, 0, 0, 5, 5, 0, 0, -2, ],
                 'is_in_CGM': [ 0, 0, 1, 1, 1, 1, 1, 0, ], 
+                'is_in_galaxy_halo_interface': [ 0, 1, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 1, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_hitherto_EP': [ 1, 1, 1, 1, 0, 0, 0, 0, ],
@@ -1149,11 +1214,17 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 1, 0, 0, 0, 0, ],
                 'is_CGM_satellite_wind': [ 0, 0, 1, 0, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted': [ 0, 0, 1, 0, 1, 1, 1, 0, ],
                 'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
+                'is_CGM_ejected': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_halo_transfer': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_still': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite wind that is ejected from the CGM but reaccretes
             {
+                '1.0_Rvir': [ 0, -2, -2, 0, 5, 5, -2, -2, ],
                 'is_in_CGM': [ 1, 0, 0, 1, 1, 1, 0, 0, ], 
+                'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 0, 0, 1, 1, 0, 0, ], 
                 'is_hitherto_EP': [ 1, 1, 1, 1, 1, 0, 0, 0, ],
@@ -1162,12 +1233,18 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 1, 0, 0, 0, ],
                 'is_CGM_satellite_wind': [ 1, 0, 0, 1, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_ejected': [ 0, 0, 0, 1, 0, 0, 0, 0, ],
+                'is_CGM_halo_transfer': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_still': [ 1, 0, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite wind that is ejected after it's host passes through
             # the main galaxy
             {
+                '1.0_Rvir': [ 0, 0, 5, 5, 5, 5, 5, 5, ],
                 'is_in_CGM': [ 1, 1, 1, 0, 0, 1, 1, 0, ], 
+                'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_other_gal': [ 0, 0, 1, 1, 1, 1, 1, 1, ], 
                 'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 1, 0, ],
@@ -1176,12 +1253,18 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 1, 0, 0, 1, 1, 0, ],
                 'is_CGM_satellite_wind': [ 1, 1, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_ejected': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_halo_transfer': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_still': [ 1, 1, 0, 0, 0, 0, 0, 0, ],
             },
             # Satellite ISM that moves in and out of the CGM,
             # including nearly merging
             {
+                '1.0_Rvir': [ 5, 5, 5, 5, 5, 5, 5, 5, ],
                 'is_in_CGM': [ 1, 0, 1, 0, 0, 1, 0, 0, ], 
+                'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_other_gal': [ 1, 1, 1, 0, 1, 1, 1, 1, ], 
                 'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 1, 0, ],
@@ -1190,7 +1273,73 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 1, 0, 1, 0, 0, 1, 0, 0, ],
                 'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_ejected': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_halo_transfer': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_still': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+            },
+            # Wind expelled from a satellite-to-be, accreting separetly onto
+            # the halo, accreting onto the same previous satellite, being
+            # expelled again, and ending up outside the CGM bound to the halo
+            {
+                '1.0_Rvir': [ -2, 5, 5, 5, 5, 5, -2, 5, ],
+                'is_in_CGM': [ 0, 0, 1, 1, 1, 1, 0, 0, ], 
+                'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
+                'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
+                'is_in_other_gal': [ 0, 0, 0, 0, 1, 0, 0, 1, ], 
+                'is_hitherto_EP': [ 1, 1, 1, 1, 1, 1, 1, 1, ],
+                'gal_event_id': [ 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_IGM_accretion': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 1, 0, 0, 0, ],
+                'is_CGM_satellite_wind': [ 0, 0, 1, 1, 0, 1, 0, 0, ],
+                'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 1, 0, 0, ],
+                'is_CGM_ejected': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_halo_transfer': [ 0, 0, 1, 1, 0, 0, 0, 0, ],
+                'is_CGM_still': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+            },
+            # Gas that nearly makes it into the main galaxy, but only
+            # makes it into the interface, and stays that way until the end
+            # of the simulation
+            {
+                '1.0_Rvir': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_in_CGM': [ 1, 1, 1, 0, 0, 1, 1, 0, ], 
+                'is_in_galaxy_halo_interface': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
+                'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
+                'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_hitherto_EP': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'gal_event_id': [ 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_IGM_accretion': [ 1, 1, 1, 0, 0, 1, 1, 0, ],
+                'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_ejected': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_halo_transfer': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_still': [ 1, 1, 1, 0, 0, 1, 1, 0, ],
+            },
+            # Gas that nearly makes it into the main galaxy, but only
+            # makes it into the interface, and is then ejected from the CGM
+            {
+                '1.0_Rvir': [ -2, 0, 0, 0, 0, 0, 0, -2, ],
+                'is_in_CGM': [ 0, 1, 1, 0, 0, 1, 1, 0, ], 
+                'is_in_galaxy_halo_interface': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
+                'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
+                'is_in_other_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_hitherto_EP': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'gal_event_id': [ 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_satellite_ISM': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_IGM_accretion': [ 0, 1, 1, 0, 0, 1, 1, 0, ],
+                'is_CGM_satellite_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_ejected': [ 0, 1, 1, 0, 0, 1, 1, 0, ],
+                'is_CGM_halo_transfer': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                'is_CGM_still': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
             },
         ]
 
@@ -1200,7 +1349,11 @@ class TestCGMClassifications( unittest.TestCase ):
             'is_CGM_satellite_ISM',
             'is_CGM_wind',
             'is_CGM_satellite_wind',
+            'is_CGM_accreted',
             'is_CGM_accreted_to_satellite',
+            'is_CGM_ejected',
+            'is_CGM_halo_transfer',
+            'is_CGM_still',
         ]
         # Dictionary to store the expected values in
         self.expected_values = {}
@@ -1236,7 +1389,14 @@ class TestCGMClassifications( unittest.TestCase ):
         actual = self.worldlines.calc_is_CGM_IGM_accretion()
         expected = self.expected_values['is_CGM_IGM_accretion']
 
-        npt.assert_allclose( expected, actual )
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                actual.astype( int ),
+                expected.astype( int )
+            )
+        )
 
     ########################################################################
 
@@ -1246,7 +1406,14 @@ class TestCGMClassifications( unittest.TestCase ):
         actual = self.worldlines.calc_is_CGM_satellite_ISM()
         expected = self.expected_values['is_CGM_satellite_ISM']
 
-        npt.assert_allclose( expected, actual )
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                actual.astype( int ),
+                expected.astype( int )
+            )
+        )
 
     ########################################################################
 
@@ -1256,7 +1423,14 @@ class TestCGMClassifications( unittest.TestCase ):
         actual = self.worldlines.calc_is_CGM_satellite_wind()
         expected = self.expected_values['is_CGM_satellite_wind']
 
-        npt.assert_allclose( expected, actual )
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                actual.astype( int ),
+                expected.astype( int )
+            )
+        )
 
     ########################################################################
 
@@ -1266,7 +1440,14 @@ class TestCGMClassifications( unittest.TestCase ):
         actual = self.worldlines.calc_is_CGM_wind()
         expected = self.expected_values['is_CGM_wind']
 
-        npt.assert_allclose( expected, actual )
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                actual.astype( int ),
+                expected.astype( int )
+            )
+        )
 
     ########################################################################
 
@@ -1284,6 +1465,12 @@ class TestCGMClassifications( unittest.TestCase ):
                 expected.astype( int )
             )
         )
+
+    ########################################################################
+
+    def test_fate_classifications_accounted_for( self ):
+
+        assert False, "Need to ensure there are no unclassified particles"
 
 ########################################################################
 ########################################################################
