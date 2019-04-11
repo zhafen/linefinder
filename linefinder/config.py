@@ -254,16 +254,16 @@ STAMPEDE2_PARAMETERS = {
 
     'project' : {
         'CGM_origin' : {
-            'project_dir' : '/home1/03057/zhafen/papers/CGM_origin',
+            'project_dir' : '/home1/03057/zhafen/papers/CGM_Origin',
             'presentation_dir' : '/work/03057/zhafen/presentation_plots',
             'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_origin',
-            'output_data_dir' : '/home1/03057/zhafen/nbs/CGM_origin_analysis/data',
+            'output_data_dir' : '/work/03057/zhafen/stampede2/nbs/CGM_origin_analysis/data',
         },
         'CGM_fate' : {
             'project_dir' : '/home1/03057/zhafen/papers/CGM_fate',
             'presentation_dir' : '/work/03057/zhafen/presentation_plots',
             'extras_dir' : '/work/03057/zhafen/extra_plots/CGM_fate',
-            'output_data_dir' : '/home1/03057/zhafen/nbs/CGM_fate_analysis/data',
+            'output_data_dir' : '/work/03057/zhafen/stampede2/nbs/CGM_fate_analysis/data',
         },
         'winds' : {
             'project_dir' : '/home1/03057/zhafen/papers/fire2-winds',

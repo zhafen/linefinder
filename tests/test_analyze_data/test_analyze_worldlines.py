@@ -501,45 +501,6 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
-    def test_is_CGM_to_gal_or_interface( self ):
-
-        # Setup test data
-        self.worldlines.ptracks._base_data_shape = ( 4, 4 )
-        self.worldlines.data['is_in_CGM'] = np.array([
-            [ 0, 1, 1, 1, ],
-            [ 0, 1, 0, 1, ],
-            [ 0, 1, 0, 0, ],
-            [ 1, 1, 0, 1, ],
-        ])
-        self.worldlines.data['is_in_galaxy_halo_interface'] = np.array([
-            [ 1, 0, 0, 0, ],
-            [ 1, 0, 0, 0, ],
-            [ 0, 0, 0, 0, ],
-            [ 0, 0, 0, 0, ],
-        ])
-        self.worldlines.data['is_in_main_gal'] = np.array([
-            [ 0, 0, 0, 0, ],
-            [ 0, 0, 0, 0, ],
-            [ 1, 0, 0, 0, ],
-            [ 0, 0, 1, 0, ],
-        ])
-        
-        expected = np.array([
-            [ 0, 1, 1, 1, ],
-            [ 0, 1, 0, 0, ],
-            [ 0, 1, 0, 0, ],
-            [ 0, 0, 0, 1, ],
-        ]).astype( bool )
-
-        # Actual calculation
-        self.worldlines.calc_is_CGM_to_gal_or_interface()
-
-        actual = self.worldlines.data['is_CGM_to_gal_or_interface']
-
-        npt.assert_allclose( expected, actual )
-
-    ########################################################################
-
     def test_is_hereafter_CGM( self ):
 
         # Setup test data
