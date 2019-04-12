@@ -7,6 +7,7 @@
 '''
 
 import copy
+import numba
 import numpy as np
 import numpy.testing as npt
 import scipy.ndimage
@@ -1780,6 +1781,121 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_CGM_fate_classifications( self ):
+        '''Calculate all the CGM fate classifications.'''
+        
+        classifications = np.zeros( self.base_data_shape )
+
+        @numba.jit(
+            'i8[:,:](i8[:,:],b1[:,:],b1[:,:],b1[:,:],b1[:,:],b1[:,:])',
+            nopython=True
+        )
+        def numba_fn(
+            x,
+            is_in_CGM_or_iface,
+            is_in_main_gal,
+            is_in_CGM_other_gal,
+            is_in_IGM,
+            is_in_another_halo,
+        ):
+
+            # Loop over all particles
+            for i in range( x.shape[0] ):
+
+                # Loop over all snapshots
+                for j in range( x.shape[1] ):
+
+                    # Don't try to classify out of bounds
+                    if not is_in_CGM_or_iface[i,j]:
+                        continue
+
+                    # For the very last time step tracked
+                    if j == 0:
+
+                        # Code for "still CGM"
+                        x[i,j] = 0
+
+                    # Standard cases
+                    else:
+
+                        # Propagate forward what the particle was
+                        if is_in_CGM_or_iface[i,j-1]:
+                            x[i,j] = x[i,j-1]
+
+                        # When the particle accretes onto the main galaxy
+                        # Code for "CGM accreted"
+                        if is_in_main_gal[i,j-1]:
+                            x[i,j] = 1
+
+                        # When the particle accretes onto a satellite galaxy
+                        # Code for "CGM accreted to satellite"
+                        if is_in_CGM_other_gal[i,j-1]:
+                            x[i,j] = 2
+
+                        # When the particle is ejected to the IGM
+                        # Code for "CGM ejected"
+                        if is_in_IGM[i,j-1]:
+                            x[i,j] = 3
+
+                        # When the particle is transferred to an adjacent halo
+                        # Code for "CGM halo transfer"
+                        in_other_halo_but_not_sat = (
+                            is_in_another_halo[i,j-1] and
+                            not is_in_CGM_other_gal[i,j-1]
+                        )
+                        if in_other_halo_but_not_sat:
+                            x[i,j] = 4
+
+            return x
+
+        # Create this combined category for classification purposes
+        is_in_CGM_or_iface = np.logical_or(
+            self.get_data( 'is_in_CGM_not_sat' ),
+            self.get_data( 'is_in_galaxy_halo_interface' ),
+        )
+
+        # For tracking accretion onto satellites
+        is_in_CGM_other_gal = np.logical_and(
+            self.get_data( 'is_in_other_gal' ),
+            self.get_data( 'is_in_CGM' ),
+        )
+
+        # For tracking halo transfer
+        is_in_another_halo = np.logical_and(
+            ( self.get_data( '1.0_Rvir' ) != -2 ),
+            ( self.get_data( '1.0_Rvir' ) != 0 ),
+        )
+
+        # Get results
+        CGM_fate_cs = numba_fn(
+            ( np.ones( self.base_data_shape ) * -2).astype( int ),
+            is_in_CGM_or_iface,
+            self.get_data( 'is_in_main_gal' ),
+            is_in_CGM_other_gal,
+            self.get_data( 'is_in_IGM' ),
+            is_in_another_halo,
+        )
+
+        # Ignore particles that are part of the interface
+        CGM_fate_cs[self.get_data( 'is_in_galaxy_halo_interface' )] = -2
+
+        self.data['CGM_fate_classifications'] = CGM_fate_cs
+
+        return self.data['CGM_fate_classifications']
+
+    ########################################################################
+
+    def calc_is_CGM_still( self ):
+        '''Material that stays in the CGM until the simulation end.'''
+
+        self.data['is_CGM_still'] = (
+            self.get_data( 'CGM_fate_classifications') == 0
+        )
+
+        return self.data['is_CGM_still']
+
+    ########################################################################
+
     def calc_is_CGM_accreted( self ):
         '''Material that's currently in the CGM, and next enters either the
         galaxy or the galaxy-halo interface.
@@ -1791,18 +1907,8 @@ class Worldlines( simulation_data.TimeData ):
                 interface after index j.
         '''
 
-        # Did the particle leave the CGM and enter the galaxy or the interface?
-        leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
-        leaves_CGM[:,:-1] = self.get_data( 'CGM_sat_event_id' ) == -1
-        is_in_gal_or_interface = np.ma.mask_or(
-            self.get_data( 'is_in_main_gal' ),
-            self.get_data( 'is_in_galaxy_halo_interface' ),
-        )
-        CGM_to_gal_or_interface_event = leaves_CGM & is_in_gal_or_interface
-
-        self.data['is_CGM_accreted'] = self.get_is_A_to_B(
-            CGM_to_gal_or_interface_event,
-            'is_in_CGM_not_sat',
+        self.data['is_CGM_accreted'] = (
+            self.get_data( 'CGM_fate_classifications' ) == 1
         )
 
         return self.data['is_CGM_accreted']
@@ -1819,41 +1925,11 @@ class Worldlines( simulation_data.TimeData ):
                 will transfer from the CGM to the IGM after index j.
         '''
 
-        # Did the particle leave the CGM and enter the IGM?
-        leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
-        leaves_CGM[:,:-1] = self.get_data( 'CGM_sat_event_id' ) == -1
-        CGM_to_sat_event = leaves_CGM & self.get_data( 'is_in_other_gal' )
-
-        self.data['is_CGM_accreted_to_satellite'] = self.get_is_A_to_B(
-            CGM_to_sat_event,
-            'is_in_CGM_not_sat',
+        self.data['is_CGM_accreted_to_satellite'] = (
+            self.get_data( 'CGM_fate_classifications' ) == 2
         )
 
         return self.data['is_CGM_accreted_to_satellite']
-
-    ########################################################################
-
-    def calc_is_CGM_splashback_halo_bound( self ):
-        '''Material that's currently in the CGM, and next enters a halo
-        adjacent to the CGM
-
-        Returns:
-            array-like of booleans, (n_particles, n_snaps):
-                Array where the value of [i,j]th index indicates if particle i
-                will transfer from the CGM to the IGM after index j.
-        '''
-
-        # Did the particle leave the CGM and enter the IGM?
-        leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
-        leaves_CGM[:,:-1] = self.get_data( 'CGM_sat_event_id' ) == -1
-        CGM_to_halo_event = leaves_CGM & self.get_data( 'is_in_other_CGM' )
-
-        self.data['is_CGM_splashback_halo_bound'] = self.get_is_A_to_B(
-            CGM_to_halo_event,
-            'is_in_CGM_not_sat',
-        )
-
-        return self.data['is_CGM_splashback_halo_bound']
 
     ########################################################################
 
@@ -1866,17 +1942,29 @@ class Worldlines( simulation_data.TimeData ):
                 will transfer from the CGM to the IGM after index j.
         '''
 
-        # Did the particle leave the CGM and enter the IGM?
-        leaves_CGM = np.zeros( self.base_data_shape ).astype( bool )
-        leaves_CGM[:,:-1] = self.get_data( 'CGM_sat_event_id' ) == -1
-        CGM_to_IGM_event = leaves_CGM & self.get_data( 'is_in_IGM' )
-
-        self.data['is_CGM_ejected'] = self.get_is_A_to_B(
-            CGM_to_IGM_event,
-            'is_in_CGM_not_sat',
+        self.data['is_CGM_ejected'] = (
+            self.get_data( 'CGM_fate_classifications' ) == 3
         )
 
         return self.data['is_CGM_ejected']
+
+    ########################################################################
+
+    def calc_is_CGM_halo_transfer( self ):
+        '''Material that's currently in the CGM, and next enters a halo
+        adjacent to the CGM
+
+        Returns:
+            array-like of booleans, (n_particles, n_snaps):
+                Array where the value of [i,j]th index indicates if particle i
+                will transfer from the CGM to the IGM after index j.
+        '''
+
+        self.data['is_CGM_halo_transfer'] = (
+            self.get_data( 'CGM_fate_classifications' ) == 4
+        )
+
+        return self.data['is_CGM_halo_transfer']
 
     ########################################################################
 

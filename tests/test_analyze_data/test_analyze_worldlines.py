@@ -1214,7 +1214,7 @@ class TestCGMClassifications( unittest.TestCase ):
                 'is_CGM_satellite_ISM': [ 0, 0, 0, 1, 0, 0, 0, 0, ],
                 'is_CGM_satellite_wind': [ 0, 0, 1, 0, 0, 0, 0, 0, ],
                 'is_CGM_wind': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
-                'is_CGM_accreted': [ 0, 0, 1, 0, 1, 1, 1, 0, ],
+                'is_CGM_accreted': [ 0, 0, 1, 0, 0, 0, 0, 0, ],
                 'is_CGM_accreted_to_satellite': [ 0, 0, 0, 0, 0, 1, 1, 0, ],
                 'is_CGM_ejected': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
                 'is_CGM_halo_transfer': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
@@ -1451,6 +1451,23 @@ class TestCGMClassifications( unittest.TestCase ):
 
     ########################################################################
 
+    def test_calc_is_CGM_accreted( self ):
+
+        # Do calculation
+        actual = self.worldlines.calc_is_CGM_accreted()
+        expected = self.expected_values['is_CGM_accreted']
+
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                expected.astype( int ),
+                actual.astype( int )
+            )
+        )
+
+    ########################################################################
+
     def test_calc_is_CGM_accreted_to_satellite( self ):
 
         # Do calculation
@@ -1461,8 +1478,59 @@ class TestCGMClassifications( unittest.TestCase ):
             expected,
             actual,
             err_msg='expected = {}\nactual = {}'.format(
-                actual.astype( int ),
-                expected.astype( int )
+                expected.astype( int ),
+                actual.astype( int )
+            )
+        )
+
+    ########################################################################
+
+    def test_calc_is_CGM_ejected( self ):
+
+        # Do calculation
+        actual = self.worldlines.calc_is_CGM_ejected()
+        expected = self.expected_values['is_CGM_ejected']
+
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                expected.astype( int ),
+                actual.astype( int )
+            )
+        )
+    
+    ########################################################################
+
+    def test_calc_is_CGM_halo_transfer( self ):
+
+        # Do calculation
+        actual = self.worldlines.calc_is_CGM_halo_transfer()
+        expected = self.expected_values['is_CGM_halo_transfer']
+
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                expected.astype( int ),
+                actual.astype( int )
+            )
+        )
+
+    ########################################################################
+
+    def test_calc_is_CGM_still( self ):
+
+        # Do calculation
+        actual = self.worldlines.calc_is_CGM_still()
+        expected = self.expected_values['is_CGM_still']
+
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                expected.astype( int ),
+                actual.astype( int )
             )
         )
 
