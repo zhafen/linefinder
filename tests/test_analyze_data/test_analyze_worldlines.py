@@ -1536,9 +1536,23 @@ class TestCGMClassifications( unittest.TestCase ):
 
     ########################################################################
 
-    def test_fate_classifications_accounted_for( self ):
+    def test_CGM_fate_unclassified( self ):
 
-        assert False, "Need to ensure there are no unclassified particles"
+        # Do calculation
+        actual = self.worldlines.calc_is_CGM_fate_unclassified()
+        expected = np.invert(
+            self.worldlines.get_data( 'is_in_CGM_not_sat' )
+        ) # As long as it's inside the CGM and outside a satellite galaxy,
+        # everything should be classified.
+
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                expected.astype( int ),
+                actual.astype( int )
+            )
+        )
 
 ########################################################################
 ########################################################################

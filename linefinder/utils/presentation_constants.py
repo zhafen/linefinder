@@ -50,11 +50,11 @@ CLASSIFICATION_LABELS = {
     'is_CGM_to_IGM': 'ejected',
     'is_CGM_to_gal_or_interface': 'accreted',
     'is_hereafter_CGM': r'still CGM at $z=0$',
+    'is_CGM_still': 'remains CGM',
     'is_CGM_accreted': 'accreted',
     'is_CGM_ejected': 'ejected',
-    'is_hereafter_CGM': 'remains CGM',
     'is_CGM_accreted_to_satellite': 'accreted - satellite',
-    'is_CGM_splashback_halo_bound': 'splashback-halo bound',
+    'is_CGM_splashback_halo_bound': 'halo transfer',
 }
 
 # These are in line with the colors used in Angles-Alcazar2017
@@ -119,9 +119,9 @@ CLASSIFICATION_COLORS_B = {
     'is_merger_gas': list( colors.hex2color( '#E67711' ) ),
     'is_CGM_accreted': palettable.cartocolors.qualitative.Safe_7.mpl_colors[0],
     'is_CGM_ejected': palettable.cartocolors.qualitative.Safe_7.mpl_colors[1],
-    'is_hereafter_CGM': palettable.cartocolors.qualitative.Safe_7.mpl_colors[2],
+    'is_CGM_still': palettable.cartocolors.qualitative.Safe_7.mpl_colors[2],
     'is_CGM_accreted_to_satellite': palettable.cartocolors.qualitative.Safe_7.mpl_colors[4],
-    'is_CGM_splashback_halo_bound': palettable.cartocolors.qualitative.Safe_7.mpl_colors[5],
+    'is_CGM_halo_transfer': palettable.cartocolors.qualitative.Safe_7.mpl_colors[5],
 }
 # This set is revised again to have greater variation in brightness
 # Revised to have greater variation in brightness
@@ -248,9 +248,9 @@ CLASSIFICATIONS_CGM_ORIGIN_OLD = [
 
 # This set of classifications is centered on the fate of the CGM
 CLASSIFICATIONS_CGM_FATE = [
-    'is_CGM_ejected',
+    'is_CGM_still',
     'is_CGM_accreted',
-    'is_hereafter_CGM',
     'is_CGM_accreted_to_satellite',
-    'is_CGM_splashback_halo_bound',
+    'is_CGM_ejected',
+    'is_CGM_halo_transfer',
 ]

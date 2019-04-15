@@ -1784,11 +1784,9 @@ class Worldlines( simulation_data.TimeData ):
     def calc_CGM_fate_classifications( self ):
         '''Calculate all the CGM fate classifications.'''
         
-        classifications = np.zeros( self.base_data_shape )
-
         @numba.jit(
             'i8[:,:](i8[:,:],b1[:,:],b1[:,:],b1[:,:],b1[:,:],b1[:,:])',
-            nopython=True
+            nopython = True
         )
         def numba_fn(
             x,
@@ -1898,7 +1896,7 @@ class Worldlines( simulation_data.TimeData ):
 
     def calc_is_CGM_accreted( self ):
         '''Material that's currently in the CGM, and next enters either the
-        galaxy or the galaxy-halo interface.
+        main galaxy.
 
         Returns:
             array-like of booleans, (n_particles, n_snaps):
@@ -1957,7 +1955,7 @@ class Worldlines( simulation_data.TimeData ):
         Returns:
             array-like of booleans, (n_particles, n_snaps):
                 Array where the value of [i,j]th index indicates if particle i
-                will transfer from the CGM to the IGM after index j.
+                will transfer from the CGM to another halo after index j.
         '''
 
         self.data['is_CGM_halo_transfer'] = (
@@ -1965,6 +1963,24 @@ class Worldlines( simulation_data.TimeData ):
         )
 
         return self.data['is_CGM_halo_transfer']
+
+    ########################################################################
+
+    def calc_is_CGM_fate_unclassified( self ):
+        '''Material that cannot be classified under the current CGM fate
+        classifications.
+
+        Returns:
+            array-like of booleans, (n_particles, n_snaps):
+                Array where the value of [i,j]th index indicates if particle i
+                doesn't fit within the CGM fate classification scheme
+        '''
+
+        self.data['is_CGM_fate_unclassified'] = (
+            self.get_data( 'CGM_fate_classifications' ) == -2
+        )
+
+        return self.data['is_CGM_fate_unclassified']
 
     ########################################################################
 
