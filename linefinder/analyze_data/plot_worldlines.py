@@ -12,6 +12,8 @@ import numpy as np
 import os
 import subprocess
 import sys
+import firefly_api.reader as read_firefly
+import firefly_api.particlegroup as firefly_particle_group
 
 import matplotlib
 matplotlib.use('PDF')
@@ -1077,12 +1079,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             else:
                 raise Exception( "Failed to install Firefly." )
 
-        # Import the Firefly data parser
-        sys.path.append(
-            os.path.join( firefly_dir, 'data' )
-        )
-        import dataParser
-
         # Make the JSON dir exist if it doesn't
         data_subdir = self.data_object.tag
         if pathlines:
@@ -1096,7 +1092,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             os.makedirs( json_dir )
 
         # Setup a reader
-        firefly_reader = dataParser.Reader(
+        firefly_reader = read_firefly.Reader(
             JSONdir = json_dir,
             write_startup = write_startup,
             clean_JSONdir = True,
@@ -1247,13 +1243,14 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 option_kwargs['color'] = np.array( color )
 
             # Create a particle group and add to the firefly reader
-            particle_group = dataParser.ParticleGroup(
+            particle_group = firefly_particle_group.ParticleGroup(
                 UIname = classification_ui_labels[i],
                 coordinates = coords,
                 tracked_arrays = tracked_arrs,
                 tracked_names = tracked_labels,
                 tracked_filter_flags = tracked_filter_flags_class,
                 tracked_colormap_flags = tracked_colormap_flags_class,
+                sizeMult = 3,
                 **option_kwargs
             )
             firefly_reader.addParticleGroup( particle_group )
@@ -1274,9 +1271,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             coords = np.concatenate( [ x, y, z ] )
             
-            particle_group = dataParser.ParticleGroup(
+            particle_group = firefly_particle_group.ParticleGroup(
                 UIname = 'ruler',
                 coordinates = coords,
+                sizeMult = 3,
             )
             firefly_reader.addParticleGroup( particle_group )
 
@@ -1317,9 +1315,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             
             coords = np.concatenate( [ disk_pos, axis_pos ])
 
-            particle_group = dataParser.ParticleGroup(
+            particle_group = firefly_particle_group.ParticleGroup(
                 UIname = 'disk',
                 coordinates = coords,
+                sizeMult = 3,
             )
             firefly_reader.addParticleGroup( particle_group )
 
