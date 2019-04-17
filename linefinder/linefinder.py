@@ -486,10 +486,10 @@ def run_linefinder_jug(
 
         if sim_name is not None:
 
-            if 'halo_data_dir' not in gal_linker_kwargs:
+            if 'halo_data_dir' not in visualization_kwargs:
                 visualization_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
 
-            if 'main_mt_halo_id' not in gal_linker_kwargs:
+            if 'main_mt_halo_id' not in visualization_kwargs:
                 visualization_kwargs['main_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
         # Add in halo data dir if given
