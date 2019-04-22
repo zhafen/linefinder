@@ -377,6 +377,8 @@ def run_linefinder_jug(
             if 'main_halo_id' not in snapshot_kwargs:
                 snapshot_kwargs['main_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
 
+            selector_kwargs['snapshot_kwargs'] = snapshot_kwargs
+
         # Add in sim data dir if given
         if sim_data_dir is not None:
             selector_kwargs['snapshot_kwargs']['sdir'] = sim_data_dir
@@ -394,6 +396,33 @@ def run_linefinder_jug(
         # Update arguments
         sampler_kwargs = utilities.merge_two_dicts(
             sampler_kwargs, general_kwargs )
+
+        # Check if the snapshot kwargs exist, and if not, create them
+        if 'snapshot_kwargs' not in list( sampler_kwargs.keys() ):
+            sampler_kwargs['snapshot_kwargs'] = {}
+
+        # Use sim name to find defaults
+        if sim_name is not None:
+            snapshot_kwargs = sampler_kwargs['snapshot_kwargs']
+
+            if 'sdir' not in snapshot_kwargs:
+                snapshot_kwargs['sdir'] = file_manager.get_sim_dir( sim_name )
+
+            if 'halo_data_dir' not in snapshot_kwargs:
+                snapshot_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
+
+            if 'main_halo_id' not in snapshot_kwargs:
+                snapshot_kwargs['main_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
+
+            sampler_kwargs['snapshot_kwargs'] = snapshot_kwargs
+
+        # Add in sim data dir if given
+        if sim_data_dir is not None:
+            sampler_kwargs['snapshot_kwargs']['sdir'] = sim_data_dir
+
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            sampler_kwargs['snapshot_kwargs']['halo_data_dir'] = halo_data_dir
 
         id_sampler = select.IDSampler( **sampler_kwargs )
 
@@ -502,5 +531,9 @@ def run_linefinder_jug(
             data_dir = out_dir,
             **visualization_kwargs
         )
+
+        # Make a file indicating that the visualization completed.
+        f = os.path.join( out_dir, 'visualized_{}'.format(tag ) )
+        open(f, 'a').close()
 
 ########################################################################

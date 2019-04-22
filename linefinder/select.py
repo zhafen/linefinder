@@ -673,6 +673,9 @@ class IDSampler( object ):
             del self.f['target_child_ids']
             self.f['target_child_ids'] = target_child_ids_to_save
 
+        if 'parameters' not in list( self.f.keys() ):
+            self.f.create_group( 'parameters' )
+
         self.f['parameters'].attrs['n_samples'] = self.n_samples
         self.f['parameters'].attrs['ignore_child_particles'] = self.ignore_child_particles
         self.f['parameters'].attrs['ignore_duplicates'] = self.ignore_duplicates
