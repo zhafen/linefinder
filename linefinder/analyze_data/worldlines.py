@@ -1268,6 +1268,17 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_cluster_id( self ):
+
+        f = h5py.File( self.data_dir, 'cluster_ids_{}.hdf5'.format( self.tag ) )
+
+        ids = self.get_data( 'ID' )
+
+        #DEBUG
+        import pdb; pdb.set_trace()
+
+    ########################################################################
+
     def calc_vr_div_v_cool( self ):
         '''Comparison to Stern+19 model.'''
 
@@ -1859,9 +1870,16 @@ class Worldlines( simulation_data.TimeData ):
         )
 
         # For tracking halo transfer
+        r_rvir = self.get_processed_data(
+            'R',
+            scale_key = 'Rvir',
+            scale_a_power = 1.,
+            scale_h_power = -1.,
+        )
+        is_outside_main_halo = r_rvir > config.OUTER_CGM_BOUNDARY
         is_in_another_halo = np.logical_and(
             ( self.get_data( '1.0_Rvir' ) != -2 ),
-            ( self.get_data( '1.0_Rvir' ) != 0 ),
+            is_outside_main_halo,
         )
 
         # Get results

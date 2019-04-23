@@ -1125,6 +1125,7 @@ class TestCGMClassifications( unittest.TestCase ):
             # IGM Accretion that's ejected out of the CGM but reaccretes
             {
                 '1.0_Rvir': [ 0, 0, -2, 0, 0, -2, -2, -2, ],
+                'fake_key_R_Rvir': [ 0.5, 0.5, 2., 0.5, 0.5, 2., 4., 6., ],
                 'is_in_CGM': [ 1, 1, 0, 1, 1, 0, 0, 0, ],
                 'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
@@ -1146,6 +1147,7 @@ class TestCGMClassifications( unittest.TestCase ):
             # before reaccreting once more
             {
                 '1.0_Rvir': [ 0, 0, 0, 0, 0, 0, 0, -2, ],
+                'fake_key_R_Rvir': [ 0.01, 0.5, 0.5, 0.01, 0.01, 0.72, 0.8, 6., ],
                 'is_in_CGM': [ 0, 1, 1, 0, 0, 1, 1, 0, ], 
                 'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 1, 0, 0, 1, 1, 0, 0, 0, ], 
@@ -1166,6 +1168,7 @@ class TestCGMClassifications( unittest.TestCase ):
             # is ejected back into the CGM, beyond that, and then back in
             {
                 '1.0_Rvir': [ 0, -2, 0, 0, 0, 0, 5, 5, ],
+                'fake_key_R_Rvir': [ 0.5, 1.5, 0.5, 0.5, 0.5, 0.72, 1.5, 6., ],
                 'is_in_CGM': [ 1, 0, 1, 0, 0, 1, 1, 0, ], 
                 'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
@@ -1185,6 +1188,7 @@ class TestCGMClassifications( unittest.TestCase ):
             # Satellite wind that stays in the CGM
             {
                 '1.0_Rvir': [ 0, 0, 0, 0, 0, 5, 5, -2, ],
+                'fake_key_R_Rvir': [ 0.5, 0.5, 0.5, 0.5, 0.5, 1.2, 1.5, 6., ],
                 'is_in_CGM': [ 1, 1, 1, 1, 1, 0, 0, 0, ], 
                 'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
@@ -1204,6 +1208,7 @@ class TestCGMClassifications( unittest.TestCase ):
             # Satellite wind that is accreted onto the main galaxy
             {
                 '1.0_Rvir': [ 0, 0, 0, 5, 5, 0, 0, -2, ],
+                'fake_key_R_Rvir': [ 0.01, 0.15, 0.5, 0.5, 0.5, 0.5, 0.5, 6., ],
                 'is_in_CGM': [ 0, 0, 1, 1, 1, 1, 1, 0, ], 
                 'is_in_galaxy_halo_interface': [ 0, 1, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 1, 0, 0, 0, 0, 0, 0, 0, ], 
@@ -1223,6 +1228,7 @@ class TestCGMClassifications( unittest.TestCase ):
             # Satellite wind that is ejected from the CGM but reaccretes
             {
                 '1.0_Rvir': [ 0, -2, -2, 0, 5, 5, -2, -2, ],
+                'fake_key_R_Rvir': [ 0.5, 1.2, 1.5, 0.5, 0.5, 0.5, 3., 6., ],
                 'is_in_CGM': [ 1, 0, 0, 1, 1, 1, 0, 0, ], 
                 'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
@@ -1243,6 +1249,7 @@ class TestCGMClassifications( unittest.TestCase ):
             # the main galaxy
             {
                 '1.0_Rvir': [ 0, 0, 5, 5, 5, 5, 5, 5, ],
+                'fake_key_R_Rvir': [ 0.5, 0.5, 0.4, 0.05, 0.05, 0.5, 0.8, 6., ],
                 'is_in_CGM': [ 1, 1, 1, 0, 0, 1, 1, 0, ], 
                 'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
@@ -1263,6 +1270,7 @@ class TestCGMClassifications( unittest.TestCase ):
             # including nearly merging
             {
                 '1.0_Rvir': [ 5, 5, 5, 5, 5, 5, 5, 5, ],
+                'fake_key_R_Rvir': [ 0.5, 1.5, 0.5, 0.05, 0.05, 0.5, 1.5, 6., ],
                 'is_in_CGM': [ 1, 0, 1, 0, 0, 1, 0, 0, ], 
                 'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
@@ -1284,6 +1292,7 @@ class TestCGMClassifications( unittest.TestCase ):
             # expelled again, and ending up outside the CGM bound to the halo
             {
                 '1.0_Rvir': [ -2, 5, 5, 5, 5, 5, -2, 5, ],
+                'fake_key_R_Rvir': [ 1.5, 1.25, 0.5, 0.5, 0.5, 0.5, 1.5, 6., ],
                 'is_in_CGM': [ 0, 0, 1, 1, 1, 1, 0, 0, ], 
                 'is_in_galaxy_halo_interface': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
@@ -1304,7 +1313,8 @@ class TestCGMClassifications( unittest.TestCase ):
             # makes it into the interface, and stays that way until the end
             # of the simulation
             {
-                '1.0_Rvir': [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+                '1.0_Rvir': [ 0, 0, 0, 0, 0, 0, 0, -2, ],
+                'fake_key_R_Rvir': [ 0.5, 0.5, 0.15, 0.15, 0.5, 0.5, 0.5, 6., ],
                 'is_in_CGM': [ 1, 1, 1, 0, 0, 1, 1, 0, ], 
                 'is_in_galaxy_halo_interface': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
@@ -1325,6 +1335,7 @@ class TestCGMClassifications( unittest.TestCase ):
             # makes it into the interface, and is then ejected from the CGM
             {
                 '1.0_Rvir': [ -2, 0, 0, 0, 0, 0, 0, -2, ],
+                'fake_key_R_Rvir': [ 1.5, 0.5, 0.5, 0.15, 0.15, 0.5, 0.5, 6., ],
                 'is_in_CGM': [ 0, 1, 1, 0, 0, 1, 1, 0, ], 
                 'is_in_galaxy_halo_interface': [ 0, 0, 0, 1, 1, 0, 0, 0, ], 
                 'is_in_main_gal': [ 0, 0, 0, 0, 0, 0, 0, 0, ], 
@@ -1371,11 +1382,20 @@ class TestCGMClassifications( unittest.TestCase ):
             if key[:3] == 'is_':
                 dataset = dataset.astype( bool )
 
+            # Make sure we don't use existing data
+            if key in list( self.worldlines.classifications.data.keys() ):
+                del self.worldlines.classifications.data[key]
+
             # Store data
             if key in test_keys:
                 self.expected_values[key] = dataset
             else:
                 self.worldlines.data[key] = dataset
+
+        # Make sure we don't use existing other relevant data
+        for key in [ 'CGM_fate_classifications', 'is_in_CGM_not_sat' ]:
+            if key in list( self.worldlines.classifications.data.keys() ):
+                del self.worldlines.classifications.data[key ]
 
         # Correct the shape of the data
         self.worldlines.ptracks._base_data_shape = \
@@ -1451,7 +1471,12 @@ class TestCGMClassifications( unittest.TestCase ):
 
     ########################################################################
 
-    def test_calc_is_CGM_accreted( self ):
+    @mock.patch( 'galaxy_dive.analyze_data.simulation_data.TimeData.get_processed_data' )
+    def test_calc_is_CGM_accreted( self, mock_processed_data ):
+
+        mock_processed_data.side_effect = [
+            self.worldlines.data['fake_key_R_Rvir']
+        ]
 
         # Do calculation
         actual = self.worldlines.calc_is_CGM_accreted()
@@ -1468,7 +1493,12 @@ class TestCGMClassifications( unittest.TestCase ):
 
     ########################################################################
 
-    def test_calc_is_CGM_accreted_to_satellite( self ):
+    @mock.patch( 'galaxy_dive.analyze_data.simulation_data.TimeData.get_processed_data' )
+    def test_calc_is_CGM_accreted_to_satellite( self, mock_processed_data ):
+
+        mock_processed_data.side_effect = [
+            self.worldlines.data['fake_key_R_Rvir']
+        ]
 
         # Do calculation
         actual = self.worldlines.calc_is_CGM_accreted_to_satellite()
@@ -1485,7 +1515,13 @@ class TestCGMClassifications( unittest.TestCase ):
 
     ########################################################################
 
-    def test_calc_is_CGM_ejected( self ):
+    @mock.patch( 'galaxy_dive.analyze_data.simulation_data.TimeData.get_processed_data' )
+    def test_calc_is_CGM_ejected( self, mock_processed_data ):
+
+        mock_processed_data.side_effect = [
+            self.worldlines.data['fake_key_R_Rvir']
+        ]
+
 
         # Do calculation
         actual = self.worldlines.calc_is_CGM_ejected()
@@ -1502,7 +1538,13 @@ class TestCGMClassifications( unittest.TestCase ):
     
     ########################################################################
 
-    def test_calc_is_CGM_halo_transfer( self ):
+    @mock.patch( 'galaxy_dive.analyze_data.simulation_data.TimeData.get_processed_data' )
+    def test_calc_is_CGM_halo_transfer( self, mock_processed_data ):
+
+        mock_processed_data.side_effect = [
+            self.worldlines.data['fake_key_R_Rvir']
+        ]
+
 
         # Do calculation
         actual = self.worldlines.calc_is_CGM_halo_transfer()
@@ -1519,7 +1561,13 @@ class TestCGMClassifications( unittest.TestCase ):
 
     ########################################################################
 
-    def test_calc_is_CGM_still( self ):
+    @mock.patch( 'galaxy_dive.analyze_data.simulation_data.TimeData.get_processed_data' )
+    def test_calc_is_CGM_still( self, mock_processed_data ):
+
+        mock_processed_data.side_effect = [
+            self.worldlines.data['fake_key_R_Rvir']
+        ]
+
 
         # Do calculation
         actual = self.worldlines.calc_is_CGM_still()
@@ -1536,13 +1584,19 @@ class TestCGMClassifications( unittest.TestCase ):
 
     ########################################################################
 
-    def test_CGM_fate_unclassified( self ):
+    @mock.patch( 'galaxy_dive.analyze_data.simulation_data.TimeData.get_processed_data' )
+    def test_CGM_fate_unclassified( self, mock_processed_data ):
+
+        mock_processed_data.side_effect = [
+            self.worldlines.data['fake_key_R_Rvir']
+        ]
 
         # Do calculation
         actual = self.worldlines.calc_is_CGM_fate_unclassified()
         expected = np.invert(
-            self.worldlines.get_data( 'is_in_CGM_not_sat' )
-        ) # As long as it's inside the CGM and outside a satellite galaxy,
+            self.worldlines.get_data( 'is_in_CGM_not_sat' ),
+        )
+        # As long as it's inside the CGM and outside a satellite galaxy,
         # everything should be classified.
 
         npt.assert_allclose(
