@@ -70,10 +70,10 @@ class Classifier( object ):
         main_halo_robustness_value = 100,
         min_gal_density = config.GALAXY_DENSITY_CUT,
         pp_classifications_to_save = [
-            'is_in_CGM', 'is_in_galaxy_halo_interface',
+            'is_in_CGM', 'is_in_CGM_not_sat', 'is_in_galaxy_halo_interface',
             'is_CGM_IGM_accretion', 'is_CGM_wind',
             'is_CGM_satellite_wind', 'is_CGM_satellite_ISM',
-            'is_CGM_to_IGM',
+            'CGM_fate_classifications',
         ],
     ):
         '''Setup the ID Finder.

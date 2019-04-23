@@ -956,6 +956,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         pathlines = False,
         n_pathlines = 100,
         snum = 600,
+        pathline_inds_to_display = None,
         center_time_on_snum = True,
         classifications = [
             None,
@@ -977,6 +978,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         include_ruler = True,
         include_disk = True,
         use_default_colors = True,
+        tracked_labels_mapping = {},
+        dump_to_json = True,
     ):
         '''Export data to a Firefly visualization.
 
@@ -1008,6 +1011,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             snum (int):
                 If not plotting pathlines plot the particle tracking data
                 at this snapshot.
+
+            pathline_inds_to_display (list):
+                If plotting pathlines and this is not None, the pathlines will
+                extend according to the inds given in this list.
 
             center_time_on_snum (bool):
                 If True any displayed time is relative to the snapshot given
@@ -1044,6 +1051,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             use_default_colors (bool):
                 If True, colors used for different classifications come from
                 config.COLORSCHEME
+
+            dump_to_json (bool):
+                If True, save the data output in the Firefly directory.
         '''
 
         # Make sure we're using the full path
@@ -1109,14 +1119,19 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             if pathlines:
 
-                return self.data_object.get_selected_data_over_time(
+                data = self.data_object.get_selected_data_over_time(
                     data_key,
                     snum = snum,
                     classification = classification,
                     n_samples = n_pathlines,
                     seed = seed,
                     *args, **kwargs
-                ).flatten()
+                )
+
+                if pathline_inds_to_display is not None:
+                    data = data[:,pathline_inds_to_display]
+
+                return data.flatten().astype( float )
                 
             else:
 
@@ -1125,7 +1140,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     sl = (slice(None),ind),
                     classification = classification,
                     *args, **kwargs
-                )
+                ).astype( float )
 
         # Actually loop through each classification
         for i, classification in enumerate( classifications ):
@@ -1198,9 +1213,15 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 )
                 tracked_arrs.append( tracked_arr )
 
+                # Create the label
+                if tracked_key in list( tracked_labels_mapping.keys() ):
+                    tracked_label = tracked_labels_mapping[tracked_key]
+                else:
+                    tracked_label = tracked_key
+
                 # Add the label
                 tracked_labels.append(
-                    tracked_key
+                    tracked_label
                 )
 
             # Add a time filter
@@ -1306,8 +1327,15 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             circle = np.array( circle )
 
-            ang_mom_vec = s_data.total_ang_momentum / np.linalg.norm( s_data.total_ang_momentum )
-            disk_pos = data_operations.align_axes( circle, ang_mom_vec, align_frame=False )
+            ang_mom_vec = (
+                s_data.total_ang_momentum /
+                np.linalg.norm( s_data.total_ang_momentum )
+            )
+            disk_pos = data_operations.align_axes(
+                circle,
+                ang_mom_vec,
+                align_frame = False,
+            )
 
             # Get axis pos
             ang_mom_pos = np.tile( ang_mom_vec, (51,1) )
@@ -1323,4 +1351,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             firefly_reader.addParticleGroup( particle_group )
 
         # Finish up and write data
-        firefly_reader.dumpToJSON()
+        if dump_to_json:
+            firefly_reader.dumpToJSON()
+
+        # Return reader for additional manipulation
+        return firefly_reader

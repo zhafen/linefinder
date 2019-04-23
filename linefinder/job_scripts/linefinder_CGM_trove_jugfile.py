@@ -28,7 +28,7 @@ sim_names = [
     'm12c_md',
     'm12z_md',
     'm12r_md',
-    # 'm12w_md', # Ran with more time data
+    'm12w_md', # Ran with more time data
     # 'm10q_md',
     # 'm11q_md',
     # 'm12i_md',
@@ -56,7 +56,7 @@ snums = [
     # 277, # z = 1
     # 242,
     # 214,
-    # 172, # z = 2
+    172, # z = 2
     # 156,
     # 142,
     # 120, # z = 3
@@ -81,7 +81,7 @@ galdefs = [
 # Get the file format
 ptracks_tag_format = '{}_CGM_snum{}'
 tag_format = '{}{}'.format( ptracks_tag_format, '{}' )
-file_format =  'classifications_{}.hdf5'.format( tag_format )
+file_format =  'visualized_{}'.format( tag_format )
 
 # Start up a trove manager and use it to get next args
 trove_manager = trove_management.LinefinderTroveManager(
@@ -153,27 +153,54 @@ classifier_kwargs = {
 
 visualization_kwargs = {
     'ptracks_tag' : ptracks_tag,
-    'install_firefly': True,
+    'install_firefly': False,
+    'write_startup': 'append',
     'export_to_firefly_kwargs': {
-        'firefly_source': 'git@github.com:zhafen/Firefly.git',
-        'firefly_dir': '/work/03057/zhafen/firefly_repos/CGM-origins-new',
+        # 'firefly_source': 'git@github.com:zhafen/Firefly.git',
+        'firefly_dir': '/work/03057/zhafen/firefly_repos/CGM-fates',
         'classifications': [
-            'is_in_CGM',
-            'is_CGM_IGM_accretion',
-            'is_CGM_wind',
-            'is_CGM_satellite_wind',
-            'is_CGM_satellite_ISM',
+            # 'is_in_CGM',
+            # 'is_CGM_IGM_accretion',
+            # 'is_CGM_wind',
+            # 'is_CGM_satellite_wind',
+            # 'is_CGM_satellite_ISM',
+            'is_CGM_still',
+            'is_CGM_accreted',
+            'is_CGM_accreted_to_satellite',
+            'is_CGM_ejected',
+            'is_CGM_halo_transfer',
+            'is_CGM_fate_unclassified',
         ],
-        'classification_ui_labels': [ 'All', 'IGMAcc', 'Wind', 'SatWind', 'Sat' ],
+        'classification_ui_labels': [
+            # 'All',
+            # 'IGMAcc',
+            # 'Wind',
+            # 'SatWind',
+            # 'Sat',
+            'stillCGM',
+            'Acc',
+            'AccSat',
+            'Ejected',
+            'HaloTr',
+            'Unclass',
+        ],
         'tracked_properties': [
             'logT',
             'logZ',
             'logDen',
-            'vr_div_v_cool',
-            'logvr_div_v_cool_offset',
+            # 'vr_div_v_cool',
+            # 'logvr_div_v_cool_offset',
+            'PType',
+            '1.0_Rvir',
+            'is_in_CGM_not_sat',
+            'is_in_galaxy_halo_interface',
+            'is_in_main_gal',
+            'is_in_other_gal',
         ],
-        'tracked_filter_flags': [ True, ] * 5,
-        'tracked_colormap_flags': [ True, ] * 5,
+        'tracked_labels_mapping': { '1.0_Rvir': 'HaloID' },
+        'tracked_filter_flags': [ True, ] * 9,
+        'tracked_colormap_flags': [ True, ] * 9,
+        'snum': snum,
     },
 }
 
@@ -190,7 +217,7 @@ linefinder.run_linefinder_jug(
     run_id_selecting = False,
     run_id_sampling = False,
     run_tracking = False,
-    run_galaxy_linking = True,
-    run_classifying = True,
-    run_visualization = False,
+    run_galaxy_linking = False,
+    run_classifying = False,
+    run_visualization = True,
 )

@@ -49,12 +49,11 @@ CLASSIFICATION_LABELS = {
     'is_outside_any_gal_IP': 'Wind',
     'is_CGM_to_IGM': 'ejected',
     'is_CGM_to_gal_or_interface': 'accreted',
-    'is_hereafter_CGM': r'still CGM at $z=0$',
     'is_CGM_still': 'remains CGM',
     'is_CGM_accreted': 'accreted',
     'is_CGM_ejected': 'ejected',
     'is_CGM_accreted_to_satellite': 'accreted - satellite',
-    'is_CGM_splashback_halo_bound': 'halo transfer',
+    'is_CGM_halo_transfer': 'halo transfer',
 }
 
 # These are in line with the colors used in Angles-Alcazar2017
@@ -122,6 +121,7 @@ CLASSIFICATION_COLORS_B = {
     'is_CGM_still': palettable.cartocolors.qualitative.Safe_7.mpl_colors[2],
     'is_CGM_accreted_to_satellite': palettable.cartocolors.qualitative.Safe_7.mpl_colors[4],
     'is_CGM_halo_transfer': palettable.cartocolors.qualitative.Safe_7.mpl_colors[5],
+    'is_CGM_fate_unclassified': palettable.cartocolors.qualitative.Safe_7.mpl_colors[3],
 }
 # This set is revised again to have greater variation in brightness
 # Revised to have greater variation in brightness

@@ -281,5 +281,8 @@ STAMPEDE2_PARAMETERS = {
         'AMIGA' : {
             'project_dir' : '/home1/03057/zhafen/papers/AMIGA_theory',
         },
+        'AMIGA' : {
+            'project_dir' : '/home1/03057/zhafen/papers/cluster_sightlines_paper',
+        },
     },
 }

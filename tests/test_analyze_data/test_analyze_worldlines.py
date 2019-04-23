@@ -1035,9 +1035,9 @@ class TestWorldlineCalcData( unittest.TestCase ):
         ])
         self.worldlines.data['dt'] = np.array(
             [ 1., 1., 1., 1., 1., 1., 1. ],
-        )*10.0001
+        )*0.0100001
 
-        actual = self.worldlines.get_data( 'will_leaves_gal_dt_30' )
+        actual = self.worldlines.get_data( 'will_leaves_gal_dt_0.030' )
         expected = np.array([
             [ 0, 1, 1, 1, 0, 0, 0, 0 ],
             [ 0, 1, 1, 1, 1, 1, 1, 0 ],
