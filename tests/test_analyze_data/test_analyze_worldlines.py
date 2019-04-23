@@ -458,88 +458,6 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
-    # @mock.patch( 'linefinder.analyze_data.worldlines.Worldlines.get_processed_data' )
-    # def test_is_CGM_to_IGM( self, mock_get_processed_data ):
-
-    #     # Setup test data
-    #     self.worldlines.ptracks._base_data_shape = ( 4, 4 )
-    #     mock_get_processed_data.side_effect = [
-    #         # R/R_vir
-    #         np.array([ 
-    #             [ 2, 0.5, 0.5, 0.5 ],
-    #             [ 10, 0.75, 0.05, 0.6 ],
-    #             [ 3, 0.4, 10, 20 ],
-    #             [ 2, 0.5, 10, 0.5 ],
-    #         ]),
-    #     ]
-    #     self.worldlines.data['is_in_CGM'] = np.array([
-    #         [ 0, 1, 1, 1, ],
-    #         [ 0, 1, 0, 1, ],
-    #         [ 0, 1, 0, 0, ],
-    #         [ 1, 1, 0, 1, ],
-    #     ]).astype( bool )
-    #     self.worldlines.data['is_in_other_gal'] = np.array([
-    #         [ 0, 0, 0, 0, ],
-    #         [ 0, 0, 0, 0, ],
-    #         [ 0, 0, 0, 0, ],
-    #         [ 0, 0, 0, 0, ],
-    #     ]).astype( bool )
-
-    #     expected = np.array([
-    #         [ 0, 1, 1, 1, ],
-    #         [ 0, 1, 0, 0, ],
-    #         [ 0, 1, 0, 0, ],
-    #         [ 0, 0, 0, 1, ],
-    #     ]).astype( bool )
-
-    #     # Actual calculation
-    #     self.worldlines.calc_is_CGM_to_IGM()
-
-    #     actual = self.worldlines.data['is_CGM_to_IGM']
-
-    #     npt.assert_allclose( expected, actual )
-
-    # ########################################################################
-
-    # def test_is_CGM_to_gal_or_interface( self ):
-
-    #     # Setup test data
-    #     self.worldlines.ptracks._base_data_shape = ( 4, 4 )
-    #     self.worldlines.data['is_in_CGM'] = np.array([
-    #         [ 0, 1, 1, 1, ],
-    #         [ 0, 1, 0, 1, ],
-    #         [ 0, 1, 0, 0, ],
-    #         [ 1, 1, 0, 1, ],
-    #     ])
-    #     self.worldlines.data['is_in_galaxy_halo_interface'] = np.array([
-    #         [ 1, 0, 0, 0, ],
-    #         [ 1, 0, 0, 0, ],
-    #         [ 0, 0, 0, 0, ],
-    #         [ 0, 0, 0, 0, ],
-    #     ])
-    #     self.worldlines.data['is_in_main_gal'] = np.array([
-    #         [ 0, 0, 0, 0, ],
-    #         [ 0, 0, 0, 0, ],
-    #         [ 1, 0, 0, 0, ],
-    #         [ 0, 0, 1, 0, ],
-    #     ])
-    #     
-    #     expected = np.array([
-    #         [ 0, 1, 1, 1, ],
-    #         [ 0, 1, 0, 0, ],
-    #         [ 0, 1, 0, 0, ],
-    #         [ 0, 0, 0, 1, ],
-    #     ]).astype( bool )
-
-    #     # Actual calculation
-    #     self.worldlines.calc_is_CGM_to_gal_or_interface()
-
-    #     actual = self.worldlines.data['is_CGM_to_gal_or_interface']
-
-    #     npt.assert_allclose( expected, actual )
-
-    ########################################################################
-
     def test_is_hereafter_CGM( self ):
 
         # Setup test data
@@ -1102,6 +1020,39 @@ class TestWorldlineCalcData( unittest.TestCase ):
         ])
 
         npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
+    def test_calc_will_A_dt_T( self ):
+
+        # Mock data
+        self.worldlines.ptracks._base_data_shape = ( 4, 8 )
+        self.worldlines.data['gal_event_id'] = np.array([
+            [ 0, -1, 1, 0, 0, 0, 0 ],
+            [ 0, -1, 0, 1, -1, 1, 0 ],
+            [ 1, 1, -1, 1, -1, 1, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0 ],
+        ])
+        self.worldlines.data['dt'] = np.array(
+            [ 1., 1., 1., 1., 1., 1., 1. ],
+        )*10.0001
+
+        actual = self.worldlines.get_data( 'will_leaves_gal_dt_30' )
+        expected = np.array([
+            [ 0, 1, 1, 1, 0, 0, 0, 0 ],
+            [ 0, 1, 1, 1, 1, 1, 1, 0 ],
+            [ 0, 0, 1, 1, 1, 1, 1, 0 ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ]).astype( bool )
+
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                expected.astype( int ),
+                actual.astype( int )
+            )
+        )
 
 ########################################################################
 ########################################################################

@@ -1186,6 +1186,19 @@ class Worldlines( simulation_data.TimeData ):
             self.data (dict): If successful, stores the data here.
         '''
 
+        # Custom worldlines methods
+        split_data_key = data_key.split( '_' )
+        if len( split_data_key ) > 3:
+            is_will_calc_method = (
+                ( split_data_key[0] == 'will' ) and
+                ( split_data_key[-2] == 'dt' )
+            )
+            if is_will_calc_method:
+                self.calc_will_A_dt_T(
+                    A_key = '_'.join( split_data_key[1:-2] ),
+                    T_str = split_data_key[-1]
+                )
+
         try:
             super( Worldlines, self ).handle_data_key_error( data_key )
 
@@ -1558,6 +1571,18 @@ class Worldlines( simulation_data.TimeData ):
         )
 
         self.data['is_in_galaxy_halo_interface'] = is_in_interface
+
+    ########################################################################
+
+    def calc_leaves_gal( self ):
+        '''Find when a particle leaves the galaxy.'''
+
+        self.data['leaves_gal'] = np.zeros(
+            self.base_data_shape
+        ).astype( bool )
+        self.data['leaves_gal'][:,:-1] = self.get_data( 'gal_event_id' ) == -1
+
+        return self.data['leaves_gal']
 
     ########################################################################
 
@@ -2640,6 +2665,49 @@ class Worldlines( simulation_data.TimeData ):
         self.data['n_in_CGM'] = n_in
 
         return self.data['n_in_CGM']
+
+    ########################################################################
+
+    def calc_will_A_dt_T( self, A_key, T_str ):
+
+        def numba_fn( A, T, dt ):
+
+            results = np.zeros( A.shape ).astype( bool )
+
+            # Loop over snapshots
+            for j in range( A.shape[1]):
+
+                # Find how many indices we need to go back to reach T
+                time_towards_T = 0.
+                dj = 0
+                while True:
+
+                    # Break when we hit the end of the array on either side
+                    if ( j - dj < 1 ) or ( j >= dt.shape[0] ):
+                        break
+
+                    # Count up more time
+                    time_towards_T += dt[j-dj]
+
+                    # Stop searching if we hit our target
+                    if time_towards_T > T:
+                        break
+
+                    # Keep track of dj
+                    dj += 1
+
+                # See if we have an A event in that range
+                results[:,j] = A[:,j-dj:j+1].sum( axis=1 ) > 0
+                    
+            return results
+
+        data_key_out = 'will_{}_dt_{}'.format( A_key, T_str )
+                    
+        self.data[data_key_out] = numba_fn(
+            self.get_data( A_key ),
+            float( T_str ),
+            self.get_data( 'dt' ),
+        )
 
 ########################################################################
 ########################################################################
