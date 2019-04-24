@@ -2670,9 +2670,11 @@ class Worldlines( simulation_data.TimeData ):
 
     def calc_will_A_dt_T( self, A_key, T_str ):
 
-        def numba_fn( A, T, dt ):
-
-            results = np.zeros( A.shape ).astype( bool )
+        @numba.jit(
+            'b1[:,:](b1[:,:],b1[:,:],f8,f8[:])',
+            nopython = True
+        )
+        def numba_fn( results, A, T, dt ):
 
             # Loop over snapshots
             for j in range( A.shape[1]):
@@ -2704,10 +2706,13 @@ class Worldlines( simulation_data.TimeData ):
         data_key_out = 'will_{}_dt_{}'.format( A_key, T_str )
                     
         self.data[data_key_out] = numba_fn(
+            np.zeros( self.base_data_shape ).astype( bool ),
             self.get_data( A_key ),
             float( T_str ),
             self.get_data( 'dt' ),
         )
+
+        return self.data[data_key_out]
 
 ########################################################################
 ########################################################################
