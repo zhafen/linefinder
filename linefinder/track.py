@@ -924,8 +924,11 @@ class IDFinder( object ):
         
         Args:
             fns (list of fns):
-                Functions to apply to the data. Should accept dfid and df as
-                arguments, and modify dfid as desired.
+                Functions to apply to the data. Should accept `dfid` and `df`
+                as arguments, and modify dfid as desired. Can optionally accept
+                an argument `id_finder`, which is the active instance of
+                IDFinder, allowing for use in the functions of e.g. self.snum
+                and self.attrs.
 
             dfid (pandas DataFrame):
                 Contains attributes of the selected ID particles. Indexed by
@@ -947,7 +950,18 @@ class IDFinder( object ):
 
         # Apply the functions
         for fn in fns:
-            dfid = fn( dfid=dfid, df=df )
+
+            arg_names = fn.__code__.co_varnames
+
+            assert (
+                ( 'dfid' in arg_names ) and
+                ( 'df' in arg_names )
+            ), "Custom functions must use dfid and df as arguments."
+
+            if 'id_finder' in arg_names:
+                dfid = fn( dfid=dfid, df=df, id_finder=self )
+            else:
+                dfid = fn( dfid=dfid, df=df )
 
         # Check that the original data is intact
         for key in original_dfid.columns:

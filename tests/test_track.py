@@ -38,6 +38,12 @@ def example_fn_2( dfid, df ):
 
     return dfid
 
+def example_fn_3( dfid, df, id_finder ):
+
+    dfid['snum'] = np.ones( len( dfid['ID'] ) ) * id_finder.snum
+
+    return dfid
+
 test_apply_fns = [ example_fn_1, example_fn_2 ]
 
 default_data_p = {
@@ -126,7 +132,7 @@ class TestConcatenateParticleData( unittest.TestCase ):
         expected = {
             'ID': np.array([36091289,  3211791, 41221636, 36091289, 36091289, 10952235]),
             'ChildID': np.array([1945060136, 0, 0, 938428052, 893109954, 0]),
-            }
+        }
 
         for key in expected.keys():
             npt.assert_allclose( actual[key], expected[key] )
@@ -292,6 +298,30 @@ class TestApplyFunctions( unittest.TestCase ):
         expected = {
             'above_med_Den': np.array([ True, False, True ]),
             'IDx2': np.array([ 77827016, 6423582, 21904470 ]),
+        }
+        for key in expected.keys():
+            npt.assert_allclose( expected[key], dfid[key] )
+
+    ########################################################################
+
+    def test_uses_meta_data( self ):
+        '''Test we can use things not directly stored in the data frame,
+        like the snapshot number or the redshift.
+        '''
+
+        # Dummy data set
+        self.id_finder.target_ids = np.array([ 38913508, 3211791, 10952235 ])
+        self.id_finder.full_snap_data = {
+            'ID': np.array([56037496,  3211791, 41221636, 63924292, 38913508, 10952235]),
+        }
+        self.id_finder.snum = 600
+
+        dfid, df = self.id_finder.select_ids()
+
+        dfid = self.id_finder.apply_functions( [ example_fn_3, ], dfid, df )
+
+        expected = {
+            'snum': np.array([ 600, 600, 600 ]),
         }
         for key in expected.keys():
             npt.assert_allclose( expected[key], dfid[key] )
