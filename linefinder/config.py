@@ -8,6 +8,7 @@ For example, this contains the default fill values for invalid data.
 '''
 
 import numpy as np
+import os
 
 from .utils import presentation_constants as p_constants
 
@@ -230,13 +231,20 @@ EXAMPLESYSTEM_PARAMETERS = {
 '''An example setup. Copy this and change accordingly.
 '''
 
+# BIN_PATH = '~/.local/bin'
+BIN_PATH = '/work/03057/zhafen/stampede2/miniconda3/bin'
+'''Location of executables. First is for default pip install options,
+bottom is an example of a Conda setup.
+TODO: Improve this further for users.
+'''
+
 # Linefinder is parallelized through Jug (https://jug.readthedocs.io/en/latest/).
 # These two commands relate to the Jug executables.
-JUG_PATH = '~/.local/bin/jug'
+JUG_PATH = os.path.join( BIN_PATH, 'jug' )
 '''Where the jug executable is located.
 In most cases this doesn't need to be changed.
 '''
-JUG_EXEC_PATH = '~/.local/bin/jug-execute'
+JUG_EXEC_PATH = os.path.join( BIN_PATH, 'jug-execute' )
 '''Where the executable for "jug execute" is located.
 In most cases this doesn't need to be changed.
 '''
