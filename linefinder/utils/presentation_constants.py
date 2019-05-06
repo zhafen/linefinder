@@ -122,6 +122,8 @@ CLASSIFICATION_COLORS_B = {
     'is_CGM_accreted_to_satellite': palettable.cartocolors.qualitative.Safe_7.mpl_colors[4],
     'is_CGM_halo_transfer': palettable.cartocolors.qualitative.Safe_7.mpl_colors[5],
     'is_CGM_fate_unclassified': palettable.cartocolors.qualitative.Safe_7.mpl_colors[3],
+    'will_leaves_gal_dt_0.050': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[0],
+    'is_cluster_star': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[1],
 }
 # This set is revised again to have greater variation in brightness
 # Revised to have greater variation in brightness

@@ -975,6 +975,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ],
         tracked_filter_flags = [ True, ] * 6,
         tracked_colormap_flags = [ True, True, True, False, False, False, ],
+        size_mult = 3,
         include_ruler = True,
         include_disk = True,
         use_default_colors = True,
@@ -1036,6 +1037,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             tracked_colormap_flags (list of bools):
                 Which of the tracked_properties you want to show colormaps of.
+
+            size_mult (float):
+                Size of particles (in no particular units, though larger is
+                bigger).
 
             include_ruler (bool):
                 If True display a 100x100x100 ruler centered at (0,0,0) with
@@ -1271,7 +1276,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 tracked_names = tracked_labels,
                 tracked_filter_flags = tracked_filter_flags_class,
                 tracked_colormap_flags = tracked_colormap_flags_class,
-                sizeMult = 3,
+                sizeMult = size_mult,
                 **option_kwargs
             )
             firefly_reader.addParticleGroup( particle_group )
@@ -1295,7 +1300,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             particle_group = firefly_particle_group.ParticleGroup(
                 UIname = 'ruler',
                 coordinates = coords,
-                sizeMult = 3,
+                sizeMult = size_mult,
             )
             firefly_reader.addParticleGroup( particle_group )
 
@@ -1313,6 +1318,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 halo_data_dir = galids_params['halo_data_dir'],
                 main_halo_id = galids_params['main_mt_halo_id'],
             )
+
+            #DEBUG
+            import pdb; pdb.set_trace()
 
             # Get length scale
             r_gal = self.data_object.r_gal[ind]
@@ -1346,7 +1354,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             particle_group = firefly_particle_group.ParticleGroup(
                 UIname = 'disk',
                 coordinates = coords,
-                sizeMult = 3,
+                sizeMult = size_mult,
             )
             firefly_reader.addParticleGroup( particle_group )
 

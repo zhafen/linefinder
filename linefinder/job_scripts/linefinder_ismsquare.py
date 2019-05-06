@@ -5,7 +5,7 @@ import linefinder.linefinder as linefinder
 linefinder_args = {
     # Identifying tag used as part of the filenames.
     # E.g. the IDs file will have the format `ids_{}.hdf5.format( tag )`.
-    'tag': 'm12i_ismsquare',
+    'tag': 'm12i_ismsquare2',
     
     # Location to place output in
     'out_dir': '$SCRATCH/linefinder_data/core/m12i_res7100/data',
@@ -19,6 +19,7 @@ linefinder_args = {
     # Arguments for id sampling
     'sampler_kwargs': {
         'ignore_duplicates': True,
+        'n_samples': 200000,
         'p_types': [ 0, 4,],
         'snapshot_kwargs': {
             'ahf_index': 600,
@@ -40,15 +41,17 @@ linefinder_args = {
     # Arguments used for the visualization step
     'visualization_kwargs': {
         'install_firefly': False,
+        # 'write_startup': True,
         # These kwargs are used for tuning the Firefly visualization
         'export_to_firefly_kwargs': {
             'firefly_dir': '/work/03057/zhafen/firefly_repos/ismsquare',
             'snum': 550,
-            'pathline_inds_to_display': range(44,51),
+            'pathline_inds_to_display': range(48,51),
             'n_pathlines': 100000,
-            'classifications': [ None, 'will_leaves_gal_dt_0.050', ],
-            'classification_ui_labels': [ 'All', 'EjectedSoon' ],
-            'use_default_colors': False,
+            'classifications': [ None, 'will_leaves_gal_dt_0.050', 'is_cluster_star', ],
+            'classification_ui_labels': [ 'All', 'EjectedSoon', 'Clusters', ],
+            # 'use_default_colors': False,
+            'size_mult': 1,
         },
     },
 

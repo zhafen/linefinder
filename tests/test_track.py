@@ -595,6 +595,9 @@ class TestSaveTargetedParticlesParallel( unittest.TestCase ):
         npt.assert_allclose( expected_rho_p0, actual_rho_p0 )
 
         assert 'ChildID' in f.keys()
+
+########################################################################
+
 class TestSaveTargetedParticlesJug( unittest.TestCase ):
 
     def setUp( self ):

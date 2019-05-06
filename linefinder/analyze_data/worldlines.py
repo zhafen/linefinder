@@ -7,9 +7,11 @@
 '''
 
 import copy
+import h5py
 import numba
 import numpy as np
 import numpy.testing as npt
+import os
 import scipy.ndimage
 import verdict
 
@@ -1281,14 +1283,33 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_cluster_id( self ):
+    def calc_is_cluster_star( self ):
 
-        f = h5py.File( self.data_dir, 'cluster_ids_{}.hdf5'.format( self.tag ) )
+        # TODO: Fix this.
+        Warning( 'Save file currently hard-coded!' )
 
-        ids = self.get_data( 'ID' )
+        save_file = 'cluster_ids_m12i_l0.005_a0.01_snum550.hdf5'
+        filepath = os.path.join( self.data_dir, save_file )
 
-        #DEBUG
-        import pdb; pdb.set_trace()
+        # Get cluster IDs
+        f = h5py.File( filepath, 'r' )
+        all_cluster_ids = []
+        for cluster_id in f.keys():
+            all_cluster_ids.append( f[cluster_id][...] )
+        all_cluster_ids = np.hstack( all_cluster_ids )
+        ind = 600 - f.attrs['snum']
+
+        # Find which IDs are inside the cluster IDs at the relevant snapshot.
+        ids = self.get_data( 'ID', )
+        is_cluster_star_snapshot = np.array(
+            [ id_ in all_cluster_ids for id_ in ids ]
+        )
+        self.data['is_cluster_star'] = np.tile(
+            is_cluster_star_snapshot,
+            ( self.n_snaps, 1 ),
+        ).transpose()
+
+        return self.data['is_cluster_star']
 
     ########################################################################
 
