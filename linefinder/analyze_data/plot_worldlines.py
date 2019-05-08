@@ -33,11 +33,6 @@ import linefinder.config as config
 import linefinder.utils.presentation_constants as p_constants
 
 ########################################################################
-
-# For catching default values
-default = object()
-
-########################################################################
 ########################################################################
 
 
@@ -51,7 +46,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         classification_list = p_constants.CLASSIFICATIONS_A,
         classification_colors = p_constants.CLASSIFICATION_COLORS_B,
         ind = 0,
-        ax = default,
+        ax = None,
         width = 0.5,
         add_label = False,
         alpha = p_constants.CLASSIFICATION_ALPHA,
@@ -63,7 +58,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         print( "Plotting bar at x_pos {}".format( x_pos ) )
 
         # Plot
-        if ax is default:
+        if ax is None:
             plt.figure( figsize=(11, 5), facecolor='white' )
             ax = plt.gca()
 
@@ -98,26 +93,26 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     def plot_classification_values(
         self,
         values = 'mass_fractions',
-        ax = default,
-        label = default,
-        y_label = default,
-        y_scale = default,
-        color = default,
+        ax = None,
+        label = None,
+        y_label = None,
+        y_scale = None,
+        color = None,
         pointsize = 3000,
-        y_range = default,
+        y_range = None,
     ):
         '''Plot overall values from a classification category.
 
         Args:
-            ax (axis) : What axis to use. By default creates a figure and places the axis on it.
+            ax (axis) : What axis to use. By None creates a figure and places the axis on it.
             label (str) : What label to use for the lines.
             color (str) : What color to use for the lines.
             pointsize (int) : What pointsize to use for the lines.
         '''
 
-        if label is default:
+        if label is None:
             label = self.label
-        if color is default:
+        if color is None:
             color = self.data_object.color
 
         print( "Plotting classification values for {}".format( label ) )
@@ -125,7 +120,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         classification_values = getattr( self.data_object, values )
 
         # Plot
-        if ax is default:
+        if ax is None:
             plt.figure( figsize=(11, 5), facecolor='white' )
             ax = plt.gca()
 
@@ -155,27 +150,27 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         plt.xticks( x_pos, objects, fontsize=22 )
 
-        if y_label is default:
+        if y_label is None:
             y_label = values
 
         ax.set_ylabel( y_label, fontsize=22 )
 
-        if y_range is not default:
+        if y_range is not None:
             ax.set_ylim( y_range )
 
-        if y_scale is not default:
+        if y_scale is not None:
             ax.set_yscale( y_scale )
 
     ########################################################################
 
     def plot_classified_time_dependent_data(
         self,
-        ax = default,
+        ax = None,
         x_data = 'get_redshift',
         y_datas = 'get_categories_selected_quantity',
-        x_range = [ 0., np.log10(8.) ], y_range = default,
+        x_range = [ 0., np.log10(8.) ], y_range = None,
         y_scale = 'log',
-        x_label = default, y_label = default,
+        x_label = None, y_label = None,
         classification_list = p_constants.CLASSIFICATIONS_A,
         classification_colors = p_constants.CLASSIFICATION_COLORS_B,
         *args, **kwargs
@@ -199,7 +194,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 Passed to the data retrieval method.
         '''
 
-        if ax is default:
+        if ax is None:
             plt.figure( figsize=(11, 5), facecolor='white' )
             ax = plt.gca()
 
@@ -225,7 +220,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         ax.set_xlim( x_range )
 
-        if y_range is not default:
+        if y_range is not None:
             ax.set_ylim( y_range )
 
         ax.set_yscale( y_scale )
@@ -234,7 +229,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         x_tick_values = np.log10( 1. + tick_redshifts )
         plt.xticks( x_tick_values, tick_redshifts )
 
-        if y_label is default:
+        if y_label is None:
             y_label = r'$M_{\star} (M_{\odot})$'
 
         ax.set_xlabel( r'z', fontsize=22, )
@@ -255,18 +250,18 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
     def plot_stacked_time_dependent_data(
         self,
-        ax = default,
+        ax = None,
         x_data = 'get_redshift',
         y_datas = 'get_categories_selected_quantity',
         x_range = [ 0., np.log10(8.) ], y_range = [0., 1.],
         tick_redshifts = np.array( [ 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, ] ),
         time_x_axis = False,
         twin_redshift = False,
-        x_label = default, y_label = default,
+        x_label = None, y_label = None,
         plot_dividing_line = False,
         classification_list = p_constants.CLASSIFICATIONS_A,
         classification_colors = p_constants.CLASSIFICATION_COLORS_B,
-        label = default,
+        label = None,
         show_label = True,
         label_kwargs = {
             'xy': (0., 1.0225),
@@ -299,7 +294,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 Whether or not to plot a line at the edge between stacked regions.
         '''
 
-        if ax is default:
+        if ax is None:
             plt.figure( figsize=(11, 5), facecolor='white' )
             ax = plt.gca()
 
@@ -349,10 +344,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             color_objects.append( color_object )
             labels.append( p_constants.CLASSIFICATION_LABELS[key] )
 
-        if x_range is not default:
+        if x_range is not None:
             ax.set_xlim( x_range )
 
-        if y_range is not default:
+        if y_range is not None:
             ax.set_ylim( y_range )
 
         if not time_x_axis:
@@ -384,7 +379,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             ax2.set_xticklabels( ax2_tick_labels )
             ax2.set_xlabel( r'z', fontsize=22, labelpad=10 )
 
-        if y_label is default:
+        if y_label is None:
             y_label = r'$f(M_{\star})$'
 
         if not time_x_axis:
@@ -393,7 +388,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             ax.set_xlabel( r'Age of Universe (Gyr)', fontsize=22, )
         ax.set_ylabel( y_label, fontsize=22, )
 
-        if label is default:
+        if label is None:
             label = self.label
 
         if show_label:
@@ -415,9 +410,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     def plot_stacked_radial_data(
         self,
         radial_bins,
-        ax = default,
-        x_range = default, y_range = [0., 1.],
-        x_label = default, y_label = default,
+        ax = None,
+        x_range = None, y_range = [0., 1.],
+        x_label = None, y_label = None,
         plot_dividing_line = False,
         classification_list = p_constants.CLASSIFICATIONS_A,
         classification_colors = p_constants.CLASSIFICATION_COLORS_B,
@@ -439,7 +434,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 Whether or not to plot a line at the edge between stacked regions.
         '''
 
-        if ax is default:
+        if ax is None:
             plt.figure( figsize=(11, 5), facecolor='white' )
             ax = plt.gca()
 
@@ -491,17 +486,17 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             color_objects.append( color_object )
             labels.append( p_constants.CLASSIFICATION_LABELS[key] )
 
-        if x_range is default:
+        if x_range is None:
             ax.set_xlim( radial_bins.min(), radial_bins.max() )
         else:
             ax.set_xlim( x_range )
 
-        if y_range is not default:
+        if y_range is not None:
             ax.set_ylim( y_range )
 
-        if y_label is default:
+        if y_label is None:
             y_label = r'Stacked Radial Data'
-        if x_label is default:
+        if x_label is None:
             x_label = r'R'
 
         ax.set_xlabel( x_label, fontsize=22, )
@@ -529,13 +524,13 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         self,
         data_key,
         ax,
-        x_label = default,
+        x_label = None,
         *args, **kwargs
     ):
         '''Plot histogram of distances.
         '''
 
-        if x_label is default:
+        if x_label is None:
             if data_key == 'd_sat_scaled':
                 if self.data_object.galids.parameters['length_scale'] == 'r_scale':
                     x_label = r'Distance to Nearest Other Galaxy ($r_{ \rm scale, sat }$)'
@@ -555,12 +550,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         self,
         plot_with_halos_method = 'histogram2d',
         slices = None,
-        ax = default,
+        ax = None,
         out_dir = None,
         halo_color = '#337DB8',
         halo_linewidth = 3,
         halo_outline = False,
-        radius_fractions = default,
+        radius_fractions = None,
         n_halos_plotted = 100,
         show_valid_halos = True,
         *args, **kwargs
@@ -568,7 +563,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         '''Plot with halos overlayed on top.
         '''
 
-        if ax is default:
+        if ax is None:
             fig = plt.figure( figsize=(10, 9), facecolor='white', )
             ax = plt.gca()
 
@@ -578,7 +573,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ahf_plotter = plot_ahf.HaloPlotter( self.data_object.ptracks.halo_data )
         snum = self.data_object.ptracks.ahf_reader.mtree_halos[0].index[slices]
 
-        if radius_fractions is default:
+        if radius_fractions is None:
             radius_fractions = [ self.data_object.galids.parameters['galaxy_cut'], ]
 
         for radius_fraction in radius_fractions:
@@ -616,20 +611,22 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         t_show_max = 1.0,
         start_ind = 0,
         end_ind = 'time_based',
-        t_end = default,
-        sample_inds = default,
+        t_start = None,
+        t_end = None,
+        sample_inds = None,
         sample_size = 10,
         convert_x_to_comoving = False,
         convert_y_to_comoving = False,
         ax = None,
-        x_range = default,
-        y_range = default,
+        x_range = None,
+        y_range = None,
         x_scale = 'linear',
         y_scale = 'linear',
-        color = default,
+        color = None,
         zorder = 100.,
         linewidth = 1.5,
         fade_streamlines = True,
+        line_features = None,
         x_label = 'x position (pkpc)',
         y_label = 'y position (pkpc)',
         plot_xlabel = True,
@@ -637,8 +634,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         fontsize = 22,
         xkcd_mode = False,
         plot_halos = True,
-        halo_radius_fraction = default,
-        halo_length_scale = default,
+        halo_radius_fraction = None,
+        halo_length_scale = None,
         verbose = False,
         return_y_max = False,
         *args, **kwargs
@@ -660,22 +657,30 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             self.data_object.data_masker.mask_data(
                 time_key, t_show_min, t_show_max )
 
-        # Decide when to stop plotting the streamlines
-        if end_ind == 'time_based':
+        # Decide when to start and stop plotting the streamlines
+        if (start_ind == 'time_based') or (end_ind == 'time_based'):
 
             # Figure out what time interval overwhich to plot
-            if t_end is default:
+            if t_end is None:
                 t_end = t_show_max
 
-            # Loop through until we get the right time.
             time = self.data_object.get_data('time')
-            end_ind = start_ind
-            time_end = time[end_ind]
-            while time[start_ind] - time_end <= t_end:
-                time_end = time[end_ind]
-                end_ind += 1
 
-        if sample_inds is default:
+            # Loop through until we get the right time.
+            if start_ind == 'time_based':
+                start_ind = 0
+                time_start = time[start_ind]
+                while time[classification_ind] + t_start <= time_start:
+                    time_start = time[start_ind]
+                    start_ind += 1
+            if end_ind == 'time_based':
+                end_ind = start_ind
+                time_end = time[end_ind]
+                while time[start_ind] - time_end <= t_end:
+                    time_end = time[end_ind]
+                    end_ind += 1
+
+        if sample_inds is None:
             if classification is None:
 
                 inds_to_sample = range( self.data_object.n_particles )
@@ -721,6 +726,17 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             **y_data_kwargs
         )
 
+        # When we're changing linestyles based on another pattern
+        if line_features is not None:
+            line_features_data = {}
+            for name, item in line_features.items():
+                key = item['key']
+                line_features_data[key] = self.data_object.get_selected_data(
+                    key,
+                    sl = sl,
+                    **item['data_kwargs']
+                )
+
         # Convert to comoving
         if convert_x_to_comoving or convert_y_to_comoving:
             a = ( 1. + self.data_object.redshift.values[onedim_slice] )**-1.
@@ -739,7 +755,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         z_data = z_data**2.
 
         # Plot!
-        if color is default:
+        if color is None:
             color = p_constants.CLASSIFICATION_COLORS_B[classification]
 
         # Format the data
@@ -763,6 +779,16 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 ax.add_collection( lc )
 
                 lc.set_zorder( zorder )
+            elif line_features is not None:
+                for name, item in line_features.items():
+                    key = item['key']
+                    mask = line_features_data[key][i] == item['value']
+                    ax.plot(
+                        xs[mask],
+                        ys[mask],
+                        **item['line_attrs']
+                    )
+                
             else:
                 ax.plot(
                     xs,
@@ -777,9 +803,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             w = self.data_object
 
-            if halo_radius_fraction is default:
+            if halo_radius_fraction is None:
                 halo_radius_fraction = w.galids.parameters['galaxy_cut']
-            if halo_length_scale is default:
+            if halo_length_scale is None:
                 halo_length_scale = w.galids.parameters['length_scale']
 
             ahf_data = analyze_ahf.HaloData(
@@ -800,9 +826,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             )
 
         # Set the range
-        if x_range is default:
+        if x_range is None:
             x_range = [ x_data.min(), x_data.max() ]
-        if y_range is default:
+        if y_range is None:
             y_range = [ y_data.min(), y_data.max() ]
         ax.set_xlim( x_range )
         ax.set_ylim( y_range )
@@ -1318,9 +1344,6 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 halo_data_dir = galids_params['halo_data_dir'],
                 main_halo_id = galids_params['main_mt_halo_id'],
             )
-
-            #DEBUG
-            import pdb; pdb.set_trace()
 
             # Get length scale
             r_gal = self.data_object.r_gal[ind]
