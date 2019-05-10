@@ -607,6 +607,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         classification = None,
         classification_ind = 0,
         sample_selected_interval = True,
+        selected_interval_type = 'time_as',
+        selected_interval_classification = None,
         t_show_min = 0.5,
         t_show_max = 1.0,
         start_ind = 0,
@@ -653,7 +655,13 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         if sample_selected_interval:
 
-            time_key = 'time_as_{}'.format( classification[3:] )
+            if selected_interval_classification is None:
+                selected_interval_classification = classification
+
+            time_key = '{}_{}'.format(
+                selected_interval_type,
+                selected_interval_classification[3:]
+            )
             self.data_object.data_masker.mask_data(
                 time_key, t_show_min, t_show_max )
 
@@ -866,6 +874,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             'n_halos': 100,
         },
         plot_CGM_region = False,
+        CGM_region_alpha = 0.2,
         return_y_max = False,
         *args, **kwargs
     ):
@@ -965,7 +974,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     y_dir * self.data_object.inner_CGM_boundary,
                     y_dir * self.data_object.outer_CGM_boundary,
                     color = 'k',
-                    alpha = 0.2,
+                    alpha = CGM_region_alpha,
                 )
 
         if return_y_max:
@@ -1000,7 +1009,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             'PType',
         ],
         tracked_filter_flags = [ True, ] * 6,
-        tracked_colormap_flags = [ True, True, True, False, False, False, ],
+        tracked_colormap_flags = [ True, ] * 6,
         size_mult = 3,
         include_ruler = True,
         include_disk = True,
@@ -1074,7 +1083,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             include_disk (bool):
                 If True display a 50 kpc line starting at the galaxy center and
-                extending out 50 kpc parallel to the total angular momentum of
+                eclassificationxtending out 50 kpc parallel to the total angular momentum of
                 the stars in the galaxy. In addition draw a circle
                 perpendicular to the total angular momentum and with a radius
                 of R_gal.

@@ -1595,6 +1595,22 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_in_CGM_or_interface( self ):
+        '''Material that is in either the CGM (outside a satellite)
+         or the galaxy halo interface.'''
+
+        # Create this combined category for classification purposes
+        is_in_CGM_or_iface = np.logical_or(
+            self.get_data( 'is_in_CGM_not_sat' ),
+            self.get_data( 'is_in_galaxy_halo_interface' ),
+        )
+
+        self.data['is_in_CGM_or_interface'] = is_in_CGM_or_iface
+
+        return self.data['is_in_CGM_or_interface']
+
+    ########################################################################
+
     def calc_leaves_gal( self ):
         '''Find when a particle leaves the galaxy.'''
 
@@ -1903,12 +1919,6 @@ class Worldlines( simulation_data.TimeData ):
 
             return x
 
-        # Create this combined category for classification purposes
-        is_in_CGM_or_iface = np.logical_or(
-            self.get_data( 'is_in_CGM_not_sat' ),
-            self.get_data( 'is_in_galaxy_halo_interface' ),
-        )
-
         # For tracking accretion onto satellites
         is_in_CGM_other_gal = np.logical_and(
             self.get_data( 'is_in_other_gal' ),
@@ -1931,7 +1941,7 @@ class Worldlines( simulation_data.TimeData ):
         # Get results
         CGM_fate_cs = numba_fn(
             ( np.ones( self.base_data_shape ) * -2).astype( int ),
-            is_in_CGM_or_iface,
+            self.get_data( 'is_in_CGM_or_interface' ),
             self.get_data( 'is_in_main_gal' ),
             is_in_CGM_other_gal,
             self.get_data( 'is_in_IGM' ),
