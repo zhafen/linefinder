@@ -870,11 +870,11 @@ class TestIDSelectorJug( unittest.TestCase ):
 
         # DEBUG
         print( '\nFinished jug\n' )
+        print( '\nFiles in current dir ({}):\n'.format( os.getcwd() ) )
+        print( os.listdir( os.getcwd() ) )
         print( '\nFiles in {}:'.format( self.out_dir ) )
         print( os.listdir( self.out_dir ) )
         print( '\nListed files\n' )
-        print( '\nFiles in current dir ({}):\n'.format( os.getcwd() ) )
-        print( os.listdir( os.getcwd() ) )
 
         files = []
         for filepath in self.filepaths:
