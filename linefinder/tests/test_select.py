@@ -883,6 +883,10 @@ class TestIDSelectorJug( unittest.TestCase ):
         # DEBUG
         print( '\nCurrent dir: {} (prior to jug)\n'.format( os.getcwd() ) )
 
+        # DEBUG
+        import time
+        time.sleep( 5 )
+
         # Run jug version
         os.system( "jug execute ./linefinder/tests/select_jugfile.py &"
         )
