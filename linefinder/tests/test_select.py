@@ -816,7 +816,7 @@ class TestIDSelectorJug( unittest.TestCase ):
         os.chdir( '..' )
 
         # DEBUG
-        print( '/n/nAfter/n/n' )
+        print( '\n\nAfter\n\n' )
         print( os.getcwd() )
 
         self.out_dir = './linefinder/tests/data/tracking_output'
@@ -834,6 +834,9 @@ class TestIDSelectorJug( unittest.TestCase ):
     ########################################################################
 
     def tearDown( self ):
+
+        # DEBUG
+        print( '\nAt tearDown()\n' )
 
         # Remove jugdata
         os.system( 'rm -r ./linefinder/tests/*jugdata' )
@@ -864,6 +867,12 @@ class TestIDSelectorJug( unittest.TestCase ):
         )
         os.system( "jug execute ./linefinder/tests/select_jugfile.py"
         )
+
+        # DEBUG
+        print( '\nFinished jug\n' )
+        print( '\nFiles in {}:'.format( self.out_dir ) )
+        print( os.listdir( self.out_dir ) )
+        print( '\nListed files\n.' )
 
         files = []
         for filepath in self.filepaths:
