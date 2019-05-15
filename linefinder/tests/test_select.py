@@ -810,7 +810,7 @@ class TestIDSelectorJug( unittest.TestCase ):
     def setUp( self ):
 
         # DEBUG
-        print( os.getcwd() )
+        print( '\nCurrent dir: {} (at setup start)\n'.format( os.getcwd() ) )
 
         # We can't execute from the package module
         os.chdir( '..' )
@@ -831,9 +831,15 @@ class TestIDSelectorJug( unittest.TestCase ):
             if os.path.isfile( filepath ):
                 os.remove( filepath )
 
+        # DEBUG
+        print( '\nCurrent dir: {} (at end of setup)\n'.format( os.getcwd() ) )
+
     ########################################################################
 
     def tearDown( self ):
+
+        # DEBUG
+        print( '\nCurrent dir: {} (at tearDown)\n'.format( os.getcwd() ) )
 
         # DEBUG
         print( '\nAt tearDown()\n' )
@@ -844,9 +850,15 @@ class TestIDSelectorJug( unittest.TestCase ):
         # Switch back so we don't mess up other tests
         os.chdir( 'linefinder' )
 
+        # DEBUG
+        print( '\nCurrent dir: {} (at end of tearDown)\n'.format( os.getcwd() ) )
+
     ########################################################################
 
     def test_select_ids_jug( self ):
+
+        # DEBUG
+        print( '\nCurrent dir: {} (at very start)\n'.format( os.getcwd() ) )
 
         kwargs = copy.copy( default_kwargs )
 
@@ -861,6 +873,9 @@ class TestIDSelectorJug( unittest.TestCase ):
 
         id_selector = select.IDSelector( **kwargs )
         id_selector.select_ids( data_filters )
+
+        # DEBUG
+        print( '\nCurrent dir: {} (prior to jug)\n'.format( os.getcwd() ) )
 
         # Run jug version
         os.system( "jug execute ./linefinder/tests/select_jugfile.py &"
