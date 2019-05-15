@@ -816,7 +816,7 @@ class TestIDSelectorJug( unittest.TestCase ):
         os.chdir( '..' )
 
         # DEBUG
-        print( 'After' )
+        print( '/n/nAfter/n/n' )
         print( os.getcwd() )
 
         self.out_dir = './linefinder/tests/data/tracking_output'
@@ -860,11 +860,9 @@ class TestIDSelectorJug( unittest.TestCase ):
         id_selector.select_ids( data_filters )
 
         # Run jug version
-        os.system( "{} ./linefinder/tests/select_jugfile.py &".format(
-            config.JUG_EXEC_PATH )
+        os.system( "jug execute ./linefinder/tests/select_jugfile.py &"
         )
-        os.system( "{} ./linefinder/tests/select_jugfile.py".format(
-            config.JUG_EXEC_PATH )
+        os.system( "jug execute ./linefinder/tests/select_jugfile.py"
         )
 
         files = []
