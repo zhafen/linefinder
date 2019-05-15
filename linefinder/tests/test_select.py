@@ -867,9 +867,15 @@ class TestIDSelectorJug( unittest.TestCase ):
         kwargs['snapshot_kwargs']['sdir'] = './linefinder/tests/data/stars_included_test_data'
         kwargs['snapshot_kwargs']['halo_data_dir'] = './linefinder/tests/data/ahf_test_data'
 
+        # DEBUG
+        print( '\nCurrent dir: {} (prior to filter)\n'.format( os.getcwd() ) )
+
         data_filters = {
             'radial_cut': { 'data_key': 'Rf', 'data_min': 0., 'data_max': 1., },
         }
+
+        # DEBUG
+        print( '\nCurrent dir: {} (prior to id selector)\n'.format( os.getcwd() ) )
 
         id_selector = select.IDSelector( **kwargs )
         id_selector.select_ids( data_filters )
