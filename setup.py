@@ -29,9 +29,11 @@ setuptools.setup(
         'palettable>=3.1.1',
         'matplotlib>=2.0.2',
         'h5py>=2.7.0',
+        'firefly_api>=0.0.2',
         'GitPython>=2.1.11',
-        'scipy>=1.2.0',
-        'verdict>=1.0',
-        'galaxy-dive>=0.9.1'
+        'numba>=0.43.1',
+        'scipy>=1.2.1',
+        'verdict>=1.1.3',
+        'galaxy-dive>=0.9.2'
     ],
 )
