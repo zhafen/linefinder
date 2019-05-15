@@ -809,8 +809,15 @@ class TestIDSelectorJug( unittest.TestCase ):
 
     def setUp( self ):
 
+        # DEBUG
+        print( os.getcwd() )
+
         # We can't execute from the package module
         os.chdir( '..' )
+
+        # DEBUG
+        print( 'After' )
+        print( os.getcwd() )
 
         self.out_dir = './linefinder/tests/data/tracking_output'
 
