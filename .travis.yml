@@ -7,4 +7,4 @@ install:
   - pip install -r requirements.txt
   - pip install .
 # command to run tests
-script: cd linefinder; ls ./tests/data/stars_included_test_data/* ; pytest tests/test_select.py::TestSnapshotIDSelector::test_default
+script: cd linefinder; ls ./tests/data/stars_included_test_data/* ; pytest tests/test_select.py
