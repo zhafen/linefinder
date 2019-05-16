@@ -123,15 +123,15 @@ class IDSelector( object ):
 
         jug.Task( self.save_selected_ids, selected_ids_formatted, data_filters )
 
+        # Somehow jug changes directories on some systems. This is a workaround
+        jug.Task( os.chdir, start_dir )
+        print( 'start_dir = {}'.format( start_dir ) )
+
         jug.barrier()
 
         print( "########################################################################" )
         print( "Done selecting IDs!" )
         sys.stdout.flush()
-
-        # Somehow jug changes directories on some systems. This is a workaround
-        jug.Task( os.chdir, start_dir )
-        print( 'start_dir = {}'.format( start_dir ) )
 
     ########################################################################
 

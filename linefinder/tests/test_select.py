@@ -885,7 +885,7 @@ class TestIDSelectorJug( unittest.TestCase ):
 
         # DEBUG
         import time
-        time.sleep( 5 )
+        time.sleep( 30 )
 
         # Run jug version
         os.system( "jug execute ./linefinder/tests/select_jugfile.py &"
