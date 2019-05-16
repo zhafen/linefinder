@@ -219,12 +219,8 @@ class TestLinefinderJug( unittest.TestCase ):
         # Make sure that the sub-sampled snapshots had always consistent IDs...
         np.random.seed( 1234 )
 
-        os.system( "{} ./linefinder/tests/linefinder_jugfile.py &".format(
-            config.JUG_EXEC_PATH )
-        )
-        os.system( "{} ./linefinder/tests/linefinder_jugfile.py".format(
-            config.JUG_EXEC_PATH )
-        )
+        os.system( "jug execute ./linefinder/tests/linefinder_jugfile.py &" )
+        os.system( "jug execute ./linefinder/tests/linefinder_jugfile.py" )
 
         # TODO: Fix this.  I can't actually do this test right now, because jug
         # the traditional method aren't sampling the same particles...

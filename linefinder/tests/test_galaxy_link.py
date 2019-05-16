@@ -220,12 +220,8 @@ class TestParticleTrackGalaxyLinkerJug( unittest.TestCase ):
     @slow
     def test_find_galaxies_for_particle_tracks_jug( self ):
 
-        os.system( "{} ./linefinder/tests/find_galaxies_for_ptracks_jugfile.py &".format(
-            config.JUG_EXEC_PATH )
-        )
-        os.system( "{} ./linefinder/tests/find_galaxies_for_ptracks_jugfile.py".format(
-            config.JUG_EXEC_PATH )
-        )
+        os.system( "jug execute ./linefinder/tests/find_galaxies_for_ptracks_jugfile.py &" )
+        os.system( "jug execute ./linefinder/tests/find_galaxies_for_ptracks_jugfile.py" )
 
         expected = \
             h5py.File( './linefinder/tests/data/tracking_output/galids_test.hdf5', 'r' )

@@ -632,11 +632,9 @@ class TestSaveTargetedParticlesJug( unittest.TestCase ):
     @slow
     def test_basic( self ):
 
-        os.system( "{} ./linefinder/tests/track_jugfile.py &".format(
-            config.JUG_EXEC_PATH )
+        os.system( "jug execute ./linefinder/tests/track_jugfile.py &"
         )
-        os.system( "{} ./linefinder/tests/track_jugfile.py".format(
-            config.JUG_EXEC_PATH )
+        os.system( "jug execute ./linefinder/tests/track_jugfile.py"
         )
 
         f = h5py.File( './linefinder/tests/data/tracking_output/ptracks_test_jug.hdf5', 'r' )
