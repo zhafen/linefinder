@@ -81,9 +81,6 @@ class IDSelector( object ):
             data_filters (dict of dicts): The data filters to apply.
         '''
 
-        # DEBUG
-        print( '\nSimple Change in select_ids()!\n' )
-
         print( "########################################################################" )
         print( "Selecting IDs" )
         print( "########################################################################" )
@@ -111,13 +108,6 @@ class IDSelector( object ):
             data_filters (dict of dicts): The data filters to apply.
         '''
 
-        # DEBUG
-        # Somehow jug changes directories on some systems. This is a workaround
-        # start_dir = os.getcwd()
-
-        ##  DEBUG
-        print( '\nSimple Change!\n' )
-
         print( "########################################################################" )
         print( "Selecting IDs" )
         print( "########################################################################" )
@@ -129,11 +119,6 @@ class IDSelector( object ):
             self.format_selected_ids, selected_ids )
 
         jug.Task( self.save_selected_ids, selected_ids_formatted, data_filters )
-
-        # Somehow jug changes directories on some systems. This is a workaround
-        # jug.Task( os.chdir, start_dir )
-        # print( 'start_dir = {}'.format( start_dir ) )
-        # jug.Task( print, 'start_dir = {}'.format( start_dir ) )
 
         jug.barrier()
 

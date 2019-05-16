@@ -809,15 +809,8 @@ class TestIDSelectorJug( unittest.TestCase ):
 
     def setUp( self ):
 
-        # DEBUG
-        print( '\nCurrent dir: {} (at setup start)\n'.format( os.getcwd() ) )
-
         # We can't execute from the package module
         os.chdir( '..' )
-
-        # DEBUG
-        print( '\n\nAfter\n\n' )
-        print( os.getcwd() )
 
         self.out_dir = './linefinder/tests/data/tracking_output'
 
@@ -831,18 +824,9 @@ class TestIDSelectorJug( unittest.TestCase ):
             if os.path.isfile( filepath ):
                 os.remove( filepath )
 
-        # DEBUG
-        print( '\nCurrent dir: {} (at end of setup)\n'.format( os.getcwd() ) )
-
     ########################################################################
 
     def tearDown( self ):
-
-        # DEBUG
-        print( '\nCurrent dir: {} (at tearDown)\n'.format( os.getcwd() ) )
-
-        # DEBUG
-        print( '\nAt tearDown()\n' )
 
         # Remove jugdata
         os.system( 'rm -r ./linefinder/tests/*jugdata' )
@@ -850,15 +834,9 @@ class TestIDSelectorJug( unittest.TestCase ):
         # Switch back so we don't mess up other tests
         os.chdir( 'linefinder' )
 
-        # DEBUG
-        print( '\nCurrent dir: {} (at end of tearDown)\n'.format( os.getcwd() ) )
-
     ########################################################################
 
     def test_select_ids_jug( self ):
-
-        # DEBUG
-        print( '\nCurrent dir: {} (at very start)\n'.format( os.getcwd() ) )
 
         kwargs = copy.copy( default_kwargs )
 
@@ -867,42 +845,18 @@ class TestIDSelectorJug( unittest.TestCase ):
         kwargs['snapshot_kwargs']['sdir'] = './linefinder/tests/data/stars_included_test_data'
         kwargs['snapshot_kwargs']['halo_data_dir'] = './linefinder/tests/data/ahf_test_data'
 
-        # DEBUG
-        print( '\nCurrent dir: {} (prior to filter)\n'.format( os.getcwd() ) )
-
         data_filters = {
             'radial_cut': { 'data_key': 'Rf', 'data_min': 0., 'data_max': 1., },
         }
 
-        # DEBUG
-        print( '\nCurrent dir: {} (prior to id selector)\n'.format( os.getcwd() ) )
-
         id_selector = select.IDSelector( **kwargs )
         id_selector.select_ids( data_filters )
-
-        # DEBUG
-        print( '\nCurrent dir: {} (prior to jug)\n'.format( os.getcwd() ) )
-
-        # DEBUG
-        import time
-        time.sleep( 30 )
-
-        # DEBUG
-        print( '\nCurrent dir: {} (after sleeping)\n'.format( os.getcwd() ) )
 
         # Run jug version
         os.system( "jug execute ./linefinder/tests/select_jugfile.py &"
         )
         os.system( "jug execute ./linefinder/tests/select_jugfile.py"
         )
-
-        # DEBUG
-        print( '\nFinished jug\n' )
-        print( '\nFiles in current dir ({}):\n'.format( os.getcwd() ) )
-        print( os.listdir( os.getcwd() ) )
-        print( '\nFiles in {}:'.format( self.out_dir ) )
-        print( os.listdir( self.out_dir ) )
-        print( '\nListed files\n' )
 
         files = []
         for filepath in self.filepaths:
@@ -933,6 +887,3 @@ class TestIDSelectorJug( unittest.TestCase ):
                     files[0]['parameters'].attrs[key],
                     files[1]['parameters'].attrs[key],
                 )
-
-        # DEBUG
-        assert False
