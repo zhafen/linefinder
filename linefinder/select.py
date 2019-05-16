@@ -130,7 +130,8 @@ class IDSelector( object ):
         sys.stdout.flush()
 
         # Somehow jug changes directories on some systems. This is a workaround
-        os.chdir( start_dir )
+        jug.Task( os.chdir, start_dir )
+        print( 'start_dir = {}'.format( start_dir ) )
 
     ########################################################################
 
