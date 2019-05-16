@@ -111,6 +111,9 @@ class IDSelector( object ):
         # Somehow jug changes directories on some systems. This is a workaround
         start_dir = os.getcwd()
 
+        # DEBUG
+        print( '\nSimple Change!\n' )
+
         print( "########################################################################" )
         print( "Selecting IDs" )
         print( "########################################################################" )
