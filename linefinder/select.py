@@ -126,6 +126,7 @@ class IDSelector( object ):
         # Somehow jug changes directories on some systems. This is a workaround
         jug.Task( os.chdir, start_dir )
         print( 'start_dir = {}'.format( start_dir ) )
+        jug.Task( print, 'start_dir = {}'.format( start_dir ) )
 
         jug.barrier()
 
