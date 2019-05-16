@@ -81,6 +81,9 @@ class IDSelector( object ):
             data_filters (dict of dicts): The data filters to apply.
         '''
 
+        # DEBUG
+        print( '\nSimple Change in select_ids()!\n' )
+
         print( "########################################################################" )
         print( "Selecting IDs" )
         print( "########################################################################" )

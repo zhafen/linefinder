@@ -933,3 +933,6 @@ class TestIDSelectorJug( unittest.TestCase ):
                     files[0]['parameters'].attrs[key],
                     files[1]['parameters'].attrs[key],
                 )
+
+        # DEBUG
+        assert False
