@@ -108,6 +108,9 @@ class IDSelector( object ):
             data_filters (dict of dicts): The data filters to apply.
         '''
 
+        # Somehow jug changes directories on some systems. This is a workaround
+        start_dir = os.getcwd()
+
         print( "########################################################################" )
         print( "Selecting IDs" )
         print( "########################################################################" )
@@ -125,6 +128,9 @@ class IDSelector( object ):
         print( "########################################################################" )
         print( "Done selecting IDs!" )
         sys.stdout.flush()
+
+        # Somehow jug changes directories on some systems. This is a workaround
+        os.chdir( start_dir )
 
     ########################################################################
 
