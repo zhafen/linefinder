@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="linefinder",
-    version="0.9.2",
+    version="0.9.3",
     author="Zach Hafen",
     author_email="zachary.h.hafen@gmail.com",
     description="A tool for finding and classifying the worldlines of Lagrangian parcels of mass, in the context of hydrodynamic simulations of galaxy formation.",
