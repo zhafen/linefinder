@@ -410,6 +410,11 @@ class TestSaveTargetedParticles( unittest.TestCase ):
         # The name of the function.
         self.fn = self.particle_tracker.save_particle_tracks
 
+        # Check for existing output files and delete them.
+        output_filepath = 'tests/data/tracking_output/ptracks_test.hdf5'
+        if os.path.isfile( output_filepath ):
+            os.remove( output_filepath )
+
     ########################################################################
 
     def test_runs( self ):
