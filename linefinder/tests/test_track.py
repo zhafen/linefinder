@@ -326,6 +326,36 @@ class TestApplyFunctions( unittest.TestCase ):
         for key in expected.keys():
             npt.assert_allclose( expected[key], dfid[key] )
 
+    ########################################################################
+
+    def test_saves( self ):
+
+        # Check for existing output files and delete them.
+        output_filepath = 'tests/data/tracking_output/ptracks_test.hdf5'
+        if os.path.isfile( output_filepath ):
+            os.remove( output_filepath )
+
+        # Update kwargs
+        used_kwargs = copy.deepcopy( default_data_p )
+        used_kwargs['custom_fns'] = test_apply_fns
+
+        particle_tracker = track.ParticleTracker( **used_kwargs )
+
+        # Run the function
+        particle_tracker.save_particle_tracks()
+
+        # Check results
+        f = h5py.File( output_filepath, 'r' )
+
+        # The output for this function should be an integer
+        assert np.issubdtype( f['IDx2'][...].dtype, np.integer )
+                
+        # None of the elements should be 0.
+        assert not ( 0 in f['IDx2'][...] )
+
+        # None of the elements should be 0.
+        assert not ( 0. in f['Potential'][...] )
+
 ########################################################################
 
 class TestFindIds( unittest.TestCase ):

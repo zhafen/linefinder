@@ -260,6 +260,14 @@ class ParticleTracker( object ):
         if self.target_child_ids is not None:
             ptrack['ChildID'] = self.target_child_ids
 
+        # Note what types of data are in ptracks explicitly
+        # so we can add custom keys not explicitly included
+        pos_and_vel_data_keys = [
+            'P0', 'P1', 'P2',
+            'V0', 'V1', 'V2',
+        ]
+        accounted_for_data_keys = pos_and_vel_data_keys + list( ptrack.keys() )
+
         j = 0
         for snum in self.snaps:
 
@@ -297,30 +305,23 @@ class ParticleTracker( object ):
                 [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ]
             ).T
 
-            # Include custom derived products
+            # Add data keys not account for explicitly
             for data_key in dfid.columns:
 
                 # Skip existing data
-                if data_key in ptrack.keys():
+                if data_key in accounted_for_data_keys:
                     continue
 
                 # Store the data
+                values = dfid[data_key].values
                 try:
-                    ptrack[data_key][:, j] = dfid[data_key].values
+                    ptrack[data_key][:, j] = values
                 except KeyError:
                     ptrack[data_key] = np.zeros(
-                        self.ntrack,
-                        dtype=( myfloat, (nsnap,) ),
+                        ( self.ntrack, nsnap ),
+                        dtype=values.dtype,
                     )
-                    ptrack[data_key][:, j] = dfid[data_key].values
-
-
-            if 'Potential' in dfid.keys():
-                try:
-                    ptrack['Potential'][:, j] = dfid['Potential'].values
-                except KeyError:
-                    ptrack['Potential'] = np.zeros( self.ntrack, dtype=(myfloat, (nsnap,)) )
-                    ptrack['Potential'][:, j] = dfid['Potential'].values
+                    ptrack[data_key][:, j] = values
 
             j += 1
 
@@ -417,6 +418,14 @@ class ParticleTracker( object ):
             "Unequal sizes, snapshot likely skipped," + \
             " likely due to a MemoryError!"
 
+        # Note what types of data are in ptracks explicitly
+        # so we can add custom keys not explicitly included
+        pos_and_vel_data_keys = [
+            'P0', 'P1', 'P2',
+            'V0', 'V1', 'V2',
+        ]
+        accounted_for_data_keys = pos_and_vel_data_keys + list( ptrack.keys() )
+
         for tracked_data_snapshot in tracked_data_snapshots:
 
             j, dfid, redshift, attrs, snum = tracked_data_snapshot
@@ -443,23 +452,23 @@ class ParticleTracker( object ):
                 [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ]
             ).T
 
-            # Include custom derived products
+            # Add data keys not account for explicitly
             for data_key in dfid.columns:
 
                 # Skip existing data
-                if data_key in ptrack.keys():
+                if data_key in accounted_for_data_keys:
                     continue
 
                 # Store the data
+                values = dfid[data_key].values
                 try:
-                    ptrack[data_key][:, j] = dfid[data_key].values
+                    ptrack[data_key][:, j] = values
                 except KeyError:
                     ptrack[data_key] = np.zeros(
-                        self.ntrack,
-                        dtype=( myfloat, (nsnap,) ),
+                        ( self.ntrack, nsnap ),
+                        dtype=values.dtype,
                     )
-                    ptrack[data_key][:, j] = dfid[data_key].values
-
+                    ptrack[data_key][:, j] = values
 
         return ptrack, attrs
 
@@ -564,6 +573,14 @@ class ParticleTracker( object ):
         if self.target_child_ids is not None:
             ptrack['ChildID'] = self.target_child_ids
 
+        # Note what types of data are in ptracks explicitly
+        # so we can add custom keys not explicitly included
+        pos_and_vel_data_keys = [
+            'P0', 'P1', 'P2',
+            'V0', 'V1', 'V2',
+        ]
+        accounted_for_data_keys = pos_and_vel_data_keys + list( ptrack.keys() )
+
         for tracked_data_snapshot in tracked_data_snapshots:
 
             j, dfid, redshift, attrs, snum = tracked_data_snapshot
@@ -590,22 +607,23 @@ class ParticleTracker( object ):
                 [ dfid['V0'].values, dfid['V1'].values, dfid['V2'].values ]
             ).T
 
-            # Include custom derived products
+            # Add data keys not account for explicitly
             for data_key in dfid.columns:
 
                 # Skip existing data
-                if data_key in ptrack.keys():
+                if data_key in accounted_for_data_keys:
                     continue
 
                 # Store the data
+                values = dfid[data_key].values
                 try:
-                    ptrack[data_key][:, j] = dfid[data_key].values
+                    ptrack[data_key][:, j] = values
                 except KeyError:
                     ptrack[data_key] = np.zeros(
-                        self.ntrack,
-                        dtype=( myfloat, (nsnap,) ),
+                        ( self.ntrack, nsnap ),
+                        dtype=values.dtype,
                     )
-                    ptrack[data_key][:, j] = dfid[data_key].values
+                    ptrack[data_key][:, j] = values
 
         return ptrack, attrs
 
