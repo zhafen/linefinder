@@ -1,0 +1,969 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>linefinder.tests.test_select &#8212; linefinder 0.9.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">linefinder 0.9.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for linefinder.tests.test_select</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&#39;&#39;&#39;Testing for select.py</span>
+
+<span class="sd">@author: Zach Hafen</span>
+<span class="sd">@contact: zachary.h.hafen@gmail.com</span>
+<span class="sd">@status: Development</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">mock</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.testing</span> <span class="k">as</span> <span class="nn">npt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="kn">import</span> <span class="nn">linefinder.config</span> <span class="k">as</span> <span class="nn">config</span>
+<span class="kn">import</span> <span class="nn">linefinder.select</span> <span class="k">as</span> <span class="nn">select</span>
+
+<span class="kn">import</span> <span class="nn">galaxy_dive.utils.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
+
+<span class="c1">########################################################################</span>
+
+<span class="c1"># For IDSelector</span>
+<span class="n">default_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;snum_start&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+    <span class="s1">&#39;snum_end&#39;</span><span class="p">:</span> <span class="mi">600</span><span class="p">,</span>
+    <span class="s1">&#39;snum_step&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="s1">&#39;p_types&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+    <span class="s1">&#39;out_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;./tests/data/tracking_output&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tag&#39;</span><span class="p">:</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span>
+
+    <span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;sdir&#39;</span><span class="p">:</span> <span class="s1">&#39;./tests/data/stars_included_test_data&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;load_additional_ids&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;ahf_index&#39;</span><span class="p">:</span> <span class="mi">600</span><span class="p">,</span>
+        <span class="s1">&#39;halo_data_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;./tests/data/ahf_test_data&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;length_scale_used&#39;</span><span class="p">:</span> <span class="s1">&#39;Rvir&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1"># For SnapshotIDSelector</span>
+<span class="n">default_snap_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;sdir&#39;</span><span class="p">:</span> <span class="s1">&#39;./tests/data/stars_included_test_data&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;snum&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+    <span class="s1">&#39;ptype&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s1">&#39;load_additional_ids&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;ahf_index&#39;</span><span class="p">:</span> <span class="mi">600</span><span class="p">,</span>
+    <span class="s1">&#39;halo_data_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;./tests/data/ahf_test_data&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;length_scale_used&#39;</span><span class="p">:</span> <span class="s1">&#39;Rvir&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">newids_snap_kwargs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">default_snap_kwargs</span> <span class="p">)</span>
+<span class="n">newids_snap_kwargs</span><span class="p">[</span><span class="s1">&#39;load_additional_ids&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">default_data_filters</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;radial_cut&#39;</span><span class="p">:</span> <span class="p">{</span> <span class="s1">&#39;data_key&#39;</span><span class="p">:</span> <span class="s1">&#39;Rf&#39;</span><span class="p">,</span> <span class="s1">&#39;data_min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;data_max&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="p">},</span>
+    <span class="s1">&#39;temp_cut&#39;</span><span class="p">:</span> <span class="p">{</span> <span class="s1">&#39;data_key&#39;</span><span class="p">:</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;data_min&#39;</span><span class="p">:</span> <span class="mf">1e4</span><span class="p">,</span> <span class="s1">&#39;data_max&#39;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span> <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">id_sampler_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;out_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;./tests/data/tracking_output_for_analysis&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tag&#39;</span><span class="p">:</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;n_samples&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">########################################################################</span>
+<span class="c1">########################################################################</span>
+
+
+<div class="viewcode-block" id="TestSnapshotIDSelector"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestSnapshotIDSelector">[docs]</a><span class="k">class</span> <span class="nc">TestSnapshotIDSelector</span><span class="p">(</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span> <span class="p">):</span>
+
+<div class="viewcode-block" id="TestSnapshotIDSelector.setUp"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestSnapshotIDSelector.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">SnapshotIDSelector</span><span class="p">(</span> <span class="o">**</span><span class="n">default_snap_kwargs</span> <span class="p">)</span>
+
+        <span class="c1"># Setup some test data with a range of values useful to us.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.5</span> <span class="p">]</span> <span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">length_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mf">1e2</span><span class="p">,</span> <span class="mf">1.1e4</span><span class="p">,</span> <span class="mf">1e7</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">,</span> <span class="mf">0.5e6</span><span class="p">,</span> <span class="mf">0.5e5</span> <span class="p">]</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestSnapshotIDSelector.test_default"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestSnapshotIDSelector.test_default">[docs]</a>    <span class="k">def</span> <span class="nf">test_default</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="mf">0.16946</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">redshift</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestSnapshotIDSelector.test_filter_data"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestSnapshotIDSelector.test_filter_data">[docs]</a>    <span class="k">def</span> <span class="nf">test_filter_data</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># Expected result from applying the default filters</span>
+        <span class="n">expected_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Rf&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="p">]</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">),</span>
+            <span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="p">]</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Apply the filters.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">filter_data</span><span class="p">(</span> <span class="n">default_data_filters</span> <span class="p">)</span>
+
+        <span class="n">masks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">data_masker</span><span class="o">.</span><span class="n">masks</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+
+        <span class="c1"># Check the results</span>
+        <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">:</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="n">expected_dict</span><span class="p">[</span><span class="n">mask</span><span class="p">[</span><span class="s1">&#39;data_key&#39;</span><span class="p">]]</span>
+            <span class="n">actual</span> <span class="o">=</span> <span class="n">mask</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">]</span>
+            <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestSnapshotIDSelector.test_get_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestSnapshotIDSelector.test_get_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># Make masks (easiest just to use the function I just tested, even if it&#39;s not perfect unit testing....)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">filter_data</span><span class="p">(</span> <span class="n">default_data_filters</span> <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="p">]</span> <span class="p">)</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">get_ids</span><span class="p">()</span>
+
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestSnapshotIDSelector.test_format_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestSnapshotIDSelector.test_format_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_format_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="p">]</span> <span class="p">)</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">format_ids</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestSnapshotIDSelector.test_select_ids_snapshot"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestSnapshotIDSelector.test_select_ids_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">test_select_ids_snapshot</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="p">]</span> <span class="p">)</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">select_ids_snapshot</span><span class="p">(</span> <span class="n">default_data_filters</span> <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span></div></div>
+
+<span class="c1">########################################################################</span>
+<span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestWithChildIDs"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestWithChildIDs">[docs]</a><span class="k">class</span> <span class="nc">TestWithChildIDs</span><span class="p">(</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span> <span class="p">):</span>
+
+<div class="viewcode-block" id="TestWithChildIDs.setUp"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestWithChildIDs.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">SnapshotIDSelector</span><span class="p">(</span> <span class="o">**</span><span class="n">newids_snap_kwargs</span> <span class="p">)</span>
+
+        <span class="c1"># Setup some test data with a range of values useful to us.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.5</span> <span class="p">]</span> <span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">length_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mf">1e2</span><span class="p">,</span> <span class="mf">1.1e4</span><span class="p">,</span> <span class="mf">1e7</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">,</span> <span class="mf">0.5e6</span><span class="p">,</span> <span class="mf">0.5e5</span> <span class="p">]</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span> <span class="o">=</span> <span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="p">]</span> <span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">893109954</span><span class="p">,</span> <span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ids_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="p">(</span><span class="mi">10952235</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">36091289</span><span class="p">,</span> <span class="mi">893109954</span><span class="p">)</span> <span class="p">]</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestWithChildIDs.test_get_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestWithChildIDs.test_get_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># Make masks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">filter_data</span><span class="p">(</span> <span class="n">default_data_filters</span> <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">get_ids</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">actual</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestWithChildIDs.test_format_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestWithChildIDs.test_format_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_format_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_set</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">format_ids</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span> <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestWithChildIDs.test_select_ids_snapshot"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestWithChildIDs.test_select_ids_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">test_select_ids_snapshot</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_set</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_id_selector</span><span class="o">.</span><span class="n">select_ids_snapshot</span><span class="p">(</span> <span class="n">default_data_filters</span> <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span></div></div>
+
+<span class="c1">########################################################################</span>
+<span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelector"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelector">[docs]</a><span class="k">class</span> <span class="nc">TestIDSelector</span><span class="p">(</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span> <span class="p">):</span>
+
+<div class="viewcode-block" id="TestIDSelector.setUp"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelector.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># Mock the code version so we don&#39;t repeatedly change test data</span>
+        <span class="n">patcher</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;galaxy_dive.utils.utilities.get_code_version&#39;</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span> <span class="n">patcher</span><span class="o">.</span><span class="n">stop</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mock_code_version</span> <span class="o">=</span> <span class="n">patcher</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">side_effects</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="p">(</span><span class="mi">10952235</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">36091289</span><span class="p">,</span> <span class="mi">893109954</span><span class="p">)</span> <span class="p">]</span> <span class="p">),</span>
+            <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="p">(</span><span class="mi">10952235</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">123456</span><span class="p">,</span> <span class="mi">35</span><span class="p">)</span> <span class="p">]</span> <span class="p">),</span>
+            <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="p">(</span><span class="mi">1573</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">35</span><span class="p">),</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="p">]</span> <span class="p">),</span>
+            <span class="nb">set</span><span class="p">(),</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">IDSelector</span><span class="p">(</span> <span class="o">**</span><span class="n">default_kwargs</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="p">(</span><span class="mi">10952235</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">36091289</span><span class="p">,</span> <span class="mi">893109954</span><span class="p">),</span> <span class="p">(</span><span class="mi">123456</span><span class="p">,</span> <span class="mi">35</span><span class="p">),</span> <span class="p">(</span><span class="mi">1573</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">35</span><span class="p">),</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids_formatted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">1573</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="mi">123456</span><span class="p">,</span> <span class="mi">12</span> <span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_child_ids_formatted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">893109954</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">35</span> <span class="p">])</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelector.test_get_selected_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelector.test_get_selected_ids">[docs]</a>    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.SnapshotIDSelector.__init__&#39;</span> <span class="p">)</span>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.SnapshotIDSelector.select_ids_snapshot&#39;</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_get_selected_ids</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">mock_select_ids_snapshot</span><span class="p">,</span> <span class="n">mock_constructor</span><span class="p">,</span> <span class="p">):</span>
+
+        <span class="c1"># Mock setup</span>
+        <span class="n">mock_constructor</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">None</span><span class="p">,</span> <span class="p">]</span><span class="o">*</span><span class="mi">4</span>
+        <span class="n">mock_select_ids_snapshot</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">side_effects</span>
+
+        <span class="n">call_kwargs</span> <span class="o">=</span> <span class="p">[</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">newids_snap_kwargs</span> <span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="p">]</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">calls</span> <span class="o">=</span> <span class="p">[</span> <span class="n">mock</span><span class="o">.</span><span class="n">call</span><span class="p">(</span> <span class="o">**</span><span class="n">call_kwarg</span> <span class="p">)</span> <span class="k">for</span> <span class="n">call_kwarg</span> <span class="ow">in</span> <span class="n">call_kwargs</span> <span class="p">]</span>
+
+        <span class="c1"># Actually run the thing</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span><span class="o">.</span><span class="n">get_selected_ids</span><span class="p">(</span> <span class="n">default_data_filters</span> <span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span>
+        <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span>
+
+        <span class="n">mock_constructor</span><span class="o">.</span><span class="n">assert_has_calls</span><span class="p">(</span> <span class="n">calls</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelector.test_get_selected_ids_parallel"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelector.test_get_selected_ids_parallel">[docs]</a>    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.SnapshotIDSelector.__init__&#39;</span> <span class="p">)</span>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.IDSelector.get_selected_ids_snapshot&#39;</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_get_selected_ids_parallel</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">mock_get_selected_ids_snapshot</span><span class="p">,</span> <span class="n">mock_constructor</span><span class="p">,</span> <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span><span class="o">.</span><span class="n">n_processors</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="c1"># Mock setup</span>
+        <span class="n">mock_constructor</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">None</span><span class="p">,</span> <span class="p">]</span><span class="o">*</span><span class="mi">4</span>
+        <span class="k">def</span> <span class="nf">side_effects</span><span class="p">(</span> <span class="n">args</span> <span class="p">):</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">500</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="p">(</span><span class="mi">10952235</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">36091289</span><span class="p">,</span> <span class="mi">893109954</span><span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="p">(</span><span class="mi">10952235</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">123456</span><span class="p">,</span> <span class="mi">35</span><span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">600</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="p">(</span><span class="mi">1573</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">35</span><span class="p">),</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">mock_get_selected_ids_snapshot</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="n">side_effects</span>
+
+
+        <span class="n">call_kwargs</span> <span class="o">=</span> <span class="p">[</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">newids_snap_kwargs</span> <span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="p">]</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">calls</span> <span class="o">=</span> <span class="p">[</span> <span class="n">mock</span><span class="o">.</span><span class="n">call</span><span class="p">(</span> <span class="o">**</span><span class="n">call_kwarg</span> <span class="p">)</span> <span class="k">for</span> <span class="n">call_kwarg</span> <span class="ow">in</span> <span class="n">call_kwargs</span> <span class="p">]</span>
+
+        <span class="c1"># Actually run the thing</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span><span class="o">.</span><span class="n">get_selected_ids_parallel</span><span class="p">(</span> <span class="n">default_data_filters</span> <span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span>
+        <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelector.test_format_selected_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelector.test_format_selected_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_format_selected_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span><span class="o">.</span><span class="n">format_selected_ids</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span> <span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids_formatted</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_child_ids_formatted</span> <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">id_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span> <span class="n">expected</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">):</span>
+            <span class="k">assert</span> <span class="n">id_</span> <span class="ow">in</span> <span class="n">actual</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">match_actual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">actual</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">id_</span><span class="p">)</span>
+            <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">actual</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">match_actual</span><span class="p">],</span> <span class="n">expected</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelector.test_save_selected_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelector.test_save_selected_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_save_selected_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># Make sure there&#39;s nothing in our way, bwahahah</span>
+        <span class="n">ids_filepath</span> <span class="o">=</span> <span class="s1">&#39;./tests/data/tracking_output/ids_full_test.hdf5&#39;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span> <span class="n">ids_filepath</span> <span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span> <span class="s1">&#39;rm </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">ids_filepath</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="c1"># The function itself</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids_formatted</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_child_ids_formatted</span> <span class="p">)</span>
+        <span class="n">data_filters</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;radial_cut&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;data_key&#39;</span><span class="p">:</span> <span class="s1">&#39;Rf&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;data_min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span>
+                <span class="s1">&#39;data_max&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;velocity_cut&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;data_key&#39;</span><span class="p">:</span> <span class="s1">&#39;Vf&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;data_min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span>
+                <span class="s1">&#39;data_max&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span><span class="o">.</span><span class="n">save_selected_ids</span><span class="p">(</span> <span class="n">ids</span><span class="p">,</span> <span class="n">data_filters</span> <span class="p">)</span>
+
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">default_kwargs</span><span class="p">[</span><span class="s1">&#39;out_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;ids_full_test.hdf5&#39;</span> <span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span> <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids_formatted</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;target_ids&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_child_ids_formatted</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;target_child_ids&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">default_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">:</span>
+                <span class="n">snapshot_kwargs</span> <span class="o">=</span> <span class="n">default_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">snapshot_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">assert</span> <span class="n">snapshot_kwargs</span><span class="p">[</span><span class="n">key2</span><span class="p">]</span> <span class="o">==</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters/snapshot_parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key2</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;p_types&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">default_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">data_filter</span> <span class="ow">in</span> <span class="n">data_filters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">inner_key</span><span class="p">,</span> <span class="n">data_filter_inner</span> <span class="ow">in</span> <span class="n">data_filter</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">assert</span> <span class="n">data_filter_inner</span> <span class="o">==</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters/data_filters&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">inner_key</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">g</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;linefinder_version&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">g</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;galaxy_dive_version&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelector.test_select_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelector.test_select_ids">[docs]</a>    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.SnapshotIDSelector.__init__&#39;</span> <span class="p">)</span>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.SnapshotIDSelector.select_ids_snapshot&#39;</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_select_ids</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">mock_select_ids_snapshot</span><span class="p">,</span> <span class="n">mock_constructor</span><span class="p">,</span> <span class="p">):</span>
+
+        <span class="c1"># Make sure there&#39;s nothing in our way, bwahahah</span>
+        <span class="n">ids_filepath</span> <span class="o">=</span> <span class="s1">&#39;./tests/data/tracking_output/ids_full_test.hdf5&#39;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span> <span class="n">ids_filepath</span> <span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span> <span class="s1">&#39;rm </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">ids_filepath</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="c1"># Mock setup</span>
+        <span class="n">mock_constructor</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">None</span><span class="p">,</span> <span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+        <span class="n">mock_select_ids_snapshot</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">side_effects</span>
+
+        <span class="n">call_kwargs</span> <span class="o">=</span> <span class="p">[</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">newids_snap_kwargs</span> <span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="p">]</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">calls</span> <span class="o">=</span> <span class="p">[</span> <span class="n">mock</span><span class="o">.</span><span class="n">call</span><span class="p">(</span> <span class="o">**</span><span class="n">call_kwarg</span> <span class="p">)</span> <span class="k">for</span> <span class="n">call_kwarg</span> <span class="ow">in</span> <span class="n">call_kwargs</span> <span class="p">]</span>
+
+        <span class="c1"># Actually run it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span><span class="o">.</span><span class="n">select_ids</span><span class="p">(</span> <span class="n">default_data_filters</span> <span class="p">)</span>
+
+        <span class="n">mock_constructor</span><span class="o">.</span><span class="n">assert_has_calls</span><span class="p">(</span> <span class="n">calls</span> <span class="p">)</span>
+
+        <span class="c1"># Do the same tests as saving the data at the end</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">default_kwargs</span><span class="p">[</span><span class="s1">&#39;out_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;ids_full_test.hdf5&#39;</span> <span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span> <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span>
+        <span class="n">actual_ids</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;target_ids&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+        <span class="n">actual_child_ids</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;target_child_ids&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span> <span class="nb">zip</span><span class="p">(</span> <span class="n">actual_ids</span><span class="p">,</span> <span class="n">actual_child_ids</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">default_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">:</span>
+                <span class="n">snapshot_kwargs</span> <span class="o">=</span> <span class="n">default_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">snapshot_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">assert</span> <span class="n">snapshot_kwargs</span><span class="p">[</span><span class="n">key2</span><span class="p">]</span> <span class="o">==</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters/snapshot_parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key2</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;p_types&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">default_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">g</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;linefinder_version&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">g</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;galaxy_dive_version&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div></div>
+
+<span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelectorNoChildIDs"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelectorNoChildIDs">[docs]</a><span class="k">class</span> <span class="nc">TestIDSelectorNoChildIDs</span><span class="p">(</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span> <span class="p">):</span>
+
+<div class="viewcode-block" id="TestIDSelectorNoChildIDs.setUp"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelectorNoChildIDs.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># Mock the code version so we don&#39;t repeatedly change test data</span>
+        <span class="n">patcher</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;galaxy_dive.utils.utilities.get_code_version&#39;</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span> <span class="n">patcher</span><span class="o">.</span><span class="n">stop</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mock_code_version</span> <span class="o">=</span> <span class="n">patcher</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">side_effects</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="p">]</span> <span class="p">),</span>
+            <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">123456</span><span class="p">,</span>  <span class="p">]</span> <span class="p">),</span>
+            <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="mi">1573</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">]</span> <span class="p">),</span>
+            <span class="nb">set</span><span class="p">(),</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">IDSelector</span><span class="p">(</span> <span class="o">**</span><span class="n">default_kwargs</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="mi">123456</span><span class="p">,</span> <span class="mi">1573</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids_formatted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">1573</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="mi">123456</span><span class="p">,</span> <span class="mi">12</span> <span class="p">])</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelectorNoChildIDs.test_get_selected_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelectorNoChildIDs.test_get_selected_ids">[docs]</a>    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.SnapshotIDSelector.__init__&#39;</span> <span class="p">)</span>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.SnapshotIDSelector.select_ids_snapshot&#39;</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_get_selected_ids</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">mock_select_ids_snapshot</span><span class="p">,</span> <span class="n">mock_constructor</span><span class="p">,</span> <span class="p">):</span>
+
+        <span class="c1"># Mock setup</span>
+        <span class="n">mock_constructor</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">None</span><span class="p">,</span> <span class="p">]</span><span class="o">*</span><span class="mi">4</span>
+        <span class="n">mock_select_ids_snapshot</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">side_effects</span>
+
+        <span class="n">call_kwargs</span> <span class="o">=</span> <span class="p">[</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">newids_snap_kwargs</span> <span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="p">]</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">calls</span> <span class="o">=</span> <span class="p">[</span> <span class="n">mock</span><span class="o">.</span><span class="n">call</span><span class="p">(</span> <span class="o">**</span><span class="n">call_kwarg</span> <span class="p">)</span> <span class="k">for</span> <span class="n">call_kwarg</span> <span class="ow">in</span> <span class="n">call_kwargs</span> <span class="p">]</span>
+
+        <span class="c1"># Actually run the thing</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span><span class="o">.</span><span class="n">get_selected_ids</span><span class="p">(</span> <span class="n">default_data_filters</span> <span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span>
+        <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span>
+
+        <span class="n">mock_constructor</span><span class="o">.</span><span class="n">assert_has_calls</span><span class="p">(</span> <span class="n">calls</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelectorNoChildIDs.test_get_selected_ids_parallel"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelectorNoChildIDs.test_get_selected_ids_parallel">[docs]</a>    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.SnapshotIDSelector.__init__&#39;</span> <span class="p">)</span>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.IDSelector.get_selected_ids_snapshot&#39;</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_get_selected_ids_parallel</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">mock_get_selected_ids_snapshot</span><span class="p">,</span> <span class="n">mock_constructor</span><span class="p">,</span> <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span><span class="o">.</span><span class="n">n_processors</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="c1"># Mock setup</span>
+        <span class="n">mock_constructor</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">None</span><span class="p">,</span> <span class="p">]</span><span class="o">*</span><span class="mi">4</span>
+        <span class="k">def</span> <span class="nf">side_effects</span><span class="p">(</span> <span class="n">args</span> <span class="p">):</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">500</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="p">]</span> <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">123456</span><span class="p">,</span>  <span class="p">]</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">600</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="mi">1573</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>  <span class="p">]</span> <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">mock_get_selected_ids_snapshot</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="n">side_effects</span>
+
+
+        <span class="n">call_kwargs</span> <span class="o">=</span> <span class="p">[</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">newids_snap_kwargs</span> <span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="p">]</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">call_kwargs</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">calls</span> <span class="o">=</span> <span class="p">[</span> <span class="n">mock</span><span class="o">.</span><span class="n">call</span><span class="p">(</span> <span class="o">**</span><span class="n">call_kwarg</span> <span class="p">)</span> <span class="k">for</span> <span class="n">call_kwarg</span> <span class="ow">in</span> <span class="n">call_kwargs</span> <span class="p">]</span>
+
+        <span class="c1"># Actually run the thing</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span><span class="o">.</span><span class="n">get_selected_ids_parallel</span><span class="p">(</span> <span class="n">default_data_filters</span> <span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span>
+        <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelectorNoChildIDs.test_format_selected_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelectorNoChildIDs.test_format_selected_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_format_selected_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span><span class="o">.</span><span class="n">format_selected_ids</span><span class="p">(</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids_formatted</span>
+
+        <span class="c1"># Sort the arrays, because the order doesn&#39;t really matter anyways for the single ID case</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="n">expected</span> <span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="n">actual</span> <span class="p">)</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelectorNoChildIDs.test_save_selected_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelectorNoChildIDs.test_save_selected_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_save_selected_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># Make sure there&#39;s nothing in our way, bwahahah</span>
+        <span class="n">ids_filepath</span> <span class="o">=</span> <span class="s1">&#39;./tests/data/tracking_output/ids_full_test.hdf5&#39;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span> <span class="n">ids_filepath</span> <span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span> <span class="s1">&#39;rm </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">ids_filepath</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="c1"># The function itself</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_selector</span><span class="o">.</span><span class="n">save_selected_ids</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids_formatted</span><span class="p">,</span> <span class="n">default_data_filters</span> <span class="p">)</span>
+
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">default_kwargs</span><span class="p">[</span><span class="s1">&#39;out_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;ids_full_test.hdf5&#39;</span> <span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span> <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_ids_formatted</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;target_ids&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">default_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">:</span>
+                <span class="n">snapshot_kwargs</span> <span class="o">=</span> <span class="n">default_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">snapshot_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">assert</span> <span class="n">snapshot_kwargs</span><span class="p">[</span><span class="n">key2</span><span class="p">]</span> <span class="o">==</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters/snapshot_parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key2</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;p_types&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">default_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">g</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;linefinder_version&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">g</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;galaxy_dive_version&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div></div>
+
+<span class="c1">########################################################################</span>
+<span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSamplerNoSetUp"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSamplerNoSetUp">[docs]</a><span class="k">class</span> <span class="nc">TestIDSamplerNoSetUp</span><span class="p">(</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span> <span class="p">):</span>
+
+<div class="viewcode-block" id="TestIDSamplerNoSetUp.setUp"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSamplerNoSetUp.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">id_sampler_kwargs</span><span class="p">[</span><span class="s1">&#39;out_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;ids_test.hdf5&#39;</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">IDSampler</span><span class="p">(</span> <span class="o">**</span><span class="n">id_sampler_kwargs</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSamplerNoSetUp.test_copy_and_open_full_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSamplerNoSetUp.test_copy_and_open_full_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_copy_and_open_full_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">copy_and_open_full_ids</span><span class="p">()</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>       <span class="mi">0</span><span class="p">,</span> <span class="mi">10952235</span><span class="p">,</span>       <span class="mi">15</span><span class="p">,</span>     <span class="mi">1573</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span>   <span class="mi">123456</span><span class="p">,</span>       <span class="mi">12</span><span class="p">])</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;target_ids&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">filename</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">samefile</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSamplerNoSetUp.test_sample_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSamplerNoSetUp.test_sample_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_sample_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span> <span class="mi">1234</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">sample_ids</span><span class="p">()</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span> <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>      <span class="mi">15</span><span class="p">,</span> <span class="mi">10952235</span><span class="p">,</span>       <span class="mi">12</span><span class="p">])</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;target_ids&#39;</span><span class="p">]</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;n_samples&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span>
+        <span class="k">assert</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;ignore_child_particles&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span>
+        <span class="k">assert</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;sampled_from_full_id_list&#39;</span><span class="p">]</span></div></div>
+
+<span class="c1">########################################################################</span>
+<span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler">[docs]</a><span class="k">class</span> <span class="nc">TestIDSampler</span><span class="p">(</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span> <span class="p">):</span>
+
+<div class="viewcode-block" id="TestIDSampler.setUp"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">id_sampler_kwargs</span><span class="p">[</span><span class="s1">&#39;out_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;ids_test.hdf5&#39;</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">IDSampler</span><span class="p">(</span> <span class="o">**</span><span class="n">id_sampler_kwargs</span> <span class="p">)</span>
+
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span> <span class="mi">1234</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">copy_and_open_full_ids</span><span class="p">()</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler.test_choose_particles_to_sample"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.test_choose_particles_to_sample">[docs]</a>    <span class="k">def</span> <span class="nf">test_choose_particles_to_sample</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">choose_particles_to_sample</span><span class="p">()</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">ids_to_sample</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>       <span class="mi">0</span><span class="p">,</span> <span class="mi">10952235</span><span class="p">,</span>       <span class="mi">15</span><span class="p">,</span>     <span class="mi">1573</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span>   <span class="mi">123456</span><span class="p">,</span>       <span class="mi">12</span><span class="p">])</span>
+        <span class="n">actual</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="p">;</span> <span class="n">expected</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="c1"># Sets can put things out of order.</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler.test_choose_particles_to_sample_child_ids_included"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.test_choose_particles_to_sample_child_ids_included">[docs]</a>    <span class="k">def</span> <span class="nf">test_choose_particles_to_sample_child_ids_included</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># Create some child ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;target_child_ids&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span> <span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">choose_particles_to_sample</span><span class="p">()</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">child_ids_to_sample</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span> <span class="p">])</span>
+        <span class="n">actual</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="p">;</span> <span class="n">expected</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="c1"># Sets can put things out of order.</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">ids_to_sample</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>       <span class="mi">0</span><span class="p">,</span> <span class="mi">10952235</span><span class="p">,</span>       <span class="mi">15</span><span class="p">,</span>     <span class="mi">1573</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span>   <span class="mi">123456</span><span class="p">,</span>       <span class="mi">12</span><span class="p">])</span>
+        <span class="n">actual</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="p">;</span> <span class="n">expected</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="c1"># Sets can put things out of order.</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler.test_choose_particles_to_sample_ignore_duplicates"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.test_choose_particles_to_sample_ignore_duplicates">[docs]</a>    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.IDSampler.identify_duplicate_ids&#39;</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_choose_particles_to_sample_ignore_duplicates</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">mock_identify_duplicate_ids</span> <span class="p">):</span>
+
+        <span class="n">mock_identify_duplicate_ids</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">set</span><span class="p">([</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">12</span> <span class="p">]),</span> <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">ignore_duplicates</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">ignore_child_particles</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">choose_particles_to_sample</span><span class="p">()</span>
+
+        <span class="n">mock_identify_duplicate_ids</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">ids_to_sample</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>      <span class="mi">10952235</span><span class="p">,</span>     <span class="mi">1573</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span>   <span class="mi">123456</span><span class="p">,</span> <span class="p">])</span>
+        <span class="n">actual</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="p">;</span> <span class="n">expected</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="c1"># Sets can put things out of order.</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler.test_choose_particles_to_sample_ignore_child_particles"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.test_choose_particles_to_sample_ignore_child_particles">[docs]</a>    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;linefinder.select.IDSampler.identify_child_particles&#39;</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_choose_particles_to_sample_ignore_child_particles</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">mock_identify_child_particles</span> <span class="p">):</span>
+
+        <span class="c1"># Create some child ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;target_child_ids&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span> <span class="p">])</span>
+
+        <span class="n">mock_identify_child_particles</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">set</span><span class="p">([</span> <span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span> <span class="p">),</span> <span class="p">(</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">8</span> <span class="p">),</span> <span class="p">]),</span> <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">ignore_duplicates</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">ignore_child_particles</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">choose_particles_to_sample</span><span class="p">()</span>
+
+        <span class="n">mock_identify_child_particles</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">ids_to_sample</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>      <span class="mi">10952235</span><span class="p">,</span>     <span class="mi">1573</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span>   <span class="mi">123456</span><span class="p">,</span> <span class="p">])</span>
+        <span class="n">actual</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="p">;</span> <span class="n">expected</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="c1"># Sets can put things out of order.</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">child_ids_to_sample</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">])</span>
+        <span class="n">actual</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="p">;</span> <span class="n">expected</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="c1"># Sets can put things out of order.</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler.test_choose_sample_inds"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.test_choose_sample_inds">[docs]</a>    <span class="k">def</span> <span class="nf">test_choose_sample_inds</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">ids_to_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>       <span class="mi">0</span><span class="p">,</span> <span class="mi">10952235</span><span class="p">,</span>       <span class="mi">15</span><span class="p">,</span>     <span class="mi">1573</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span>   <span class="mi">123456</span><span class="p">,</span>       <span class="mi">12</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">choose_sample_inds</span><span class="p">()</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="p">])</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">sample_inds</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler.test_identify_child_particles"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.test_identify_child_particles">[docs]</a>    <span class="k">def</span> <span class="nf">test_identify_child_particles</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># Create some child ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;target_child_ids&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span> <span class="p">])</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">identify_child_particles</span><span class="p">()</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">),</span> <span class="p">(</span> <span class="mi">1573</span><span class="p">,</span> <span class="mi">2</span> <span class="p">),</span> <span class="p">(</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler.test_identify_duplicate_ids_load_correct_data"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.test_identify_duplicate_ids_load_correct_data">[docs]</a>    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;galaxy_dive.analyze_data.simulation_data.SnapshotData.get_data&#39;</span> <span class="p">)</span>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;galaxy_dive.analyze_data.particle_data.ParticleData.find_duplicate_ids&#39;</span> <span class="p">)</span>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;galaxy_dive.analyze_data.particle_data.ParticleData.__init__&#39;</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_identify_duplicate_ids_load_correct_data</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">mock_p_data</span><span class="p">,</span> <span class="n">mock_find_duplicate_ids</span><span class="p">,</span> <span class="n">mock_get_data</span> <span class="p">):</span>
+
+        <span class="n">mock_p_data</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">]</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">identify_duplicate_ids</span><span class="p">()</span>
+
+        <span class="n">expected_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span> <span class="n">default_snap_kwargs</span> <span class="p">)</span>
+        <span class="k">del</span> <span class="n">expected_kwargs</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span>
+        <span class="n">expected_kwargs</span><span class="p">[</span><span class="s1">&#39;load_additional_ids&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">expected_kwargs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="n">expected_kwargs</span><span class="p">[</span><span class="s1">&#39;analysis_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_snap_kwargs</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">expected_kwargs</span><span class="p">[</span><span class="s1">&#39;length_scale_used&#39;</span><span class="p">]</span>
+
+        <span class="n">expected_kwargs0</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span> <span class="n">expected_kwargs</span> <span class="p">)</span>
+        <span class="n">expected_kwargs0</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">expected_kwargs4</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span> <span class="n">expected_kwargs</span> <span class="p">)</span>
+        <span class="n">expected_kwargs4</span><span class="p">[</span><span class="s1">&#39;ptype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+
+        <span class="n">calls</span> <span class="o">=</span> <span class="p">[</span> <span class="n">mock</span><span class="o">.</span><span class="n">call</span><span class="p">(</span> <span class="o">**</span><span class="n">expected_kwargs0</span> <span class="p">),</span> <span class="n">mock</span><span class="o">.</span><span class="n">call</span><span class="p">(</span> <span class="o">**</span><span class="n">expected_kwargs4</span> <span class="p">)</span> <span class="p">]</span>
+
+        <span class="n">mock_p_data</span><span class="o">.</span><span class="n">assert_has_calls</span><span class="p">(</span> <span class="n">calls</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler.test_identify_duplicate_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.test_identify_duplicate_ids">[docs]</a>    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;galaxy_dive.analyze_data.particle_data.ParticleData.find_duplicate_ids&#39;</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_identify_duplicate_ids</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">mock_find_duplicate_ids</span> <span class="p">):</span>
+
+        <span class="n">mock_find_duplicate_ids</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">36091289</span><span class="p">,</span> <span class="mi">3211791</span> <span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">24565150</span><span class="p">,</span> <span class="p">])</span> <span class="p">]</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">identify_duplicate_ids</span><span class="p">()</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="mi">24565150</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="mi">3211791</span> <span class="p">]</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler.test_identify_duplicate_ids_star_gas"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.test_identify_duplicate_ids_star_gas">[docs]</a>    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;galaxy_dive.analyze_data.simulation_data.SnapshotData.get_data&#39;</span> <span class="p">)</span>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span> <span class="s1">&#39;galaxy_dive.analyze_data.particle_data.ParticleData.find_duplicate_ids&#39;</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_identify_duplicate_ids_star_gas</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">mock_find_duplicate_ids</span><span class="p">,</span> <span class="n">mock_get_data</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Test we can identify duplicates when one of the particles is gas, and the other is star.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">mock_find_duplicate_ids</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">36091289</span><span class="p">,</span> <span class="mi">3211791</span> <span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">24565150</span><span class="p">,</span> <span class="p">])</span> <span class="p">]</span>
+        <span class="n">mock_get_data</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span> <span class="p">]</span> <span class="p">)</span> <span class="p">]</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">identify_duplicate_ids</span><span class="p">()</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="mi">24565150</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span> <span class="mi">3211791</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="p">]</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler.test_save_sampled_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.test_save_sampled_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_save_sampled_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">ids_to_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>       <span class="mi">0</span><span class="p">,</span> <span class="mi">10952235</span><span class="p">,</span>       <span class="mi">15</span><span class="p">,</span>     <span class="mi">1573</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span>   <span class="mi">123456</span><span class="p">,</span>       <span class="mi">12</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">sample_inds</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">save_sampled_ids</span><span class="p">()</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span> <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10952235</span><span class="p">,</span>       <span class="mi">15</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">])</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;target_ids&#39;</span><span class="p">]</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;n_samples&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span>
+        <span class="k">assert</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;ignore_child_particles&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span>
+        <span class="k">assert</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;sampled_from_full_id_list&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSampler.test_save_sampled_ids_child_ids"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSampler.test_save_sampled_ids_child_ids">[docs]</a>    <span class="k">def</span> <span class="nf">test_save_sampled_ids_child_ids</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">ids_to_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>       <span class="mi">0</span><span class="p">,</span> <span class="mi">10952235</span><span class="p">,</span>       <span class="mi">15</span><span class="p">,</span>     <span class="mi">1573</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">,</span>   <span class="mi">123456</span><span class="p">,</span>       <span class="mi">12</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;target_child_ids&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span> <span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">child_ids_to_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span> <span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">sample_inds</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_sampler</span><span class="o">.</span><span class="n">save_sampled_ids</span><span class="p">()</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span> <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>       <span class="mi">0</span><span class="p">,</span> <span class="mi">10952235</span><span class="p">,</span> <span class="mi">36091289</span><span class="p">])</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;target_ids&#39;</span><span class="p">]</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">])</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;target_child_ids&#39;</span><span class="p">]</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;n_samples&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span>
+        <span class="k">assert</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;ignore_child_particles&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span>
+        <span class="k">assert</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;sampled_from_full_id_list&#39;</span><span class="p">]</span></div></div>
+
+    <span class="c1">########################################################################</span>
+
+
+<div class="viewcode-block" id="TestIDSelectorJug"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelectorJug">[docs]</a><span class="k">class</span> <span class="nc">TestIDSelectorJug</span><span class="p">(</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span> <span class="p">):</span>
+
+<div class="viewcode-block" id="TestIDSelectorJug.setUp"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelectorJug.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># We can&#39;t execute from the package module</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span> <span class="s1">&#39;..&#39;</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span> <span class="o">=</span> <span class="s1">&#39;./linefinder/tests/data/tracking_output&#39;</span>
+
+        <span class="c1"># Remove output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepaths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">end</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;ids_full_test.hdf5&#39;</span><span class="p">,</span> <span class="s1">&#39;ids_full_test_jug.hdf5&#39;</span> <span class="p">]:</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">end</span> <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">filepaths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">filepath</span> <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span> <span class="n">filepath</span> <span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span> <span class="n">filepath</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelectorJug.tearDown"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelectorJug.tearDown">[docs]</a>    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># Remove jugdata</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span> <span class="s1">&#39;rm -r ./linefinder/tests/*jugdata&#39;</span> <span class="p">)</span>
+
+        <span class="c1"># Switch back so we don&#39;t mess up other tests</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span> <span class="s1">&#39;linefinder&#39;</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="TestIDSelectorJug.test_select_ids_jug"><a class="viewcode-back" href="../../../linefinder.tests.test_select.html#linefinder.tests.test_select.TestIDSelectorJug.test_select_ids_jug">[docs]</a>    <span class="k">def</span> <span class="nf">test_select_ids_jug</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span> <span class="n">default_kwargs</span> <span class="p">)</span>
+
+        <span class="c1"># Modifications to the output dirs to account for shifting up one level</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;out_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;sdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;./linefinder/tests/data/stars_included_test_data&#39;</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;./linefinder/tests/data/ahf_test_data&#39;</span>
+
+        <span class="n">data_filters</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;radial_cut&#39;</span><span class="p">:</span> <span class="p">{</span> <span class="s1">&#39;data_key&#39;</span><span class="p">:</span> <span class="s1">&#39;Rf&#39;</span><span class="p">,</span> <span class="s1">&#39;data_min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;data_max&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="n">id_selector</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">IDSelector</span><span class="p">(</span> <span class="o">**</span><span class="n">kwargs</span> <span class="p">)</span>
+        <span class="n">id_selector</span><span class="o">.</span><span class="n">select_ids</span><span class="p">(</span> <span class="n">data_filters</span> <span class="p">)</span>
+
+        <span class="c1"># Run jug version</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span> <span class="s2">&quot;jug execute ./linefinder/tests/select_jugfile.py &amp;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span> <span class="s2">&quot;jug execute ./linefinder/tests/select_jugfile.py&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepaths</span><span class="p">:</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;target_ids&#39;</span><span class="p">,</span> <span class="s1">&#39;target_child_ids&#39;</span> <span class="p">]:</span>
+
+            <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="o">...</span><span class="p">],</span> <span class="n">files</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+            <span class="c1"># These shouldn&#39;t match</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;tag&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                    <span class="n">utilities</span><span class="o">.</span><span class="n">check_and_decode_bytes</span><span class="p">(</span>
+                        <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                    <span class="p">),</span>
+                    <span class="n">utilities</span><span class="o">.</span><span class="n">check_and_decode_bytes</span><span class="p">(</span>
+                        <span class="n">files</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="c1"># In case it&#39;s an array</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span>
+                    <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                    <span class="n">files</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">linefinder 0.9.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Zachary Hafen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+  </body>
+</html>

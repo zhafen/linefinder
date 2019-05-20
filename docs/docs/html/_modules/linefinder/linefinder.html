@@ -415,6 +415,8 @@
             <span class="k">if</span> <span class="s1">&#39;main_halo_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">snapshot_kwargs</span><span class="p">:</span>
                 <span class="n">snapshot_kwargs</span><span class="p">[</span><span class="s1">&#39;main_halo_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linefinder_config</span><span class="o">.</span><span class="n">MAIN_MT_HALO_ID</span><span class="p">[</span><span class="n">sim_name</span><span class="p">]</span>
 
+            <span class="n">selector_kwargs</span><span class="p">[</span><span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">snapshot_kwargs</span>
+
         <span class="c1"># Add in sim data dir if given</span>
         <span class="k">if</span> <span class="n">sim_data_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">selector_kwargs</span><span class="p">[</span><span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;sdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim_data_dir</span>
@@ -432,6 +434,33 @@
         <span class="c1"># Update arguments</span>
         <span class="n">sampler_kwargs</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">merge_two_dicts</span><span class="p">(</span>
             <span class="n">sampler_kwargs</span><span class="p">,</span> <span class="n">general_kwargs</span> <span class="p">)</span>
+
+        <span class="c1"># Check if the snapshot kwargs exist, and if not, create them</span>
+        <span class="k">if</span> <span class="s1">&#39;snapshot_kwargs&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span> <span class="n">sampler_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">):</span>
+            <span class="n">sampler_kwargs</span><span class="p">[</span><span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Use sim name to find defaults</span>
+        <span class="k">if</span> <span class="n">sim_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">snapshot_kwargs</span> <span class="o">=</span> <span class="n">sampler_kwargs</span><span class="p">[</span><span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="s1">&#39;sdir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">snapshot_kwargs</span><span class="p">:</span>
+                <span class="n">snapshot_kwargs</span><span class="p">[</span><span class="s1">&#39;sdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_sim_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
+
+            <span class="k">if</span> <span class="s1">&#39;halo_data_dir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">snapshot_kwargs</span><span class="p">:</span>
+                <span class="n">snapshot_kwargs</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_halo_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
+
+            <span class="k">if</span> <span class="s1">&#39;main_halo_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">snapshot_kwargs</span><span class="p">:</span>
+                <span class="n">snapshot_kwargs</span><span class="p">[</span><span class="s1">&#39;main_halo_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linefinder_config</span><span class="o">.</span><span class="n">MAIN_MT_HALO_ID</span><span class="p">[</span><span class="n">sim_name</span><span class="p">]</span>
+
+            <span class="n">sampler_kwargs</span><span class="p">[</span><span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">snapshot_kwargs</span>
+
+        <span class="c1"># Add in sim data dir if given</span>
+        <span class="k">if</span> <span class="n">sim_data_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sampler_kwargs</span><span class="p">[</span><span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;sdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim_data_dir</span>
+
+        <span class="c1"># Add in halo data dir if given</span>
+        <span class="k">if</span> <span class="n">halo_data_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sampler_kwargs</span><span class="p">[</span><span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">halo_data_dir</span>
 
         <span class="n">id_sampler</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">IDSampler</span><span class="p">(</span> <span class="o">**</span><span class="n">sampler_kwargs</span> <span class="p">)</span>
 
@@ -524,10 +553,10 @@
 
         <span class="k">if</span> <span class="n">sim_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="s1">&#39;halo_data_dir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_linker_kwargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;halo_data_dir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visualization_kwargs</span><span class="p">:</span>
                 <span class="n">visualization_kwargs</span><span class="p">[</span><span class="s1">&#39;halo_data_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_manager</span><span class="o">.</span><span class="n">get_halo_dir</span><span class="p">(</span> <span class="n">sim_name</span> <span class="p">)</span>
 
-            <span class="k">if</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gal_linker_kwargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;main_mt_halo_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visualization_kwargs</span><span class="p">:</span>
                 <span class="n">visualization_kwargs</span><span class="p">[</span><span class="s1">&#39;main_halo_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linefinder_config</span><span class="o">.</span><span class="n">MAIN_MT_HALO_ID</span><span class="p">[</span><span class="n">sim_name</span><span class="p">]</span>
 
         <span class="c1"># Add in halo data dir if given</span>
@@ -539,7 +568,11 @@
             <span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span><span class="p">,</span>
             <span class="n">data_dir</span> <span class="o">=</span> <span class="n">out_dir</span><span class="p">,</span>
             <span class="o">**</span><span class="n">visualization_kwargs</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+
+        <span class="c1"># Make a file indicating that the visualization completed.</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">out_dir</span><span class="p">,</span> <span class="s1">&#39;visualized_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tag</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <span class="c1">########################################################################</span>
 </pre></div>

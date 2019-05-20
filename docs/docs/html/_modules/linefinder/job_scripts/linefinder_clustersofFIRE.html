@@ -1,0 +1,200 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>linefinder.job_scripts.linefinder_clustersofFIRE &#8212; linefinder 0.9.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">linefinder 0.9.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for linefinder.job_scripts.linefinder_clustersofFIRE</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">linefinder.linefinder</span> <span class="k">as</span> <span class="nn">linefinder</span>
+
+<span class="c1"># Import for auxilliary function</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.trends.data_products</span> <span class="k">as</span> <span class="nn">data_products</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.halo_data</span> <span class="k">as</span> <span class="nn">halo_data</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="auxilliary_fn"><a class="viewcode-back" href="../../../linefinder.job_scripts.linefinder_clustersofFIRE.html#linefinder.job_scripts.linefinder_clustersofFIRE.auxilliary_fn">[docs]</a><span class="k">def</span> <span class="nf">auxilliary_fn</span><span class="p">(</span>
+    <span class="n">dfid</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">,</span>
+    <span class="n">id_finder</span><span class="p">,</span>
+    <span class="n">halo_data_dir</span><span class="p">,</span>
+    <span class="n">main_halo_id</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Function for retrieving additional quantities to store in ptracks.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1"># Get the tidal tensor data</span>
+    <span class="n">tidal_df</span> <span class="o">=</span> <span class="n">data_products</span><span class="o">.</span><span class="n">tidal_tensor_data_grudic</span><span class="p">(</span>
+        <span class="n">id_finder</span><span class="o">.</span><span class="n">snum</span><span class="p">,</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">dfid</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Get the enclosed mass data</span>
+    <span class="n">h_data</span> <span class="o">=</span> <span class="n">halo_data</span><span class="o">.</span><span class="n">HaloData</span><span class="p">(</span>
+        <span class="n">data_dir</span> <span class="o">=</span> <span class="n">halo_data_dir</span><span class="p">,</span>
+        <span class="n">mt_kwargs</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="s1">&#39;snum&#39;</span><span class="p">,</span> <span class="s1">&#39;tag&#39;</span><span class="p">:</span> <span class="s1">&#39;smooth&#39;</span> <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;P0&#39;</span><span class="p">],</span>
+        <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;P1&#39;</span><span class="p">],</span>
+        <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;P2&#39;</span><span class="p">],</span>
+    <span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="n">dfid</span><span class="p">[</span><span class="s1">&#39;M_enc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">h_data</span><span class="o">.</span><span class="n">get_enclosed_mass</span><span class="p">(</span> 
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">positions</span><span class="p">,</span>
+        <span class="n">snum</span> <span class="o">=</span> <span class="n">id_finder</span><span class="o">.</span><span class="n">snum</span><span class="p">,</span>
+        <span class="n">hubble_param</span> <span class="o">=</span> <span class="n">id_finder</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">],</span>
+        <span class="n">mt_halo_id</span> <span class="o">=</span> <span class="n">main_halo_id</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dfid</span></div>
+
+<div class="viewcode-block" id="wrapped_auxilliary_fn"><a class="viewcode-back" href="../../../linefinder.job_scripts.linefinder_clustersofFIRE.html#linefinder.job_scripts.linefinder_clustersofFIRE.wrapped_auxilliary_fn">[docs]</a><span class="k">def</span> <span class="nf">wrapped_auxilliary_fn</span><span class="p">(</span> <span class="n">dfid</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">id_finder</span> <span class="p">):</span>
+    
+    <span class="k">return</span> <span class="n">auxilliary_fn</span><span class="p">(</span>
+        <span class="n">dfid</span><span class="p">,</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">id_finder</span><span class="p">,</span>
+        <span class="n">halo_data_dir</span> <span class="o">=</span> <span class="s1">&#39;/scratch/03057/zhafen/multiphysics/m12i_res7100_mhdcv/halo&#39;</span><span class="p">,</span>
+        <span class="n">main_halo_id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+<span class="n">linefinder_args</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Identifying tag used as part of the filenames.</span>
+    <span class="c1"># E.g. the IDs file will have the format `ids_{}.hdf5.format( tag )`.</span>
+    <span class="s1">&#39;tag&#39;</span><span class="p">:</span> <span class="s1">&#39;m12imhdcv_clustersofFIRE_pop1&#39;</span><span class="p">,</span>
+    
+    <span class="c1"># Location to place output in</span>
+    <span class="s1">&#39;out_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;$SCRATCH/linefinder_data/multiphysics/m12i_res7100_mhdcv/data&#39;</span><span class="p">,</span>
+
+    <span class="c1"># Location of simulation data</span>
+    <span class="s1">&#39;sim_data_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;/scratch/projects/xsede/GalaxiesOnFIRE/multiphysics/m12i_res7100_mhdcv/output&#39;</span><span class="p">,</span>
+
+    <span class="c1"># Location of halo file data</span>
+    <span class="s1">&#39;halo_data_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;/scratch/03057/zhafen/multiphysics/m12i_res7100_mhdcv/halo&#39;</span><span class="p">,</span>
+
+    <span class="c1"># Arguments for id sampling</span>
+    <span class="s1">&#39;sampler_kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;ignore_duplicates&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;p_types&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+        <span class="s1">&#39;snapshot_kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;ahf_index&#39;</span><span class="p">:</span> <span class="mi">600</span><span class="p">,</span>
+            <span class="s1">&#39;length_scale_used&#39;</span><span class="p">:</span> <span class="s1">&#39;R_vir&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+
+    <span class="c1"># Arguments used for the particle tracking step</span>
+    <span class="s1">&#39;tracker_kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1"># What particle types to track. Typically just stars and gas.</span>
+        <span class="s1">&#39;p_types&#39;</span><span class="p">:</span> <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,],</span>
+
+        <span class="c1"># What snapshots to compile the particle tracks for.</span>
+        <span class="s1">&#39;snum_start&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;snum_end&#39;</span><span class="p">:</span> <span class="mi">600</span><span class="p">,</span>
+        <span class="s1">&#39;snum_step&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+
+        <span class="s1">&#39;custom_fns&#39;</span><span class="p">:</span> <span class="p">[</span> <span class="n">wrapped_auxilliary_fn</span><span class="p">,</span> <span class="p">],</span>
+    <span class="p">},</span>
+
+    <span class="c1"># Arguments used for the visualization step</span>
+    <span class="s1">&#39;visualization_kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;install_firefly&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="c1"># These kwargs are used for tuning the Firefly visualization</span>
+        <span class="s1">&#39;export_to_firefly_kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;firefly_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;/work/03057/zhafen/firefly_repos/clustersofFIRE&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;classifications&#39;</span><span class="p">:</span> <span class="p">[</span> <span class="kc">None</span> <span class="p">],</span>
+            <span class="s1">&#39;classification_ui_labels&#39;</span><span class="p">:</span> <span class="p">[</span> <span class="s1">&#39;All&#39;</span> <span class="p">],</span>
+            <span class="s1">&#39;use_default_colors&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+
+    <span class="c1"># The following arguments are for turning on/off different parts</span>
+    <span class="c1"># of the pipeline</span>
+    <span class="s1">&#39;run_id_selecting&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="c1"># Most users will identify the list of IDs using their own methods, so</span>
+    <span class="c1"># we turn ID selecting off.</span>
+    <span class="s1">&#39;run_id_sampling&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;run_tracking&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;run_galaxy_linking&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;run_classifying&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;run_visualization&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Actually run Linefinder</span>
+<span class="n">linefinder</span><span class="o">.</span><span class="n">run_linefinder_jug</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">linefinder_args</span>
+<span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">linefinder 0.9.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Zachary Hafen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+  </body>
+</html>

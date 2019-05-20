@@ -146,7 +146,7 @@
         <span class="n">data_dir</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">halo_data_dir</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">ahf_index</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">averaging_frac</span> <span class="o">=</span> <span class="mf">5.</span><span class="p">,</span>
+        <span class="n">averaging_frac</span> <span class="o">=</span> <span class="mf">4.</span><span class="p">,</span>
         <span class="n">length_scale_used</span> <span class="o">=</span> <span class="s1">&#39;Rstar0.5&#39;</span><span class="p">,</span>
         <span class="n">z_sun</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">Z_MASSFRAC_SUN</span><span class="p">,</span>
         <span class="n">halo_data_retrieved</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -677,6 +677,60 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Rz&#39;</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span>
         <span class="p">)</span>
 
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">calc_velocity_magnitude</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate the velocity relative to an origin velocity</span>
+<span class="sd">        for a given particle.&#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Vmag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Vx&#39;</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span> <span class="o">+</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Vy&#39;</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span> <span class="o">+</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Vz&#39;</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Vmag&#39;</span><span class="p">]</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">calc_rho_xy</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate impact parameter in the xy-plane.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;rho_xy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Rx&#39;</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span> <span class="o">+</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Ry&#39;</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;rho_xy&#39;</span><span class="p">]</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">calc_rho_xz</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate impact parameter in the xz-plane.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;rho_xz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Rx&#39;</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span> <span class="o">+</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Rz&#39;</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;rho_xz&#39;</span><span class="p">]</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">calc_rho_yz</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate impact parameter in the yz-plane.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;rho_yz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Ry&#39;</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span> <span class="o">+</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;Rz&#39;</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;rho_yz&#39;</span><span class="p">]</span>
 
 <span class="c1">########################################################################</span>
 <span class="c1">########################################################################</span>
@@ -1124,6 +1178,8 @@
             <span class="nb">getattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">method_str</span> <span class="p">)()</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_time_as_classification</span><span class="p">(</span> <span class="n">data_key</span> <span class="p">):</span>
             <span class="k">return</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_time_until_not_classification</span><span class="p">(</span> <span class="n">data_key</span> <span class="p">):</span>
+            <span class="k">return</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">(</span> <span class="n">TimeData</span><span class="p">,</span> <span class="bp">self</span> <span class="p">)</span><span class="o">.</span><span class="n">handle_data_key_error</span><span class="p">(</span> <span class="n">data_key</span> <span class="p">)</span>
@@ -1228,7 +1284,6 @@
                 <span class="n">processed_data</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hubble_param</span><span class="o">**</span><span class="n">scale_h_power</span>
 
             <span class="k">if</span> <span class="n">sl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># DEBUG</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">data_to_div_by</span> <span class="o">=</span> <span class="n">data_to_div_by</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span>
                 <span class="c1"># For when we&#39;re getting a slice of a single snapshot</span>
@@ -1442,6 +1497,55 @@
                 <span class="n">time_as_classification</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">cumtime_region</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_as_classification</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="c1">########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">calc_time_until_not_classification</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">data_key</span> <span class="p">):</span>
+
+        <span class="c1"># Check if we should be running this function (does the provided</span>
+        <span class="c1"># data_key even match the format we want to parse?)</span>
+        <span class="k">if</span> <span class="n">data_key</span><span class="p">[:</span><span class="mi">14</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;time_until_not&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Get the data key for the classification</span>
+        <span class="n">classification_data_key</span> <span class="o">=</span> <span class="s1">&#39;is_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">data_key</span><span class="p">[</span><span class="mi">15</span><span class="p">:]</span> <span class="p">)</span>
+
+        <span class="c1"># Get out the classification data itself</span>
+        <span class="n">classification</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="n">classification_data_key</span> <span class="p">)</span>
+
+        <span class="c1"># Get out the time intervals, and tile them for formatting</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;dt&#39;</span> <span class="p">)</span>
+
+        <span class="c1"># dt[i] = time difference between i and i+1, so time until is 0</span>
+        <span class="c1"># if the the particle changes the next snapshot</span>
+        <span class="n">dt</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span> <span class="n">dt</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.</span> <span class="p">)</span>
+        
+        <span class="c1"># Fill in the array row by row</span>
+        <span class="n">time_un_classification</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="n">classification</span><span class="o">.</span><span class="n">shape</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span> <span class="n">classification</span> <span class="p">):</span>
+
+            <span class="c1"># Identify regions of contiguous classification</span>
+            <span class="n">contiguous_regions</span> <span class="o">=</span> <span class="n">data_operations</span><span class="o">.</span><span class="n">contiguous_regions</span><span class="p">(</span> <span class="n">row</span> <span class="p">)</span>
+
+            <span class="c1"># Find the cumulative time in specified regions</span>
+            <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">contiguous_regions</span><span class="p">:</span>
+
+                <span class="n">dt_region</span> <span class="o">=</span> <span class="n">dt</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+
+                <span class="c1"># We need to flip when we sum because we want a reverse sum</span>
+                <span class="c1"># (due to data formatting, t=0 is at j=-1)</span>
+                <span class="n">cumtime_region</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span> <span class="n">dt_region</span> <span class="p">)</span>
+
+                <span class="c1"># Store that time</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">time_un_classification</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">cumtime_region</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="c1">#DEBUG</span>
+                    <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">data_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_un_classification</span>
 
         <span class="k">return</span> <span class="kc">True</span>
 

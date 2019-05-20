@@ -50,6 +50,8 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">firefly_api.reader</span> <span class="k">as</span> <span class="nn">read_firefly</span>
+<span class="kn">import</span> <span class="nn">firefly_api.particlegroup</span> <span class="k">as</span> <span class="nn">firefly_particle_group</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib</span>
 <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;PDF&#39;</span><span class="p">)</span>
@@ -69,11 +71,6 @@
 <span class="kn">import</span> <span class="nn">linefinder.utils.presentation_constants</span> <span class="k">as</span> <span class="nn">p_constants</span>
 
 <span class="c1">########################################################################</span>
-
-<span class="c1"># For catching default values</span>
-<span class="n">default</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
-
-<span class="c1">########################################################################</span>
 <span class="c1">########################################################################</span>
 
 
@@ -87,7 +84,7 @@
         <span class="n">classification_list</span> <span class="o">=</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATIONS_A</span><span class="p">,</span>
         <span class="n">classification_colors</span> <span class="o">=</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATION_COLORS_B</span><span class="p">,</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">width</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
         <span class="n">add_label</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">alpha</span> <span class="o">=</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATION_ALPHA</span><span class="p">,</span>
@@ -99,7 +96,7 @@
         <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Plotting bar at x_pos </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">x_pos</span> <span class="p">)</span> <span class="p">)</span>
 
         <span class="c1"># Plot</span>
-        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span> <span class="p">)</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
 
@@ -134,26 +131,26 @@
 <div class="viewcode-block" id="WorldlinesPlotter.plot_classification_values"><a class="viewcode-back" href="../../../linefinder.analyze_data.plot_worldlines.html#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classification_values">[docs]</a>    <span class="k">def</span> <span class="nf">plot_classification_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">values</span> <span class="o">=</span> <span class="s1">&#39;mass_fractions&#39;</span><span class="p">,</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">y_label</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">y_scale</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">y_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">y_scale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pointsize</span> <span class="o">=</span> <span class="mi">3000</span><span class="p">,</span>
-        <span class="n">y_range</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">y_range</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Plot overall values from a classification category.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            ax (axis) : What axis to use. By default creates a figure and places the axis on it.</span>
+<span class="sd">            ax (axis) : What axis to use. By None creates a figure and places the axis on it.</span>
 <span class="sd">            label (str) : What label to use for the lines.</span>
 <span class="sd">            color (str) : What color to use for the lines.</span>
 <span class="sd">            pointsize (int) : What pointsize to use for the lines.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
-        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">color</span>
 
         <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Plotting classification values for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">label</span> <span class="p">)</span> <span class="p">)</span>
@@ -161,7 +158,7 @@
         <span class="n">classification_values</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="p">,</span> <span class="n">values</span> <span class="p">)</span>
 
         <span class="c1"># Plot</span>
-        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span> <span class="p">)</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
 
@@ -191,27 +188,27 @@
 
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span> <span class="n">x_pos</span><span class="p">,</span> <span class="n">objects</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">y_label</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">y_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">y_label</span> <span class="o">=</span> <span class="n">values</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span> <span class="n">y_label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span> <span class="n">y_range</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">y_scale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">y_scale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span> <span class="n">y_scale</span> <span class="p">)</span></div>
 
     <span class="c1">########################################################################</span>
 
 <div class="viewcode-block" id="WorldlinesPlotter.plot_classified_time_dependent_data"><a class="viewcode-back" href="../../../linefinder.analyze_data.plot_worldlines.html#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_classified_time_dependent_data">[docs]</a>    <span class="k">def</span> <span class="nf">plot_classified_time_dependent_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">x_data</span> <span class="o">=</span> <span class="s1">&#39;get_redshift&#39;</span><span class="p">,</span>
         <span class="n">y_datas</span> <span class="o">=</span> <span class="s1">&#39;get_categories_selected_quantity&#39;</span><span class="p">,</span>
-        <span class="n">x_range</span> <span class="o">=</span> <span class="p">[</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">8.</span><span class="p">)</span> <span class="p">],</span> <span class="n">y_range</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">x_range</span> <span class="o">=</span> <span class="p">[</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">8.</span><span class="p">)</span> <span class="p">],</span> <span class="n">y_range</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">y_scale</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span>
-        <span class="n">x_label</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span> <span class="n">y_label</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">x_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">classification_list</span> <span class="o">=</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATIONS_A</span><span class="p">,</span>
         <span class="n">classification_colors</span> <span class="o">=</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATION_COLORS_B</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
@@ -235,7 +232,7 @@
 <span class="sd">                Passed to the data retrieval method.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span> <span class="p">)</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
 
@@ -261,7 +258,7 @@
 
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span> <span class="n">x_range</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span> <span class="n">y_range</span> <span class="p">)</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span> <span class="n">y_scale</span> <span class="p">)</span>
@@ -270,7 +267,7 @@
         <span class="n">x_tick_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span> <span class="mf">1.</span> <span class="o">+</span> <span class="n">tick_redshifts</span> <span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span> <span class="n">x_tick_values</span><span class="p">,</span> <span class="n">tick_redshifts</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">y_label</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">y_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">y_label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$M_{\star} (M_{\odot})$&#39;</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span> <span class="sa">r</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span> <span class="p">)</span>
@@ -291,18 +288,18 @@
 
 <div class="viewcode-block" id="WorldlinesPlotter.plot_stacked_time_dependent_data"><a class="viewcode-back" href="../../../linefinder.analyze_data.plot_worldlines.html#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_stacked_time_dependent_data">[docs]</a>    <span class="k">def</span> <span class="nf">plot_stacked_time_dependent_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">x_data</span> <span class="o">=</span> <span class="s1">&#39;get_redshift&#39;</span><span class="p">,</span>
         <span class="n">y_datas</span> <span class="o">=</span> <span class="s1">&#39;get_categories_selected_quantity&#39;</span><span class="p">,</span>
         <span class="n">x_range</span> <span class="o">=</span> <span class="p">[</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">8.</span><span class="p">)</span> <span class="p">],</span> <span class="n">y_range</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
         <span class="n">tick_redshifts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="p">]</span> <span class="p">),</span>
         <span class="n">time_x_axis</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">twin_redshift</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">x_label</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span> <span class="n">y_label</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">x_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">plot_dividing_line</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">classification_list</span> <span class="o">=</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATIONS_A</span><span class="p">,</span>
         <span class="n">classification_colors</span> <span class="o">=</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATION_COLORS_B</span><span class="p">,</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">show_label</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">label_kwargs</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;xy&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.0225</span><span class="p">),</span>
@@ -335,7 +332,7 @@
 <span class="sd">                Whether or not to plot a line at the edge between stacked regions.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span> <span class="p">)</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
 
@@ -385,10 +382,10 @@
             <span class="n">color_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">color_object</span> <span class="p">)</span>
             <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATION_LABELS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">x_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span> <span class="n">x_range</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span> <span class="n">y_range</span> <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">time_x_axis</span><span class="p">:</span>
@@ -420,7 +417,7 @@
             <span class="n">ax2</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span> <span class="n">ax2_tick_labels</span> <span class="p">)</span>
             <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span> <span class="sa">r</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">10</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">y_label</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">y_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">y_label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$f(M_{\star})$&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">time_x_axis</span><span class="p">:</span>
@@ -429,7 +426,7 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span> <span class="sa">r</span><span class="s1">&#39;Age of Universe (Gyr)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span> <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span> <span class="n">y_label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
 
         <span class="k">if</span> <span class="n">show_label</span><span class="p">:</span>
@@ -451,9 +448,9 @@
 <div class="viewcode-block" id="WorldlinesPlotter.plot_stacked_radial_data"><a class="viewcode-back" href="../../../linefinder.analyze_data.plot_worldlines.html#linefinder.analyze_data.plot_worldlines.WorldlinesPlotter.plot_stacked_radial_data">[docs]</a>    <span class="k">def</span> <span class="nf">plot_stacked_radial_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">radial_bins</span><span class="p">,</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">x_range</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span> <span class="n">y_range</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
-        <span class="n">x_label</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span> <span class="n">y_label</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">x_range</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+        <span class="n">x_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">plot_dividing_line</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">classification_list</span> <span class="o">=</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATIONS_A</span><span class="p">,</span>
         <span class="n">classification_colors</span> <span class="o">=</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATION_COLORS_B</span><span class="p">,</span>
@@ -475,7 +472,7 @@
 <span class="sd">                Whether or not to plot a line at the edge between stacked regions.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span> <span class="p">)</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
 
@@ -527,17 +524,17 @@
             <span class="n">color_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">color_object</span> <span class="p">)</span>
             <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATION_LABELS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">x_range</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span> <span class="n">radial_bins</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">radial_bins</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span> <span class="n">x_range</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span> <span class="n">y_range</span> <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">y_label</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">y_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">y_label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Stacked Radial Data&#39;</span>
-        <span class="k">if</span> <span class="n">x_label</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">x_label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;R&#39;</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span> <span class="n">x_label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span> <span class="p">)</span>
@@ -565,13 +562,13 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_key</span><span class="p">,</span>
         <span class="n">ax</span><span class="p">,</span>
-        <span class="n">x_label</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">x_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Plot histogram of distances.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="n">x_label</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">data_key</span> <span class="o">==</span> <span class="s1">&#39;d_sat_scaled&#39;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">galids</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;length_scale&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;r_scale&#39;</span><span class="p">:</span>
                     <span class="n">x_label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Distance to Nearest Other Galaxy ($r_{ \rm scale, sat }$)&#39;</span>
@@ -591,12 +588,12 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">plot_with_halos_method</span> <span class="o">=</span> <span class="s1">&#39;histogram2d&#39;</span><span class="p">,</span>
         <span class="n">slices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">out_dir</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">halo_color</span> <span class="o">=</span> <span class="s1">&#39;#337DB8&#39;</span><span class="p">,</span>
         <span class="n">halo_linewidth</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
         <span class="n">halo_outline</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">radius_fractions</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">radius_fractions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_halos_plotted</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">show_valid_halos</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
@@ -604,7 +601,7 @@
         <span class="sd">&#39;&#39;&#39;Plot with halos overlayed on top.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="p">)</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
 
@@ -614,7 +611,7 @@
         <span class="n">ahf_plotter</span> <span class="o">=</span> <span class="n">plot_ahf</span><span class="o">.</span><span class="n">HaloPlotter</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">halo_data</span> <span class="p">)</span>
         <span class="n">snum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">ahf_reader</span><span class="o">.</span><span class="n">mtree_halos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">slices</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">radius_fractions</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">radius_fractions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">radius_fractions</span> <span class="o">=</span> <span class="p">[</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">galids</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;galaxy_cut&#39;</span><span class="p">],</span> <span class="p">]</span>
 
         <span class="k">for</span> <span class="n">radius_fraction</span> <span class="ow">in</span> <span class="n">radius_fractions</span><span class="p">:</span>
@@ -648,24 +645,28 @@
         <span class="n">classification</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">classification_ind</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">sample_selected_interval</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">selected_interval_type</span> <span class="o">=</span> <span class="s1">&#39;time_as&#39;</span><span class="p">,</span>
+        <span class="n">selected_interval_classification</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">t_show_min</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
         <span class="n">t_show_max</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">start_ind</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">end_ind</span> <span class="o">=</span> <span class="s1">&#39;time_based&#39;</span><span class="p">,</span>
-        <span class="n">t_end</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">sample_inds</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">t_start</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">t_end</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sample_inds</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sample_size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">convert_x_to_comoving</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">convert_y_to_comoving</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">x_range</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">y_range</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">x_range</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">y_range</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">x_scale</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span><span class="p">,</span>
         <span class="n">y_scale</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span><span class="p">,</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">zorder</span> <span class="o">=</span> <span class="mf">100.</span><span class="p">,</span>
         <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
         <span class="n">fade_streamlines</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">line_features</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">x_label</span> <span class="o">=</span> <span class="s1">&#39;x position (pkpc)&#39;</span><span class="p">,</span>
         <span class="n">y_label</span> <span class="o">=</span> <span class="s1">&#39;y position (pkpc)&#39;</span><span class="p">,</span>
         <span class="n">plot_xlabel</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -673,8 +674,8 @@
         <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">22</span><span class="p">,</span>
         <span class="n">xkcd_mode</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">plot_halos</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">halo_radius_fraction</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
-        <span class="n">halo_length_scale</span> <span class="o">=</span> <span class="n">default</span><span class="p">,</span>
+        <span class="n">halo_radius_fraction</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">halo_length_scale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">return_y_max</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
@@ -692,26 +693,40 @@
 
         <span class="k">if</span> <span class="n">sample_selected_interval</span><span class="p">:</span>
 
-            <span class="n">time_key</span> <span class="o">=</span> <span class="s1">&#39;time_as_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">classification</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="n">selected_interval_classification</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">selected_interval_classification</span> <span class="o">=</span> <span class="n">classification</span>
+
+            <span class="n">time_key</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">selected_interval_type</span><span class="p">,</span>
+                <span class="n">selected_interval_classification</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+            <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">data_masker</span><span class="o">.</span><span class="n">mask_data</span><span class="p">(</span>
                 <span class="n">time_key</span><span class="p">,</span> <span class="n">t_show_min</span><span class="p">,</span> <span class="n">t_show_max</span> <span class="p">)</span>
 
-        <span class="c1"># Decide when to stop plotting the streamlines</span>
-        <span class="k">if</span> <span class="n">end_ind</span> <span class="o">==</span> <span class="s1">&#39;time_based&#39;</span><span class="p">:</span>
+        <span class="c1"># Decide when to start and stop plotting the streamlines</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">start_ind</span> <span class="o">==</span> <span class="s1">&#39;time_based&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">end_ind</span> <span class="o">==</span> <span class="s1">&#39;time_based&#39;</span><span class="p">):</span>
 
             <span class="c1"># Figure out what time interval overwhich to plot</span>
-            <span class="k">if</span> <span class="n">t_end</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">t_end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">t_end</span> <span class="o">=</span> <span class="n">t_show_max</span>
 
-            <span class="c1"># Loop through until we get the right time.</span>
             <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
-            <span class="n">end_ind</span> <span class="o">=</span> <span class="n">start_ind</span>
-            <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">end_ind</span><span class="p">]</span>
-            <span class="k">while</span> <span class="n">time</span><span class="p">[</span><span class="n">start_ind</span><span class="p">]</span> <span class="o">-</span> <span class="n">time_end</span> <span class="o">&lt;=</span> <span class="n">t_end</span><span class="p">:</span>
-                <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">end_ind</span><span class="p">]</span>
-                <span class="n">end_ind</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="k">if</span> <span class="n">sample_inds</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+            <span class="c1"># Loop through until we get the right time.</span>
+            <span class="k">if</span> <span class="n">start_ind</span> <span class="o">==</span> <span class="s1">&#39;time_based&#39;</span><span class="p">:</span>
+                <span class="n">start_ind</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">start_ind</span><span class="p">]</span>
+                <span class="k">while</span> <span class="n">time</span><span class="p">[</span><span class="n">classification_ind</span><span class="p">]</span> <span class="o">+</span> <span class="n">t_start</span> <span class="o">&lt;=</span> <span class="n">time_start</span><span class="p">:</span>
+                    <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">start_ind</span><span class="p">]</span>
+                    <span class="n">start_ind</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">end_ind</span> <span class="o">==</span> <span class="s1">&#39;time_based&#39;</span><span class="p">:</span>
+                <span class="n">end_ind</span> <span class="o">=</span> <span class="n">start_ind</span>
+                <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">end_ind</span><span class="p">]</span>
+                <span class="k">while</span> <span class="n">time</span><span class="p">[</span><span class="n">start_ind</span><span class="p">]</span> <span class="o">-</span> <span class="n">time_end</span> <span class="o">&lt;=</span> <span class="n">t_end</span><span class="p">:</span>
+                    <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">end_ind</span><span class="p">]</span>
+                    <span class="n">end_ind</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">sample_inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">classification</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 
                 <span class="n">inds_to_sample</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">n_particles</span> <span class="p">)</span>
@@ -757,6 +772,17 @@
             <span class="o">**</span><span class="n">y_data_kwargs</span>
         <span class="p">)</span>
 
+        <span class="c1"># When we&#39;re changing linestyles based on another pattern</span>
+        <span class="k">if</span> <span class="n">line_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">line_features_data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">line_features</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span>
+                <span class="n">line_features_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_selected_data</span><span class="p">(</span>
+                    <span class="n">key</span><span class="p">,</span>
+                    <span class="n">sl</span> <span class="o">=</span> <span class="n">sl</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;data_kwargs&#39;</span><span class="p">]</span>
+                <span class="p">)</span>
+
         <span class="c1"># Convert to comoving</span>
         <span class="k">if</span> <span class="n">convert_x_to_comoving</span> <span class="ow">or</span> <span class="n">convert_y_to_comoving</span><span class="p">:</span>
             <span class="n">a</span> <span class="o">=</span> <span class="p">(</span> <span class="mf">1.</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">redshift</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">onedim_slice</span><span class="p">]</span> <span class="p">)</span><span class="o">**-</span><span class="mf">1.</span>
@@ -775,7 +801,7 @@
         <span class="n">z_data</span> <span class="o">=</span> <span class="n">z_data</span><span class="o">**</span><span class="mf">2.</span>
 
         <span class="c1"># Plot!</span>
-        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">color</span> <span class="o">=</span> <span class="n">p_constants</span><span class="o">.</span><span class="n">CLASSIFICATION_COLORS_B</span><span class="p">[</span><span class="n">classification</span><span class="p">]</span>
 
         <span class="c1"># Format the data</span>
@@ -799,6 +825,16 @@
                 <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span> <span class="n">lc</span> <span class="p">)</span>
 
                 <span class="n">lc</span><span class="o">.</span><span class="n">set_zorder</span><span class="p">(</span> <span class="n">zorder</span> <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">line_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">line_features</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span>
+                    <span class="n">mask</span> <span class="o">=</span> <span class="n">line_features_data</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                        <span class="n">xs</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span>
+                        <span class="n">ys</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span>
+                        <span class="o">**</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;line_attrs&#39;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                     <span class="n">xs</span><span class="p">,</span>
@@ -813,9 +849,9 @@
 
             <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span>
 
-            <span class="k">if</span> <span class="n">halo_radius_fraction</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">halo_radius_fraction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">halo_radius_fraction</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">galids</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;galaxy_cut&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">halo_length_scale</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">halo_length_scale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">halo_length_scale</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">galids</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;length_scale&#39;</span><span class="p">]</span>
 
             <span class="n">ahf_data</span> <span class="o">=</span> <span class="n">analyze_ahf</span><span class="o">.</span><span class="n">HaloData</span><span class="p">(</span>
@@ -836,9 +872,9 @@
             <span class="p">)</span>
 
         <span class="c1"># Set the range</span>
-        <span class="k">if</span> <span class="n">x_range</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">x_range</span> <span class="o">=</span> <span class="p">[</span> <span class="n">x_data</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">x_data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="p">]</span>
-        <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">y_range</span> <span class="o">=</span> <span class="p">[</span> <span class="n">y_data</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">y_data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="p">]</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span> <span class="n">x_range</span> <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span> <span class="n">y_range</span> <span class="p">)</span>
@@ -876,6 +912,7 @@
             <span class="s1">&#39;n_halos&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">plot_CGM_region</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">CGM_region_alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">return_y_max</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
@@ -975,7 +1012,7 @@
                     <span class="n">y_dir</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">inner_CGM_boundary</span><span class="p">,</span>
                     <span class="n">y_dir</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">outer_CGM_boundary</span><span class="p">,</span>
                     <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span>
-                    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+                    <span class="n">alpha</span> <span class="o">=</span> <span class="n">CGM_region_alpha</span><span class="p">,</span>
                 <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">return_y_max</span><span class="p">:</span>
@@ -992,6 +1029,7 @@
         <span class="n">pathlines</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">n_pathlines</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">snum</span> <span class="o">=</span> <span class="mi">600</span><span class="p">,</span>
+        <span class="n">pathline_inds_to_display</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">center_time_on_snum</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">classifications</span> <span class="o">=</span> <span class="p">[</span>
             <span class="kc">None</span><span class="p">,</span>
@@ -1009,10 +1047,13 @@
             <span class="s1">&#39;PType&#39;</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="n">tracked_filter_flags</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">True</span><span class="p">,</span> <span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span>
-        <span class="n">tracked_colormap_flags</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="p">],</span>
+        <span class="n">tracked_colormap_flags</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">True</span><span class="p">,</span> <span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="n">size_mult</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
         <span class="n">include_ruler</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">include_disk</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">use_default_colors</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">tracked_labels_mapping</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">dump_to_json</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Export data to a Firefly visualization.</span>
 
@@ -1045,6 +1086,10 @@
 <span class="sd">                If not plotting pathlines plot the particle tracking data</span>
 <span class="sd">                at this snapshot.</span>
 
+<span class="sd">            pathline_inds_to_display (list):</span>
+<span class="sd">                If plotting pathlines and this is not None, the pathlines will</span>
+<span class="sd">                extend according to the inds given in this list.</span>
+
 <span class="sd">            center_time_on_snum (bool):</span>
 <span class="sd">                If True any displayed time is relative to the snapshot given</span>
 <span class="sd">                in snum.</span>
@@ -1066,13 +1111,17 @@
 <span class="sd">            tracked_colormap_flags (list of bools):</span>
 <span class="sd">                Which of the tracked_properties you want to show colormaps of.</span>
 
+<span class="sd">            size_mult (float):</span>
+<span class="sd">                Size of particles (in no particular units, though larger is</span>
+<span class="sd">                bigger).</span>
+
 <span class="sd">            include_ruler (bool):</span>
 <span class="sd">                If True display a 100x100x100 ruler centered at (0,0,0) with</span>
 <span class="sd">                1 kpc spacing between points.</span>
 
 <span class="sd">            include_disk (bool):</span>
 <span class="sd">                If True display a 50 kpc line starting at the galaxy center and</span>
-<span class="sd">                extending out 50 kpc parallel to the total angular momentum of</span>
+<span class="sd">                eclassificationxtending out 50 kpc parallel to the total angular momentum of</span>
 <span class="sd">                the stars in the galaxy. In addition draw a circle</span>
 <span class="sd">                perpendicular to the total angular momentum and with a radius</span>
 <span class="sd">                of R_gal.</span>
@@ -1080,6 +1129,9 @@
 <span class="sd">            use_default_colors (bool):</span>
 <span class="sd">                If True, colors used for different classifications come from</span>
 <span class="sd">                config.COLORSCHEME</span>
+
+<span class="sd">            dump_to_json (bool):</span>
+<span class="sd">                If True, save the data output in the Firefly directory.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="c1"># Make sure we&#39;re using the full path</span>
@@ -1115,12 +1167,6 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span> <span class="s2">&quot;Failed to install Firefly.&quot;</span> <span class="p">)</span>
 
-        <span class="c1"># Import the Firefly data parser</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">firefly_dir</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span> <span class="p">)</span>
-        <span class="p">)</span>
-        <span class="kn">import</span> <span class="nn">dataParser</span>
-
         <span class="c1"># Make the JSON dir exist if it doesn&#39;t</span>
         <span class="n">data_subdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">tag</span>
         <span class="k">if</span> <span class="n">pathlines</span><span class="p">:</span>
@@ -1134,7 +1180,7 @@
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span> <span class="n">json_dir</span> <span class="p">)</span>
 
         <span class="c1"># Setup a reader</span>
-        <span class="n">firefly_reader</span> <span class="o">=</span> <span class="n">dataParser</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span>
+        <span class="n">firefly_reader</span> <span class="o">=</span> <span class="n">read_firefly</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span>
             <span class="n">JSONdir</span> <span class="o">=</span> <span class="n">json_dir</span><span class="p">,</span>
             <span class="n">write_startup</span> <span class="o">=</span> <span class="n">write_startup</span><span class="p">,</span>
             <span class="n">clean_JSONdir</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1151,14 +1197,19 @@
 
             <span class="k">if</span> <span class="n">pathlines</span><span class="p">:</span>
 
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_selected_data_over_time</span><span class="p">(</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_object</span><span class="o">.</span><span class="n">get_selected_data_over_time</span><span class="p">(</span>
                     <span class="n">data_key</span><span class="p">,</span>
                     <span class="n">snum</span> <span class="o">=</span> <span class="n">snum</span><span class="p">,</span>
                     <span class="n">classification</span> <span class="o">=</span> <span class="n">classification</span><span class="p">,</span>
                     <span class="n">n_samples</span> <span class="o">=</span> <span class="n">n_pathlines</span><span class="p">,</span>
                     <span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span><span class="p">,</span>
                     <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">pathline_inds_to_display</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span><span class="n">pathline_inds_to_display</span><span class="p">]</span>
+
+                <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">float</span> <span class="p">)</span>
                 
             <span class="k">else</span><span class="p">:</span>
 
@@ -1167,7 +1218,7 @@
                     <span class="n">sl</span> <span class="o">=</span> <span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span><span class="n">ind</span><span class="p">),</span>
                     <span class="n">classification</span> <span class="o">=</span> <span class="n">classification</span><span class="p">,</span>
                     <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-                <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">float</span> <span class="p">)</span>
 
         <span class="c1"># Actually loop through each classification</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">classification</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span> <span class="n">classifications</span> <span class="p">):</span>
@@ -1240,9 +1291,15 @@
                 <span class="p">)</span>
                 <span class="n">tracked_arrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">tracked_arr</span> <span class="p">)</span>
 
+                <span class="c1"># Create the label</span>
+                <span class="k">if</span> <span class="n">tracked_key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span> <span class="n">tracked_labels_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">):</span>
+                    <span class="n">tracked_label</span> <span class="o">=</span> <span class="n">tracked_labels_mapping</span><span class="p">[</span><span class="n">tracked_key</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">tracked_label</span> <span class="o">=</span> <span class="n">tracked_key</span>
+
                 <span class="c1"># Add the label</span>
                 <span class="n">tracked_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">tracked_key</span>
+                    <span class="n">tracked_label</span>
                 <span class="p">)</span>
 
             <span class="c1"># Add a time filter</span>
@@ -1285,13 +1342,14 @@
                 <span class="n">option_kwargs</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">color</span> <span class="p">)</span>
 
             <span class="c1"># Create a particle group and add to the firefly reader</span>
-            <span class="n">particle_group</span> <span class="o">=</span> <span class="n">dataParser</span><span class="o">.</span><span class="n">ParticleGroup</span><span class="p">(</span>
+            <span class="n">particle_group</span> <span class="o">=</span> <span class="n">firefly_particle_group</span><span class="o">.</span><span class="n">ParticleGroup</span><span class="p">(</span>
                 <span class="n">UIname</span> <span class="o">=</span> <span class="n">classification_ui_labels</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
                 <span class="n">coordinates</span> <span class="o">=</span> <span class="n">coords</span><span class="p">,</span>
                 <span class="n">tracked_arrays</span> <span class="o">=</span> <span class="n">tracked_arrs</span><span class="p">,</span>
                 <span class="n">tracked_names</span> <span class="o">=</span> <span class="n">tracked_labels</span><span class="p">,</span>
                 <span class="n">tracked_filter_flags</span> <span class="o">=</span> <span class="n">tracked_filter_flags_class</span><span class="p">,</span>
                 <span class="n">tracked_colormap_flags</span> <span class="o">=</span> <span class="n">tracked_colormap_flags_class</span><span class="p">,</span>
+                <span class="n">sizeMult</span> <span class="o">=</span> <span class="n">size_mult</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">option_kwargs</span>
             <span class="p">)</span>
             <span class="n">firefly_reader</span><span class="o">.</span><span class="n">addParticleGroup</span><span class="p">(</span> <span class="n">particle_group</span> <span class="p">)</span>
@@ -1312,9 +1370,10 @@
 
             <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">[</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="p">]</span> <span class="p">)</span>
             
-            <span class="n">particle_group</span> <span class="o">=</span> <span class="n">dataParser</span><span class="o">.</span><span class="n">ParticleGroup</span><span class="p">(</span>
+            <span class="n">particle_group</span> <span class="o">=</span> <span class="n">firefly_particle_group</span><span class="o">.</span><span class="n">ParticleGroup</span><span class="p">(</span>
                 <span class="n">UIname</span> <span class="o">=</span> <span class="s1">&#39;ruler&#39;</span><span class="p">,</span>
                 <span class="n">coordinates</span> <span class="o">=</span> <span class="n">coords</span><span class="p">,</span>
+                <span class="n">sizeMult</span> <span class="o">=</span> <span class="n">size_mult</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">firefly_reader</span><span class="o">.</span><span class="n">addParticleGroup</span><span class="p">(</span> <span class="n">particle_group</span> <span class="p">)</span>
 
@@ -1346,8 +1405,15 @@
 
             <span class="n">circle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">circle</span> <span class="p">)</span>
 
-            <span class="n">ang_mom_vec</span> <span class="o">=</span> <span class="n">s_data</span><span class="o">.</span><span class="n">total_ang_momentum</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span> <span class="n">s_data</span><span class="o">.</span><span class="n">total_ang_momentum</span> <span class="p">)</span>
-            <span class="n">disk_pos</span> <span class="o">=</span> <span class="n">data_operations</span><span class="o">.</span><span class="n">align_axes</span><span class="p">(</span> <span class="n">circle</span><span class="p">,</span> <span class="n">ang_mom_vec</span><span class="p">,</span> <span class="n">align_frame</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span>
+            <span class="n">ang_mom_vec</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">s_data</span><span class="o">.</span><span class="n">total_ang_momentum</span> <span class="o">/</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span> <span class="n">s_data</span><span class="o">.</span><span class="n">total_ang_momentum</span> <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">disk_pos</span> <span class="o">=</span> <span class="n">data_operations</span><span class="o">.</span><span class="n">align_axes</span><span class="p">(</span>
+                <span class="n">circle</span><span class="p">,</span>
+                <span class="n">ang_mom_vec</span><span class="p">,</span>
+                <span class="n">align_frame</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
 
             <span class="c1"># Get axis pos</span>
             <span class="n">ang_mom_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span> <span class="n">ang_mom_vec</span><span class="p">,</span> <span class="p">(</span><span class="mi">51</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
@@ -1355,14 +1421,19 @@
             
             <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">[</span> <span class="n">disk_pos</span><span class="p">,</span> <span class="n">axis_pos</span> <span class="p">])</span>
 
-            <span class="n">particle_group</span> <span class="o">=</span> <span class="n">dataParser</span><span class="o">.</span><span class="n">ParticleGroup</span><span class="p">(</span>
+            <span class="n">particle_group</span> <span class="o">=</span> <span class="n">firefly_particle_group</span><span class="o">.</span><span class="n">ParticleGroup</span><span class="p">(</span>
                 <span class="n">UIname</span> <span class="o">=</span> <span class="s1">&#39;disk&#39;</span><span class="p">,</span>
                 <span class="n">coordinates</span> <span class="o">=</span> <span class="n">coords</span><span class="p">,</span>
+                <span class="n">sizeMult</span> <span class="o">=</span> <span class="n">size_mult</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">firefly_reader</span><span class="o">.</span><span class="n">addParticleGroup</span><span class="p">(</span> <span class="n">particle_group</span> <span class="p">)</span>
 
         <span class="c1"># Finish up and write data</span>
-        <span class="n">firefly_reader</span><span class="o">.</span><span class="n">dumpToJSON</span><span class="p">()</span></div></div>
+        <span class="k">if</span> <span class="n">dump_to_json</span><span class="p">:</span>
+            <span class="n">firefly_reader</span><span class="o">.</span><span class="n">dumpToJSON</span><span class="p">()</span>
+
+        <span class="c1"># Return reader for additional manipulation</span>
+        <span class="k">return</span> <span class="n">firefly_reader</span></div></div>
 </pre></div>
 
           </div>

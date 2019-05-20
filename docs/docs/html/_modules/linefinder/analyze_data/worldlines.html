@@ -45,12 +45,15 @@
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">numba</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numpy.testing</span> <span class="k">as</span> <span class="nn">npt</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">scipy.ndimage</span>
 <span class="kn">import</span> <span class="nn">verdict</span>
 
-<span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.ahf</span> <span class="k">as</span> <span class="nn">analyze_ahf_data</span>
+<span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.halo_data</span> <span class="k">as</span> <span class="nn">halo_data</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.generic_data</span> <span class="k">as</span> <span class="nn">generic_data</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.analyze_data.simulation_data</span> <span class="k">as</span> <span class="nn">simulation_data</span>
 <span class="kn">import</span> <span class="nn">galaxy_dive.read_data.snapshot</span> <span class="k">as</span> <span class="nn">read_snapshot</span>
@@ -239,9 +242,13 @@
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_halo_data&#39;</span> <span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_halo_data</span> <span class="o">=</span> <span class="n">analyze_ahf_data</span><span class="o">.</span><span class="n">HaloData</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_halo_data</span> <span class="o">=</span> <span class="n">halo_data</span><span class="o">.</span><span class="n">HaloData</span><span class="p">(</span>
                 <span class="n">data_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">halo_data_dir</span><span class="p">,</span>
                 <span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">galids</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;halo_file_tag&#39;</span><span class="p">],</span>
+                <span class="n">mt_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;tag&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">galids</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;halo_file_tag&#39;</span><span class="p">],</span>
+                    <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">galids</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;mtree_halos_index&#39;</span><span class="p">],</span>
+                <span class="p">},</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_halo_data</span>
@@ -1219,6 +1226,19 @@
 <span class="sd">            self.data (dict): If successful, stores the data here.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
+        <span class="c1"># Custom worldlines methods</span>
+        <span class="n">split_data_key</span> <span class="o">=</span> <span class="n">data_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span> <span class="s1">&#39;_&#39;</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span> <span class="n">split_data_key</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">is_will_calc_method</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span> <span class="n">split_data_key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;will&#39;</span> <span class="p">)</span> <span class="ow">and</span>
+                <span class="p">(</span> <span class="n">split_data_key</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;dt&#39;</span> <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_will_calc_method</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">calc_will_A_dt_T</span><span class="p">(</span>
+                    <span class="n">A_key</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">split_data_key</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="p">),</span>
+                    <span class="n">T_str</span> <span class="o">=</span> <span class="n">split_data_key</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">)</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">(</span> <span class="n">Worldlines</span><span class="p">,</span> <span class="bp">self</span> <span class="p">)</span><span class="o">.</span><span class="n">handle_data_key_error</span><span class="p">(</span> <span class="n">data_key</span> <span class="p">)</span>
 
@@ -1298,6 +1318,36 @@
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;t_cool_lookup&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_cluster_star"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_cluster_star">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_cluster_star</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+
+        <span class="c1"># TODO: Fix this.</span>
+        <span class="ne">Warning</span><span class="p">(</span> <span class="s1">&#39;Save file currently hard-coded!&#39;</span> <span class="p">)</span>
+
+        <span class="n">save_file</span> <span class="o">=</span> <span class="s1">&#39;cluster_ids_m12i_l0.005_a0.01_snum550.hdf5&#39;</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">save_file</span> <span class="p">)</span>
+
+        <span class="c1"># Get cluster IDs</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span> <span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span> <span class="p">)</span>
+        <span class="n">all_cluster_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cluster_id</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">all_cluster_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">f</span><span class="p">[</span><span class="n">cluster_id</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="p">)</span>
+        <span class="n">all_cluster_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span> <span class="n">all_cluster_ids</span> <span class="p">)</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="mi">600</span> <span class="o">-</span> <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;snum&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Find which IDs are inside the cluster IDs at the relevant snapshot.</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="p">)</span>
+        <span class="n">is_cluster_star_snapshot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span> <span class="n">id_</span> <span class="ow">in</span> <span class="n">all_cluster_ids</span> <span class="k">for</span> <span class="n">id_</span> <span class="ow">in</span> <span class="n">ids</span> <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_cluster_star&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+            <span class="n">is_cluster_star_snapshot</span><span class="p">,</span>
+            <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_snaps</span><span class="p">,</span> <span class="mi">1</span> <span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_cluster_star&#39;</span><span class="p">]</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -1494,23 +1544,9 @@
 <span class="sd">                is currently in the IGM, as defined in Hafen+19.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="c1"># Get relation to main galaxy</span>
-        <span class="n">r_rvir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_processed_data</span><span class="p">(</span>
-            <span class="s1">&#39;R&#39;</span><span class="p">,</span>
-            <span class="n">scale_key</span> <span class="o">=</span> <span class="s1">&#39;Rvir&#39;</span><span class="p">,</span>
-            <span class="n">scale_a_power</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
-            <span class="n">scale_h_power</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">outside_main_CGM_and_gal</span> <span class="o">=</span> <span class="p">(</span> <span class="n">r_rvir</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">OUTER_CGM_BOUNDARY</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_in_IGM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;1.0_Rvir&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">2</span>
 
-        <span class="c1"># Get relation to other galaxies</span>
-        <span class="c1"># TODO: Account for being in external CGMs</span>
-        <span class="n">is_in_other_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_in_IGM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">outside_main_CGM_and_gal</span> <span class="o">&amp;</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="n">is_in_other_gal</span> <span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_in_IGM&#39;</span><span class="p">]</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -1543,7 +1579,27 @@
 
         <span class="n">is_in_CGM</span> <span class="o">=</span> <span class="n">is_in_CGM_rvir</span> <span class="o">&amp;</span> <span class="n">is_in_CGM_length_scale</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_in_CGM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">is_in_CGM</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_in_CGM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">is_in_CGM</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_in_CGM&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_in_CGM_not_sat"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_in_CGM_not_sat">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_in_CGM_not_sat</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that is in the CGM and not in an satellite galaxy</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self.data[&#39;is_in_CGM_not_sat&#39;] (np.ndarray):</span>
+<span class="sd">                If True, the particle is currently in the CGM, as defined</span>
+<span class="sd">                in Hafen+18.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_in_CGM_not_sat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span> <span class="o">&amp;</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_in_CGM_not_sat&#39;</span><span class="p">]</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -1577,6 +1633,74 @@
 
     <span class="c1">########################################################################</span>
 
+<div class="viewcode-block" id="Worldlines.calc_is_in_CGM_or_interface"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_in_CGM_or_interface">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_in_CGM_or_interface</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that is in either the CGM (outside a satellite)</span>
+<span class="sd">         or the galaxy halo interface.&#39;&#39;&#39;</span>
+
+        <span class="c1"># Create this combined category for classification purposes</span>
+        <span class="n">is_in_CGM_or_iface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM_not_sat&#39;</span> <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_galaxy_halo_interface&#39;</span> <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_in_CGM_or_interface&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">is_in_CGM_or_iface</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_in_CGM_or_interface&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_leaves_gal"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_leaves_gal">[docs]</a>    <span class="k">def</span> <span class="nf">calc_leaves_gal</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Find when a particle leaves the galaxy.&#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;leaves_gal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;leaves_gal&#39;</span><span class="p">][:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;gal_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;leaves_gal&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.get_is_A_to_B"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.get_is_A_to_B">[docs]</a>    <span class="k">def</span> <span class="nf">get_is_A_to_B</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">A_to_B_event</span><span class="p">,</span> <span class="n">A_key</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in classification A, and next enters</span>
+<span class="sd">        classification B.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            A_to_B (array-like of booleans):</span>
+<span class="sd">                Boolean that indicates the particle left A and entered</span>
+<span class="sd">                the other category, B. The value of the [i,j]th index should be</span>
+<span class="sd">                True if particle i is in B at index j, and was in A</span>
+<span class="sd">                at index j+1.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of booleans, (n_particles, n_snaps):</span>
+<span class="sd">                Array where the value of [i,j]th index indicates if particle i</span>
+<span class="sd">                will transfer from A to B category after index j.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Format event</span>
+        <span class="n">A_to_B_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span> <span class="n">A_to_B_event</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span>
+
+        <span class="c1"># Find contiguous regions</span>
+        <span class="n">labeled_is_A</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="n">A_key</span> <span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
+            <span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">find_objects</span><span class="p">(</span> <span class="n">labeled_is_A</span> <span class="p">)</span>
+
+        <span class="c1"># Apply classification to contiguous regions</span>
+        <span class="n">is_A_to_B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">sl</span> <span class="ow">in</span> <span class="n">slices</span><span class="p">:</span>
+            <span class="n">is_A_to_B</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span> <span class="n">A_to_B_event</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_A_to_B</span></div>
+
+    <span class="c1">########################################################################</span>
+
 <div class="viewcode-block" id="Worldlines.get_is_CGM_to_other"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.get_is_CGM_to_other">[docs]</a>    <span class="k">def</span> <span class="nf">get_is_CGM_to_other</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">CGM_to_other_event</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, and next enters another</span>
 <span class="sd">        category.</span>
@@ -1594,26 +1718,7 @@
 <span class="sd">                will transfer from the CGM to the other category after index j.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="c1"># Format event</span>
-        <span class="n">CGM_to_other_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span> <span class="n">CGM_to_other_event</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span>
-
-        <span class="c1"># Find contiguous regions</span>
-        <span class="n">labeled_is_in_CGM</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">),</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
-                <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">],</span>
-                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">],</span>
-            <span class="p">]),</span>
-        <span class="p">)</span>
-        <span class="n">slices</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">find_objects</span><span class="p">(</span> <span class="n">labeled_is_in_CGM</span> <span class="p">)</span>
-
-        <span class="c1"># Apply classification to contiguous regions</span>
-        <span class="n">is_CGM_to_other</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
-        <span class="k">for</span> <span class="n">sl</span> <span class="ow">in</span> <span class="n">slices</span><span class="p">:</span>
-            <span class="n">is_CGM_to_other</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span> <span class="n">CGM_to_other_event</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">is_CGM_to_other</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_is_A_to_B</span><span class="p">(</span> <span class="n">CGM_to_other_event</span><span class="p">,</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Worldlines.calc_is_CGM_to_IGM"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_IGM">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_to_IGM</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, and next enters the IGM.</span>
@@ -1634,36 +1739,6 @@
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_IGM&#39;</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="Worldlines.calc_is_CGM_to_gal_or_interface"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_gal_or_interface">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_to_gal_or_interface</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, and next enters either the</span>
-<span class="sd">        galaxy or the galaxy-halo interface.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            array-like of booleans, (n_particles, n_snaps):</span>
-<span class="sd">                Array where the value of [i,j]th index indicates if particle i</span>
-<span class="sd">                will transfer from the CGM to either the galaxy or galaxy-halo</span>
-<span class="sd">                interface after index j.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-
-        <span class="c1"># Did the particle leave the CGM and enter the galaxy or the interface?</span>
-        <span class="n">leaves_CGM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">)</span>
-        <span class="n">leaves_CGM</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_event_id&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="n">is_in_gal_or_interface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mask_or</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_main_gal&#39;</span> <span class="p">),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_galaxy_halo_interface&#39;</span> <span class="p">),</span>
-        <span class="p">)</span>
-        <span class="n">CGM_to_gal_or_interface_event</span> <span class="o">=</span> <span class="n">leaves_CGM</span> <span class="o">&amp;</span> <span class="n">is_in_gal_or_interface</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_gal_or_interface&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_is_CGM_to_other</span><span class="p">(</span>
-            <span class="n">CGM_to_gal_or_interface_event</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_to_gal_or_interface&#39;</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="Worldlines.calc_is_CGM_to_satellite"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_to_satellite">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_to_satellite</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
-
-        <span class="k">pass</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -1814,6 +1889,210 @@
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_wind&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_CGM_fate_classifications"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_CGM_fate_classifications">[docs]</a>    <span class="k">def</span> <span class="nf">calc_CGM_fate_classifications</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate all the CGM fate classifications.&#39;&#39;&#39;</span>
+        
+        <span class="nd">@numba</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span>
+            <span class="s1">&#39;i8[:,:](i8[:,:],b1[:,:],b1[:,:],b1[:,:],b1[:,:],b1[:,:])&#39;</span><span class="p">,</span>
+            <span class="n">nopython</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">numba_fn</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span>
+            <span class="n">is_in_CGM_or_iface</span><span class="p">,</span>
+            <span class="n">is_in_main_gal</span><span class="p">,</span>
+            <span class="n">is_in_CGM_other_gal</span><span class="p">,</span>
+            <span class="n">is_in_IGM</span><span class="p">,</span>
+            <span class="n">is_in_another_halo</span><span class="p">,</span>
+        <span class="p">):</span>
+
+            <span class="c1"># Loop over all particles</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">):</span>
+
+                <span class="c1"># Loop over all snapshots</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">):</span>
+
+                    <span class="c1"># Don&#39;t try to classify out of bounds</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_in_CGM_or_iface</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]:</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># For the very last time step tracked</span>
+                    <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+
+                        <span class="c1"># Code for &quot;still CGM&quot;</span>
+                        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+                    <span class="c1"># Standard cases</span>
+                    <span class="k">else</span><span class="p">:</span>
+
+                        <span class="c1"># Propagate forward what the particle was</span>
+                        <span class="k">if</span> <span class="n">is_in_CGM_or_iface</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+                        <span class="c1"># When the particle accretes onto the main galaxy</span>
+                        <span class="c1"># Code for &quot;CGM accreted&quot;</span>
+                        <span class="k">if</span> <span class="n">is_in_main_gal</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+                        <span class="c1"># When the particle accretes onto a satellite galaxy</span>
+                        <span class="c1"># Code for &quot;CGM accreted to satellite&quot;</span>
+                        <span class="k">if</span> <span class="n">is_in_CGM_other_gal</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+
+                        <span class="c1"># When the particle is ejected to the IGM</span>
+                        <span class="c1"># Code for &quot;CGM ejected&quot;</span>
+                        <span class="k">if</span> <span class="n">is_in_IGM</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+
+                        <span class="c1"># When the particle is transferred to an adjacent halo</span>
+                        <span class="c1"># Code for &quot;CGM halo transfer&quot;</span>
+                        <span class="n">in_other_halo_but_not_sat</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">is_in_another_halo</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span>
+                            <span class="ow">not</span> <span class="n">is_in_CGM_other_gal</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="k">if</span> <span class="n">in_other_halo_but_not_sat</span><span class="p">:</span>
+                            <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+
+            <span class="k">return</span> <span class="n">x</span>
+
+        <span class="c1"># For tracking accretion onto satellites</span>
+        <span class="n">is_in_CGM_other_gal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_other_gal&#39;</span> <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM&#39;</span> <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># For tracking halo transfer</span>
+        <span class="n">r_rvir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_processed_data</span><span class="p">(</span>
+            <span class="s1">&#39;R&#39;</span><span class="p">,</span>
+            <span class="n">scale_key</span> <span class="o">=</span> <span class="s1">&#39;Rvir&#39;</span><span class="p">,</span>
+            <span class="n">scale_a_power</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
+            <span class="n">scale_h_power</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">is_outside_main_halo</span> <span class="o">=</span> <span class="n">r_rvir</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">OUTER_CGM_BOUNDARY</span>
+        <span class="n">is_in_another_halo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+            <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;1.0_Rvir&#39;</span> <span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">2</span> <span class="p">),</span>
+            <span class="n">is_outside_main_halo</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Get results</span>
+        <span class="n">CGM_fate_cs</span> <span class="o">=</span> <span class="n">numba_fn</span><span class="p">(</span>
+            <span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">int</span> <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM_or_interface&#39;</span> <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_main_gal&#39;</span> <span class="p">),</span>
+            <span class="n">is_in_CGM_other_gal</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_IGM&#39;</span> <span class="p">),</span>
+            <span class="n">is_in_another_halo</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Ignore particles that are part of the interface</span>
+        <span class="n">CGM_fate_cs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_galaxy_halo_interface&#39;</span> <span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;CGM_fate_classifications&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CGM_fate_cs</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;CGM_fate_classifications&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_still"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_still">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_still</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that stays in the CGM until the simulation end.&#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_still&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_fate_classifications&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_still&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_accreted"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_accreted">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_accreted</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, and next enters either the</span>
+<span class="sd">        main galaxy.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of booleans, (n_particles, n_snaps):</span>
+<span class="sd">                Array where the value of [i,j]th index indicates if particle i</span>
+<span class="sd">                will transfer from the CGM to either the galaxy or galaxy-halo</span>
+<span class="sd">                interface after index j.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_accreted&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_fate_classifications&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_accreted&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_accreted_to_satellite"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_accreted_to_satellite">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_accreted_to_satellite</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, outside a satellite,</span>
+<span class="sd">        and next enters a satellite.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of booleans, (n_particles, n_snaps):</span>
+<span class="sd">                Array where the value of [i,j]th index indicates if particle i</span>
+<span class="sd">                will transfer from the CGM to the IGM after index j.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_accreted_to_satellite&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_fate_classifications&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_accreted_to_satellite&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_ejected"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_ejected">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_ejected</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, and next enters the IGM.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of booleans, (n_particles, n_snaps):</span>
+<span class="sd">                Array where the value of [i,j]th index indicates if particle i</span>
+<span class="sd">                will transfer from the CGM to the IGM after index j.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_ejected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_fate_classifications&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_ejected&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_halo_transfer"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_halo_transfer">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_halo_transfer</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that&#39;s currently in the CGM, and next enters a halo</span>
+<span class="sd">        adjacent to the CGM</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of booleans, (n_particles, n_snaps):</span>
+<span class="sd">                Array where the value of [i,j]th index indicates if particle i</span>
+<span class="sd">                will transfer from the CGM to another halo after index j.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_halo_transfer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_fate_classifications&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">4</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_halo_transfer&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_is_CGM_fate_unclassified"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_is_CGM_fate_unclassified">[docs]</a>    <span class="k">def</span> <span class="nf">calc_is_CGM_fate_unclassified</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Material that cannot be classified under the current CGM fate</span>
+<span class="sd">        classifications.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like of booleans, (n_particles, n_snaps):</span>
+<span class="sd">                Array where the value of [i,j]th index indicates if particle i</span>
+<span class="sd">                doesn&#39;t fit within the CGM fate classification scheme</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_fate_unclassified&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;CGM_fate_classifications&#39;</span> <span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">2</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_CGM_fate_unclassified&#39;</span><span class="p">]</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -2085,6 +2364,23 @@
 
     <span class="c1">########################################################################</span>
 
+<div class="viewcode-block" id="Worldlines.calc_d_gal"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_d_gal">[docs]</a>    <span class="k">def</span> <span class="nf">calc_d_gal</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate the minimum distance to any galaxy.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">d_other_gal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;d_other_gal&#39;</span><span class="p">,</span> <span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;d_gal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">d_other_gal</span> <span class="o">&lt;</span> <span class="n">r</span><span class="p">,</span>
+            <span class="n">d_other_gal</span><span class="p">,</span>
+            <span class="n">r</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;d_gal&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
 <div class="viewcode-block" id="Worldlines.calc_d_sat_scaled_min"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_d_sat_scaled_min">[docs]</a>    <span class="k">def</span> <span class="nf">calc_d_sat_scaled_min</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Calculate the minimum distance to a a galaxy other than the main galaxy, prior to accretion onto the main gal.</span>
 
@@ -2102,6 +2398,49 @@
         <span class="n">d_ma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span> <span class="n">d</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span> <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;d_sat_scaled_min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d_ma</span><span class="o">.</span><span class="n">min</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.get_rho_closest_gal"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.get_rho_closest_gal">[docs]</a>    <span class="k">def</span> <span class="nf">get_rho_closest_gal</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">axis1</span><span class="p">,</span> <span class="n">axis2</span> <span class="p">):</span>
+        
+        <span class="n">x_cg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;d_gal_</span><span class="si">{}</span><span class="s1">c&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">axis1</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="n">y_cg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;d_gal_</span><span class="si">{}</span><span class="s1">c&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">axis2</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="c1"># Convert to co-moving</span>
+        <span class="n">x_cg</span> <span class="o">/=</span> <span class="p">(</span>
+            <span class="p">(</span> <span class="mf">1.</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;redshift&#39;</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">y_cg</span> <span class="o">/=</span> <span class="p">(</span>
+            <span class="p">(</span> <span class="mf">1.</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;redshift&#39;</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptracks</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;hubble&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span> <span class="n">x_cg</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="n">axis1</span> <span class="p">)</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span> <span class="o">+</span>
+            <span class="p">(</span> <span class="n">y_cg</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="n">axis2</span> <span class="p">)</span> <span class="p">)</span><span class="o">**</span><span class="mf">2.</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Worldlines.calc_d_gal_rho_xy"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_d_gal_rho_xy">[docs]</a>    <span class="k">def</span> <span class="nf">calc_d_gal_rho_xy</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate the impact parameter to the closest galaxy in the XY plane.&#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;d_gal_rho_xy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rho_closest_gal</span><span class="p">(</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;d_gal_rho_xy&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Worldlines.calc_d_gal_rho_yz"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_d_gal_rho_yz">[docs]</a>    <span class="k">def</span> <span class="nf">calc_d_gal_rho_yz</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate the impact parameter to the closest galaxy in the YZ plane.&#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;d_gal_rho_yz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rho_closest_gal</span><span class="p">(</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;d_gal_rho_yz&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Worldlines.calc_d_gal_rho_xz"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_d_gal_rho_xz">[docs]</a>    <span class="k">def</span> <span class="nf">calc_d_gal_rho_xz</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate the impact parameter to the closest galaxy in the XZ plane.&#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;d_gal_rho_xz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rho_closest_gal</span><span class="p">(</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;d_gal_rho_xz&#39;</span><span class="p">]</span></div>
 
     <span class="c1">########################################################################</span>
 
@@ -2177,6 +2516,22 @@
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;CGM_event_id&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Worldlines.calc_CGM_sat_event_id"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_CGM_sat_event_id">[docs]</a>    <span class="k">def</span> <span class="nf">calc_CGM_sat_event_id</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Indication of when a particle moves in or out of the CGM.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array-like, (n_particles, n_snaps - 1):</span>
+<span class="sd">                A value of -1 means the particle has left the CGM.</span>
+<span class="sd">                A value of 1 means the particle has entered the CGM.</span>
+<span class="sd">                A value of 0 indicates no change.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;CGM_sat_event_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_event_id</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;is_in_CGM_not_sat&#39;</span> <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;CGM_sat_event_id&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Worldlines.calc_other_gal_event_id"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_other_gal_event_id">[docs]</a>    <span class="k">def</span> <span class="nf">calc_other_gal_event_id</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Indication of when a particle moves in or out of galaxies other than</span>
@@ -2378,7 +2733,55 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_in_CGM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_in</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_in_CGM&#39;</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_in_CGM&#39;</span><span class="p">]</span></div>
+
+    <span class="c1">########################################################################</span>
+
+<div class="viewcode-block" id="Worldlines.calc_will_A_dt_T"><a class="viewcode-back" href="../../../linefinder.analyze_data.worldlines.html#linefinder.analyze_data.worldlines.Worldlines.calc_will_A_dt_T">[docs]</a>    <span class="k">def</span> <span class="nf">calc_will_A_dt_T</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">A_key</span><span class="p">,</span> <span class="n">T_str</span> <span class="p">):</span>
+
+        <span class="nd">@numba</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span>
+            <span class="s1">&#39;b1[:,:](b1[:,:],b1[:,:],f8,f8[:])&#39;</span><span class="p">,</span>
+            <span class="n">nopython</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">numba_fn</span><span class="p">(</span> <span class="n">results</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">dt</span> <span class="p">):</span>
+
+            <span class="c1"># Loop over snapshots</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+
+                <span class="c1"># Find how many indices we need to go back to reach T</span>
+                <span class="n">time_towards_T</span> <span class="o">=</span> <span class="mf">0.</span>
+                <span class="n">dj</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+
+                    <span class="c1"># Break when we hit the end of the array on either side</span>
+                    <span class="k">if</span> <span class="p">(</span> <span class="n">j</span> <span class="o">-</span> <span class="n">dj</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="n">dt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">):</span>
+                        <span class="k">break</span>
+
+                    <span class="c1"># Count up more time</span>
+                    <span class="n">time_towards_T</span> <span class="o">+=</span> <span class="n">dt</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="n">dj</span><span class="p">]</span>
+
+                    <span class="c1"># Stop searching if we hit our target</span>
+                    <span class="k">if</span> <span class="n">time_towards_T</span> <span class="o">&gt;</span> <span class="n">T</span><span class="p">:</span>
+                        <span class="k">break</span>
+
+                    <span class="c1"># Keep track of dj</span>
+                    <span class="n">dj</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="c1"># See if we have an A event in that range</span>
+                <span class="n">results</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[:,</span><span class="n">j</span><span class="o">-</span><span class="n">dj</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    
+            <span class="k">return</span> <span class="n">results</span>
+
+        <span class="n">data_key_out</span> <span class="o">=</span> <span class="s1">&#39;will_</span><span class="si">{}</span><span class="s1">_dt_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">A_key</span><span class="p">,</span> <span class="n">T_str</span> <span class="p">)</span>
+                    
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">data_key_out</span><span class="p">]</span> <span class="o">=</span> <span class="n">numba_fn</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_data_shape</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="nb">bool</span> <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="n">A_key</span> <span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span> <span class="n">T_str</span> <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span> <span class="s1">&#39;dt&#39;</span> <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">data_key_out</span><span class="p">]</span></div></div>
 
 <span class="c1">########################################################################</span>
 <span class="c1">########################################################################</span>

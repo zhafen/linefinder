@@ -8,7 +8,10 @@ Submodules
 
    linefinder.job_scripts.linefinder_CGM_trove_jugfile
    linefinder.job_scripts.linefinder_CGM_trove_jugfile_copy
+   linefinder.job_scripts.linefinder_clustersofFIRE
    linefinder.job_scripts.linefinder_example
+   linefinder.job_scripts.linefinder_ismsquare
+   linefinder.job_scripts.linefinder_m83clusters
    linefinder.job_scripts.linefinder_rockstar
    linefinder.job_scripts.linefinder_sightlines
    linefinder.job_scripts.linefinder_trove

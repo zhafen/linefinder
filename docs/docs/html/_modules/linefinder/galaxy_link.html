@@ -91,6 +91,8 @@
             <span class="s1">&#39;d_other_gal&#39;</span><span class="p">,</span>
             <span class="s1">&#39;d_other_gal_scaled&#39;</span><span class="p">,</span>
         <span class="p">],</span>
+        <span class="n">ids_with_supplementary_data</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="n">supplementary_data_keys</span> <span class="o">=</span> <span class="p">[],</span>
         <span class="n">minimum_criteria</span> <span class="o">=</span> <span class="s1">&#39;n_star&#39;</span><span class="p">,</span>
         <span class="n">minimum_value</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">n_processors</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -138,6 +140,14 @@
 
 <span class="sd">            ids_to_return (list of strs, optional):</span>
 <span class="sd">                The types of id you want to get out.</span>
+
+<span class="sd">            ids_with_supplementary_data (list of strs, optional) :</span>
+<span class="sd">                What types of IDs should include supplementary data pulled</span>
+<span class="sd">                from the halo files.</span>
+
+<span class="sd">            supplementary_data_keys (list of strs, optional) :</span>
+<span class="sd">                What data keys in the halo files should be accessed and</span>
+<span class="sd">                included as part of supplementary data.</span>
 
 <span class="sd">            minimum_criteria (str, optional) :</span>
 <span class="sd">                Options...</span>
@@ -256,6 +266,8 @@
                 <span class="s1">&#39;length_scale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">length_scale</span><span class="p">,</span>
                 <span class="s1">&#39;mt_length_scale&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mt_length_scale</span><span class="p">,</span>
                 <span class="s1">&#39;ids_to_return&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_to_return</span><span class="p">,</span>
+                <span class="s1">&#39;ids_with_supplementary_data&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_with_supplementary_data</span><span class="p">,</span>
+                <span class="s1">&#39;supplementary_data_keys&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data_keys</span><span class="p">,</span>
                 <span class="s1">&#39;minimum_criteria&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_criteria</span><span class="p">,</span>
                 <span class="s1">&#39;minimum_value&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_value</span><span class="p">,</span>
 

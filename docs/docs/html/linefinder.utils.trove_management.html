@@ -45,6 +45,34 @@
 <em class="property">class </em><code class="descclassname">linefinder.utils.trove_management.</code><code class="descname">LinefinderTroveManager</code><span class="sig-paren">(</span><em>file_format</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/utils/trove_management.html#LinefinderTroveManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.utils.trove_management.LinefinderTroveManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">galaxy_dive.data_management.trove_management.TroveManager</span></code></p>
 <p>Class for managing troves of data.</p>
+<dl class="attribute">
+<dt id="linefinder.utils.trove_management.LinefinderTroveManager.combinations">
+<code class="descname">combinations</code><a class="headerlink" href="#linefinder.utils.trove_management.LinefinderTroveManager.combinations" title="Permalink to this definition">¶</a></dt>
+<dd><p>All combinations of arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.utils.trove_management.LinefinderTroveManager.data_files">
+<code class="descname">data_files</code><a class="headerlink" href="#linefinder.utils.trove_management.LinefinderTroveManager.data_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>All data files that should be part of the trove.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="linefinder.utils.trove_management.LinefinderTroveManager.get_file">
 <code class="descname">get_file</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/utils/trove_management.html#LinefinderTroveManager.get_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.utils.trove_management.LinefinderTroveManager.get_file" title="Permalink to this definition">¶</a></dt>
@@ -56,6 +84,38 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*args</strong> – Arguments provided. Assumes args[0] is the data dir.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Filename for a given combination of args.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.utils.trove_management.LinefinderTroveManager.get_incomplete_combinations">
+<code class="descname">get_incomplete_combinations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.utils.trove_management.LinefinderTroveManager.get_incomplete_combinations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:
+Combinations in the trove that have not yet been done.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.utils.trove_management.LinefinderTroveManager.get_incomplete_data_files">
+<code class="descname">get_incomplete_data_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.utils.trove_management.LinefinderTroveManager.get_incomplete_data_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:
+Data files in the trove that have not yet been done.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.utils.trove_management.LinefinderTroveManager.get_next_args_to_use">
+<code class="descname">get_next_args_to_use</code><span class="sig-paren">(</span><em>when_done='return_last'</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.utils.trove_management.LinefinderTroveManager.get_next_args_to_use" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is this necessary? No. This function is really a wrapper that in
+essence provides documentation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>when_done</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – What to do when there are no incomplete combinations? Defaults
+to returning the last of self.combinations.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Next set of arguments to use.</td>
 </tr>
 </tbody>
 </table>

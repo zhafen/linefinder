@@ -45,15 +45,478 @@
 <em class="property">class </em><code class="descclassname">linefinder.analyze_data.ptracks.</code><code class="descname">PTracks</code><span class="sig-paren">(</span><em>data_dir</em>, <em>tag</em>, <em>ahf_index=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/linefinder/analyze_data/ptracks.html#PTracks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">galaxy_dive.analyze_data.simulation_data.TimeData</span></code></p>
 <p>Loads and analyzes data created by galaxy_link.py</p>
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.add_hubble_flow">
+<code class="descname">add_hubble_flow</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.add_hubble_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correct for hubble flow movement.</p>
+<dl class="docutils">
+<dt>Modifies:</dt>
+<dd>self.data[‘V’] : Accounts for hubble flow, relative to origin</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.base_data_shape">
+<code class="descname">base_data_shape</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.base_data_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property for simulation redshift.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_abs_phi">
+<code class="descname">calc_abs_phi</code><span class="sig-paren">(</span><em>normal_vector='total ang momentum'</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_abs_phi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the angle (in degrees) from some vector, but mirror
+values past 90 degrees (e.g. 135 -&gt; 45 degrees, 180 -&gt; 0 degrees).
+This is useful when there’s symmetry above and below 90.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>normal_vector</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><em>array-like</em>) – Vector that represents the vertical. Defaults to using the
+total stellar angular momentum of the main galaxy.</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Modifies:</dt>
+<dd><dl class="first last docutils">
+<dt>self.data[‘AbsPhi’] (array-like):</dt>
+<dd>Angle from the vector, in many cases acting as the angle
+from the disk axis.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_ang_momentum">
+<code class="descname">calc_ang_momentum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_ang_momentum" title="Permalink to this definition">¶</a></dt>
+<dd><p>The angular momentum (in the standard coordinates).</p>
+<dl class="docutils">
+<dt>Modifies:</dt>
+<dd><dl class="first last docutils">
+<dt>self.data[‘L’] (array-like):</dt>
+<dd>Angular momentum of each resolution element.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_enriched_metal_mass">
+<code class="descname">calc_enriched_metal_mass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_enriched_metal_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the metal mass that comes from enrichment for
+each resolution element, not counting mass that’s at the metallicity
+floor. Assumes that the there will always be at least one resolution
+element in the simulation that’s at the metallicity floor.</p>
+<dl class="docutils">
+<dt>Modifies:</dt>
+<dd><dl class="first last docutils">
+<dt>self.data[‘enriched_metal_mass’] (array-like):</dt>
+<dd>Metal mass from enrichment.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_metal_mass">
+<code class="descname">calc_metal_mass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_metal_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the metal mass held by each resolution element.</p>
+<dl class="docutils">
+<dt>Modifies:</dt>
+<dd><dl class="first last docutils">
+<dt>self.data[‘enriched_metal_mass’] (array-like):</dt>
+<dd>Metal mass from enrichment.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_phi">
+<code class="descname">calc_phi</code><span class="sig-paren">(</span><em>normal_vector='total ang momentum'</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_phi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the angle (in degrees) from some vector.
+By default the vector is the total angular momentum.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>normal_vector</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><em>array-like</em>) – Vector that represents the vertical.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_radial_distance">
+<code class="descname">calc_radial_distance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_radial_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the distance from the origin for a given particle.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_radial_velocity">
+<code class="descname">calc_radial_velocity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_radial_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the distance from the origin for a given particle.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_rho_xy">
+<code class="descname">calc_rho_xy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_rho_xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate impact parameter in the xy-plane.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_rho_xz">
+<code class="descname">calc_rho_xz</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_rho_xz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate impact parameter in the xz-plane.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_rho_yz">
+<code class="descname">calc_rho_yz</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_rho_yz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate impact parameter in the yz-plane.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_time_as_classification">
+<code class="descname">calc_time_as_classification</code><span class="sig-paren">(</span><em>data_key</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_time_as_classification" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_time_until_not_classification">
+<code class="descname">calc_time_until_not_classification</code><span class="sig-paren">(</span><em>data_key</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_time_until_not_classification" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.calc_velocity_magnitude">
+<code class="descname">calc_velocity_magnitude</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.calc_velocity_magnitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the velocity relative to an origin velocity
+for a given particle.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.center_coords">
+<code class="descname">center_coords</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.center_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the location of the origin, if the data isn’t already centered.</p>
+<dl class="docutils">
+<dt>Modifies:</dt>
+<dd>self.data[‘P’] : Shifts the coordinates to the center.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.center_vel_coords">
+<code class="descname">center_vel_coords</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.center_vel_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get velocity coordinates to center on the main halo.</p>
+<dl class="docutils">
+<dt>Modifies:</dt>
+<dd>self.data[‘V’] : Makes all velocities relative to self.vel_origin</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.get_data">
+<code class="descname">get_data</code><span class="sig-paren">(</span><em>data_key</em>, <em>sl=None</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the data from within the class. Only for getting the data. No post-processing or changing the data
+(putting it in particular units, etc.) The idea is to calculate necessary quantities as the need arises,
+hence a whole function for getting the data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Key in the data dictionary for the key we want to get</li>
+<li><strong>sl</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#slice" title="(in Python v3.7)"><em>slice</em></a>) – Slice of the data, if requested.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Requested data.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">data (np.ndarray)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.get_distance_to_point">
+<code class="descname">get_distance_to_point</code><span class="sig-paren">(</span><em>point</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.get_distance_to_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is <em>not</em> unit tested.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> (<em>array-like of shape</em><em> (</em><em>3</em><em>,</em><em>)</em>) – The point you want to find the distance to for each particle.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.get_position_data">
+<code class="descname">get_position_data</code><span class="sig-paren">(</span><em>data_key</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.get_position_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get position data (assuming the data starts with an ‘R’)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Key in the data dictionary for the key we want to get</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Requested data.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">data (np.ndarray)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.get_potential">
+<code class="descname">get_potential</code><span class="sig-paren">(</span><em>point</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.get_potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is <em>not</em> unit tested.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> (<em>array-like of shape</em><em> (</em><em>3</em><em>,</em><em>)</em>) – The point you want to find the potential at</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.get_processed_data">
+<code class="descname">get_processed_data</code><span class="sig-paren">(</span><em>data_key</em>, <em>sl=None</em>, <em>smooth_data=False</em>, <em>smoothing_window_length=9</em>, <em>smoothing_polyorder=3</em>, <em>a_power=None</em>, <em>scale_key=None</em>, <em>scale_a_power=None</em>, <em>scale_h_power=None</em>, <em>tile_data=False</em>, <em>tile_dim='auto'</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.get_processed_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modified method for getting processed method. For the most part is
+equivalent to calling the method of the parent class, but is also
+capable of scaling the retrieved data by a column from the halo data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – What to get out?</li>
+<li><strong>sl</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#slice" title="(in Python v3.7)"><em>slice</em></a>) – Slice of the data, if requested.</li>
+<li><strong>smooth_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, smooth the data.</li>
+<li><strong>smoothing_polyorder</strong> (<em>smoothing_window_length</em><em>,</em>) – Arguments for how to smooth the data.</li>
+<li><strong>scale_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Halo data entry by which to divide the data by.</li>
+<li><strong>scale_a_power</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The halo data that we are scaling processed_data by will be
+multiplied by a to this power.
+Useful for data in cosmological units (as is often normal).</li>
+<li><strong>scale_h_power</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The halo data that we are scaling processed_data by will be
+multiplied by the hubble parameter to this power.
+Useful for data in cosmological units (as is often normal).</li>
+<li><strong>tile_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, tile data along a given direction. This is usually for
+data formatting purposes.</li>
+<li><strong>tile_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>If the data is tiled, what dimension of the data should match?
+Options:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>’auto’ :</dt>
+<dd>Tiles according to data size.</dd>
+<dt>’match_snaps’ :</dt>
+<dd>The data is tiled such that the new shape is
+(self.n_snaps, data_size).</dd>
+<dt>’match_particles’ :</dt>
+<dd>The data is tiled such that the new shape is
+(data_size, self.n_particles).</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><strong>**kwargs</strong> (<em>*args</em><em>,</em>) – <p>Passed to SimulationData.get_processed_data.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Requested data array.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">processed_data (array-like)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.get_selected_data">
+<code class="descname">get_selected_data</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.get_selected_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for getting masked data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.get_selected_data_over_time">
+<code class="descname">get_selected_data_over_time</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.get_selected_data_over_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for geting masked data as a function of time.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.get_velocity_data">
+<code class="descname">get_velocity_data</code><span class="sig-paren">(</span><em>data_key</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.get_velocity_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get position data (assuming the data starts with a ‘V’)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Key in the data dictionary for the key we want to get</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Requested data.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">data (np.ndarray)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.halo_data">
+<code class="descname">halo_data</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.halo_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Halo data used.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.handle_data_key_error">
+<code class="descname">handle_data_key_error</code><span class="sig-paren">(</span><em>data_key</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.handle_data_key_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>When get_data() fails to data_key in self.data, it passes the data_key to try and generate that data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Key to try and generate data for</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Modifies:</dt>
+<dd>self.data[data_key] (np.array) : If it finds a function to generate the data, it will do so</dd>
+</dl>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="linefinder.analyze_data.ptracks.PTracks.hubble_param">
 <code class="descname">hubble_param</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.hubble_param" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.hubble_z">
+<code class="descname">hubble_z</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.hubble_z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property for the hubble function at specified redshift.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.iterate_over_method">
+<code class="descname">iterate_over_method</code><span class="sig-paren">(</span><em>method_str</em>, <em>iter_arg</em>, <em>iter_values</em>, <em>method_args</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.iterate_over_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over a specified method, and get the results out.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>method_str</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Which method to use.</li>
+<li><strong>iter_arg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Which argument of the method to iterate over.</li>
+<li><strong>iter_values</strong> (<em>list of values</em>) – Which values to change.</li>
+<li><strong>method_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Default args to pass to the method</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">[ method( <a href="#id3"><span class="problematic" id="id4">**</span></a>used_args ) for used_args in all_variations_of_used_args ]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">results (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a>)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.length_scale">
+<code class="descname">length_scale</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.length_scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property for fiducial simulation length scale.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.mask_data">
+<code class="descname">mask_data</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.mask_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for masking data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.metallicity_scale">
+<code class="descname">metallicity_scale</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.metallicity_scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property for fiducial metallicity scale. By default is z_sun
+However, a more advanced subclass might set this differently, or this might
+change in the future.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.n_particles">
+<code class="descname">n_particles</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.n_particles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of snapshots, i.e. data points on the time axis.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.n_snaps">
+<code class="descname">n_snaps</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.n_snaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of snapshots, i.e. data points on the time axis.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.r_scale">
+<code class="descname">r_scale</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.r_scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property for scale radius.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.r_vir">
+<code class="descname">r_vir</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.r_vir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property for virial radius.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.redshift">
+<code class="descname">redshift</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.redshift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property for simulation redshift.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.retrieve_halo_data">
+<code class="descname">retrieve_halo_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.retrieve_halo_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="linefinder.analyze_data.ptracks.PTracks.shift">
+<code class="descname">shift</code><span class="sig-paren">(</span><em>data</em>, <em>data_key</em><span class="sig-paren">)</span><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shift or multiply the data by some amount. Note that this is applied after logarithms are applied.</p>
+<p>data : data to be shifted
+data_key : Data key for the parameters to be shifted
+Parameters are a subdictionary of self.kwargs
+‘data_key’ : What data key the data is shifted for</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="linefinder.analyze_data.ptracks.PTracks.snum">
 <code class="descname">snum</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.snum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.snums">
+<code class="descname">snums</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.snums" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.v_c">
+<code class="descname">v_c</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.v_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property for circular velocity.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="linefinder.analyze_data.ptracks.PTracks.velocity_scale">
+<code class="descname">velocity_scale</code><a class="headerlink" href="#linefinder.analyze_data.ptracks.PTracks.velocity_scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property for fiducial simulation velocity scale.</p>
+</dd></dl>
 
 </dd></dl>
 

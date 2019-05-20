@@ -55,8 +55,11 @@ snapshot data and the subset of the snapshot data containing the IDs.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fns</strong> (<em>list of fns</em>) – Functions to apply to the data. Should accept dfid and df as
-arguments, and modify dfid as desired.</li>
+<li><strong>fns</strong> (<em>list of fns</em>) – Functions to apply to the data. Should accept <cite>dfid</cite> and <cite>df</cite>
+as arguments, and modify dfid as desired. Can optionally accept
+an argument <cite>id_finder</cite>, which is the active instance of
+IDFinder, allowing for use in the functions of e.g. self.snum
+and self.attrs.</li>
 <li><strong>dfid</strong> (<em>pandas DataFrame</em>) – Contains attributes of the selected ID particles. Indexed by
 the ID.</li>
 <li><strong>df</strong> (<em>pandas DataFrame</em>) – Contains attributes of the full snapshot data. Indexed by the

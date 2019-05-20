@@ -8,6 +8,7 @@ Subpackages
 
     linefinder.analyze_data
     linefinder.job_scripts
+    linefinder.tests
     linefinder.utils
 
 Submodules

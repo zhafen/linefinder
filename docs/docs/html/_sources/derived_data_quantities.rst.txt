@@ -13,10 +13,16 @@ The quantities can be accessed in two ways:
     :show-inheritance:
 
     .. automethod:: calc_CGM_event_id
+    .. automethod:: calc_CGM_fate_classifications
+    .. automethod:: calc_CGM_sat_event_id
     .. automethod:: calc_HDen
     .. automethod:: calc_Z_asplund
     .. automethod:: calc_abs_phi
     .. automethod:: calc_ang_momentum
+    .. automethod:: calc_d_gal
+    .. automethod:: calc_d_gal_rho_xy
+    .. automethod:: calc_d_gal_rho_xz
+    .. automethod:: calc_d_gal_rho_yz
     .. automethod:: calc_d_sat_scaled_min
     .. automethod:: calc_dt
     .. automethod:: calc_enriched_metal_mass
@@ -27,12 +33,16 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_is_CGM_IGM_accretion
     .. automethod:: calc_is_CGM_IP
     .. automethod:: calc_is_CGM_NEP
+    .. automethod:: calc_is_CGM_accreted
+    .. automethod:: calc_is_CGM_accreted_to_satellite
+    .. automethod:: calc_is_CGM_ejected
+    .. automethod:: calc_is_CGM_fate_unclassified
+    .. automethod:: calc_is_CGM_halo_transfer
     .. automethod:: calc_is_CGM_satellite
     .. automethod:: calc_is_CGM_satellite_ISM
     .. automethod:: calc_is_CGM_satellite_wind
+    .. automethod:: calc_is_CGM_still
     .. automethod:: calc_is_CGM_to_IGM
-    .. automethod:: calc_is_CGM_to_gal_or_interface
-    .. automethod:: calc_is_CGM_to_satellite
     .. automethod:: calc_is_CGM_wind
     .. automethod:: calc_is_IP
     .. automethod:: calc_is_NEP_NYA
@@ -40,6 +50,7 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_is_after_enrichment
     .. automethod:: calc_is_before_enrichment
     .. automethod:: calc_is_classification_NYA
+    .. automethod:: calc_is_cluster_star
     .. automethod:: calc_is_enriched
     .. automethod:: calc_is_enriched_in_mgal
     .. automethod:: calc_is_enriched_in_ogal
@@ -48,6 +59,8 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_is_hitherto_EP_NYA
     .. automethod:: calc_is_hitherto_NEP_NYA
     .. automethod:: calc_is_in_CGM
+    .. automethod:: calc_is_in_CGM_not_sat
+    .. automethod:: calc_is_in_CGM_or_interface
     .. automethod:: calc_is_in_IGM
     .. automethod:: calc_is_in_galaxy_halo_interface
     .. automethod:: calc_is_mass_transfer_NYA
@@ -56,6 +69,7 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_is_merger_star
     .. automethod:: calc_is_outside_any_gal_EP
     .. automethod:: calc_is_outside_any_gal_IP
+    .. automethod:: calc_leaves_gal
     .. automethod:: calc_metal_mass
     .. automethod:: calc_n_in
     .. automethod:: calc_n_in_CGM
@@ -65,11 +79,17 @@ The quantities can be accessed in two ways:
     .. automethod:: calc_phi
     .. automethod:: calc_radial_distance
     .. automethod:: calc_radial_velocity
+    .. automethod:: calc_rho_xy
+    .. automethod:: calc_rho_xz
+    .. automethod:: calc_rho_yz
     .. automethod:: calc_t_EP
     .. automethod:: calc_t_cool_lookup
     .. automethod:: calc_time
     .. automethod:: calc_time_as_classification
     .. automethod:: calc_time_since_leaving_main_gal
     .. automethod:: calc_time_since_leaving_other_gal
+    .. automethod:: calc_time_until_not_classification
+    .. automethod:: calc_velocity_magnitude
     .. automethod:: calc_vr_div_v_cool
     .. automethod:: calc_vr_div_v_cool_offset
+    .. automethod:: calc_will_A_dt_T

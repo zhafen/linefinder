@@ -962,8 +962,11 @@
 <span class="sd">        </span>
 <span class="sd">        Args:</span>
 <span class="sd">            fns (list of fns):</span>
-<span class="sd">                Functions to apply to the data. Should accept dfid and df as</span>
-<span class="sd">                arguments, and modify dfid as desired.</span>
+<span class="sd">                Functions to apply to the data. Should accept `dfid` and `df`</span>
+<span class="sd">                as arguments, and modify dfid as desired. Can optionally accept</span>
+<span class="sd">                an argument `id_finder`, which is the active instance of</span>
+<span class="sd">                IDFinder, allowing for use in the functions of e.g. self.snum</span>
+<span class="sd">                and self.attrs.</span>
 
 <span class="sd">            dfid (pandas DataFrame):</span>
 <span class="sd">                Contains attributes of the selected ID particles. Indexed by</span>
@@ -985,7 +988,18 @@
 
         <span class="c1"># Apply the functions</span>
         <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
-            <span class="n">dfid</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span> <span class="n">dfid</span><span class="o">=</span><span class="n">dfid</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span> <span class="p">)</span>
+
+            <span class="n">arg_names</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_varnames</span>
+
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="p">(</span> <span class="s1">&#39;dfid&#39;</span> <span class="ow">in</span> <span class="n">arg_names</span> <span class="p">)</span> <span class="ow">and</span>
+                <span class="p">(</span> <span class="s1">&#39;df&#39;</span> <span class="ow">in</span> <span class="n">arg_names</span> <span class="p">)</span>
+            <span class="p">),</span> <span class="s2">&quot;Custom functions must use dfid and df as arguments.&quot;</span>
+
+            <span class="k">if</span> <span class="s1">&#39;id_finder&#39;</span> <span class="ow">in</span> <span class="n">arg_names</span><span class="p">:</span>
+                <span class="n">dfid</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span> <span class="n">dfid</span><span class="o">=</span><span class="n">dfid</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">id_finder</span><span class="o">=</span><span class="bp">self</span> <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dfid</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span> <span class="n">dfid</span><span class="o">=</span><span class="n">dfid</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span> <span class="p">)</span>
 
         <span class="c1"># Check that the original data is intact</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">original_dfid</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
