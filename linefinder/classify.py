@@ -607,6 +607,7 @@ class Classifier( object ):
 
     def identify_is_in_other_CGM( self ):
         '''Identify what particles are in a CGM besides the main CGM.
+        (They must not also be in another galaxy).
 
         Returns:
             is_in_other_cgm ( [n_particle, n_snap-1] np.ndarray of bools) :
@@ -631,7 +632,11 @@ class Classifier( object ):
         )
         is_in_cgm = ( self.ptrack['1.0_Rvir'] >= 0 )
 
-        is_in_other_cgm = ( is_in_cgm & is_not_only_in_main_cgm )
+        is_in_other_cgm = (
+            is_in_cgm &
+            is_not_only_in_main_cgm &
+            np.invert( self.is_in_other_gal )
+        )
 
         return is_in_other_cgm
 
@@ -666,7 +671,10 @@ class Classifier( object ):
 
         # If there's a density requirement, apply it.
         if self.min_gal_density is not None:
-            is_in_main_gal = ( is_in_main_gal & self.meets_density_requirement )
+            is_in_main_gal = (
+                is_in_main_gal &
+                self.meets_density_requirement
+            )
 
         return is_in_main_gal
 

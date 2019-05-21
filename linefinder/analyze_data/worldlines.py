@@ -1611,6 +1611,45 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_in_other_gal_outside_CGM( self ):
+        '''Material that is in a galaxy other than the main galaxy and 
+        not in the main CGM.
+
+        Returns:
+            np.ndarray (n_particles, n_snap):
+                If the value at [i,j] is True then particle i at index j
+                is within 1 Rvir of a galaxy other than the main galaxy
+                but outside that galaxy and also outside the main galaxy's CGM.
+        '''
+
+        self.data['is_in_other_gal_outside_CGM'] = (
+            self.get_data( 'is_in_other_gal' ) &
+            np.invert( self.get_data( 'is_in_CGM' ) )
+        )
+
+        return self.data['is_in_other_CGM_not_main']
+
+    ########################################################################
+
+    def calc_is_in_other_CGM_not_main( self ):
+        '''Material that is in a CGM other than the main CGM.
+
+        Returns:
+            np.ndarray (n_particles, n_snap):
+                If the value at [i,j] is True then particle i at index j
+                is inside a galaxy other than the main galaxy
+                and also outside the main galaxy's CGM.
+        '''
+
+        self.data['is_in_other_CGM_not_main'] = (
+            self.get_data( 'is_in_other_CGM' ) &
+            np.invert( self.get_data( 'is_in_CGM' ) )
+        )
+
+        return self.data['is_in_other_CGM_not_main']
+
+    ########################################################################
+
     def calc_leaves_gal( self ):
         '''Find when a particle leaves the galaxy.'''
 

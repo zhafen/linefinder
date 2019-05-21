@@ -54,6 +54,14 @@ CLASSIFICATION_LABELS = {
     'is_CGM_ejected': 'ejected',
     'is_CGM_accreted_to_satellite': 'accreted - satellite',
     'is_CGM_halo_transfer': 'halo transfer',
+    'is_in_main_gal': 'central galaxy',
+    'is_in_galaxy_halo_interface': 'galaxy-halo interface',
+    'is_in_CGM': 'CGM',
+    'is_in_IGM': 'IGM',
+    'is_in_other_gal': 'other galaxy',
+    'is_in_other_CGM': 'other CGM',
+    'is_in_other_gal_outside_CGM': 'other galaxy',
+    'is_in_other_CGM_not_main': 'other CGM',
 }
 
 # These are in line with the colors used in Angles-Alcazar2017
@@ -124,7 +132,16 @@ CLASSIFICATION_COLORS_B = {
     'is_CGM_fate_unclassified': palettable.cartocolors.qualitative.Safe_7.mpl_colors[3],
     'will_leaves_gal_dt_0.050': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[0],
     'is_cluster_star': palettable.cartocolors.qualitative.Vivid_10.mpl_colors[1],
+    'is_in_main_gal': palettable.colorbrewer.qualitative.Dark2_8.mpl_colors[2],
+    'is_in_galaxy_halo_interface': palettable.colorbrewer.qualitative.Dark2_8.mpl_colors[0],
+    'is_in_CGM': palettable.colorbrewer.qualitative.Dark2_8.mpl_colors[1],
+    'is_in_IGM': palettable.colorbrewer.qualitative.Dark2_8.mpl_colors[4],
+    'is_in_other_gal': palettable.colorbrewer.qualitative.Dark2_8.mpl_colors[3],
+    'is_in_other_CGM': palettable.colorbrewer.qualitative.Dark2_8.mpl_colors[5],
+    'is_in_other_gal_outside_CGM': palettable.colorbrewer.qualitative.Dark2_8.mpl_colors[3],
+    'is_in_other_CGM_not_main': palettable.colorbrewer.qualitative.Dark2_8.mpl_colors[5],
 }
+
 # This set is revised again to have greater variation in brightness
 # Revised to have greater variation in brightness
 CLASSIFICATION_COLORS_D = {
@@ -255,4 +272,14 @@ CLASSIFICATIONS_CGM_FATE = [
     'is_CGM_accreted_to_satellite',
     'is_CGM_ejected',
     'is_CGM_halo_transfer',
+]
+
+# A set of classifications based on the current location of gas
+CLASSIFICATIONS_LOCATION = [
+    'is_in_main_gal',
+    'is_in_galaxy_halo_interface',
+    'is_in_CGM',
+    'is_in_IGM',
+    'is_in_other_gal',
+    'is_in_other_CGM',
 ]
