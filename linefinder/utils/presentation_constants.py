@@ -280,6 +280,6 @@ CLASSIFICATIONS_LOCATION = [
     'is_in_galaxy_halo_interface',
     'is_in_CGM',
     'is_in_IGM',
-    'is_in_other_gal',
-    'is_in_other_CGM',
+    'is_in_other_gal_outside_CGM',
+    'is_in_other_CGM_not_main',
 ]
