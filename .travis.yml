@@ -6,5 +6,11 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install .
+  - pip install codecov
+  - pip install pytest-cov
 # command to run tests
-script: cd linefinder; pytest tests/test_select.py::TestIDSelectorJug::test_select_ids_jug
+script:
+  - cd linefinder
+  - pytest --runslow --cov=./
+after_success:
+  - codecov

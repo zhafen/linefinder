@@ -1,0 +1,10 @@
+[report]
+omit =
+    # Don't run coverage on tests
+    tests/test_analyze_data/*
+    # Job scripts should not be tested, as they are machine and
+    # case-specific examples.
+    job_scripts/*
+    # Plotting file that is tested by the plots showing up right.
+    analyze_data/plot_worldlines.py
+    
