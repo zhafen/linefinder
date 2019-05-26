@@ -629,6 +629,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         linewidth = 1.5,
         fade_streamlines = True,
         line_features = None,
+        classifications_to_color_on = None,
+        ctco_ind = None,
         x_label = 'x position (pkpc)',
         y_label = 'y position (pkpc)',
         plot_xlabel = True,
@@ -734,6 +736,15 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             **y_data_kwargs
         )
 
+        # When changing the color based on a different classifications
+        if classifications_to_color_on is not None:
+            color_data = {}
+            for c in classifications_to_color_on:
+                color_data[c] = self.data_object.get_selected_data(
+                    c,
+                    sl = ( sample_inds, ctco_ind ),
+                )
+
         # When we're changing linestyles based on another pattern
         if line_features is not None:
             line_features_data = {}
@@ -796,7 +807,32 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                         ys[mask],
                         **item['line_attrs']
                     )
-                
+            elif classifications_to_color_on is not None:
+
+                # Find the classification to color by
+                matching_classifications = []
+                for c, c_data in color_data.items():
+                    if c_data[i]:
+                        matching_classifications.append( c )
+                assert (
+                    len( matching_classifications ) == 1,
+                    "Multiple classifications to color by {}".format(
+                        matching_classifications
+                    )
+                )
+                try:
+                    color = config.COLORSCHEME[matching_classifications[0]]
+                except:
+                    #DEBUG
+                    continue
+
+                ax.plot(
+                    xs,
+                    ys,
+                    linewidth = linewidth,
+                    zorder = zorder,
+                    color = color
+                )
             else:
                 ax.plot(
                     xs,
@@ -861,7 +897,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         x_key = 'time',
         y_key = 'R',
         classification_ind = 0,
-        vert_line_at_classification_ind = True,
+        vert_line_ind = 'classification_ind',
         sample_selected_interval = False,
         horizontal_line_value = None,
         ax = None,
@@ -905,11 +941,14 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         )
 
         # Plot a line at the ind at which classifications are determined
-        if vert_line_at_classification_ind:
+        if vert_line_ind is not None:
+
+            if vert_line_ind == 'classification_ind':
+                vert_line_ind = classification_ind
 
             x_value = self.data_object.get_selected_data(
                 x_key,
-                sl = classification_ind,
+                sl = vert_line_ind,
             )
 
             trans = transforms.blended_transform_factory(
