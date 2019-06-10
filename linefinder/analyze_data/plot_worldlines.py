@@ -801,10 +801,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             elif line_features is not None:
                 for name, item in line_features.items():
                     key = item['key']
-                    mask = line_features_data[key][i] == item['value']
+                    mask = line_features_data[key][i] != item['value']
+                    xs_ma = np.ma.array( xs, mask=mask )
+                    ys_ma = np.ma.array( ys, mask=mask )
                     ax.plot(
-                        xs[mask],
-                        ys[mask],
+                        xs_ma,
+                        ys_ma,
                         **item['line_attrs']
                     )
             elif classifications_to_color_on is not None:

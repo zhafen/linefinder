@@ -23,6 +23,7 @@ def auxilliary_fn(
         id_finder.snum,
         ids = dfid.index,
     )
+    dfid = pd.concat( [ dfid, tidal_df ], axis=1 )
 
     # Get the enclosed mass data
     h_data = halo_data.HaloData(
@@ -107,10 +108,10 @@ linefinder_args = {
     'run_id_selecting': False,
     # Most users will identify the list of IDs using their own methods, so
     # we turn ID selecting off.
-    'run_id_sampling': False,
-    'run_tracking': False,
-    'run_galaxy_linking': False,
-    'run_classifying': False,
+    'run_id_sampling': True,
+    'run_tracking': True,
+    'run_galaxy_linking': True,
+    'run_classifying': True,
     'run_visualization': True,
 }
 
