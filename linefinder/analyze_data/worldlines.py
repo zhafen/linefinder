@@ -1506,7 +1506,7 @@ class Worldlines( simulation_data.TimeData ):
                 is currently in the IGM, as defined in Hafen+19.
         '''
 
-        self.data['is_in_IGM'] = self.get_data( '1.0_Rvir' ) == -2
+        self.data['is_in_IGM'] = ( self.get_data( '1.0_Rvir' ) == -2 )
 
         return self.data['is_in_IGM']
 
@@ -1928,10 +1928,6 @@ class Worldlines( simulation_data.TimeData ):
                     # Standard cases
                     else:
 
-                        # Propagate forward what the particle was
-                        if is_in_CGM_or_iface[i,j-1]:
-                            x[i,j] = x[i,j-1]
-
                         # When the particle accretes onto the main galaxy
                         # Code for "CGM accreted"
                         if is_in_main_gal[i,j-1]:
@@ -1956,6 +1952,12 @@ class Worldlines( simulation_data.TimeData ):
                         if in_other_halo_but_not_sat:
                             x[i,j] = 4
 
+                        # Propagate forward what the particle was
+                        # Do this last, because we want to propagate forward
+                        # correct states.
+                        if is_in_CGM_or_iface[i,j-1]:
+                            x[i,j] = x[i,j-1]
+
             return x
 
         # For tracking accretion onto satellites
@@ -1979,16 +1981,16 @@ class Worldlines( simulation_data.TimeData ):
 
         # Get results
         CGM_fate_cs = numba_fn(
-            ( np.ones( self.base_data_shape ) * -2).astype( int ),
-            self.get_data( 'is_in_CGM_or_interface' ),
+            ( np.ones( self.base_data_shape ) * -2 ).astype( int ),
+            self.get_data( 'is_smoothed_in_CGM_or_interface_0.030' ),
             self.get_data( 'is_in_main_gal' ),
             is_in_CGM_other_gal,
             self.get_data( 'is_in_IGM' ),
             is_in_another_halo,
         )
 
-        # Ignore particles that are part of the interface
-        CGM_fate_cs[self.get_data( 'is_in_galaxy_halo_interface' )] = -2
+        # Ignore particles that are not part of the CGM
+        CGM_fate_cs[np.invert( self.get_data( 'is_in_CGM_not_sat' ) )] = -2
 
         self.data['CGM_fate_classifications'] = CGM_fate_cs
 

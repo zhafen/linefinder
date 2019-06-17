@@ -831,7 +831,9 @@ class TestWorldlineCalcData( unittest.TestCase ):
     def test_calc_dt( self ):
 
         # Setup test data
-        self.worldlines.classifications.data['redshift'] = np.array( [ 0., 0.06984670, 0.16946000, ] )
+        self.worldlines.classifications.data['redshift'] = np.array(
+            [ 0., 0.06984670, 0.16946000, ]
+        )
 
         self.worldlines.calc_dt()
         actual = self.worldlines.data['dt']
@@ -1550,6 +1552,105 @@ class TestCGMClassifications( unittest.TestCase ):
         # As long as it's inside the CGM and outside a satellite galaxy,
         # everything should be classified.
 
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                expected.astype( int ),
+                actual.astype( int )
+            )
+        )
+
+    ########################################################################
+
+    @mock.patch( 'galaxy_dive.analyze_data.simulation_data.TimeData.get_processed_data' )
+    def test_CGM_fates_smoothed( self, mock_processed_data ):
+
+        # Setup dt, s.t. being processed requires two snapshots
+        self.worldlines.data['dt'] = np.array(
+            [ 1., 1., 1., 1., 1., 1., 1., np.nan, ]
+        ) * 0.025
+
+        # Make mock data
+        self.worldlines.data['fake_key_R_Rvir'] = np.array([
+            [ 0.01, 0.01, 0.5, 1.5, 0.5, 0.05, 0.5, 5., ], # accreted
+            [ 0.01, 0.01, 0.5, 1.5, 1.5, 0.5, 0.5, 5., ], # ejected
+            [ 0.5, 0.5, 0.5, 0.5, 0.05, 0.5, 0.5, 5., ], # Stays CGM
+        ])
+        self.worldlines.data['1.0_Rvir'] = np.array([
+            [ 0, 0, 0, -2, 0, 0, 0, -2, ], # accreted
+            [ 0, 0, 0, -2, -2, 0, 0, -2, ], # ejected
+            [ 0, 0, 0, 0, 0, 0, 0, -2, ], # Stays CGM
+        ])
+        self.worldlines.data['is_in_other_gal'] = np.array([
+            [ 0, 0, 0, 0, 0, 0, 0, 0, ], # accreted
+            [ 0, 0, 0, 0, 0, 0, 0, 0, ], # ejected
+            [ 0, 0, 0, 0, 0, 0, 0, 0, ], # Stays CGM
+        ]).astype( bool )
+        self.worldlines.data['is_in_CGM'] = np.array([
+            [ 0, 0, 1, 0, 1, 0, 1, 0, ], # accreted
+            [ 0, 0, 1, 0, 0, 1, 1, 0, ], # ejected
+            [ 1, 1, 1, 1, 0, 1, 1, 0, ], # Stays CGM
+        ]).astype( bool )
+        self.worldlines.data['is_in_galaxy_halo_interface'] = np.array([
+            [ 0, 0, 0, 0, 0, 1, 0, 0, ], # accreted
+            [ 0, 0, 0, 0, 0, 0, 0, 0, ], # ejected
+            [ 0, 0, 0, 0, 0, 0, 0, 0, ], # Stays CGM
+        ]).astype( bool )
+        self.worldlines.data['is_in_main_gal'] = np.array([
+            [ 1, 1, 0, 0, 0, 0, 0, 0, ], # accreted
+            [ 1, 1, 0, 0, 0, 0, 0, 0, ], # ejected
+            [ 0, 0, 0, 0, 0, 0, 0, 0, ], # Stays CGM
+        ]).astype( bool )
+
+        # Setup R vir
+        mock_processed_data.side_effect = [
+            self.worldlines.data['fake_key_R_Rvir']
+        ]
+
+        # Correct the shape of the data
+        self.worldlines.ptracks._base_data_shape = \
+            self.worldlines.data['is_in_main_gal'].shape
+
+        # Check ejected material
+        actual = self.worldlines.calc_is_CGM_ejected()
+        expected = np.array([
+            [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, 0, 1, 1, 0, ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+        ]).astype( bool )
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                expected.astype( int ),
+                actual.astype( int )
+            )
+        )
+
+        # Check accreted material
+        actual = self.worldlines.calc_is_CGM_accreted()
+        expected = np.array([
+            [ 0, 0, 1, 0, 1, 0, 1, 0, ],
+            [ 0, 0, 1, 0, 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+        ]).astype( bool )
+        npt.assert_allclose(
+            expected,
+            actual,
+            err_msg='expected = {}\nactual = {}'.format(
+                expected.astype( int ),
+                actual.astype( int )
+            )
+        )
+
+        # Check ejected material
+        actual = self.worldlines.calc_is_CGM_ejected()
+        expected = np.array([
+            [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, 0, 1, 1, 0, ],
+            [ 0, 0, 0, 0, 0, 0, 0, 0, ],
+        ]).astype( bool )
         npt.assert_allclose(
             expected,
             actual,
