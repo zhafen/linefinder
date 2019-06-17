@@ -1893,8 +1893,16 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_CGM_fate_classifications( self ):
-        '''Calculate all the CGM fate classifications.'''
+    def calc_CGM_fate_classifications( self,
+        t_out = 0.030,
+     ):
+        '''Calculate all the CGM fate classifications.
+
+        Args:
+            t_out (float):
+                Particles will not be counted as leaving the CGM unless they
+                spend at least t_out outside the CGM
+        '''
         
         @numba.jit(
             'i8[:,:](i8[:,:],b1[:,:],b1[:,:],b1[:,:],b1[:,:],b1[:,:])',
@@ -1980,9 +1988,10 @@ class Worldlines( simulation_data.TimeData ):
         )
 
         # Get results
+        CGM_class_key = 'is_smoothed_in_CGM_or_interface_{}'.format( t_out )
         CGM_fate_cs = numba_fn(
             ( np.ones( self.base_data_shape ) * -2 ).astype( int ),
-            self.get_data( 'is_smoothed_in_CGM_or_interface_0.030' ),
+            self.get_data( smoothed_key  ),
             self.get_data( 'is_in_main_gal' ),
             is_in_CGM_other_gal,
             self.get_data( 'is_in_IGM' ),
