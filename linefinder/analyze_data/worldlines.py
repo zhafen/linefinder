@@ -1991,7 +1991,7 @@ class Worldlines( simulation_data.TimeData ):
         CGM_class_key = 'is_smoothed_in_CGM_or_interface_{}'.format( t_out )
         CGM_fate_cs = numba_fn(
             ( np.ones( self.base_data_shape ) * -2 ).astype( int ),
-            self.get_data( smoothed_key  ),
+            self.get_data( CGM_class_key  ),
             self.get_data( 'is_in_main_gal' ),
             is_in_CGM_other_gal,
             self.get_data( 'is_in_IGM' ),
