@@ -5,7 +5,7 @@ of parameters.
 
 import os
 
-import stained_glass.config as sg_config
+import linefinder.config as l_config
 
 ########################################################################
 ########################################################################
@@ -17,9 +17,9 @@ class FileManager( object ):
         self.project = project
 
         parameters_name = '{}_PARAMETERS'.format(
-            sg_config.ACTIVE_SYSTEM.upper()
+            l_config.ACTIVE_SYSTEM.upper()
         )
-        self.system_parameters = getattr( sg_config, parameters_name )
+        self.system_parameters = getattr( l_config, parameters_name )
 
         if project is not None:
             self.project_parameters = \
@@ -44,7 +44,7 @@ class FileManager( object ):
             physics = name_mapping[sim_name[4:]]
 
         if resolution is None:
-            resolution = sg_config.DEFAULT_SIM_RESOLUTIONS[sim_name]
+            resolution = l_config.DEFAULT_SIM_RESOLUTIONS[sim_name]
 
         sim_subdir = os.path.join(
             physics,
