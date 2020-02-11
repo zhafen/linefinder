@@ -628,6 +628,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         zorder = 100.,
         linewidth = 1.5,
         fade_streamlines = True,
+        fade_color = 'white',
+        min_fade_linewidth = 0,
         line_features = None,
         classifications_to_color_on = None,
         ctco_ind = None,
@@ -637,11 +639,12 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         plot_ylabel = True,
         fontsize = 22,
         xkcd_mode = False,
-        plot_halos = True,
+        plot_halos = False,
         halo_radius_fraction = None,
         halo_length_scale = None,
         verbose = False,
         return_y_max = False,
+        y_floor = None,
         *args, **kwargs
     ):
         '''Plot streamlines. This code largely follows what Daniel did before,
@@ -736,6 +739,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             **y_data_kwargs
         )
 
+        # Apply a floor to the y data
+        if y_floor is not None:
+            y_data[y_data<y_floor] = y_floor
+
         # When changing the color based on a different classifications
         if classifications_to_color_on is not None:
             color_data = {}
@@ -789,10 +796,17 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
                 lc = collections.LineCollection(
                     segments,
-                    cmap = gen_plot.custom_sequential_colormap( color ),
+                    cmap = gen_plot.custom_sequential_colormap(
+                        color,
+                        color2 = fade_color,
+                    ),
                     # color = color,
                     norm = plt.Normalize(0, 1),
-                    linewidths = np.linspace( linewidth, 0, x_data.shape[1] ),
+                    linewidths = np.linspace(
+                        linewidth,
+                        min_fade_linewidth,
+                        x_data.shape[1]
+                    ),
                     array = z_data,
                 )
                 ax.add_collection( lc )
@@ -816,8 +830,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 for c, c_data in color_data.items():
                     if c_data[i]:
                         matching_classifications.append( c )
-                assert (
-                    len( matching_classifications ) == 1,
+                assert len( matching_classifications ) == 1, (
                     "Multiple classifications to color by {}".format(
                         matching_classifications
                     )
@@ -855,7 +868,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 halo_length_scale = w.galids.parameters['length_scale']
 
             ahf_data = analyze_ahf.HaloData(
-                w.ahf_data_dir,
+                w.halo_data_dir,
                 tag = w.ahf_tag,
                 index = w.ahf_index,
             )
@@ -1051,7 +1064,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         ],
         tracked_filter_flags = [ True, ] * 6,
         tracked_colormap_flags = [ True, ] * 6,
-        size_mult = 3,
+        size_mult = 7,
         include_ruler = True,
         include_disk = True,
         use_default_colors = True,

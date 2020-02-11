@@ -3036,29 +3036,29 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
         if selection_routine is None:
             return
 
-        if ptype == 'star':
-            ptype_value = config.PTYPE_STAR
-        elif ptype == 'gas':
-            ptype_value = config.PTYPE_GAS
-        else:
-            raise Exception( "Unrecognized Particle Type, ptype = {}".format( ptype ) )
-
         self.clear_masks()
 
-        def selection_subroutine( s_routine, apply_ptype_selection=True ):
+        if ptype is not None:
+            if ptype == 'star':
+                ptype_value = config.PTYPE_STAR
+            elif ptype == 'gas':
+                ptype_value = config.PTYPE_GAS
+            else:
+                raise Exception( "Unrecognized Particle Type, ptype = {}".format( ptype ) )
+
+            self.mask_data( 'PType', data_value=ptype_value )
+
+        def selection_subroutine( s_routine, ):
             '''Subroutine for selection.'''
             s_routine_attr = 'select_{}'.format( s_routine )
             if hasattr( self, s_routine_attr ):
-                getattr( self, s_routine_attr )( ptype_value )
+                getattr( self, s_routine_attr )()
             else:
-                if apply_ptype_selection:
-                    self.select_ptype( ptype_value )
                 self.mask_data( s_routine, data_value=True )
 
         if isinstance( selection_routine, list ):
             for s in selection_routine:
-                self.select_ptype( ptype_value )
-                selection_subroutine( s, False )
+                selection_subroutine( s, )
         else:
             selection_subroutine( selection_routine )
 
@@ -3083,7 +3083,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
 
     ########################################################################
 
-    def select_galaxy( self, ptype_value ):
+    def select_galaxy( self ):
         '''This selection routine selects only particles in a galaxy.
 
         ptype_value (int):
@@ -3094,12 +3094,11 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
                 Adds masks needed to select only particles in a galaxy.
         '''
 
-        self.mask_data( 'PType', data_value=ptype_value )
         self.mask_data( 'is_in_main_gal', data_value=True )
 
     ########################################################################
 
-    def select_accreted( self, ptype_value ):
+    def select_accreted( self ):
         '''This selection routine selects only particles that are the snapshot before being accreted.
 
         ptype_value (int):
@@ -3110,8 +3109,6 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
                 Adds masks needed to select only particles in a galaxy.
         '''
 
-        self.mask_data( 'PType', data_value=ptype_value )
-
         # Because `is_accreted` has one less column, we need to adjust the shape before we add the mask.
         adjusted_accreted_mask = np.ones( (self.data_object.n_particles, self.data_object.n_snaps) ).astype( bool )
         adjusted_accreted_mask[:, 1:] = np.invert( self.data_object.get_data( 'is_accreted' ) )
@@ -3120,7 +3117,7 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
 
     ########################################################################
 
-    def select_outside_all_galaxies( self, ptype_value ):
+    def select_outside_all_galaxies( self ):
         '''This seleciton routine selects only particles that are outside all galaxies.
 
         ptype_value (int):
@@ -3131,16 +3128,12 @@ class WorldlineDataMasker( simulation_data.TimeDataMasker ):
                 Adds masks needed to select only particles outside all galaxies.
         '''
 
-        self.mask_data( 'PType', data_value=ptype_value )
-
         self.mask_data( 'is_in_main_gal', data_value=False )
         self.mask_data( 'is_in_other_gal', data_value=False )
 
     ########################################################################
 
-    def select_in_CGM( self, ptype_value ):
-
-        self.mask_data( 'PType', data_value=ptype_value )
+    def select_in_CGM( self, ):
 
         self.mask_data( 'is_in_CGM', data_value=True )
 

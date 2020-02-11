@@ -280,6 +280,16 @@ STAMPEDE2_PARAMETERS = {
         'winds' : {
             'project_dir' : '/home1/03057/zhafen/papers/fire2-winds',
         },
+        'hot_halo_physics' : {
+            'project_dir' : '/home1/03057/zhafen/papers/hot_halo_physics',
+            'extras_dir' : '/work/03057/zhafen/extra_plots/hot_halo_physics',
+            'output_data_dir' : '/work/03057/zhafen/stampede2/nbs/hot_halo_physics/data',
+        },
+        'hot_accretion' : {
+            'project_dir' : '/home1/03057/zhafen/papers/Hot-Accretion-in-FIRE',
+            'extras_dir' : '/work/03057/zhafen/extra_plots/Hot-Accretion-in-FIRE',
+            'output_data_dir' : '/home1/03057/zhafen/papers/Hot-Accretion-in-FIRE/analysis/data',
+        },
         'galaxy_origin' : {
             'project_dir' : '/home1/03057/zhafen/papers/galaxy_origin',
         },
@@ -288,9 +298,6 @@ STAMPEDE2_PARAMETERS = {
         },
         'AMIGA' : {
             'project_dir' : '/home1/03057/zhafen/papers/AMIGA_theory',
-        },
-        'AMIGA' : {
-            'project_dir' : '/home1/03057/zhafen/papers/cluster_sightlines_paper',
         },
     },
 }
