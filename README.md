@@ -1,6 +1,3 @@
-[![Build Status](https://travis-ci.com/zhafen/linefinder.svg?branch=master)](https://travis-ci.com/zhafen/linefinder)
-[![codecov](https://codecov.io/gh/zhafen/linefinder/branch/master/graph/badge.svg)](https://codecov.io/gh/zhafen/linefinder)
-
 # linefinder
 A tool for finding the worldlines of Lagrangian parcels of mass, in the context of hydrodynamic simulations of galaxy formation.
 
