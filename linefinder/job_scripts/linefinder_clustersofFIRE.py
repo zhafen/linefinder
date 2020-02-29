@@ -63,7 +63,7 @@ linefinder_args = {
     'out_dir': '$SCRATCH/linefinder_data/multiphysics/m12i_res7100_mhdcv/data',
 
     # Location of simulation data
-    'sim_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE/multiphysics/m12i_res7100_mhdcv/output',
+    'sim_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE/mhdcv/m12i_res7100_mhdcv_old/output',
 
     # Location of halo file data
     'halo_data_dir': '/scratch/03057/zhafen/multiphysics/m12i_res7100_mhdcv/halo',
@@ -110,9 +110,9 @@ linefinder_args = {
     # we turn ID selecting off.
     'run_id_sampling': False,
     'run_tracking': True,
-    'run_galaxy_linking': False,
-    'run_classifying': False,
-    'run_visualization': False,
+    'run_galaxy_linking': True,
+    'run_classifying': True,
+    'run_visualization': True,
 }
 
 # Actually run Linefinder

@@ -99,6 +99,14 @@ def run_linefinder(
             If True, then run routines for classifying particles.
     '''
 
+    # Expand data dirs, if possible
+    if out_dir is not None:
+        out_dir = os.path.expandvars( out_dir )
+    if sim_data_dir is not None:
+        sim_data_dir = os.path.expandvars( sim_data_dir )
+    if halo_data_dir is not None:
+        halo_data_dir = os.path.expandvars( halo_data_dir )
+
     if sim_name is not None:
 
         file_manager = file_management.FileManager()
