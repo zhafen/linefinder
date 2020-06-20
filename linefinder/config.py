@@ -165,6 +165,8 @@ MAIN_MT_HALO_ID = {
     'm11q': 0,
     'm11v': 0,
     'm11c': 0,
+    'm11d': 0,
+    'm12b': 0,
     'm12i': 0,
     'm12f': 0,
     'm12m': 0,
@@ -262,7 +264,7 @@ QUEST_PARAMETERS = {
 STAMPEDE2_PARAMETERS = {
     'simulation_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE',
     'linefinder_data_dir': '/scratch/03057/zhafen/linefinder_data',
-    'halo_data_dir': '/scratch/03057/zhafen',
+    'halo_data_dir': '/scratch/03057/zhafen/halo_files',
 
     'project' : {
         'CGM_origin' : {

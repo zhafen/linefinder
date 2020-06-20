@@ -199,6 +199,16 @@ class FileManager( object ):
 
     ########################################################################
 
+    def get_linefinder_dir( self, sim_name, subdir='data', **kwargs ):
+        
+        return os.path.join(
+            self.system_parameters['linefinder_data_dir'],
+            self.get_sim_subdir( sim_name, **kwargs ),
+            subdir,
+        )
+
+    ########################################################################
+
     def get_project_presentation_dir( self ):
 
         return self.project_parameters['presentation_dir']

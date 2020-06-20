@@ -8,7 +8,7 @@ import pandas as pd
 
 ########################################################################
 
-sim_name = 'm12m'
+sim_name = 'm11d_md'
 
 linefinder_args = {
     # Identifying tag used as part of the filenames.
@@ -65,10 +65,10 @@ linefinder_args = {
     # Most users will identify the list of IDs using their own methods, so
     # we turn ID selecting off.
     'run_id_sampling': False,
-    'run_tracking': False,
+    'run_tracking': True,
     'run_galaxy_linking': True,
     'run_classifying': True,
-    'run_visualization': True,
+    'run_visualization': False,
 }
 
 # Actually run Linefinder
