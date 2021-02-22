@@ -2376,6 +2376,38 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_t_1e5( self ):
+
+        # Clear and select data
+        self.data_masker.clear_masks()
+        self.data_masker.mask_data( 'PType', data_value=0 )
+
+        # Median and interval stats
+        logT = np.log10( self.get_selected_data( 'T', compress=False ) )
+
+        # Iterate to calculate
+        inds = []
+        for logT_arr in tqdm.tqdm( logT ):
+
+            ind_ = -1
+            for i in range( logT_arr.size ):
+                if logT_arr[i] > 5.:
+                    ind_ = i
+                    break
+
+            inds.append( ind_ )
+
+        t = self.get_data( 'time' )
+        self.data['t_1e5'] = np.array( [ t[ind] for ind in inds ] )
+
+    def calc_t_t_1e5( self ):
+
+        t = self.get_data( 'time', tile_data=True, compress=False )
+        t_1e5 = self.get_data( 't_1e5' )
+        self.data['t_t_1e5'] = t - t_1e5[:,np.newaxis]
+
+    ########################################################################
+
     def calc_d_gal( self ):
         '''Calculate the minimum distance to any galaxy.
         '''
