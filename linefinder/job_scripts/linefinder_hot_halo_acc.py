@@ -8,7 +8,7 @@ import pandas as pd
 
 ########################################################################
 
-sim_name = 'm11d_md'
+sim_name = 'm12i_md'
 
 linefinder_args = {
     # Identifying tag used as part of the filenames.
@@ -53,8 +53,28 @@ linefinder_args = {
         # These kwargs are used for tuning the Firefly visualization
         'export_to_firefly_kwargs': {
             'firefly_dir': '/scratch/03057/zhafen/firefly_repos/hot-halo-accretion',
-            # 'classifications': [ None ],
-            # 'classification_ui_labels': [ 'All' ],
+            'classifications': [
+                None,
+                'is_CGM_IGM_accretion',
+                'is_CGM_wind',
+                'is_CGM_satellite_wind',
+                'is_CGM_satellite_ISM',
+                'is_CGM_still',
+                'is_CGM_accreted',
+                'is_CGM_accreted_to_satellite',
+                'is_CGM_ejected',
+            ],
+            'classification_ui_labels': [
+                'All',
+                'IGMAcc',
+                'Wind',
+                'SatWind',
+                'Sat',
+                'CGMz0',
+                'Acc',
+                'AccSat',
+                'Ejected',
+            ],
             'use_default_colors': False,
         },
     },
@@ -65,10 +85,10 @@ linefinder_args = {
     # Most users will identify the list of IDs using their own methods, so
     # we turn ID selecting off.
     'run_id_sampling': False,
-    'run_tracking': True,
-    'run_galaxy_linking': True,
-    'run_classifying': True,
-    'run_visualization': False,
+    'run_tracking': False,
+    'run_galaxy_linking': False,
+    'run_classifying': False,
+    'run_visualization': True,
 }
 
 # Actually run Linefinder

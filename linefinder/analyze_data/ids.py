@@ -53,11 +53,14 @@ class IDs( object ):
 
             # Store the parameters
             self.snapshot_parameters = {}
-            snap_param_grp = f['parameters/snapshot_parameters']
-            for key in snap_param_grp.attrs.keys():
-                self.snapshot_parameters[key] = utilities.check_and_decode_bytes(
-                     snap_param_grp.attrs[key]
-                )
+            try:
+                snap_param_grp = f['parameters/snapshot_parameters']
+                for key in snap_param_grp.attrs.keys():
+                    self.snapshot_parameters[key] = utilities.check_and_decode_bytes(
+                         snap_param_grp.attrs[key]
+                    )
+            except KeyError:
+                print( 'No snapshot parameters stored. Not loading.' )
 
             # Store the used data filters
             self.data_filters = {}
