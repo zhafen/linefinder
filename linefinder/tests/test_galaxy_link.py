@@ -71,14 +71,6 @@ ptrack_gal_linker_kwargs = {
 
 ########################################################################
 
-# Decorator for skipping slow tests
-slow = pytest.mark.skipif(
-    not pytest.config.getoption("--runslow"),
-    reason="need --runslow option to run"
-)
-
-########################################################################
-
 
 class TestParticleTrackGalaxyLinker( unittest.TestCase ):
 
@@ -217,7 +209,7 @@ class TestParticleTrackGalaxyLinkerJug( unittest.TestCase ):
 
     ########################################################################
 
-    @slow
+    @pytest.mark.slow
     def test_find_galaxies_for_particle_tracks_jug( self ):
 
         os.system( "jug execute ./linefinder/tests/find_galaxies_for_ptracks_jugfile.py &" )

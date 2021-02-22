@@ -97,14 +97,6 @@ for data_p in [ default_data_p, star_data_p, early_star_data_p, fire1_data_p, ]:
 
 ########################################################################
 
-# Decorator for skipping slow tests
-slow = pytest.mark.skipif(
-    not pytest.config.getoption("--runslow"),
-    reason="need --runslow option to run"
-)
-
-########################################################################
-
 class TestConcatenateParticleData( unittest.TestCase ):
 
     def setUp( self ):
@@ -664,7 +656,7 @@ class TestSaveTargetedParticlesJug( unittest.TestCase ):
 
     ########################################################################
 
-    @slow
+    @pytest.mark.slow
     def test_basic( self ):
 
         os.system( "jug execute ./linefinder/tests/track_jugfile.py &"

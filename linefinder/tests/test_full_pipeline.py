@@ -83,14 +83,6 @@ classifications_filename = os.path.join( out_dir, 'classifications_analyze.hdf5'
 events_filename = os.path.join( out_dir, 'events_analyze.hdf5' )
 
 ########################################################################
-
-# Decorator for skipping slow tests
-slow = pytest.mark.skipif(
-    not pytest.config.getoption("--runslow"),
-    reason="need --runslow option to run"
-)
-
-########################################################################
 ########################################################################
 
 
@@ -114,7 +106,7 @@ class TestLinefinderPartial( unittest.TestCase ):
 
     ########################################################################
 
-    @slow
+    @pytest.mark.slow
     def test_pipeline( self ):
         '''Except the id selecting... This makes sure the full pipeline just runs.'''
 
@@ -166,7 +158,7 @@ class TestLinefinder( unittest.TestCase ):
 
     ########################################################################
 
-    @slow
+    @pytest.mark.slow
     def test_full_pipeline( self ):
         '''Test that everything runs, including ID selecting.'''
 
@@ -210,7 +202,7 @@ class TestLinefinderJug( unittest.TestCase ):
 
     ########################################################################
 
-    @slow
+    @pytest.mark.slow
     def test_full_pipeline_jug( self ):
         '''Make sure everything runs and matches, including ID selecting.'''
 
@@ -257,7 +249,7 @@ class TestCreateAnalysisData( unittest.TestCase ):
     '''Strictly speaking, these aren't really tests, so much as a kind of hacky way to generate test data for
     testing the analysis tools. Of course, if they break then something's wrong.'''
 
-    @slow
+    @pytest.mark.slow
     def test_create_classification_data( self ):
 
         f = h5py.File( classifications_filename, 'a' )
