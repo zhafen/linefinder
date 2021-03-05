@@ -12,6 +12,7 @@ import numpy as np
 import os
 import subprocess
 import sys
+import tqdm
 import firefly_api.reader as read_firefly
 import firefly_api.particlegroup as firefly_particle_group
 
@@ -20,6 +21,8 @@ matplotlib.use('PDF')
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.collections as collections
+
+import verdict
 
 import galaxy_dive.plot_data.generic_plotter as generic_plotter
 import galaxy_dive.analyze_data.ahf as analyze_ahf
@@ -1067,6 +1070,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         size_mult = 7,
         include_ruler = True,
         include_disk = True,
+        disk_radius = None,
+        include_halo_tracks = False,
+        overwrite_halo_tracks = False,
+        max_halo_track_distance = 1e3,
+        min_halo_track_mass = 1e8,
         use_default_colors = True,
         tracked_labels_mapping = {},
         dump_to_json = True,
@@ -1141,6 +1149,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 the stars in the galaxy. In addition draw a circle
                 perpendicular to the total angular momentum and with a radius
                 of R_gal.
+
+            disk_radius ((float, str) tuple):
+                The size of the disk to use in multiples of the length scale
+                from the AHF file, indicated by the string. Defaults to
+                self.r_gal at snum.
 
             use_default_colors (bool):
                 If True, colors used for different classifications come from
@@ -1400,12 +1413,20 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             
             # Load data
             galids_params = self.data_object.galids.parameters
+            if disk_radius is None:
+                averaging_frac = 4.
+                length_scale_used = 'Rstar0.5'
+            else:
+                averaging_frac = disk_radius[0]
+                length_scale_used = disk_radius[1]
             s_data = particle_data.ParticleData(
                 sdir = self.data_object.ptracks.parameters['sdir'],
                 snum = snum,
                 ptype = config.PTYPE_STAR,
                 halo_data_dir = galids_params['halo_data_dir'],
                 main_halo_id = galids_params['main_mt_halo_id'],
+                averaging_frac = averaging_frac,
+                length_scale_used = length_scale_used,
             )
 
             # Get length scale
@@ -1441,6 +1462,128 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 UIname = 'disk',
                 coordinates = coords,
                 sizeMult = size_mult,
+            )
+            firefly_reader.addParticleGroup( particle_group )
+
+        # Add halo tracks
+        if include_halo_tracks:
+
+            print( "Adding halos..." )
+
+            # Filepath name
+            if pathlines:
+                halo_tracks_tag = 'pathlines'
+            else:
+                halo_tracks_tag = 'snum{:03d}'.format( snum )
+            halo_tracks_fp = os.path.join(
+                self.data_object.halo_data_dir,
+                'halo_tracks_{}.hdf5'.format( halo_tracks_tag )
+            )
+
+            # Look for existing data
+            if os.path.isfile( halo_tracks_fp ) and not overwrite_halo_tracks:
+                halo_tracks_data = verdict.Dict.from_hdf5(
+                    halo_tracks_fp,
+                )
+
+            else:
+
+                if pathlines:
+                    snums = self.data_object.snums
+                else:
+                    snums = [ snum, ]
+
+                coords = []
+                vels = []
+                masses = []
+                h_data = self.data_object.halo_data
+                for i, snum_i in enumerate( self.data_object.snums ):
+
+                    print( '    snapshot {:03d}'.format( snum_i ) )
+
+                    # Redshift
+                    redshift = self.data_object.redshift[snum_i]
+
+                    # Mass
+                    mvir = h_data.get_data(
+                        data_key = 'Mvir',
+                        snum = snum_i,
+                        units = 'Msun',
+                    ).value / self.data_object.hubble_param
+
+                    # Coordinates
+                    coords_snum = []
+                    for x_key in [ 'X', 'Y', 'Z' ]:
+                        xi = h_data.get_data(
+                            data_key = x_key,
+                            snum = snum_i,
+                            units = 'kpc',
+                        ) / self.data_object.hubble_param / ( 1. + redshift )
+                        coords_snum.append( xi ) 
+                    coords_snum = np.array( coords_snum ).transpose()
+                    coords_snum -= self.data_object.origin[:,i]
+
+                    # Velocities
+                    vels_snum = []
+                    for v_key in [ 'Vx', 'Vy', 'Vz' ]:
+                        vi = h_data.get_data(
+                            data_key = v_key,
+                            snum = snum_i,
+                            units = 'km/s',
+                        )
+                        vels_snum.append( vi )
+                    vels_snum = np.array( vels_snum ).transpose()
+                    vels_snum -= self.data_object.vel_origin[:,i]
+
+                    # Don't include distant halos or tiny halos
+                    r_snum = np.linalg.norm( coords_snum, axis=1 )
+                    is_close = r_snum < max_halo_track_distance
+                    is_massive = mvir > min_halo_track_mass
+                    is_valid = is_close & is_massive
+
+                    coords.append( coords_snum[is_valid] )
+                    vels.append( vels_snum[is_valid] )
+                    masses.append( mvir[is_valid] )
+
+                coords = np.concatenate( coords )
+                vels = np.concatenate( vels )
+                masses = np.concatenate( masses )
+
+                # Save data
+                halo_tracks_data = verdict.Dict({
+                    'coordinates': coords,
+                    'tracked_arrays': {
+                        'Velocities': vels,
+                        'Mvir': masses,
+                    },
+                })
+                halo_tracks_data.to_hdf5( halo_tracks_fp )
+
+            # Other options
+            option_kwargs = {
+                'sizeMult': size_mult,
+                'color': np.array([ 1., 1., 1., 1. ]),
+            }
+
+            # Format for input into Firefly
+            tracked_arrays = [
+                _ for _ in halo_tracks_data['tracked_arrays'].values()
+            ]
+            tracked_names = [
+                _ for _ in halo_tracks_data['tracked_arrays'].keys()
+            ]
+            tracked_filter_flags = [ True, ] * len( tracked_names )
+            tracked_colormap_flags = [ True, ] * len( tracked_names )
+
+            # Create a particle group and add to the firefly reader
+            particle_group = firefly_particle_group.ParticleGroup(
+                UIname = 'Halos',
+                coordinates = halo_tracks_data['coordinates'],
+                tracked_arrays = tracked_arrays,
+                tracked_names = tracked_names,
+                tracked_filter_flags = tracked_filter_flags,
+                tracked_colormap_flags = tracked_colormap_flags,
+                **option_kwargs
             )
             firefly_reader.addParticleGroup( particle_group )
 
