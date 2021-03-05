@@ -1496,13 +1496,15 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 coords = []
                 vels = []
                 masses = []
+                times = []
                 h_data = self.data_object.halo_data
-                for i, snum_i in enumerate( self.data_object.snums ):
+                for i, snum_i in enumerate( snums ):
 
                     print( '    snapshot {:03d}'.format( snum_i ) )
 
-                    # Redshift
+                    # Redshift and time
                     redshift = self.data_object.redshift[snum_i]
+                    time_i = self.data_object.get_data( 'time' )[i]
 
                     # Mass
                     mvir = h_data.get_data(
@@ -1541,20 +1543,26 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     is_massive = mvir > min_halo_track_mass
                     is_valid = is_close & is_massive
 
+                    # Add in the time
+                    times_i = np.full( is_valid.sum(), time_i )
+
                     coords.append( coords_snum[is_valid] )
                     vels.append( vels_snum[is_valid] )
-                    masses.append( mvir[is_valid] )
+                    masses.append( np.log10( mvir[is_valid] ) )
+                    times.append( times_i )
 
                 coords = np.concatenate( coords )
                 vels = np.concatenate( vels )
                 masses = np.concatenate( masses )
+                times = np.concatenate( times )
 
                 # Save data
                 halo_tracks_data = verdict.Dict({
                     'coordinates': coords,
                     'tracked_arrays': {
                         'Velocities': vels,
-                        'Mvir': masses,
+                        'logMvir': masses,
+                        'Times': times,
                     },
                 })
                 halo_tracks_data.to_hdf5( halo_tracks_fp )
