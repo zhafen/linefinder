@@ -49,33 +49,27 @@ linefinder_args = {
 
     # Arguments used for the visualization step
     'visualization_kwargs': {
-        'install_firefly': True,
+        'install_firefly': False,
         # These kwargs are used for tuning the Firefly visualization
         'export_to_firefly_kwargs': {
             'firefly_dir': '/scratch/03057/zhafen/firefly_repos/hot-halo-accretion',
             'classifications': [
                 None,
-                'is_CGM_IGM_accretion',
-                'is_CGM_wind',
-                'is_CGM_satellite_wind',
-                'is_CGM_satellite_ISM',
-                'is_CGM_still',
-                'is_CGM_accreted',
-                'is_CGM_accreted_to_satellite',
-                'is_CGM_ejected',
             ],
             'classification_ui_labels': [
                 'All',
-                'IGMAcc',
-                'Wind',
-                'SatWind',
-                'Sat',
-                'CGMz0',
-                'Acc',
-                'AccSat',
-                'Ejected',
+            ],
+            'tracked_properties': [
+                'logT',
+                'logZ',
+                'logDen',
+                'is_in_main_gal',
+                'is_in_other_gal',
+                'PType',
+                't_t_1e5',
             ],
             'use_default_colors': False,
+            'include_halo_tracks': True,
         },
     },
 

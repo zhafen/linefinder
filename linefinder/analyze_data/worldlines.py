@@ -13,6 +13,7 @@ import numpy as np
 import numpy.testing as npt
 import os
 import scipy.ndimage
+import tqdm
 import verdict
 
 import galaxy_dive.analyze_data.halo_data as halo_data
@@ -2400,11 +2401,17 @@ class Worldlines( simulation_data.TimeData ):
         t = self.get_data( 'time' )
         self.data['t_1e5'] = np.array( [ t[ind] for ind in inds ] )
 
+        self.data_masker.clear_masks()
+
     def calc_t_t_1e5( self ):
 
-        t = self.get_data( 'time', tile_data=True, compress=False )
+        self.data_masker.clear_masks()
+
+        t = self.get_selected_data( 'time', tile_data=True, compress=False )
         t_1e5 = self.get_data( 't_1e5' )
         self.data['t_t_1e5'] = t - t_1e5[:,np.newaxis]
+
+        self.data_masker.clear_masks()
 
     ########################################################################
 
