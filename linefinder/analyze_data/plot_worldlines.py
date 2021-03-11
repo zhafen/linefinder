@@ -1537,6 +1537,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     vels_snum = np.array( vels_snum ).transpose()
                     vels_snum -= self.data_object.vel_origin[:,i]
 
+                    # Include hubble flow
+                    hubble_z = self.data_object.ptracks.hubble_z[snum_i]
+                    vels_snum += hubble_z * coords_snum
+
                     # Don't include distant halos or tiny halos
                     r_snum = np.linalg.norm( coords_snum, axis=1 )
                     is_close = r_snum < max_halo_track_distance
