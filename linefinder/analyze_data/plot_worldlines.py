@@ -14,6 +14,7 @@ import subprocess
 import sys
 import tqdm
 import firefly_api.reader as read_firefly
+import firefly_api.options as firefly_options
 import firefly_api.particlegroup as firefly_particle_group
 
 import matplotlib
@@ -1077,6 +1078,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         min_halo_track_mass = 1e8,
         use_default_colors = True,
         tracked_labels_mapping = {},
+        preset_filepath = None,
         dump_to_json = True,
     ):
         '''Export data to a Firefly visualization.
@@ -1598,6 +1600,14 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 **option_kwargs
             )
             firefly_reader.addParticleGroup( particle_group )
+
+        # Overwrite the default options if requested
+        if preset_filepath is not None:
+            options = firefly_options.Options()
+            options.loadFromJSON( preset_filepath )
+            firefly_reader.options = options
+        else:
+            options = None
 
         # Finish up and write data
         if dump_to_json:
