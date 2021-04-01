@@ -132,6 +132,14 @@ def run_linefinder(
             general_kwargs,
         )
 
+        # Add in sim data dir if given
+        if sim_data_dir is not None:
+            selector_kwargs['snapshot_kwargs']['sdir'] = sim_data_dir
+
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            selector_kwargs['snapshot_kwargs']['halo_data_dir'] = halo_data_dir
+
         # Use sim name to find defaults
         if sim_name is not None:
             snapshot_kwargs = selector_kwargs['snapshot_kwargs']
@@ -144,14 +152,6 @@ def run_linefinder(
 
             if 'main_halo_id' not in snapshot_kwargs:
                 snapshot_kwargs['main_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
-
-        # Add in sim data dir if given
-        if sim_data_dir is not None:
-            selector_kwargs['snapshot_kwargs']['sdir'] = sim_data_dir
-
-        # Add in halo data dir if given
-        if halo_data_dir is not None:
-            selector_kwargs['snapshot_kwargs']['halo_data_dir'] = halo_data_dir
 
         id_selector = select.IDSelector( **selector_kwargs )
         id_selector.select_ids( selector_data_filters )
@@ -177,6 +177,14 @@ def run_linefinder(
             general_kwargs,
         )
 
+        # Add in sim data dir if given
+        if sim_data_dir is not None:
+            tracker_kwargs['sdir'] = sim_data_dir
+
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            tracker_kwargs['halo_data_dir'] = halo_data_dir
+
         # Choose the sdir
         if 'sdir' not in tracker_kwargs:
             # Try and load the default values if using the file manager.
@@ -188,10 +196,6 @@ def run_linefinder(
                     tracker_kwargs['sdir'] = \
                         selector_kwargs['snapshot_kwargs']['sdir']
 
-        # Add in sim data dir if given
-        if sim_data_dir is not None:
-            tracker_kwargs['sdir'] = sim_data_dir
-
         particle_tracker = track.ParticleTracker( **tracker_kwargs )
         particle_tracker.save_particle_tracks()
 
@@ -202,6 +206,10 @@ def run_linefinder(
         gal_linker_kwargs = utilities.merge_two_dicts(
             gal_linker_kwargs, general_kwargs )
 
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            gal_linker_kwargs['halo_data_dir'] = halo_data_dir
+
         if sim_name is not None:
             if 'halo_data_dir' not in gal_linker_kwargs:
                 gal_linker_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
@@ -211,10 +219,6 @@ def run_linefinder(
         if galdef is not None:
             for key in [ 'galaxy_cut', 'length_scale', 'mt_length_scale' ]:
                 gal_linker_kwargs[key] = galdef_dict[key]
-
-        # Add in halo data dir if given
-        if halo_data_dir is not None:
-            gal_linker_kwargs['halo_data_dir'] = halo_data_dir
 
         particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
             **gal_linker_kwargs )
@@ -372,6 +376,18 @@ def run_linefinder_jug(
         selector_kwargs = utilities.merge_two_dicts(
             selector_kwargs, general_kwargs )
 
+        # Check if the snapshot kwargs exist, and if not, create them
+        if 'snapshot_kwargs' not in list( selector_kwargs.keys() ):
+            selector_kwargs['snapshot_kwargs'] = {}
+
+        # Add in sim data dir if given
+        if sim_data_dir is not None:
+            selector_kwargs['snapshot_kwargs']['sdir'] = sim_data_dir
+
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            selector_kwargs['snapshot_kwargs']['halo_data_dir'] = halo_data_dir
+
         # Use sim name to find defaults
         if sim_name is not None:
             snapshot_kwargs = selector_kwargs['snapshot_kwargs']
@@ -387,14 +403,6 @@ def run_linefinder_jug(
 
             selector_kwargs['snapshot_kwargs'] = snapshot_kwargs
 
-        # Add in sim data dir if given
-        if sim_data_dir is not None:
-            selector_kwargs['snapshot_kwargs']['sdir'] = sim_data_dir
-
-        # Add in halo data dir if given
-        if halo_data_dir is not None:
-            selector_kwargs['snapshot_kwargs']['halo_data_dir'] = halo_data_dir
-
         id_selector = select.IDSelector( **selector_kwargs )
         id_selector.select_ids_jug( selector_data_filters )
 
@@ -408,6 +416,14 @@ def run_linefinder_jug(
         # Check if the snapshot kwargs exist, and if not, create them
         if 'snapshot_kwargs' not in list( sampler_kwargs.keys() ):
             sampler_kwargs['snapshot_kwargs'] = {}
+
+        # Add in sim data dir if given
+        if sim_data_dir is not None:
+            sampler_kwargs['snapshot_kwargs']['sdir'] = sim_data_dir
+
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            sampler_kwargs['snapshot_kwargs']['halo_data_dir'] = halo_data_dir
 
         # Use sim name to find defaults
         if sim_name is not None:
@@ -424,14 +440,6 @@ def run_linefinder_jug(
 
             sampler_kwargs['snapshot_kwargs'] = snapshot_kwargs
 
-        # Add in sim data dir if given
-        if sim_data_dir is not None:
-            sampler_kwargs['snapshot_kwargs']['sdir'] = sim_data_dir
-
-        # Add in halo data dir if given
-        if halo_data_dir is not None:
-            sampler_kwargs['snapshot_kwargs']['halo_data_dir'] = halo_data_dir
-
         id_sampler = select.IDSampler( **sampler_kwargs )
 
         jug.Task( id_sampler.sample_ids )
@@ -445,6 +453,10 @@ def run_linefinder_jug(
         tracker_kwargs = utilities.merge_two_dicts(
             tracker_kwargs, general_kwargs )
 
+        # Add in sim data dir if given
+        if sim_data_dir is not None:
+            tracker_kwargs['sdir'] = sim_data_dir
+
         # Choose the sdir automatically, if possible
         if 'sdir' not in tracker_kwargs:
             # Try and load the default values if using the file manager.
@@ -456,10 +468,6 @@ def run_linefinder_jug(
                     tracker_kwargs['sdir'] = \
                         selector_kwargs['snapshot_kwargs']['sdir']
 
-        # Add in sim data dir if given
-        if sim_data_dir is not None:
-            tracker_kwargs['sdir'] = sim_data_dir
-
         particle_tracker = track.ParticleTracker( **tracker_kwargs )
         particle_tracker.save_particle_tracks_jug()
 
@@ -470,6 +478,10 @@ def run_linefinder_jug(
         gal_linker_kwargs = utilities.merge_two_dicts(
             gal_linker_kwargs, general_kwargs )
 
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            gal_linker_kwargs['halo_data_dir'] = halo_data_dir
+
         if sim_name is not None:
 
             if 'halo_data_dir' not in gal_linker_kwargs:
@@ -477,10 +489,6 @@ def run_linefinder_jug(
 
             if 'main_mt_halo_id' not in gal_linker_kwargs:
                 gal_linker_kwargs['main_mt_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
-
-        # Add in halo data dir if given
-        if halo_data_dir is not None:
-            gal_linker_kwargs['halo_data_dir'] = halo_data_dir
 
         # Default to halo 0 if MT halo ID not given
         if 'main_mt_halo_id' not in gal_linker_kwargs:
@@ -502,14 +510,14 @@ def run_linefinder_jug(
         classifier_kwargs = utilities.merge_two_dicts(
             classifier_kwargs, general_kwargs )
 
-        if sim_name is not None:
-
-            if 'halo_data_dir' not in gal_linker_kwargs:
-                gal_linker_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
-
         # Add in halo data dir if given
         if halo_data_dir is not None:
             classifier_kwargs['halo_data_dir'] = halo_data_dir
+
+        if sim_name is not None:
+
+            if 'halo_data_dir' not in classifier_kwargs:
+                classifier_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
 
         if galdef is not None:
             for key in [ 't_pro', 't_m', ]:
@@ -521,6 +529,10 @@ def run_linefinder_jug(
     # Run Visualizing
     if run_visualization:
 
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            visualization_kwargs['halo_data_dir'] = halo_data_dir
+
         if sim_name is not None:
 
             if 'halo_data_dir' not in visualization_kwargs:
@@ -528,10 +540,6 @@ def run_linefinder_jug(
 
             if 'main_mt_halo_id' not in visualization_kwargs:
                 visualization_kwargs['main_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
-
-        # Add in halo data dir if given
-        if halo_data_dir is not None:
-            visualization_kwargs['halo_data_dir'] = halo_data_dir
 
         jug.Task(
             visualize.export_to_firefly,

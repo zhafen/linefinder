@@ -182,6 +182,7 @@ MAIN_MT_HALO_ID = {
     'm12r_md': 0,
     'm12w_md': 0,
     'm12z_md': 0,
+    'm12i_cr': 0,
     'm12iF1': 0,
 }
 
@@ -213,6 +214,7 @@ MASS_BINS = {
     'm12r_md': 'm12',
     'm12w_md': 'm12',
     'm12z_md': 'm12',
+    'm12i_cr': 'm12',
     'm12iF1': 'm12',
 }
 
