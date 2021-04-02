@@ -488,7 +488,7 @@ class ParticleTrackGalaxyLinker( object ):
         # Save the data.
         save_filename = 'galids_{}.hdf5'.format( self.tag )
         self.save_filepath = os.path.join( self.out_dir, save_filename )
-        f = h5py.File( self.save_filepath )
+        f = h5py.File( self.save_filepath, 'w' )
         for key in ptrack_gal_ids.keys():
             f.create_dataset( key, data=ptrack_gal_ids[key] )
 
