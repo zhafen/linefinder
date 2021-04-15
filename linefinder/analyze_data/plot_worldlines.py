@@ -1075,7 +1075,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         include_halo_tracks = False,
         overwrite_halo_tracks = False,
         max_halo_track_distance = 1e3,
-        min_halo_track_mass = 1e8,
+        min_halo_track_mass = 1e10,
         use_default_colors = True,
         tracked_labels_mapping = {},
         preset_filepath = None,
@@ -1514,6 +1514,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                         snum = snum_i,
                         units = 'Msun',
                     ).value / self.data_object.hubble_param
+
+                    # When there's no halos
+                    if len( mvir ) == 0:
+                        continue
 
                     # Coordinates
                     coords_snum = []

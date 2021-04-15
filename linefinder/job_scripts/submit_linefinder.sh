@@ -7,10 +7,10 @@
 #SBATCH --time=6:00:00
 #SBATCH --output=/scratch/03057/zhafen/linefinder_data/job_scripts/jobs/linefinder.out
 #SBATCH --error=/scratch/03057/zhafen/linefinder_data/job_scripts/jobs/linefinder.err
-##SBATCH --mail-user=zhafen@u.northwestern.edu
-##SBATCH --mail-type=begin
-##SBATCH --mail-type=fail
-##SBATCH --mail-type=end
+#SBATCH --mail-user=zhafen@u.northwestern.edu
+#SBATCH --mail-type=begin
+#SBATCH --mail-type=fail
+#SBATCH --mail-type=end
 
 # Number of cores to use. Remember to account for memory constraints!
 NCORES=$2
