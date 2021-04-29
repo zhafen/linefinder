@@ -34,11 +34,13 @@ def run_linefinder(
     tracker_kwargs = {},
     gal_linker_kwargs = {},
     classifier_kwargs = {},
+    visualization_kwargs = {},
     run_id_selecting = True,
     run_id_sampling = True,
     run_tracking = True,
     run_galaxy_linking = True,
     run_classifying = True,
+    run_visualization = True,
 ):
     '''Main function for running linefinder.
     Not as feature complete as the Jug-enabled version.
@@ -237,6 +239,31 @@ def run_linefinder(
 
         classifier = classify.Classifier( **classifier_kwargs )
         classifier.classify_particles()
+
+    # Run Visualizing
+    if run_visualization:
+
+        # Add in halo data dir if given
+        if halo_data_dir is not None:
+            visualization_kwargs['halo_data_dir'] = halo_data_dir
+
+        if sim_name is not None:
+
+            if 'halo_data_dir' not in visualization_kwargs:
+                visualization_kwargs['halo_data_dir'] = file_manager.get_halo_dir( sim_name )
+
+            if 'main_mt_halo_id' not in visualization_kwargs:
+                visualization_kwargs['main_halo_id'] = linefinder_config.MAIN_MT_HALO_ID[sim_name]
+
+        visualize.export_to_firefly(
+            tag = tag,
+            data_dir = out_dir,
+            **visualization_kwargs
+        )
+
+        # Make a file indicating that the visualization completed.
+        f = os.path.join( out_dir, 'visualized_{}'.format(tag ) )
+        open(f, 'a').close()
 
 ########################################################################
 

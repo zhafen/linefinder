@@ -1252,6 +1252,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 ).astype( float )
 
         # Actually loop through each classification
+        ff_data = verdict.Dict({})
         for i, classification in enumerate( classifications ):
 
             print(
@@ -1384,6 +1385,26 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 **option_kwargs
             )
             firefly_reader.addParticleGroup( particle_group )
+
+            # Save the raw data in a better format too
+            ids = get_data(
+                'ID',
+                classification = classification,
+                seed = seed,
+                tile_data = True,
+            ).astype( int )
+            ff_data_class = {
+                'ID': ids,
+                'Coordinates': coords,
+            }
+            for i, key in enumerate( tracked_labels ):
+                ff_data_class[key] = tracked_arrs[i]
+            ff_data[classification] = ff_data_class
+
+        ff_data.to_hdf5( os.path.join(
+            json_dir,
+            'readable_data.hdf5',
+        ) )
 
         # Add a ruler
         if include_ruler:

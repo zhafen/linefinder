@@ -96,10 +96,11 @@ linefinder_args = {
         'install_firefly': False,
         # These kwargs are used for tuning the Firefly visualization
         'export_to_firefly_kwargs': {
-            'firefly_dir': '/work/03057/zhafen/firefly_repos/clustersofFIRE',
+            'firefly_dir': '/scratch/03057/zhafen/firefly_repos/clusters-of-FIRE',
             'classifications': [ None ],
             'classification_ui_labels': [ 'All' ],
             'use_default_colors': False,
+            'include_halo_tracks': True,
         },
     },
 
@@ -111,7 +112,7 @@ linefinder_args = {
     'run_id_sampling': False,
     'run_tracking': False,
     'run_galaxy_linking': False,
-    'run_classifying': True,
+    'run_classifying': False,
     'run_visualization': True,
 }
 
