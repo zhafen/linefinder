@@ -1043,6 +1043,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
     def export_to_firefly(
         self,
         firefly_dir,
+        data_subdir = None,
         install_firefly = False,
         firefly_source = 'https://github.com/ageller/Firefly.git',
         write_startup = 'append',
@@ -1086,6 +1087,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         Args:
             firefly_dir (str):
                 Directory that should contain the Firefly visualization.
+
+            data_subdir (str):
+                Directory within the firefly repo data folder to store
+                the data in.
 
             install_firefly (bool):
                 If True, clone Firefly.
@@ -1199,7 +1204,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 raise Exception( "Failed to install Firefly." )
 
         # Make the JSON dir exist if it doesn't
-        data_subdir = self.data_object.tag
+        if data_subdir is None:
+            data_subdir = self.data_object.tag
         if pathlines:
             data_subdir += '_pathlines'
         json_dir = os.path.join(
@@ -1530,11 +1536,17 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     time_i = self.data_object.get_data( 'time' )[i]
 
                     # Mass
-                    mvir = h_data.get_data(
-                        data_key = 'Mvir',
-                        snum = snum_i,
-                        units = 'Msun',
-                    ).value / self.data_object.hubble_param
+                    try:
+                        mvir = h_data.get_data(
+                            data_key = 'Mvir',
+                            snum = snum_i,
+                            units = 'Msun',
+                        ).value / self.data_object.hubble_param
+                    except NameError:
+                        print( 'No files found for snum {}, skipping'.format(
+                            snum_i
+                        ))
+                        continue
 
                     # When there's no halos
                     if len( mvir ) == 0:
