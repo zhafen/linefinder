@@ -540,7 +540,7 @@ class Classifier( object ):
         else:
             main_mt_halo_id = self.ptrack_attrs[ 'main_mt_halo_id' ]
             mtree_halo = self.ahf_reader.mtree_halos[main_mt_halo_id]
-            return mtree_halo[self.velocity_scale][ self.ptrack[ 'snum' ] ]
+            return mtree_halo[self.velocity_scale].reindex( self.ptrack[ 'snum' ] )
 
     ########################################################################
 
@@ -583,7 +583,7 @@ class Classifier( object ):
         # snapshot).
         main_mt_halo_id = self.ptrack_attrs['main_mt_halo_id']
         main_mtree_halo = self.ahf_reader.mtree_halos[ main_mt_halo_id ]
-        main_halo_id = main_mtree_halo[ 'ID' ][ self.ptrack[ 'snum' ] ]
+        main_halo_id = main_mtree_halo[ 'ID' ].reindex( self.ptrack[ 'snum' ] )
         main_halo_id_tiled = np.tile( main_halo_id, ( self.n_particle, 1 ) )
 
         # Check if we're inside the galaxy/halo other than the main galaxy
@@ -620,7 +620,7 @@ class Classifier( object ):
         # snapshot).
         main_mt_halo_id = self.ptrack_attrs['main_mt_halo_id']
         main_mtree_halo = self.ahf_reader.mtree_halos[ main_mt_halo_id ]
-        main_halo_id = main_mtree_halo[ 'ID' ][ self.ptrack[ 'snum' ] ]
+        main_halo_id = main_mtree_halo[ 'ID' ].reindex( self.ptrack[ 'snum' ] )
         main_halo_id_tiled = np.tile( main_halo_id, ( self.n_particle, 1 ) )
 
         # Check if we're inside the galaxy/halo other than the main CGM

@@ -2377,31 +2377,40 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_t_1e5( self ):
+    def calc_t_1e5_inds( self ):
 
         # Clear and select data
         self.data_masker.clear_masks()
         self.data_masker.mask_data( 'PType', data_value=0 )
+        self.data_masker.mask_data( 'is_in_main_gal', data_value=0 )
 
         # Median and interval stats
         logT = np.log10( self.get_selected_data( 'T', compress=False ) )
 
         # Iterate to calculate
         inds = []
-        for logT_arr in tqdm.tqdm( logT ):
+        for i, logT_arr in enumerate( tqdm.tqdm( logT ) ):
 
             ind_ = -1
-            for i in range( logT_arr.size ):
-                if logT_arr[i] > 5.:
-                    ind_ = i
+            for j in range( logT_arr.size ):
+                if logT.mask[i][j]:
+                    continue
+                if logT_arr[j] > 5.:
+                    ind_ = j
                     break
 
             inds.append( ind_ )
-
-        t = self.get_data( 'time' )
-        self.data['t_1e5'] = np.array( [ t[ind] for ind in inds ] )
+        
+        self.data['t_1e5_inds'] = np.array(inds)
 
         self.data_masker.clear_masks()
+
+    def calc_t_1e5( self ):
+
+        inds = self.get_data( 't_1e5_inds' )
+        t = self.get_data( 'time' )
+        self.data['t_1e5'] = t[inds]
+        # self.data['t_1e5'] = np.array( [ t[ind] for ind in inds ] )
 
     def calc_t_t_1e5( self ):
 
