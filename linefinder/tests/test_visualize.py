@@ -37,7 +37,7 @@ class TestExportToFirefly( unittest.TestCase ):
             'tag': 'analyze',
             'halo_data_dir': './tests/data/ahf_test_data',
 
-            'install_firefly': False,
+            'install_firefly': True,
 
             'export_to_firefly_kwargs': {
                 'firefly_dir': firefly_dir,
@@ -63,6 +63,9 @@ class TestExportToFirefly( unittest.TestCase ):
         for halo_tracks_fp in self.halo_tracks_fps:
             if os.path.isfile( halo_tracks_fp ):
                 os.remove( halo_tracks_fp )
+
+        if os.path.isdir( firefly_dir ):
+            shutil.rmtree( firefly_dir )
 
     ########################################################################
 

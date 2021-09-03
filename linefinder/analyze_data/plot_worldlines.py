@@ -29,6 +29,8 @@ import galaxy_dive.plot_data.plotting as gen_plot
 import galaxy_dive.utils.astro as astro_utils
 import galaxy_dive.utils.data_operations as data_operations
 
+import Firefly.data_reader as firefly_data_reader
+
 import linefinder.config as config
 import linefinder.utils.presentation_constants as p_constants
 
@@ -1168,6 +1170,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         # Make sure we're using the full path
         firefly_dir =  os.path.expandvars( firefly_dir )
+        firefly_dir = os.path.abspath( firefly_dir )
 
         # Make copies of some of the input to avoid changing
         # which can happen...
@@ -1182,6 +1185,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             print( "Cloning Firefly..." )
 
             # Make and switch to the directory containing firefly
+            cwd = os.getcwd()
             containing_dir = os.path.dirname( firefly_dir )
 
             if not os.path.isdir( containing_dir ):
@@ -1190,6 +1194,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             # Clone
             git.Repo.clone_from( firefly_source, firefly_dir )
+            os.chdir( cwd )
 
             # Validate install
             if os.path.isfile( os.path.join( firefly_dir, 'index.html' ) ):
@@ -1213,7 +1218,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             os.makedirs( json_dir )
 
         # Setup a reader
-        firefly_reader = read_firefly.Reader(
+        firefly_reader = firefly_data_reader.Reader(
             JSONdir = json_dir,
             write_startup = write_startup,
             clean_JSONdir = True,
@@ -1376,7 +1381,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 option_kwargs['color'] = np.array( color )
 
             # Create a particle group and add to the firefly reader
-            particle_group = firefly_particle_group.ParticleGroup(
+            particle_group = firefly_data_reader.ParticleGroup(
                 UIname = classification_ui_labels[i],
                 coordinates = coords,
                 tracked_arrays = tracked_arrs,
@@ -1424,7 +1429,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             coords = np.concatenate( [ x, y, z ] )
             
-            particle_group = firefly_particle_group.ParticleGroup(
+            particle_group = firefly_data_reader.ParticleGroup(
                 UIname = 'ruler',
                 coordinates = coords,
                 sizeMult = size_mult,
@@ -1483,7 +1488,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             
             coords = np.concatenate( [ disk_pos, axis_pos ])
 
-            particle_group = firefly_particle_group.ParticleGroup(
+            particle_group = firefly_data_reader.ParticleGroup(
                 UIname = 'disk',
                 coordinates = coords,
                 sizeMult = size_mult,
@@ -1623,7 +1628,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             tracked_colormap_flags = [ True, ] * len( tracked_names )
 
             # Create a particle group and add to the firefly reader
-            particle_group = firefly_particle_group.ParticleGroup(
+            particle_group = firefly_data_reader.ParticleGroup(
                 UIname = 'Halos',
                 coordinates = halo_tracks_data['coordinates'],
                 tracked_arrays = tracked_arrays,
@@ -1636,6 +1641,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
         # Overwrite the default options if requested
         if preset_filepath is not None:
+            assert False
             options = firefly_options.Options()
             options.loadFromJSON( preset_filepath )
             firefly_reader.options = options
