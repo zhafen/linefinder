@@ -50,6 +50,7 @@ class ParticleTracker( object ):
         snum_step = default,
         n_processors = 1,
         custom_fns = None,
+        skipped_snums = None,
     ):
         '''Setup the ID Finder. Looks for data in the form of "out_dir/ids_tag.hdf5"
 
@@ -231,6 +232,9 @@ class ParticleTracker( object ):
 
         self.snaps = np.arange( self.snum_end, self.snum_start - 1,
                                 -self.snum_step )
+        if self.skipped_snums is not None:
+            skipped = pd.Series( self.snaps ).isin( self.skipped_snums ).values
+            self.snaps = np.delete( self.snaps, skipped )
         # number of redshift snapshots that we follow back
         nsnap = self.snaps.size
 
@@ -351,6 +355,9 @@ class ParticleTracker( object ):
 
         self.snaps = np.arange(
             self.snum_end, self.snum_start - 1, -self.snum_step )
+        if self.skipped_snums is not None:
+            skipped = pd.Series( self.snaps ).isin( self.skipped_snums ).values
+            self.snaps = np.delete( self.snaps, skipped )
         # number of redshift snapshots that we follow back
         nsnap = self.snaps.size
 
@@ -487,6 +494,9 @@ class ParticleTracker( object ):
 
         self.snaps = np.arange(
             self.snum_end, self.snum_start - 1, -self.snum_step )
+        if self.skipped_snums is not None:
+            skipped = pd.Series( self.snaps ).isin( self.skipped_snums ).values
+            self.snaps = np.delete( self.snaps, skipped )
 
         self.ntrack = self.target_ids.size
         print( "Tracking {} particles...".format( self.ntrack ) )
@@ -918,7 +928,7 @@ class IDFinder( object ):
         df = df.sort_index()
 
         # Make a data frame selecting only the target ids
-        dfid = df.loc[ target_selection ]
+        dfid = df.reindex( target_selection )
 
         # When particle IDs can't be found the values are automatically replaced
         # by NaNs. This is very good, but

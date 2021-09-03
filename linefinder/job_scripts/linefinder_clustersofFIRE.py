@@ -50,7 +50,7 @@ def wrapped_auxilliary_fn( dfid, df, id_finder ):
         dfid,
         df,
         id_finder,
-        halo_data_dir = '/scratch/03057/zhafen/multiphysics/m12i_res7100_mhdcv/halo',
+        halo_data_dir = '/scratch/03057/zhafen/halo_files/multiphysics/m12i_res7100_mhdcv',
         main_halo_id = 0,
     )
 
@@ -66,7 +66,7 @@ linefinder_args = {
     'sim_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE/mhdcv/m12i_res7100_mhdcv_old/output',
 
     # Location of halo file data
-    'halo_data_dir': '/scratch/03057/zhafen/multiphysics/m12i_res7100_mhdcv/halo',
+    'halo_data_dir': '/scratch/03057/zhafen/halo_files/multiphysics/m12i_res7100_mhdcv',
 
     # Arguments for id sampling
     'sampler_kwargs': {
@@ -96,10 +96,11 @@ linefinder_args = {
         'install_firefly': False,
         # These kwargs are used for tuning the Firefly visualization
         'export_to_firefly_kwargs': {
-            'firefly_dir': '/work/03057/zhafen/firefly_repos/clustersofFIRE',
+            'firefly_dir': '/scratch/03057/zhafen/firefly_repos/clusters-of-FIRE',
             'classifications': [ None ],
             'classification_ui_labels': [ 'All' ],
             'use_default_colors': False,
+            'include_halo_tracks': True,
         },
     },
 
@@ -111,7 +112,7 @@ linefinder_args = {
     'run_id_sampling': False,
     'run_tracking': False,
     'run_galaxy_linking': False,
-    'run_classifying': True,
+    'run_classifying': False,
     'run_visualization': True,
 }
 

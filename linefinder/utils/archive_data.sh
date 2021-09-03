@@ -4,8 +4,8 @@
 ########################################################################
 
 # What simulation to use, and where to put the output
-data_dir=/scratch/03057/zhafen/linefinder_data/core/m11b_res2100/data
-archive_dir=${ARCHIVER}:/home1/03057/zhafen/SCRATCH_stamp/linefinder_data/core/m11b_res2100
+data_dir=/scratch/03057/zhafen/hot_accretion_data/m12m
+archive_dir=ranch.tacc.utexas.edu:/stornext/ranch_01/ranch/users/03057/zhafen/hot_accretion_data
 
 filetypes_to_archive=("ids*CGM*hdf5" "ptracks*CGM*hdf5" "galids*CGM*hdf5" "classifications*CGM*hdf5" "events*CGM*hdf5")
 archive_filenames=(ids_CGM.tar ptracks_CGM.tar galids_CGM.tar classifications_CGM.tar events_CGM.tar)
