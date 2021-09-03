@@ -50,7 +50,7 @@ def wrapped_auxilliary_fn( dfid, df, id_finder ):
         dfid,
         df,
         id_finder,
-        halo_data_dir = '/scratch/03057/zhafen/multiphysics/m12i_res7100_mhdcv/halo',
+        halo_data_dir = '/scratch/03057/zhafen/halo_files/multiphysics/m12i_res7100_mhdcv',
         main_halo_id = 0,
     )
 
@@ -66,7 +66,7 @@ linefinder_args = {
     'sim_data_dir': '/scratch/projects/xsede/GalaxiesOnFIRE/mhdcv/m12i_res7100_mhdcv_old/output',
 
     # Location of halo file data
-    'halo_data_dir': '/scratch/03057/zhafen/multiphysics/m12i_res7100_mhdcv/halo',
+    'halo_data_dir': '/scratch/03057/zhafen/halo_files/multiphysics/m12i_res7100_mhdcv',
 
     # Arguments for id sampling
     'sampler_kwargs': {
