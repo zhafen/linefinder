@@ -1211,6 +1211,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             data_subdir += '_pathlines'
         json_dir = os.path.join(
             firefly_dir,
+            'src',
+            'Firefly',
+            'static',
             'data',
             data_subdir,
         )

@@ -76,6 +76,10 @@ class TestExportToFirefly( unittest.TestCase ):
             **self.default_kwargs,
         )
 
+        data_dir = os.path.join( firefly_dir, 'src', 'Firefly', 'static', 'data', 'analyze_pathlines' )
+        assert os.path.isdir( data_dir )
+        assert os.path.isfile( os.path.join( data_dir, 'DataAll000.json' ) )
+
     ########################################################################
 
     def test_halo_tracks( self ):
