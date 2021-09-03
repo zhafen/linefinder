@@ -15,7 +15,7 @@ import os
 import unittest
 
 import linefinder.config as config
-import linefinder.select as select
+import linefinder.select_particles as select
 
 import galaxy_dive.utils.utilities as utilities
 

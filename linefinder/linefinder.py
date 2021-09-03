@@ -6,7 +6,7 @@ import jug
 import os
 
 from . import config as linefinder_config
-from . import select
+from . import select_particles as select
 from . import track
 from . import galaxy_link
 from . import classify

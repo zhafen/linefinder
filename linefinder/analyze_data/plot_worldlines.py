@@ -10,12 +10,8 @@ import copy
 import git
 import numpy as np
 import os
-import subprocess
 import sys
 import tqdm
-import firefly_api.reader as read_firefly
-import firefly_api.options as firefly_options
-import firefly_api.particlegroup as firefly_particle_group
 
 import matplotlib
 matplotlib.use('PDF')
