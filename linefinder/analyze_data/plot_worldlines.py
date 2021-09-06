@@ -1048,6 +1048,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         pathlines = False,
         n_pathlines = 100,
         snum = 600,
+        inds_to_display = None,
         pathline_inds_to_display = None,
         center_time_on_snum = True,
         classifications = [
@@ -1246,6 +1247,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     seed = seed,
                     *args, **kwargs
                 )
+
+                if inds_to_display is not None:
+                    data = data[inds_to_display]
 
                 if pathline_inds_to_display is not None:
                     data = data[:,pathline_inds_to_display]
