@@ -105,9 +105,8 @@ class TestExportToFirefly( unittest.TestCase ):
     def test_interpolate( self ):
         '''Does interpolate work?'''
 
-        n_interpolate = 5
+        self.default_kwargs['export_to_firefly_kwargs']['interpolate_timestep'] = 0.001
         visualize.export_to_firefly(
-            n_interpolate = 10,
             **self.default_kwargs,
         )
 
@@ -115,4 +114,4 @@ class TestExportToFirefly( unittest.TestCase ):
         assert os.path.isdir( data_dir )
         assert os.path.isfile( os.path.join( data_dir, 'DataAll000.json' ) )
         f = h5py.File( os.path.join( data_dir, 'readable_data.hdf5'), 'r' )
-        assert f['None']['Coordinates'][...].shape[0] > ( n_interpolate - 1 ) * f['None']['time'][...].size
+        assert f['None']['Coordinates'][...].shape[0] > 12

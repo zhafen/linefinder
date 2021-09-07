@@ -10,8 +10,7 @@ import copy
 import git
 import numpy as np
 import os
-import sys
-import tqdm
+import scipy.interpolate
 
 import matplotlib
 matplotlib.use('PDF')
@@ -1050,6 +1049,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         snum = 600,
         inds_to_display = None,
         pathline_inds_to_display = None,
+        interpolate_timestep = None,
         center_time_on_snum = True,
         classifications = [
             None,
@@ -1239,6 +1239,14 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             if pathlines:
 
+                if interpolate_timestep is not None:
+                    time = self.data_object.get_data( 'time' )
+                    interp_times = np.arange(
+                        time.min(),
+                        time.max(),
+                        interpolate_timestep
+                    )
+
                 data = self.data_object.get_selected_data_over_time(
                     data_key,
                     snum = snum,
@@ -1253,6 +1261,16 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
                 if pathline_inds_to_display is not None:
                     data = data[:,pathline_inds_to_display]
+
+                if interpolate_timestep is not None:
+                    interpd_data = []
+                    for row in data:
+                        interp_fn = scipy.interpolate.interp1d(
+                            time,
+                            row,
+                        )
+                        interpd_data.append( interp_fn( interp_times ) )
+                    data = np.array( interpd_data )
 
                 return data.flatten().astype( float )
                 
