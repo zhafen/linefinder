@@ -94,6 +94,7 @@ linefinder_args = {
     # Arguments used for the visualization step
     'visualization_kwargs': {
         'install_firefly': False,
+        'include_instantaneous': False,
         # These kwargs are used for tuning the Firefly visualization
         'export_to_firefly_kwargs': {
             'firefly_dir': '/scratch/03057/zhafen/firefly_repos/clusters-of-FIRE',
@@ -101,6 +102,9 @@ linefinder_args = {
             'classification_ui_labels': [ 'All' ],
             'use_default_colors': False,
             'include_halo_tracks': True,
+            'inds_to_display': [ 41646, ],
+            'n_pathlines': 100000,
+            'interpolate_timestep': 0.001,
         },
     },
 
