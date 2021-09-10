@@ -218,8 +218,8 @@ class TestIDSelector( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'linefinder.select.SnapshotIDSelector.__init__' )
-    @mock.patch( 'linefinder.select.SnapshotIDSelector.select_ids_snapshot' )
+    @mock.patch( 'linefinder.select_particles.SnapshotIDSelector.__init__' )
+    @mock.patch( 'linefinder.select_particles.SnapshotIDSelector.select_ids_snapshot' )
     def test_get_selected_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
         # Mock setup
@@ -246,44 +246,45 @@ class TestIDSelector( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'linefinder.select.SnapshotIDSelector.__init__' )
-    @mock.patch( 'linefinder.select.IDSelector.get_selected_ids_snapshot' )
-    def test_get_selected_ids_parallel( self, mock_get_selected_ids_snapshot, mock_constructor, ):
+    # Old test for when we were using the python parallelism
+    # @mock.patch( 'linefinder.select_particles.SnapshotIDSelector.__init__' )
+    # @mock.patch( 'linefinder.select_particles.IDSelector.get_selected_ids_snapshot' )
+    # def test_get_selected_ids_parallel( self, mock_get_selected_ids_snapshot, mock_constructor, ):
 
-        self.id_selector.n_processors = 2
+    #     self.id_selector.n_processors = 2
 
-        # Mock setup
-        mock_constructor.side_effect = [ None, ]*4
-        def side_effects( args ):
-            kwargs = args[1]
-            if kwargs['snum'] == 500:
-                if kwargs['ptype'] == 0:
-                    return set( [ (10952235, 0), (36091289, 893109954) ] )
-                elif kwargs['ptype'] == 4:
-                    return set( [ (10952235, 0), (123456, 35) ] )
-            if kwargs['snum'] == 600:
-                if kwargs['ptype'] == 0:
-                    return set( [ (1573, 0), (12, 35), (15, 4), (0, 0) ] )
-                elif kwargs['ptype'] == 4:
-                    return set()
-        mock_get_selected_ids_snapshot.side_effect = side_effects
+    #     # Mock setup
+    #     mock_constructor.side_effect = [ None, ]*4
+    #     def side_effects( args ):
+    #         kwargs = args[1]
+    #         if kwargs['snum'] == 500:
+    #             if kwargs['ptype'] == 0:
+    #                 return set( [ (10952235, 0), (36091289, 893109954) ] )
+    #             elif kwargs['ptype'] == 4:
+    #                 return set( [ (10952235, 0), (123456, 35) ] )
+    #         if kwargs['snum'] == 600:
+    #             if kwargs['ptype'] == 0:
+    #                 return set( [ (1573, 0), (12, 35), (15, 4), (0, 0) ] )
+    #             elif kwargs['ptype'] == 4:
+    #                 return set()
+    #     mock_get_selected_ids_snapshot.side_effect = side_effects
 
 
-        call_kwargs = [ copy.deepcopy( newids_snap_kwargs ) for i in range(4) ]
-        call_kwargs[0]['snum'] = 500
-        call_kwargs[1]['snum'] = 500
-        call_kwargs[2]['snum'] = 600
-        call_kwargs[3]['snum'] = 600
-        call_kwargs[0]['ptype'] = 0
-        call_kwargs[1]['ptype'] = 4
-        call_kwargs[2]['ptype'] = 0
-        call_kwargs[3]['ptype'] = 4
-        calls = [ mock.call( **call_kwarg ) for call_kwarg in call_kwargs ]
+    #     call_kwargs = [ copy.deepcopy( newids_snap_kwargs ) for i in range(4) ]
+    #     call_kwargs[0]['snum'] = 500
+    #     call_kwargs[1]['snum'] = 500
+    #     call_kwargs[2]['snum'] = 600
+    #     call_kwargs[3]['snum'] = 600
+    #     call_kwargs[0]['ptype'] = 0
+    #     call_kwargs[1]['ptype'] = 4
+    #     call_kwargs[2]['ptype'] = 0
+    #     call_kwargs[3]['ptype'] = 4
+    #     calls = [ mock.call( **call_kwarg ) for call_kwarg in call_kwargs ]
 
-        # Actually run the thing
-        actual = self.id_selector.get_selected_ids_parallel( default_data_filters )
-        expected = self.selected_ids
-        assert expected == actual
+    #     # Actually run the thing
+    #     actual = self.id_selector.get_selected_ids_parallel( default_data_filters )
+    #     expected = self.selected_ids
+    #     assert expected == actual
 
     ########################################################################
 
@@ -352,8 +353,8 @@ class TestIDSelector( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'linefinder.select.SnapshotIDSelector.__init__' )
-    @mock.patch( 'linefinder.select.SnapshotIDSelector.select_ids_snapshot' )
+    @mock.patch( 'linefinder.select_particles.SnapshotIDSelector.__init__' )
+    @mock.patch( 'linefinder.select_particles.SnapshotIDSelector.select_ids_snapshot' )
     def test_select_ids( self, mock_select_ids_snapshot, mock_constructor, ):
 
         # Make sure there's nothing in our way, bwahahah
@@ -632,7 +633,7 @@ class TestIDSampler( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'linefinder.select.IDSampler.identify_duplicate_ids' )
+    @mock.patch( 'linefinder.select_particles.IDSampler.identify_duplicate_ids' )
     def test_choose_particles_to_sample_ignore_duplicates( self, mock_identify_duplicate_ids ):
 
         mock_identify_duplicate_ids.side_effect = [ set([ 0, 15, 12 ]), ]
@@ -651,7 +652,7 @@ class TestIDSampler( unittest.TestCase ):
 
     ########################################################################
 
-    @mock.patch( 'linefinder.select.IDSampler.identify_child_particles' )
+    @mock.patch( 'linefinder.select_particles.IDSampler.identify_child_particles' )
     def test_choose_particles_to_sample_ignore_child_particles( self, mock_identify_child_particles ):
 
         # Create some child ids
