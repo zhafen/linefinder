@@ -51,6 +51,7 @@ class ParticleTracker( object ):
         n_processors = 1,
         custom_fns = None,
         skipped_snums = None,
+        drop_duplicates = True,
     ):
         '''Setup the ID Finder. Looks for data in the form of "out_dir/ids_tag.hdf5"
 
@@ -285,6 +286,7 @@ class ParticleTracker( object ):
                 self.target_ids,
                 target_child_ids = self.target_child_ids,
                 custom_fns = self.custom_fns,
+                drop_duplicates = self.drop_duplicates,
             )
 
             ptrack['redshift'][j] = redshift
@@ -382,6 +384,7 @@ class ParticleTracker( object ):
                 self.target_ids,
                 target_child_ids = self.target_child_ids,
                 custom_fns = self.custom_fns,
+                drop_duplicates = self.drop_duplicates,
             )
 
             # Maybe helps stop leaking memory
@@ -516,6 +519,7 @@ class ParticleTracker( object ):
                 self.target_ids,
                 target_child_ids = self.target_child_ids,
                 custom_fns = self.custom_fns,
+                drop_duplicates = self.drop_duplicates,
             )
 
             # Maybe helps stop leaking memory
@@ -677,7 +681,7 @@ class ParticleTracker( object ):
                 inspect.getsource( _ ) for _ in self.custom_fns
             ]
 
-        utilities.save_parameters( self, f )
+        utilities.save_parameters( self, f, skip=[ 'custom_fns', ] )
 
         # Save the current code version
         f.attrs['linefinder_version'] = utilities.get_code_version( self )
@@ -707,6 +711,7 @@ class IDFinder( object ):
         target_ids,
         target_child_ids = None,
         custom_fns = None,
+        drop_duplicates = True,
     ):
         '''Find the information for particular IDs in a given snapshot, ordered
         by the ID list you pass.
@@ -753,6 +758,7 @@ class IDFinder( object ):
         self.target_ids = target_ids
         if target_child_ids is not None:
             self.target_child_ids = target_child_ids
+        self.drop_duplicates = drop_duplicates
 
         # Make a big list of the relevant particle data, across all the particle
         # data types
@@ -926,6 +932,10 @@ class IDFinder( object ):
 
         # Sort for faster indexing
         df = df.sort_index()
+
+        # Drop duplicates
+        if self.drop_duplicates:
+            df = df[~df.index.duplicated(keep='first')]
 
         # Make a data frame selecting only the target ids
         dfid = df.reindex( target_selection )

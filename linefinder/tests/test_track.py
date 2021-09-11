@@ -160,6 +160,7 @@ class TestSelectIDs( unittest.TestCase ):
     def setUp(self):
 
         self.id_finder = track.IDFinder()
+        self.id_finder.drop_duplicates = True
 
         # The name of the function.
         self.fn = self.id_finder.select_ids
@@ -276,6 +277,7 @@ class TestApplyFunctions( unittest.TestCase ):
         '''Test that it even runs'''
 
         # Dummy data set
+        self.id_finder.drop_duplicates = True
         self.id_finder.target_ids = np.array([ 38913508, 3211791, 10952235 ])
         self.id_finder.full_snap_data = {
             'ID': np.array([56037496,  3211791, 41221636, 63924292, 38913508, 10952235]),
@@ -302,6 +304,7 @@ class TestApplyFunctions( unittest.TestCase ):
         '''
 
         # Dummy data set
+        self.id_finder.drop_duplicates = True
         self.id_finder.target_ids = np.array([ 38913508, 3211791, 10952235 ])
         self.id_finder.full_snap_data = {
             'ID': np.array([56037496,  3211791, 41221636, 63924292, 38913508, 10952235]),
@@ -323,6 +326,7 @@ class TestApplyFunctions( unittest.TestCase ):
     def test_saves( self ):
 
         # Check for existing output files and delete them.
+        self.id_finder.drop_duplicates = True
         output_filepath = 'tests/data/tracking_output/ptracks_test.hdf5'
         if os.path.isfile( output_filepath ):
             os.remove( output_filepath )
@@ -381,8 +385,13 @@ class TestFindIds( unittest.TestCase ):
             'Den': np.array([ P['rho'][ind]*constants.UNITDENSITY_IN_NUMDEN for ind in target_inds ]),
         }
 
-        dfid, redshift, attrs = self.fn( sdir, snum, p_types, target_ids, \
-                                                            target_child_ids=target_child_ids)
+        dfid, redshift, attrs = self.fn(
+            sdir,
+            snum,
+            p_types,
+            target_ids,
+            target_child_ids = target_child_ids,
+        )
 
         for key in expected.keys():
             npt.assert_allclose( dfid[key], expected[key] )
@@ -607,21 +616,22 @@ class TestSaveTargetedParticlesParallel( unittest.TestCase ):
 
     ########################################################################
 
-    def test_basic( self ):
+    # Test for functionality when using built-in python multiprocessing
+    # def test_basic( self ):
 
-        self.fn()
+    #     self.fn()
 
-        f = h5py.File( 'tests/data/tracking_output/ptracks_test.hdf5', 'r' )
+    #     f = h5py.File( 'tests/data/tracking_output/ptracks_test.hdf5', 'r' )
 
-        expected_snum = np.arange(600, 490, -50)
-        actual_snum = f['snum'][...]
-        npt.assert_allclose( expected_snum, actual_snum )
+    #     expected_snum = np.arange(600, 490, -50)
+    #     actual_snum = f['snum'][...]
+    #     npt.assert_allclose( expected_snum, actual_snum )
 
-        expected_rho_p0 =  np.array([  1.70068894e-08, 6.44416458e-08, 1.94556549e-09])*constants.UNITDENSITY_IN_NUMDEN
-        actual_rho_p0 = f['Den'][...][0]
-        npt.assert_allclose( expected_rho_p0, actual_rho_p0 )
+    #     expected_rho_p0 =  np.array([  1.70068894e-08, 6.44416458e-08, 1.94556549e-09])*constants.UNITDENSITY_IN_NUMDEN
+    #     actual_rho_p0 = f['Den'][...][0]
+    #     npt.assert_allclose( expected_rho_p0, actual_rho_p0 )
 
-        assert 'ChildID' in f.keys()
+    #     assert 'ChildID' in f.keys()
 
 ########################################################################
 
