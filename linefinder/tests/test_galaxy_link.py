@@ -141,42 +141,42 @@ class TestParticleTrackGalaxyLinker( unittest.TestCase ):
 
 ########################################################################
 
-
-class TestParticleTrackGalaxyLinkerParallel( unittest.TestCase ):
-
-    def setUp( self ):
-
-        # Mock the code version so we don't repeatedly change test data
-        patcher = patch( 'galaxy_dive.utils.utilities.get_code_version' )
-        self.addCleanup( patcher.stop )
-        self.mock_code_version = patcher.start()
-
-        self.originalfile = './tests/data/tracking_output/ptracks_test.hdf5'
-        self.savefile = './tests/data/tracking_output/galids_test_parallel.hdf5'
-
-        if os.path.isfile( self.savefile ):
-            os.system( 'rm {}'.format( self.savefile ) )
-
-    ########################################################################
-
-    def test_find_galaxies_for_particle_tracks_parallel( self ):
-
-        parallel_kwargs = dict( ptrack_gal_linker_kwargs )
-        parallel_kwargs['ptracks_tag'] = 'test'
-        parallel_kwargs['tag'] = 'test_parallel'
-        parallel_kwargs['n_processors'] = 2
-
-        particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
-            **parallel_kwargs )
-        particle_track_gal_linker.find_galaxies_for_particle_tracks()
-
-        expected = \
-            h5py.File( './tests/data/tracking_output/galids_test.hdf5', 'r' )
-        actual = h5py.File( self.savefile, 'r' )
-
-        for key in expected.keys():
-            if key != 'parameters':
-                npt.assert_allclose( expected[key], actual[key] )
+# Old test for parallelism
+# class TestParticleTrackGalaxyLinkerParallel( unittest.TestCase ):
+# 
+#     def setUp( self ):
+# 
+#         # Mock the code version so we don't repeatedly change test data
+#         patcher = patch( 'galaxy_dive.utils.utilities.get_code_version' )
+#         self.addCleanup( patcher.stop )
+#         self.mock_code_version = patcher.start()
+# 
+#         self.originalfile = './tests/data/tracking_output/ptracks_test.hdf5'
+#         self.savefile = './tests/data/tracking_output/galids_test_parallel.hdf5'
+# 
+#         if os.path.isfile( self.savefile ):
+#             os.system( 'rm {}'.format( self.savefile ) )
+# 
+#     ########################################################################
+# 
+#     def test_find_galaxies_for_particle_tracks_parallel( self ):
+# 
+#         parallel_kwargs = dict( ptrack_gal_linker_kwargs )
+#         parallel_kwargs['ptracks_tag'] = 'test'
+#         parallel_kwargs['tag'] = 'test_parallel'
+#         parallel_kwargs['n_processors'] = 2
+# 
+#         particle_track_gal_linker = galaxy_link.ParticleTrackGalaxyLinker(
+#             **parallel_kwargs )
+#         particle_track_gal_linker.find_galaxies_for_particle_tracks()
+# 
+#         expected = \
+#             h5py.File( './tests/data/tracking_output/galids_test.hdf5', 'r' )
+#         actual = h5py.File( self.savefile, 'r' )
+# 
+#         for key in expected.keys():
+#             if key != 'parameters':
+#                 npt.assert_allclose( expected[key], actual[key] )
 
 ########################################################################
 

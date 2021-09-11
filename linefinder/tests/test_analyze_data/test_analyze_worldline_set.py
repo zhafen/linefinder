@@ -192,7 +192,7 @@ class TestStoreQuantity( unittest.TestCase ):
         expected_fresh_acc = np.array( [ 0.50052142, 0.25078213 ] )
 
         for i, tag in enumerate( f['label'][...] ):
-            assert f['label'][i] == expected_tags[i]
+            assert f['label'][i].decode( 'UTF-8' ) == expected_tags[i]
         npt.assert_allclose( f['is_fresh_accretion'], expected_fresh_acc )
 
     ########################################################################
@@ -217,7 +217,7 @@ class TestStoreQuantity( unittest.TestCase ):
         expected_fresh_acc = np.array( [ 21203.41601562, 7096.78808594 ] )
 
         for i, tag in enumerate( f['label'][...] ):
-            assert f['label'][i] in expected_tags
+            assert f['label'][i].decode( 'UTF-8' ) in expected_tags
         npt.assert_allclose( f['is_fresh_accretion'], expected_fresh_acc )
 
     ########################################################################

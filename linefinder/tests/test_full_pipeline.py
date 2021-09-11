@@ -118,6 +118,7 @@ class TestLinefinderPartial( unittest.TestCase ):
             classifier_kwargs = classifier_kwargs,
             run_id_selecting = False,
             run_id_sampling = False,
+            run_visualization = False,
         )
 
 ########################################################################
@@ -174,6 +175,7 @@ class TestLinefinder( unittest.TestCase ):
             sampler_kwargs = sampler_kwargs,
             gal_linker_kwargs = gal_linker_kwargs,
             classifier_kwargs = classifier_kwargs,
+            run_visualization = False,
         )
 
 ########################################################################
