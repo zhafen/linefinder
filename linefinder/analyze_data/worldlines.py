@@ -2400,6 +2400,9 @@ class Worldlines( simulation_data.TimeData ):
                     break
 
             inds.append( ind_ )
+
+        # Change particles that never cool to invalid values
+        inds[inds==-1] = config.INT_FILL_VALUE
         
         self.data['t_1e5_inds'] = np.array(inds)
 
