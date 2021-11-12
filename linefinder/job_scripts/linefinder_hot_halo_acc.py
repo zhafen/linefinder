@@ -65,7 +65,7 @@ linefinder_args = {
                 'logZ',
                 'logDen',
                 'PType',
-                't_t_1e5',
+                't_t1e5',
                 'Vr',
             ],
             'use_default_colors': True,
