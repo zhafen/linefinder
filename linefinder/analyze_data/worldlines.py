@@ -2327,6 +2327,19 @@ class Worldlines( simulation_data.TimeData ):
             h = self.ptracks.data_attrs['hubble'],
             omega_matter = self.ptracks.data_attrs['omega_matter'],
         )
+    
+    ########################################################################
+
+    def calc_lookback_time( self ):
+        '''Calc current lookback time in the simulation.
+
+        Returns:
+            self.data['lookback_time'] (np.ndarray):
+                The value at index i is the lookback time in the simulation
+                at that index.
+        '''
+
+        self.data['lookback_time'] = self.get_data( 'time' )[0] - self.get_data( 'time' )
 
     ########################################################################
 
@@ -2377,10 +2390,73 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_t1e5_inds( self ):
+    def calc_tacc_inds( self, clear_masks=True ):
+        '''Get the index of accretion (in particular, the first time.)
+        This is defined as the the indice immediately prior to when accretion happens.
+        This definition is a snapshot off from the definition used for ind_first_acc
+        in order to be consistent with t1e5_inds.
+
+        Returns:
+            tacc_inds ([n_particle,] np.ndarray of floats):
+                Index of first accretion.
+        '''
 
         # Clear and select data
-        self.data_masker.clear_masks()
+        # We do it this way so we can add on more masks if we want
+        if clear_masks:
+            self.data_masker.clear_masks()
+
+        is_in_main_gal = self.get_data( 'is_in_main_gal' )
+        if len( self.data_masker.masks ) > 0:
+            mask = self.data_masker.get_total_mask()
+        else:
+            mask = np.zeros( self.base_data_shape ).astype( bool )
+
+        # Iterate to calculate
+        inds = []
+        for i, is_in_main_gal_arr in enumerate( tqdm.tqdm( is_in_main_gal ) ):
+
+            ind_ = -1
+            for j, is_in_main_gal_j in enumerate( is_in_main_gal_arr ):
+                # We skip the first ind, because we don't know if it will accrete after
+                if j == 0:
+                    continue
+                if mask[i,j]:
+                    continue
+                if is_in_main_gal_arr[j-1] and not is_in_main_gal_j:
+                    ind_ = j
+
+            inds.append( ind_ )
+        inds = np.array( inds )
+
+        # Change particles that never accrete to invalid values
+        inds[inds==-1] = config.INT_FILL_VALUE
+        
+        self.data['tacc_inds'] = inds
+
+        if clear_masks:
+            self.data_masker.clear_masks()
+
+        return inds
+
+########################################################################
+
+    def calc_t1e5_inds( self, clear_masks=True ):
+        '''Calculate the indices at which gas last cools below T=1e5 K prior to accreting onto
+        the galaxy for the first time.
+
+        Args:
+            clear_masks (bool):
+                If True, remove any existing masks prior to applying new masks for the calculation.
+
+        Returns:
+            self.data['t_1e5_inds'] (np.ndarray):
+                self.data['t_1e5_inds'][i] = index at which gas was last above 1e5 K
+        '''
+
+        # Clear and select data
+        if clear_masks:
+            self.data_masker.clear_masks()
         self.data_masker.mask_data( 'PType', data_value=0 )
         self.data_masker.mask_data( 'is_in_main_gal', data_value=0 )
 
@@ -2408,9 +2484,10 @@ class Worldlines( simulation_data.TimeData ):
         # Change particles that never cool to invalid values
         inds[inds==-1] = config.INT_FILL_VALUE
         
-        self.data['t1e5_inds'] = np.array(inds)
+        self.data['t1e5_inds'] = inds
 
-        self.data_masker.clear_masks()
+        if clear_masks:
+            self.data_masker.clear_masks()
 
     def calc_t1e5( self ):
 
