@@ -2377,7 +2377,7 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_t_1e5_inds( self ):
+    def calc_t1e5_inds( self ):
 
         # Clear and select data
         self.data_masker.clear_masks()
@@ -2392,36 +2392,40 @@ class Worldlines( simulation_data.TimeData ):
         for i, logT_arr in enumerate( tqdm.tqdm( logT ) ):
 
             ind_ = -1
+            will_soon_be_inside = False
             for j in range( logT_arr.size ):
                 if logT.mask[i][j]:
+                    will_soon_be_inside = True
                     continue
                 if logT_arr[j] > 5.:
-                    ind_ = j
-                    break
+                    if will_soon_be_inside:
+                        ind_ = j
+                        will_soon_be_inside = False
 
             inds.append( ind_ )
+        inds = np.array( inds )
 
         # Change particles that never cool to invalid values
         inds[inds==-1] = config.INT_FILL_VALUE
         
-        self.data['t_1e5_inds'] = np.array(inds)
+        self.data['t1e5_inds'] = np.array(inds)
 
         self.data_masker.clear_masks()
 
-    def calc_t_1e5( self ):
+    def calc_t1e5( self ):
 
-        inds = self.get_data( 't_1e5_inds' )
+        inds = self.get_data( 't1e5_inds' )
         t = self.get_data( 'time' )
         inds[inds==config.INT_FILL_VALUE] = -1
-        self.data['t_1e5'] = t[inds]
+        self.data['t1e5'] = t[inds]
 
-    def calc_t_t_1e5( self ):
+    def calc_t_t1e5( self ):
 
         self.data_masker.clear_masks()
 
         t = self.get_selected_data( 'time', tile_data=True, compress=False )
-        t_1e5 = self.get_data( 't_1e5' )
-        self.data['t_t_1e5'] = t - t_1e5[:,np.newaxis]
+        t1e5 = self.get_data( 't1e5' )
+        self.data['t_t1e5'] = t - t1e5[:,np.newaxis]
 
         self.data_masker.clear_masks()
 
