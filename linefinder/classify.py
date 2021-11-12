@@ -1153,9 +1153,11 @@ class Classifier( object ):
             main_mt_halo_id = self.ptrack_attrs['main_mt_halo_id']
             mtree_halo = self.ahf_reader.mtree_halos[main_mt_halo_id]
 
-            snapshot = np.argmax(
+            ind = np.argmax(
                 mtree_halo[self.main_halo_robustness_criteria][::-1] >=
-                self.main_halo_robustness_value )
+                self.main_halo_robustness_value
+            )
+            snapshot = mtree_halo.index[-ind-1]
 
             self._main_mt_halo_first_snap = snapshot
 
