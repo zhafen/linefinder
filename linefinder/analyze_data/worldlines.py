@@ -2412,8 +2412,8 @@ class Worldlines( simulation_data.TimeData ):
 
         inds = self.get_data( 't_1e5_inds' )
         t = self.get_data( 'time' )
+        inds[inds==config.INT_FILL_VALUE] = -1
         self.data['t_1e5'] = t[inds]
-        # self.data['t_1e5'] = np.array( [ t[ind] for ind in inds ] )
 
     def calc_t_t_1e5( self ):
 
