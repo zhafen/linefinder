@@ -2439,6 +2439,23 @@ class Worldlines( simulation_data.TimeData ):
 
         return inds
 
+    def calc_tacc( self ):
+
+        inds = self.get_data( 'tacc_inds' )
+        t = self.get_data( 'time' )
+        inds[inds==config.INT_FILL_VALUE] = -1
+        self.data['tacc'] = t[inds]
+
+    def calc_t_tacc( self ):
+
+        self.data_masker.clear_masks()
+
+        t = self.get_selected_data( 'time', tile_data=True, compress=False )
+        tacc = self.get_data( 'tacc' )
+        self.data['t_t1e5'] = t - tacc[:,np.newaxis]
+
+        self.data_masker.clear_masks()
+
 ########################################################################
 
     def calc_t1e5_inds( self, clear_masks=True ):
