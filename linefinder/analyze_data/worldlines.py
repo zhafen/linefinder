@@ -2441,7 +2441,7 @@ class Worldlines( simulation_data.TimeData ):
 
     def calc_tacc( self ):
 
-        inds = self.get_data( 'tacc_inds' )
+        inds = copy.copy( self.get_data( 'tacc_inds' ) )
         t = self.get_data( 'time' )
         inds[inds==config.INT_FILL_VALUE] = -1
         self.data['tacc'] = t[inds]
@@ -2508,7 +2508,7 @@ class Worldlines( simulation_data.TimeData ):
 
     def calc_t1e5( self ):
 
-        inds = self.get_data( 't1e5_inds' )
+        inds = copy.copy( self.get_data( 't1e5_inds' ) )
         t = self.get_data( 'time' )
         inds[inds==config.INT_FILL_VALUE] = -1
         self.data['t1e5'] = t[inds]
