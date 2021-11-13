@@ -2452,7 +2452,7 @@ class Worldlines( simulation_data.TimeData ):
 
         t = self.get_selected_data( 'time', tile_data=True, compress=False )
         tacc = self.get_data( 'tacc' )
-        self.data['t_t1e5'] = t - tacc[:,np.newaxis]
+        self.data['t_tacc'] = t - tacc[:,np.newaxis]
 
         self.data_masker.clear_masks()
 
