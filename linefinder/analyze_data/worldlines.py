@@ -2458,18 +2458,26 @@ class Worldlines( simulation_data.TimeData ):
 
 ########################################################################
 
-    def calc_t1e5_inds( self, clear_masks=True ):
-        '''Calculate the indices at which gas last cools below T=1e5 K prior to accreting onto
+    def calc_tAeB_inds( self, A, B, clear_masks=True ):
+        '''Calculate the indices at which gas last cools below T=A*10**B K prior to accreting onto
         the galaxy for the first time.
 
         Args:
+            A (int or float):
+                A in Tcut = A * 10**B K
+
+            B (int or float):
+                B in Tcut = A * 10**B K
+
             clear_masks (bool):
                 If True, remove any existing masks prior to applying new masks for the calculation.
 
         Returns:
-            self.data['t_1e5_inds'] (np.ndarray):
-                self.data['t_1e5_inds'][i] = index at which gas was last above 1e5 K
+            self.data['t_AeB_inds'] (np.ndarray):
+                self.data['t_AeB_inds'][i] = index at which gas was last above 1e5 K
         '''
+
+        logTcut = np.log10( A ) + B
 
         # Clear and select data
         if clear_masks:
@@ -2490,7 +2498,7 @@ class Worldlines( simulation_data.TimeData ):
                 if logT.mask[i][j]:
                     will_soon_be_inside = True
                     continue
-                if logT_arr[j] > 5.:
+                if logT_arr[j] > logTcut:
                     if will_soon_be_inside:
                         ind_ = j
                         will_soon_be_inside = False
@@ -2501,27 +2509,81 @@ class Worldlines( simulation_data.TimeData ):
         # Change particles that never cool to invalid values
         inds[inds==-1] = config.INT_FILL_VALUE
         
-        self.data['t1e5_inds'] = inds
-
         if clear_masks:
             self.data_masker.clear_masks()
 
-    def calc_t1e5( self ):
+        key = 't{}e{}_inds'.format( A, B )
+        self.data[key] = inds
 
-        inds = copy.copy( self.get_data( 't1e5_inds' ) )
+        return self.data[key]
+
+    def calc_tAeB( self, A, B, clear_masks=True ):
+
+        inds = self.calc_tAeB_inds( A, B, clear_masks=clear_masks )
+
+        inds = copy.copy( inds )
         t = self.get_data( 'time' )
         inds[inds==config.INT_FILL_VALUE] = -1
-        self.data['t1e5'] = t[inds]
+        key = 't{}e{}'.format( A, B )
+        self.data[key] = t[inds]
 
-    def calc_t_t1e5( self ):
+        return self.data[key]
 
-        self.data_masker.clear_masks()
+    def calc_t_t1e5( self, A, B, clear_masks=True ):
 
-        t = self.get_selected_data( 'time', tile_data=True, compress=False )
-        t1e5 = self.get_data( 't1e5' )
-        self.data['t_t1e5'] = t - t1e5[:,np.newaxis]
+        tAeB = self.calc_tAeB( A, B, clear_masks=clear_masks )
 
-        self.data_masker.clear_masks()
+        t = self.get_processed_data( 'time', tile_data=True, compress=False )
+        key = 't_t{}e{}'.format( A, B )
+        self.data[key] = t - tAeB[:,np.newaxis]
+
+        return self.data[key]
+
+    def calc_t1e5_inds( self, clear_masks=True ):
+        '''Calculate the indices at which gas last cools below T=1e5 K prior to accreting onto
+        the galaxy for the first time.
+
+        Args:
+            clear_masks (bool):
+                If True, remove any existing masks prior to applying new masks for the calculation.
+
+        Returns:
+            self.data['t_1e5_inds'] (np.ndarray):
+                self.data['t_1e5_inds'][i] = index at which gas was last above 1e5 K
+        '''
+
+        return self.calc_tAeB_inds( 1, 5, clear_masks=clear_masks )
+
+    def calc_t1e5( self, clear_masks=True ):
+
+        return self.calc_tAeB( 1, 5, clear_masks=clear_masks )
+
+    def calc_t_t1e5( self, clear_masks=True ):
+
+        return self.calc_t_tAeB( 1, 5, clear_masks=clear_masks )
+
+    def calc_t3e4_inds( self, clear_masks=True ):
+        '''Calculate the indices at which gas last cools below T=3e4 K prior to accreting onto
+        the galaxy for the first time.
+
+        Args:
+            clear_masks (bool):
+                If True, remove any existing masks prior to applying new masks for the calculation.
+
+        Returns:
+            self.data['t_3e4_inds'] (np.ndarray):
+                self.data['t_3e4_inds'][i] = index at which gas was last above 1e5 K
+        '''
+
+        return self.calc_tAeB_inds( 3, 4, clear_masks=clear_masks )
+
+    def calc_t3e4( self, clear_masks=True ):
+
+        return self.calc_t3e4( 3, 4, clear_masks=clear_masks )
+
+    def calc_t_t3e4( self, clear_masks=True ):
+
+        return self.calc_t_tAeB( 3, 4, clear_masks=clear_masks )
 
     ########################################################################
 

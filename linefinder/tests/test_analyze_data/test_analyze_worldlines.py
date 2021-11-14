@@ -1017,6 +1017,97 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
+    def test_calc_t3e4_inds( self ):
+
+        # Test data
+        self.worldlines._n_snaps = 4
+        self.worldlines._n_particles = 5
+        self.worldlines.data['T'] = 10.**np.array([
+            [ 4., 4.5, 6., 5.5, ], # cools at 1
+            [ 6., 6., 6., 6., ], # never cools
+            [ 4., 4., 4., 4., ], # never is hot
+            [ 4., 6., 4., 6., ], # cools at 2 and again at 0
+            [ 4., 6., 4., 6., ], # cools at 2 and again at 0, enters the galaxy only at 0
+        ])
+        self.worldlines.data['PType'] = np.array([
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 1, 0, 0, 0, ],
+        ])
+        self.worldlines.data['is_in_main_gal'] = np.array([
+            [ 1, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 1, 0, 1, 0, ],
+            [ 1, 0, 0, 0, ],
+        ]).astype( 'bool' )
+
+        self.worldlines.calc_t3e4_inds()
+
+        actual = self.worldlines.data['t3e4_inds']
+        expected = np.array([
+            1,
+            config.INT_FILL_VALUE,
+            config.INT_FILL_VALUE,
+            3,
+            1,
+        ])
+
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
+    def test_calc_t3e4_inds_limited_time( self ):
+
+        # Test data
+        self.worldlines._n_snaps = 4
+        self.worldlines._n_particles = 5
+        self.worldlines.data['T'] = 10.**np.array([
+            [ 4., 4.5, 6., 5.5, ], # cools at 1
+            [ 6., 6., 6., 6., ], # never cools
+            [ 4., 4., 4., 4., ], # never is hot
+            [ 4., 6., 4., 6., ], # cools at 2 and again at 0
+            [ 4., 6., 4., 6., ], # cools at 2 and again at 0, enters the galaxy only at 0
+        ])
+        self.worldlines.data['PType'] = np.array([
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 1, 0, 0, 0, ],
+        ])
+        self.worldlines.data['is_in_main_gal'] = np.array([
+            [ 1, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 1, 0, 1, 0, ],
+            [ 1, 0, 0, 0, ],
+        ]).astype( 'bool' )
+        self.worldlines.data['time'] = np.array([
+            1.6, 1.2, 0.8, 0.4,
+        ])
+
+        # Manual sophisticated effects
+        self.worldlines.mask_data( 'lookback_time', 0., 1., tile_data=True )
+        self.worldlines.calc_t3e4_inds( clear_masks=False )
+
+        actual = self.worldlines.data['t3e4_inds']
+        expected = np.array([
+            1,
+            config.INT_FILL_VALUE,
+            config.INT_FILL_VALUE,
+            1,
+            1,
+        ])
+
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
+    ########################################################################
+
     def test_calc_d_sat_scaled_min( self ):
 
         # Setup test data
