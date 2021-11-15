@@ -2660,8 +2660,8 @@ class Worldlines( simulation_data.TimeData ):
 
     def calc_tcools_inds(
         self,
-        A = 3,
-        B = 4,
+        A = 1,
+        B = 4.5,
         clear_masks = True,
         lookback_time_min = 0.,
         lookback_time_max = 1.,
