@@ -2390,11 +2390,28 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
-    def calc_tacc_inds( self, clear_masks=True ):
-        '''Get the index of accretion (in particular, the first time.)
-        This is defined as the the indice immediately prior to when accretion happens.
+    def calc_tacc_inds(
+        self,
+        clear_masks = True,
+        lookback_time_min = 0.,
+        lookback_time_max = 1.,
+        store = True,
+    ):
+        '''Get the index of accretion (in particular, the first time the gas accretes.)
+        This is defined as the the index immediately prior to when accretion happens.
         This definition is a snapshot off from the definition used for ind_first_acc
-        in order to be consistent with t1e5_inds.
+        in order to be consistent with tAeB_inds.
+
+        Args:
+            clear_masks (bool):
+                If True, clear masks prior to calculation.
+
+            lookback_time_min, lookback_time_max (float):
+                Minimum and maximum bounds within which to find the time of accretion.
+                Both must be set for one to take effect.
+
+            store (bool):
+                If True, store data to self.data['tacc']
 
         Returns:
             tacc_inds ([n_particle,] np.ndarray of floats):
@@ -2405,6 +2422,14 @@ class Worldlines( simulation_data.TimeData ):
         # We do it this way so we can add on more masks if we want
         if clear_masks:
             self.data_masker.clear_masks()
+
+        if lookback_time_min is not None and lookback_time_max is not None:
+            self.data_masker.mask_data(
+                'lookback_time',
+                lookback_time_min,
+                lookback_time_max,
+                tile_data = True
+            )
 
         is_in_main_gal = self.get_data( 'is_in_main_gal' )
         if len( self.data_masker.masks ) > 0:
@@ -2432,7 +2457,8 @@ class Worldlines( simulation_data.TimeData ):
         # Change particles that never accrete to invalid values
         inds[inds==-1] = config.INT_FILL_VALUE
         
-        self.data['tacc_inds'] = inds
+        if store:
+            self.data['tacc_inds'] = inds
 
         if clear_masks:
             self.data_masker.clear_masks()
@@ -2446,6 +2472,8 @@ class Worldlines( simulation_data.TimeData ):
         inds[inds==config.INT_FILL_VALUE] = -1
         self.data['tacc'] = t[inds]
 
+        return self.data['tacc']
+
     def calc_t_tacc( self ):
 
         self.data_masker.clear_masks()
@@ -2456,9 +2484,21 @@ class Worldlines( simulation_data.TimeData ):
 
         self.data_masker.clear_masks()
 
+        return self.data['t_tacc']
+
 ########################################################################
 
-    def calc_tAeB_inds( self, A, B, clear_masks=True ):
+    def calc_tAeB_inds(
+        self,
+        A,
+        B,
+        clear_masks = True,
+        lookback_time_min = None,
+        lookback_time_max = None,
+        store = True,
+        choose_first = False,
+        starting_inds = None,
+    ):
         '''Calculate the indices at which gas last cools below T=A*10**B K prior to accreting onto
         the galaxy for the first time.
 
@@ -2472,10 +2512,26 @@ class Worldlines( simulation_data.TimeData ):
             clear_masks (bool):
                 If True, remove any existing masks prior to applying new masks for the calculation.
 
+            lookback_time_min, lookback_time_max (float):
+                Minimum and maximum bounds within which to find the time of accretion.
+                Both must be set for one to take effect.
+
+            store (bool):
+                If True, store data to self.data['tacc']
+
+            choose_first (bool):
+                If True, use first time gas cools below T=A*10**B, not last.
+
+            starting_inds (array-like of ints):
+                If given, start looking for the time of cooling from these indices.
+
         Returns:
             self.data['t_AeB_inds'] (np.ndarray):
                 self.data['t_AeB_inds'][i] = index at which gas was last above 1e5 K
         '''
+
+        if starting_inds is None:
+            starting_inds = np.zeros( self.n_particles, dtype=int )
 
         logTcut = np.log10( A ) + B
 
@@ -2484,6 +2540,14 @@ class Worldlines( simulation_data.TimeData ):
             self.data_masker.clear_masks()
         self.data_masker.mask_data( 'PType', data_value=0 )
         self.data_masker.mask_data( 'is_in_main_gal', data_value=0 )
+
+        if lookback_time_min is not None and lookback_time_max is not None:
+            self.data_masker.mask_data(
+                'lookback_time',
+                lookback_time_min,
+                lookback_time_max,
+                tile_data = True
+            )
 
         # Median and interval stats
         logT = np.log10( self.get_selected_data( 'T', compress=False ) )
@@ -2494,14 +2558,20 @@ class Worldlines( simulation_data.TimeData ):
 
             ind_ = -1
             will_soon_be_inside = False
-            for j in range( logT_arr.size ):
+            j = starting_inds[i]
+            while j < logT_arr.size:
                 if logT.mask[i][j]:
                     will_soon_be_inside = True
+                    j += 1
                     continue
                 if logT_arr[j] > logTcut:
                     if will_soon_be_inside:
                         ind_ = j
                         will_soon_be_inside = False
+                        # Choose first or last cooling?
+                        if not choose_first:
+                            break
+                j += 1
 
             inds.append( ind_ )
         inds = np.array( inds )
@@ -2512,14 +2582,15 @@ class Worldlines( simulation_data.TimeData ):
         if clear_masks:
             self.data_masker.clear_masks()
 
-        key = 't{}e{}_inds'.format( A, B )
-        self.data[key] = inds
+        if store:
+            key = 't{}e{}_inds'.format( A, B )
+            self.data[key] = inds
 
-        return self.data[key]
+        return inds
 
-    def calc_tAeB( self, A, B, clear_masks=True ):
+    def calc_tAeB( self, A, B, *args, **kwargs ):
 
-        inds = self.calc_tAeB_inds( A, B, clear_masks=clear_masks )
+        inds = self.calc_tAeB_inds( A, B, *args, **kwargs )
 
         inds = copy.copy( inds )
         t = self.get_data( 'time' )
@@ -2529,9 +2600,9 @@ class Worldlines( simulation_data.TimeData ):
 
         return self.data[key]
 
-    def calc_t_t1e5( self, A, B, clear_masks=True ):
+    def calc_t_t1e5( self, A, B, *args, **kwargs ):
 
-        tAeB = self.calc_tAeB( A, B, clear_masks=clear_masks )
+        tAeB = self.calc_tAeB( A, B, *args, **kwargs )
 
         t = self.get_processed_data( 'time', tile_data=True, compress=False )
         key = 't_t{}e{}'.format( A, B )
@@ -2539,7 +2610,7 @@ class Worldlines( simulation_data.TimeData ):
 
         return self.data[key]
 
-    def calc_t1e5_inds( self, clear_masks=True ):
+    def calc_t1e5_inds( self, *args, **kwargs ):
         '''Calculate the indices at which gas last cools below T=1e5 K prior to accreting onto
         the galaxy for the first time.
 
@@ -2552,17 +2623,17 @@ class Worldlines( simulation_data.TimeData ):
                 self.data['t_1e5_inds'][i] = index at which gas was last above 1e5 K
         '''
 
-        return self.calc_tAeB_inds( 1, 5, clear_masks=clear_masks )
+        return self.calc_tAeB_inds( 1, 5, *args, **kwargs )
 
-    def calc_t1e5( self, clear_masks=True ):
+    def calc_t1e5( self, *args, **kwargs ):
 
-        return self.calc_tAeB( 1, 5, clear_masks=clear_masks )
+        return self.calc_tAeB( 1, 5, *args, **kwargs )
 
-    def calc_t_t1e5( self, clear_masks=True ):
+    def calc_t_t1e5( self, *args, **kwargs ):
 
-        return self.calc_t_tAeB( 1, 5, clear_masks=clear_masks )
+        return self.calc_t_tAeB( 1, 5, *args, **kwargs )
 
-    def calc_t3e4_inds( self, clear_masks=True ):
+    def calc_t3e4_inds( self, *args, **kwargs ):
         '''Calculate the indices at which gas last cools below T=3e4 K prior to accreting onto
         the galaxy for the first time.
 
@@ -2575,15 +2646,102 @@ class Worldlines( simulation_data.TimeData ):
                 self.data['t_3e4_inds'][i] = index at which gas was last above 1e5 K
         '''
 
-        return self.calc_tAeB_inds( 3, 4, clear_masks=clear_masks )
+        return self.calc_tAeB_inds( 3, 4, *args, **kwargs )
 
-    def calc_t3e4( self, clear_masks=True ):
+    def calc_t3e4( self, *args, **kwargs ):
 
-        return self.calc_t3e4( 3, 4, clear_masks=clear_masks )
+        return self.calc_tAeB( 3, 4, *args, **kwargs )
 
-    def calc_t_t3e4( self, clear_masks=True ):
+    def calc_t_t3e4( self, *args, **kwargs ):
 
-        return self.calc_t_tAeB( 3, 4, clear_masks=clear_masks )
+        return self.calc_t_tAeB( 3, 4, *args, **kwargs )
+
+    ########################################################################
+
+    def calc_tcools_inds(
+        self,
+        A = 3,
+        B = 4,
+        clear_masks = True,
+        lookback_time_min = 0.,
+        lookback_time_max = 1.,
+        *args,
+        **kwargs
+    ):
+        '''Calculate the indices at which gas last cools below T=AeB K prior to accreting onto
+        the galaxy for the first time within lookback_time_min to lookback_time_max.
+        This uses a combination of tAeB and tacc.
+
+        Args:
+            A (int or float):
+                A in Tcut = A * 10**B K
+
+            B (int or float):
+                B in Tcut = A * 10**B K
+
+            clear_masks (bool):
+                If True, remove any existing masks prior to applying new masks for the calculation.
+
+            lookback_time_min, lookback_time_max (float):
+                Minimum and maximum bounds within which to find the time of accretion.
+                Both must be set for one to take effect.
+
+        Returns:
+            self.data['tcools_inds'] (np.ndarray):
+                self.data['tcools_inds'][i] = index at which gas was last above 1e5 K
+        '''
+
+        # Get accretion inds
+        tacc_inds = self.calc_tacc_inds(
+            clear_masks = clear_masks,
+            lookback_time_min = lookback_time_min,
+            lookback_time_max = lookback_time_max,
+            store = False,
+        )
+
+        # Format it so we start at the snapshot prior to accretion
+        tacc_inds -= 1
+
+        # Fill in invalid values (-1 to account for line immediately above)
+        invalid = tacc_inds == config.INT_FILL_VALUE - 1
+        tacc_inds[invalid] = self.n_snaps - 1
+
+        tAeB_inds = self.calc_tAeB_inds(
+            A = A,
+            B = B,
+            starting_inds = tacc_inds,
+            clear_masks = True,
+            store = False,
+            *args,
+            **kwargs
+        )
+
+        # Store, but don't store misleadingly labeled data
+        key = 't{}e{}_inds'.format( A, B )
+        self.data['tcools_inds'] = tAeB_inds
+
+        return tAeB_inds
+
+    def calc_tcools( self, *args, **kwargs ):
+
+        inds = copy.copy( self.get_data( 'tcools_inds' ) )
+        t = self.get_data( 'time' )
+        inds[inds==config.INT_FILL_VALUE] = -1
+        self.data['tcools'] = t[inds]
+
+        return self.data['tcools']
+
+    def calc_t_tcools( self, *args, **kwargs ):
+
+        self.data_masker.clear_masks()
+
+        t = self.get_selected_data( 'time', tile_data=True, compress=False )
+        tcools = self.get_data( 'tcools' )
+        self.data['t_tcools'] = t - tcools[:,np.newaxis]
+
+        self.data_masker.clear_masks()
+
+        return self.data['t_tcools']
 
     ########################################################################
 
