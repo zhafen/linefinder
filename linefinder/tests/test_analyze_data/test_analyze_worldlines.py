@@ -902,6 +902,28 @@ class TestWorldlineCalcData( unittest.TestCase ):
 
     ########################################################################
 
+    def test_tacc_inds_choose_last( self ):
+
+        # Test data
+        self.worldlines._n_snaps = 4
+        self.worldlines._n_particles = 5
+        self.worldlines.data['is_in_main_gal'] = np.array([
+            [ 1, 0, 0, 0, ], # Merger, except in early snapshots
+            [ 1, 1, 1, 1, ], # Always part of main galaxy
+            [ 0, 1, 0, 0, ], # CGM -> main galaxy -> CGM
+            [ 0, 0, 0, 0, ], # Never accreted
+            [ 1, 0, 1, 0, ], # Reaccreted
+        ]).astype( bool )
+        self.worldlines.ptracks._base_data_shape = self.worldlines.data['is_in_main_gal'].shape
+
+        self.worldlines.calc_tacc_inds( lookback_time_min=None, choose_first=False )
+
+        expected = np.array([ 1, -99999, 2, -99999, 1 ])
+        actual = self.worldlines.data['tacc_inds']
+        npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
     def test_tacc_inds_limited_time( self ):
 
         # Test data

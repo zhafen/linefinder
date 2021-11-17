@@ -2392,6 +2392,7 @@ class Worldlines( simulation_data.TimeData ):
 
     def calc_tacc_inds(
         self,
+        choose_first = True,
         clear_masks = True,
         lookback_time_min = 0.,
         lookback_time_max = 1.,
@@ -2450,6 +2451,8 @@ class Worldlines( simulation_data.TimeData ):
                     continue
                 if is_in_main_gal_arr[j-1] and not is_in_main_gal_j:
                     ind_ = j
+                    if not choose_first:
+                        break
 
             inds.append( ind_ )
         inds = np.array( inds )
