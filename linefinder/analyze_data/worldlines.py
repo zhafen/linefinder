@@ -2668,6 +2668,7 @@ class Worldlines( simulation_data.TimeData ):
         clear_masks = True,
         lookback_time_min = 0.,
         lookback_time_max = 1.,
+        choose_first = True,
         *args,
         **kwargs
     ):
@@ -2700,6 +2701,7 @@ class Worldlines( simulation_data.TimeData ):
             lookback_time_min = lookback_time_min,
             lookback_time_max = lookback_time_max,
             store = False,
+            choose_first = choose_first,
         )
 
         # Format it so we start at the snapshot prior to accretion
