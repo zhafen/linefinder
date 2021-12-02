@@ -11,6 +11,7 @@ import mock
 import numpy as np
 import numpy.testing as npt
 import os
+import pandas as pd
 import unittest
 
 import linefinder.analyze_data.worldlines as analyze_worldlines
@@ -1173,6 +1174,79 @@ class TestWorldlineCalcData( unittest.TestCase ):
         ])
 
         npt.assert_allclose( expected, actual )
+
+    ########################################################################
+
+    def test_calc_is_hot_accretion( self ):
+
+        # Test data
+        self.worldlines._n_snaps = 4
+        self.worldlines._n_particles = 7
+        self.worldlines.data['T'] = 10.**np.array([
+            [ 4., 4.2, 6., 5.5, ], # cools at 2
+            [ 6., 6., 6., 6., ], # never cools
+            [ 4., 4., 4., 4., ], # never is hot
+            [ 4., 6., 4., 6., ], # cools at 2 and again at 0
+            [ 4., 6., 4., 6., ], # cools at 2 and again at 0, enters the galaxy only at 0
+            [ 4., 4., 4., 6., ], # cools at 3
+        ])
+        self.worldlines.data['PType'] = np.array([
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 1, 0, 0, 0, ],
+            [ 1, 0, 0, 0, ],
+        ])
+        self.worldlines.data['is_in_main_gal'] = np.array([
+            [ 1, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 0, 0, 0, 0, ],
+            [ 1, 0, 1, 0, ],
+            [ 1, 0, 0, 0, ],
+            [ 1, 0, 0, 0, ],
+        ]).astype( 'bool' )
+        self.worldlines._r_vir = pd.Series([ 268., 255., 240., 210. ], index=[500, 550, 500, 450])
+        self.worldlines.data['R'] = np.array([
+            [ 0.05, 0.1, 0.5, 1.5, ],
+            [ 0.5, 0.5, 0.5, 0.5, ],
+            [ 2.5, 2.5, 2.5, 2.5, ],
+            [ 0.05, 0.5, 0.05, 0.5, ],
+            [ 0.05, 0.5, 0.6, 0.7, ],
+            [ 0.05, 0.1, 0.2, 0.3, ],
+        ])
+        self.worldlines.data['R'] *= self.worldlines.r_vir.values
+        self.worldlines.data['time'] = np.array([
+            1.6, 1.2, 0.7, 0.5,
+        ])
+        self.worldlines.ptracks._base_data_shape = self.worldlines.data['is_in_main_gal'].shape
+
+        self.worldlines.calc_is_hot_accretion()
+
+        actual = self.worldlines.data['is_hot_accretion']
+        expected = np.array([
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+        ]).astype( 'bool' )
+        npt.assert_allclose( expected, actual )
+
+        # time_in_Rvir_expected = np.array([
+        #     0.7,
+        #     config.FLOAT_FILL_VALUE,
+        #     config.FLOAT_FILL_VALUE,
+        #     0.4,
+        # ])
+        # time_hot_in_Rvir_expected
+        # temperature_in_Rvir_expected = [
+        #     [ ]
+        # ]
+        # dt_in_Rvir_expected = [
+        #     [ 0.4, 0.3 ],
+        # ]
 
     ########################################################################
 

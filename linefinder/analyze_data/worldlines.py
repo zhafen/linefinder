@@ -2750,6 +2750,97 @@ class Worldlines( simulation_data.TimeData ):
 
     ########################################################################
 
+    def calc_is_hot_accretion(
+        self,
+        A = 1,
+        B = 4.5,
+        clear_masks = True,
+        lookback_time_min = 0.,
+        lookback_time_max = 1.,
+        choose_first = True,
+    ):
+        '''Calculate the fraction of gas that is hot accretion, defined as
+        gas that has spent more time hot than cold while in the virial radius
+        prior to accretion.
+
+        Args:
+            A (int or float):
+                A in Tcut = A * 10**B K
+
+            B (int or float):
+                B in Tcut = A * 10**B K
+
+            clear_masks (bool):
+                If True, remove any existing masks prior to applying new masks for the calculation.
+
+            lookback_time_min, lookback_time_max (float):
+                Minimum and maximum bounds within which to find the time of accretion.
+                Both must be set for one to take effect.
+
+            choose_first (bool):
+                If True, the accretion time is relative to the first time gas accretes
+                (within the lookback time window).
+                If False, relative to the last time the gas accretes.
+
+        Returns:
+            self.data['is_hot_accretion'] (np.ndarray):
+                self.data['is_hot_accretion'][i] = True if hot accretion
+        '''
+
+        logTcut = np.log10( A ) + B
+
+        # Get accretion inds
+        tacc_inds = self.calc_tacc_inds(
+            clear_masks = clear_masks,
+            lookback_time_min = lookback_time_min,
+            lookback_time_max = lookback_time_max,
+            store = False,
+            choose_first = choose_first,
+        )
+
+        # Fill in invalid values (-1 to account for line immediately above)
+        invalid = tacc_inds == config.INT_FILL_VALUE
+
+        # Raw data
+        logT = np.log10( self.get_data( 'T' ) )
+        r = self.get_data( 'R' )
+        dt = self.get_data( 'dt' )
+        r_vir = self.r_vir.values
+        is_in_main_gal = self.get_data( 'is_in_main_gal' )
+
+        # Iterate to calculate
+        is_hot_acc = np.zeros( logT.shape[0] ).astype( bool )
+        for i, logT_arr in enumerate( tqdm.tqdm( logT ) ):
+
+            if invalid[i]:
+                continue
+
+            j = tacc_inds[i]
+            t_hot = 0.
+            t_cool = 0.
+            while (
+                ( j < logT_arr.size ) and
+                ( r[i,j] < r_vir[j] ) and
+                ( not is_in_main_gal[i,j] )
+            ):
+                if logT_arr[j] < logTcut:
+                    # dt used is the dt between this snapshot
+                    # and the subsequent snapshot.
+                    # This may be inconsistent with some other uses,
+                    # but it really shouldn't matter.
+                    t_cool += dt[j-1]
+                else:
+                    t_hot += dt[j-1]
+                j += 1
+            if t_hot > t_cool:
+                is_hot_acc[i] = True
+
+        self.data['is_hot_accretion'] = is_hot_acc
+        
+        return is_hot_acc
+
+    ########################################################################
+
     def calc_d_gal( self ):
         '''Calculate the minimum distance to any galaxy.
         '''
