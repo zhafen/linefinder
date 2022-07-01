@@ -801,6 +801,7 @@ class IDFinder( object ):
             'Den': [],
             'SFR': [],
             'T': [],
+            'U': [],
             'Z': [],
             'M': [],
             'P0': [],
@@ -867,8 +868,10 @@ class IDFinder( object ):
 
             if 'u' in P:
                     T = read_snapshot.gas_temperature( P['u'], P['ne'] )
+                    U = P['u'] # In km^2/s^2
             else:
                     T = [ linefinder_config.FLOAT_FILL_VALUE, ] * pnum
+                    U = [ linefinder_config.FLOAT_FILL_VALUE, ] * pnum
 
             thistype = np.zeros( pnum, dtype='int8' )
             thistype.fill(p_type)
@@ -878,6 +881,7 @@ class IDFinder( object ):
             full_snap_data['Den'].append( Den )
             full_snap_data['SFR'].append( sfr )
             full_snap_data['T'].append( T )
+            full_snap_data['U'].append( U )
             full_snap_data['Z'].append(
                 P['z'][:, 0] / constants.Z_MASSFRAC_SUN )
             full_snap_data['M'].append( P['m'] * constants.UNITMASS_IN_MSUN )
