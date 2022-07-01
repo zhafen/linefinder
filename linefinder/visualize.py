@@ -17,6 +17,7 @@ def export_to_firefly(
     write_startup = 'append',
     include_instantaneous = True,
     include_pathlines = True,
+    w = None,
     **kwargs
 ):
     '''Wrapper for exporting a particle tracking dataset to Firefly.
@@ -34,9 +35,10 @@ def export_to_firefly(
     '''
 
     # Set up data objects
-    w = analyze_worldlines.Worldlines(
-        **kwargs
-    )
+    if w is None:
+        w = analyze_worldlines.Worldlines(
+            **kwargs
+        )
     w_plotter = plot_worldlines.WorldlinesPlotter( w )
 
     # Make fiducial visualization
