@@ -42,6 +42,7 @@ class TestExportToFirefly( unittest.TestCase ):
             'export_to_firefly_kwargs': {
                 'firefly_dir': firefly_dir,
                 'disk_radius': ( 0.1, 'Rvir' ),
+                'write_to_disk': True,
             },
         }
         halo_tracks_fps = [

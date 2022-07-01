@@ -28,7 +28,7 @@ import galaxy_dive.plot_data.plotting as gen_plot
 import galaxy_dive.utils.astro as astro_utils
 import galaxy_dive.utils.data_operations as data_operations
 
-import Firefly.data_reader as firefly_data_reader
+import firefly.data_reader as firefly_data_reader
 
 import linefinder.config as config
 import linefinder.utils.presentation_constants as p_constants
@@ -1066,9 +1066,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             'is_in_other_gal',
             'PType',
         ],
-        tracked_filter_flags = [ True, ] * 6,
-        tracked_colormap_flags = [ True, ] * 6,
-        size_mult = 7,
+        field_filter_flags = [ True, ] * 6,
+        field_colormap_flags = [ True, ] * 6,
+        size_mult = 0.1,
         include_ruler = True,
         include_disk = True,
         disk_radius = None,
@@ -1077,9 +1077,9 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
         max_halo_track_distance = 1e3,
         min_halo_track_mass = 1e10,
         use_default_colors = True,
-        tracked_labels_mapping = {},
+        field_names_mapping = {},
         preset_filepath = None,
-        dump_to_json = True,
+        write_to_disk = False,
     ):
         '''Export data to a Firefly visualization.
 
@@ -1135,10 +1135,10 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             tracked_properties (list of strs):
                 What properties you want to display colormaps of or filter on.
 
-            tracked_filter_flags (list of bools):
+            field_filter_flags (list of bools):
                 Which of the tracked_properties you want to filter on.
 
-            tracked_colormap_flags (list of bools):
+            field_colormap_flags (list of bools):
                 Which of the tracked_properties you want to show colormaps of.
 
             size_mult (float):
@@ -1165,7 +1165,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 If True, colors used for different classifications come from
                 config.COLORSCHEME
 
-            dump_to_json (bool):
+            write_to_disk (bool):
                 If True, save the data output in the Firefly directory.
         '''
 
@@ -1295,8 +1295,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
 
             # Make copies so that we don't keep adding on
             tracked_properties_class = copy.copy( tracked_properties )
-            tracked_filter_flags_class = copy.copy( tracked_filter_flags )
-            tracked_colormap_flags_class = copy.copy( tracked_colormap_flags )
+            field_filter_flags_class = copy.copy( field_filter_flags )
+            field_colormap_flags_class = copy.copy( field_colormap_flags )
 
             # We choose a random seed for each classification.
             # When doing time data this is important for making sure we
@@ -1336,14 +1336,14 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             vels = np.array( vels ).transpose()
 
             # Initialize labels and arrays list
-            tracked_arrs = []
-            tracked_labels = []
+            field_arrs = []
+            field_names = []
 
             # Allow to filter/color on particle ind as well
             if pathlines:
                 tracked_properties_class.append( 'particle_ind' )
-                tracked_filter_flags_class.append( True )
-                tracked_colormap_flags_class.append( True )
+                field_filter_flags_class.append( True )
+                field_colormap_flags_class.append( True )
 
             for tracked_key in tracked_properties_class:
 
@@ -1353,16 +1353,16 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                     classification = classification,
                     seed = seed,
                 )
-                tracked_arrs.append( tracked_arr )
+                field_arrs.append( tracked_arr )
 
                 # Create the label
-                if tracked_key in list( tracked_labels_mapping.keys() ):
-                    tracked_label = tracked_labels_mapping[tracked_key]
+                if tracked_key in list( field_names_mapping.keys() ):
+                    tracked_label = field_names_mapping[tracked_key]
                 else:
                     tracked_label = tracked_key
 
                 # Add the label
-                tracked_labels.append(
+                field_names.append(
                     tracked_label
                 )
 
@@ -1378,17 +1378,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 if center_time_on_snum:
                     tracked_arr -= self.data_object.data['time'][ind]
 
-                tracked_arrs.append( tracked_arr )
+                field_arrs.append( tracked_arr )
 
-                tracked_filter_flags_class.append( True )
-                tracked_colormap_flags_class.append( True )
-                tracked_labels.append( 'time' )
-
-            # Add the velocities to the tracked arrays
-            tracked_arrs.append( vels )
-            tracked_filter_flags_class.append( False )
-            tracked_colormap_flags_class.append( False )
-            tracked_labels.append( 'Velocities' )
+                field_filter_flags_class.append( True )
+                field_colormap_flags_class.append( True )
+                field_names.append( 'time' )
 
             # Add other options
             option_kwargs = {}
@@ -1409,10 +1403,11 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             particle_group = firefly_data_reader.ParticleGroup(
                 UIname = classification_ui_labels[i],
                 coordinates = coords,
-                tracked_arrays = tracked_arrs,
-                tracked_names = tracked_labels,
-                tracked_filter_flags = tracked_filter_flags_class,
-                tracked_colormap_flags = tracked_colormap_flags_class,
+                velocities = vels,
+                field_arrays = field_arrs,
+                field_names = field_names,
+                field_filter_flags = field_filter_flags_class,
+                field_colormap_flags = field_colormap_flags_class,
                 sizeMult = size_mult,
                 **option_kwargs
             )
@@ -1429,8 +1424,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 'ID': ids,
                 'Coordinates': coords,
             }
-            for i, key in enumerate( tracked_labels ):
-                ff_data_class[key] = tracked_arrs[i]
+            for i, key in enumerate( field_names ):
+                ff_data_class[key] = field_arrs[i]
             ff_data[classification] = ff_data_class
 
         ff_data.to_hdf5( os.path.join(
@@ -1628,7 +1623,7 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 # Save data
                 halo_tracks_data = verdict.Dict({
                     'coordinates': coords,
-                    'tracked_arrays': {
+                    'field_arrays': {
                         'Velocities': vels,
                         'logMvir': masses,
                         'Times': times,
@@ -1637,29 +1632,28 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
                 halo_tracks_data.to_hdf5( halo_tracks_fp )
 
             # Other options
-            option_kwargs = {
-                'sizeMult': size_mult,
+            option_kwargs = { 'sizeMult': size_mult,
                 'color': np.array([ 1., 1., 1., 1. ]),
             }
 
             # Format for input into Firefly
-            tracked_arrays = [
-                _ for _ in halo_tracks_data['tracked_arrays'].values()
+            field_arrays = [
+                _ for _ in halo_tracks_data['field_arrays'].values()
             ]
-            tracked_names = [
-                _ for _ in halo_tracks_data['tracked_arrays'].keys()
+            field_names = [
+                _ for _ in halo_tracks_data['field_arrays'].keys()
             ]
-            tracked_filter_flags = [ True, ] * len( tracked_names )
-            tracked_colormap_flags = [ True, ] * len( tracked_names )
+            field_filter_flags = [ True, ] * len( field_names )
+            field_colormap_flags = [ True, ] * len( field_names )
 
             # Create a particle group and add to the firefly reader
             particle_group = firefly_data_reader.ParticleGroup(
                 UIname = 'Halos',
                 coordinates = halo_tracks_data['coordinates'],
-                tracked_arrays = tracked_arrays,
-                tracked_names = tracked_names,
-                tracked_filter_flags = tracked_filter_flags,
-                tracked_colormap_flags = tracked_colormap_flags,
+                field_arrays = field_arrays,
+                field_names = field_names,
+                field_filter_flags = field_filter_flags,
+                field_colormap_flags = field_colormap_flags,
                 **option_kwargs
             )
             firefly_reader.addParticleGroup( particle_group )
@@ -1674,8 +1668,8 @@ class WorldlinesPlotter( generic_plotter.GenericPlotter ):
             options = None
 
         # Finish up and write data
-        if dump_to_json:
-            firefly_reader.dumpToJSON()
+        if write_to_disk:
+            firefly_reader.writeToDisk()
 
         # Return reader for additional manipulation
         return firefly_reader
