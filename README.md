@@ -6,19 +6,25 @@ Fundamental parts of this code are based on previous work by Daniel Angl√©s-Alc√
 ## Installation
 
 As of this moment, there are three repositories linefinder depends on that are not up-to-date on pip.
-These must be installed from source as follows,
+These must be installed by navigating to the directory you want the code installed in, and then running
 ```
+# Install a data analysis management software.
 git clone git@github.com:zhafen/trove.git
 cd trove
 pip install -e .
+cd ..
 
+# General purpose code for galaxy sim analysis
 git clone git@github.com:zhafen/galaxy-dive.git
 cd galaxy-dive
 pip install -e .
+cd ..
 
+# Particle viz code.
 git clone git@github.com:ageller/Firefly.git
 cd Firefly
 pip install -e .
+cd ..
 ```
 
 Then install linefinder from source.
