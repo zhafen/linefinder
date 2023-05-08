@@ -1,0 +1,88 @@
+########################################################################
+[DEFAULT]
+########################################################################
+# This section named "[DEFAULT]" contains the majority of
+# parameters used in the analysis.
+
+# Project tag
+tag = myproject
+
+# Output directory. Scratch dir is recommended.
+root_data_dir = /path/to/my/output
+
+# Directory containing the FIRE sims
+fire_dir = /scratch/projects/xsede/GalaxiesOnFIRE
+
+# Other analysis parameters.
+# Here's an example one that doesn't correspond to anything real.
+n_doodads = 5
+
+########################################################################
+[SCRIPTS]
+########################################################################
+# This section named "[SCRIPTS]" contains code that will be run.
+# Code will be run in order listed.
+# The prefix determines how the code will be handled.
+
+# Identify particles to track
+py.1 = ${code_dir}/linefinder_tracking/select.py
+
+# Sample particles to track, including removing duplicates
+py.2 = ${code_dir}/linefinder_tracking/sample.py
+
+# Run particle tracking
+jug.3 = ${code_dir}/linefinder_tracking/track.py
+
+# Run galaxy linking
+jug.4 = ${code_dir}/linefinder_tracking/galaxy_link.py
+
+########################################################################
+[DATA PRODUCTS]
+########################################################################
+# This section helps manage data.
+
+py.1 = ids_full_${tag}.hdf5
+py.2 = ids_${tag}.hdf5
+jug.3 = ptracks_${tag}.hdf5
+jug.4 = galids_${tag}.hdf5
+
+########################################################################
+# Simulations
+########################################################################
+# This section contains data about the simulations you want to analyze.
+
+[m12i]
+subpath = core/m12i_res7100
+sim_data_dir = ${fire_dir}/${subpath}/output
+halo_data_dir = ${fire_dir}/${subpath}/halo
+
+########################################################################
+# Global variations
+########################################################################
+# This section allows for variations on the analysis
+# This is very analysis-dependent, but an example is below
+
+[example_variation]
+global = True # Keep this. 
+n_doodads = 5000
+
+########################################################################
+[EXECUTE]
+########################################################################
+# Change this section to change what parts of the pipeline you want to run.
+
+scripts = [
+    # 'py.1', # Get IDs to track
+    # 'py.2', # Sample particles to track, including removing duplicates
+    # 'jug.3', # Run particle tracking
+    # 'jug.4', # Run galaxy linking
+    ]
+
+variations = [
+    'm12i',
+    ]
+
+global_variations = [
+    '',
+    # 'example_variation', # Commented out, so it won't run
+    ]
