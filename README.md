@@ -5,9 +5,23 @@ Fundamental parts of this code are based on previous work by Daniel Angl√©s-Alc√
 
 ## Installation
 
-`pip install linefinder`
+As of this moment, there are three repositories linefinder depends on that are not up-to-date on pip.
+These must be installed from source as follows,
+```
+git clone git@github.com:zhafen/trove.git
+cd trove
+pip install -e .
 
-If you would like to maintain access to the latest updates on GitHub and allow for easier modification of the code, use
+git clone git@github.com:zhafen/galaxy-dive.git
+cd galaxy-dive
+pip install -e .
+
+git clone git@github.com:ageller/Firefly.git
+cd Firefly
+pip install -e .
+```
+
+Then install linefinder from source.
 ```
 git clone git@github.com:zhafen/linefinder.git
 cd linefinder
