@@ -25,7 +25,8 @@ n_doodads = 5
 # The prefix determines how the code will be handled.
 
 # Identify particles to track
-py.1 = ${code_dir}/linefinder_tracking/select.py
+# Typically this is done in a jupyter notebook.
+nb.1 = ${code_dir}/linefinder_tracking/select.ipynb
 
 # Sample particles to track, including removing duplicates
 py.2 = ${code_dir}/linefinder_tracking/sample.py
@@ -41,7 +42,7 @@ jug.4 = ${code_dir}/linefinder_tracking/galaxy_link.py
 ########################################################################
 # This section helps manage data.
 
-py.1 = ids_full_${tag}.hdf5
+nb.1 = ids_full_${tag}.hdf5
 py.2 = ids_${tag}.hdf5
 jug.3 = ptracks_${tag}.hdf5
 jug.4 = galids_${tag}.hdf5
