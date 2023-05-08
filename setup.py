@@ -29,7 +29,7 @@ setuptools.setup(
         'palettable>=3.1.1',
         'matplotlib>=2.0.2',
         'h5py>=2.7.0',
-        'firefly-vis',
+	'chardet',
         'GitPython>=2.1.11',
         'numba>=0.43.1',
         'scipy>=1.2.1',
