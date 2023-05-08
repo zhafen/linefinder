@@ -26,16 +26,16 @@ n_doodads = 5
 
 # Identify particles to track
 # Typically this is done in a jupyter notebook.
-nb.1 = ${code_dir}/linefinder_tracking/select.ipynb
+nb.1 = ${code_dir}/example_subscripts/select.ipynb
 
 # Sample particles to track, including removing duplicates
-py.2 = ${code_dir}/linefinder_tracking/sample.py
+py.2 = ${code_dir}/example_subscripts/sample.py
 
 # Run particle tracking
-jug.3 = ${code_dir}/linefinder_tracking/track.py
+jug.3 = ${code_dir}/example_subscripts/track.py
 
 # Run galaxy linking
-jug.4 = ${code_dir}/linefinder_tracking/galaxy_link.py
+jug.4 = ${code_dir}/example_subscripts/galaxy_link.py
 
 ########################################################################
 [DATA PRODUCTS]
